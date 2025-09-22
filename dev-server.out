@@ -1,0 +1,13 @@
+
+> ai-agent-marketplace@0.1.0 dev
+> next dev --port 4000
+
+  ▲ Next.js 14.2.5
+  - Local:        http://localhost:4000
+  - Environments: .env.local, .env
+
+ ✓ Starting...
+ ✓ Ready in 1978ms
+   Reload env: .env.local
+   Reload env: .env.local
+   Reload env: .env.local

@@ -1,0 +1,16 @@
+[Unit]
+Description=AI创意协作平台健康检查定时任务
+Documentation=https://aijiayuan.top
+
+[Service]
+Type=oneshot
+ExecStart=/opt/ai-marketplace/scripts/health-check-enhanced.sh
+User=root
+Group=root
+
+# 标准输出和错误输出
+StandardOutput=journal
+StandardError=journal
+
+# 环境变量
+Environment=PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin

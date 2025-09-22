@@ -1,0 +1,11 @@
+[Unit]
+Description=AI创意协作平台数据备份定时器
+Requires=aijiayuan-backup.service
+
+[Timer]
+OnCalendar=daily
+RandomizedDelaySec=1800  # 随机延迟0-30分钟
+Persistent=true
+
+[Install]
+WantedBy=timers.target

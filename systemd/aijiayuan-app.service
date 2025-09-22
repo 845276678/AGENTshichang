@@ -1,0 +1,33 @@
+[Unit]
+Description=AI创意协作平台 - aijiayuan.top Docker服务
+Documentation=https://docs.docker.com/
+Requires=docker.service
+After=docker.service
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+WorkingDirectory=/opt/ai-marketplace
+ExecStart=/usr/local/bin/docker-compose -f docker-compose.prod.yml up -d
+ExecStop=/usr/local/bin/docker-compose -f docker-compose.prod.yml down
+ExecReload=/usr/local/bin/docker-compose -f docker-compose.prod.yml restart
+TimeoutStartSec=0
+Restart=on-failure
+RestartSec=10
+
+# 环境变量
+Environment=COMPOSE_HTTP_TIMEOUT=120
+Environment=DOCKER_CLIENT_TIMEOUT=120
+
+# 安全设置
+User=root
+Group=docker
+
+# 资源限制
+LimitNOFILE=1048576
+LimitNPROC=1048576
+
+[Install]
+WantedBy=multi-user.target

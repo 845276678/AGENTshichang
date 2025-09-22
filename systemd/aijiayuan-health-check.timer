@@ -1,0 +1,11 @@
+[Unit]
+Description=AI创意协作平台健康检查定时器
+Requires=aijiayuan-health-check.service
+
+[Timer]
+OnCalendar=*:0/5  # 每5分钟执行一次
+Persistent=true
+AccuracySec=1min
+
+[Install]
+WantedBy=timers.target

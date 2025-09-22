@@ -1,0 +1,185 @@
+# Prometheus告警规则 - 生产环境
+groups:
+- name: aijiayuan_alerts
+  rules:
+  # 服务可用性告警
+  - alert: ServiceDown
+    expr: up == 0
+    for: 1m
+    labels:
+      severity: critical
+    annotations:
+      summary: "服务 {{ $labels.instance }} 已停止"
+      description: "{{ $labels.job }} 服务在 {{ $labels.instance }} 上已停止超过1分钟"
+
+  # 高错误率告警
+  - alert: HighErrorRate
+    expr: rate(nginx_http_requests_total{status=~"5.."}[5m]) > 0.1
+    for: 2m
+    labels:
+      severity: warning
+    annotations:
+      summary: "高错误率检测"
+      description: "5xx错误率超过10%，当前值: {{ $value }}"
+
+  # 响应时间告警
+  - alert: HighResponseTime
+    expr: histogram_quantile(0.95, rate(nginx_http_request_duration_seconds_bucket[5m])) > 2
+    for: 5m
+    labels:
+      severity: warning
+    annotations:
+      summary: "响应时间过高"
+      description: "95%的请求响应时间超过2秒，当前值: {{ $value }}s"
+
+  # CPU使用率告警
+  - alert: HighCPUUsage
+    expr: 100 - (avg by(instance) (rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 80
+    for: 5m
+    labels:
+      severity: warning
+    annotations:
+      summary: "CPU使用率过高"
+      description: "{{ $labels.instance }} CPU使用率超过80%，当前值: {{ $value }}%"
+
+  # 内存使用率告警
+  - alert: HighMemoryUsage
+    expr: (node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes) / node_memory_MemTotal_bytes * 100 > 85
+    for: 5m
+    labels:
+      severity: warning
+    annotations:
+      summary: "内存使用率过高"
+      description: "{{ $labels.instance }} 内存使用率超过85%，当前值: {{ $value }}%"
+
+  # 磁盘空间告警
+  - alert: DiskSpaceHigh
+    expr: (node_filesystem_size_bytes - node_filesystem_free_bytes) / node_filesystem_size_bytes * 100 > 85
+    for: 5m
+    labels:
+      severity: warning
+    annotations:
+      summary: "磁盘空间不足"
+      description: "{{ $labels.instance }} 磁盘 {{ $labels.mountpoint }} 使用率超过85%，当前值: {{ $value }}%"
+
+  # 磁盘空间严重不足
+  - alert: DiskSpaceCritical
+    expr: (node_filesystem_size_bytes - node_filesystem_free_bytes) / node_filesystem_size_bytes * 100 > 95
+    for: 1m
+    labels:
+      severity: critical
+    annotations:
+      summary: "磁盘空间严重不足"
+      description: "{{ $labels.instance }} 磁盘 {{ $labels.mountpoint }} 使用率超过95%，当前值: {{ $value }}%"
+
+  # Redis连接数告警
+  - alert: RedisConnectionsHigh
+    expr: redis_connected_clients > 100
+    for: 5m
+    labels:
+      severity: warning
+    annotations:
+      summary: "Redis连接数过高"
+      description: "Redis连接数超过100，当前值: {{ $value }}"
+
+  # SSL证书过期告警
+  - alert: SSLCertificateExpiry
+    expr: probe_ssl_earliest_cert_expiry - time() < 86400 * 7
+    for: 1h
+    labels:
+      severity: warning
+    annotations:
+      summary: "SSL证书即将过期"
+      description: "{{ $labels.instance }} SSL证书将在7天内过期"
+
+  # SSL证书即将过期
+  - alert: SSLCertificateExpirySoon
+    expr: probe_ssl_earliest_cert_expiry - time() < 86400 * 1
+    for: 1m
+    labels:
+      severity: critical
+    annotations:
+      summary: "SSL证书即将过期"
+      description: "{{ $labels.instance }} SSL证书将在24小时内过期"
+
+  # 数据库连接告警
+  - alert: DatabaseConnectionFailed
+    expr: mysql_up == 0
+    for: 1m
+    labels:
+      severity: critical
+    annotations:
+      summary: "数据库连接失败"
+      description: "MySQL数据库连接失败超过1分钟"
+
+  # 容器重启告警
+  - alert: ContainerRestarted
+    expr: increase(container_restart_count[5m]) > 0
+    for: 0m
+    labels:
+      severity: warning
+    annotations:
+      summary: "容器重启检测"
+      description: "容器 {{ $labels.name }} 在过去5分钟内重启了 {{ $value }} 次"
+
+  # 网络连接数告警
+  - alert: TooManyConnections
+    expr: node_netstat_Tcp_CurrEstab > 1000
+    for: 5m
+    labels:
+      severity: warning
+    annotations:
+      summary: "TCP连接数过高"
+      description: "{{ $labels.instance }} 当前TCP连接数超过1000，当前值: {{ $value }}"
+
+  # 文件描述符使用率告警
+  - alert: FileDescriptorsHigh
+    expr: node_filefd_allocated / node_filefd_maximum * 100 > 80
+    for: 5m
+    labels:
+      severity: warning
+    annotations:
+      summary: "文件描述符使用率过高"
+      description: "{{ $labels.instance }} 文件描述符使用率超过80%，当前值: {{ $value }}%"
+
+  # Docker守护进程告警
+  - alert: DockerDaemonDown
+    expr: engine_daemon_engine_info == 0
+    for: 1m
+    labels:
+      severity: critical
+    annotations:
+      summary: "Docker守护进程停止"
+      description: "{{ $labels.instance }} Docker守护进程已停止"
+
+- name: application_alerts
+  rules:
+  # API响应时间告警
+  - alert: APISlowResponse
+    expr: histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket{job="app"}[5m])) by (le)) > 5
+    for: 5m
+    labels:
+      severity: warning
+    annotations:
+      summary: "API响应缓慢"
+      description: "95%的API请求响应时间超过5秒"
+
+  # 应用错误率告警
+  - alert: ApplicationErrorRate
+    expr: sum(rate(http_requests_total{job="app",status=~"5.."}[5m])) / sum(rate(http_requests_total{job="app"}[5m])) > 0.05
+    for: 2m
+    labels:
+      severity: warning
+    annotations:
+      summary: "应用错误率过高"
+      description: "应用5xx错误率超过5%，当前值: {{ $value | humanizePercentage }}"
+
+  # 队列积压告警
+  - alert: QueueBacklog
+    expr: queue_size > 1000
+    for: 5m
+    labels:
+      severity: warning
+    annotations:
+      summary: "队列积压"
+      description: "队列中待处理任务超过1000个，当前值: {{ $value }}"

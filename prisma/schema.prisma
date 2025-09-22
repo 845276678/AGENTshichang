@@ -1,0 +1,371 @@
+// AI创意调研平台数据库模式
+// 支持用户管理、创意提交、调研指导、积分系统等核心功能
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// 用户表
+model User {
+  id              String    @id @default(cuid())
+  email           String    @unique
+  username        String    @unique
+  passwordHash    String    @map("password_hash")
+  firstName       String?   @map("first_name")
+  lastName        String?   @map("last_name")
+  phone           String?   @unique
+  avatar          String?
+  bio             String?
+
+  // 用户状态
+  status          UserStatus @default(ACTIVE)
+  role            UserRole   @default(USER)
+  isEmailVerified Boolean    @default(false) @map("is_email_verified")
+  isPhoneVerified Boolean    @default(false) @map("is_phone_verified")
+
+  // 积分和等级
+  credits         Int        @default(1000) // 注册赠送1000积分
+  level           UserLevel  @default(BRONZE)
+  totalSpent      Int        @default(0) @map("total_spent")
+  totalEarned     Int        @default(0) @map("total_earned")
+
+  // 通知设置
+  emailNotifications Boolean @default(true) @map("email_notifications")
+  marketingEmails    Boolean @default(false) @map("marketing_emails")
+
+  // 时间戳
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @updatedAt @map("updated_at")
+  lastLoginAt     DateTime? @map("last_login_at")
+
+  // 关联关系
+  ideas           Idea[]
+  researchReports ResearchReport[]
+  creditTransactions CreditTransaction[]
+  payments        Payment[]
+  sessions        UserSession[]
+  refreshTokens   RefreshToken[]
+  files           File[]
+
+  @@map("users")
+}
+
+// 用户状态枚举
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+  BANNED
+}
+
+// 用户角色枚举
+enum UserRole {
+  USER
+  ADMIN
+  MODERATOR
+}
+
+// 用户等级枚举
+enum UserLevel {
+  BRONZE
+  SILVER
+  GOLD
+  PLATINUM
+  DIAMOND
+}
+
+// 用户会话表
+model UserSession {
+  id        String   @id @default(cuid())
+  userId    String   @map("user_id")
+  token     String   @unique
+  ipAddress String?  @map("ip_address")
+  userAgent String?  @map("user_agent")
+  expiresAt DateTime @map("expires_at")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_sessions")
+}
+
+// 刷新令牌表
+model RefreshToken {
+  id        String   @id @default(cuid())
+  userId    String   @map("user_id")
+  token     String   @unique
+  expiresAt DateTime @map("expires_at")
+  isRevoked Boolean  @default(false) @map("is_revoked")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("refresh_tokens")
+}
+
+// 创意表
+model Idea {
+  id          String      @id @default(cuid())
+  title       String
+  description String
+  category    IdeaCategory
+  tags        String      @default("") // 标签，用逗号分隔
+
+  // 提交者信息
+  userId      String      @map("user_id")
+  isAnonymous Boolean     @default(false) @map("is_anonymous")
+
+  // 状态管理
+  status      IdeaStatus  @default(PENDING)
+  visibility  IdeaVisibility @default(PUBLIC)
+
+  // 统计数据
+  viewCount   Int         @default(0) @map("view_count")
+  likeCount   Int         @default(0) @map("like_count")
+
+  // 时间戳
+  createdAt   DateTime    @default(now()) @map("created_at")
+  updatedAt   DateTime    @updatedAt @map("updated_at")
+
+  // 关联关系
+  user            User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  researchReports ResearchReport[]
+
+  @@map("ideas")
+}
+
+// 创意分类枚举
+enum IdeaCategory {
+  TECH
+  LIFESTYLE
+  EDUCATION
+  HEALTH
+  FINANCE
+  ENTERTAINMENT
+  BUSINESS
+  RETAIL
+  OTHER
+}
+
+// 创意状态枚举
+enum IdeaStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  ARCHIVED
+}
+
+// 创意可见性枚举
+enum IdeaVisibility {
+  PUBLIC
+  PRIVATE
+  UNLISTED
+}
+
+// 调研报告表
+model ResearchReport {
+  id          String   @id @default(cuid())
+  ideaId      String   @map("idea_id")
+  userId      String   @map("user_id")
+
+  // 报告内容
+  reportData  Json     @map("report_data") // 存储完整的调研指导结果
+  summary     String?  // 报告摘要
+
+  // AI专家分析结果
+  basicAnalysis    Json? @map("basic_analysis")    // 基本盘分析结果
+  researchMethods  Json? @map("research_methods")  // 调研方法指导
+  dataSources      Json? @map("data_sources")      // 数据源推荐
+  mvpGuidance      Json? @map("mvp_guidance")      // MVP验证指导
+  businessModel    Json? @map("business_model")    // 商业模式指导
+
+  // 生成状态
+  status      ReportStatus @default(GENERATING)
+  progress    Int          @default(0) // 生成进度 0-100
+
+  // 成本信息
+  creditsCost Int         @map("credits_cost") // 消耗的积分
+
+  // 时间戳
+  createdAt   DateTime    @default(now()) @map("created_at")
+  updatedAt   DateTime    @updatedAt @map("updated_at")
+  completedAt DateTime?   @map("completed_at")
+
+  // 关联关系
+  idea Idea @relation(fields: [ideaId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("research_reports")
+}
+
+// 报告状态枚举
+enum ReportStatus {
+  GENERATING
+  COMPLETED
+  FAILED
+  CANCELLED
+}
+
+// 积分交易表
+model CreditTransaction {
+  id          String            @id @default(cuid())
+  userId      String            @map("user_id")
+  amount      Int               // 正数为收入，负数为支出
+  type        CreditTransactionType
+
+  // 交易详情
+  description String?
+  relatedId   String?           @map("related_id") // 关联的业务ID（如报告ID、支付ID等）
+
+  // 余额快照
+  balanceBefore Int             @map("balance_before")
+  balanceAfter  Int             @map("balance_after")
+
+  // 时间戳
+  createdAt   DateTime          @default(now()) @map("created_at")
+
+  // 关联关系
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("credit_transactions")
+}
+
+// 积分交易类型枚举
+enum CreditTransactionType {
+  REGISTER_BONUS    // 注册奖励
+  PURCHASE          // 购买积分
+  RESEARCH_COST     // 调研指导消费
+  REFUND            // 退款
+  ADMIN_ADJUSTMENT  // 管理员调整
+  WITHDRAW          // 提现
+}
+
+// 支付表
+model Payment {
+  id            String        @id @default(cuid())
+  userId        String        @map("user_id")
+
+  // 支付信息
+  outTradeNo    String        @unique @map("out_trade_no") // 商户订单号
+  amount        Float        // 支付金额（元）
+  credits       Int           // 对应积分数量
+  description   String        // 支付描述
+  currency      String        @default("CNY")
+
+  // 支付渠道
+  provider      String        // 支付提供商（ALIPAY/WECHAT）
+  providerOrderId String?     @map("provider_order_id") // 第三方订单号
+
+  // 支付URL和二维码
+  payUrl        String?       @map("pay_url")
+  qrCodeUrl     String?       @map("qr_code_url")
+
+  // 支付状态
+  status        String        @default("PENDING") // PENDING/SUCCESS/FAILED/CANCELLED/REFUNDED
+
+  // 时间戳
+  createdAt     DateTime      @default(now()) @map("created_at")
+  updatedAt     DateTime      @updatedAt @map("updated_at")
+  paidAt        DateTime?     @map("paid_at")
+  expiredAt     DateTime      @map("expired_at") // 支付过期时间
+
+  // 关联关系
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  refunds Refund[]
+
+  @@map("payments")
+}
+
+// 退款表
+model Refund {
+  id            String        @id @default(cuid())
+  paymentId     String        @map("payment_id")
+
+  // 退款信息
+  outRefundNo   String        @unique @map("out_refund_no") // 商户退款单号
+  refundAmount  Float        @map("refund_amount") // 退款金额
+  reason        String        // 退款原因
+
+  // 退款状态
+  status        String        @default("PROCESSING") // PROCESSING/SUCCESS/FAILED
+  providerRefundId String?    @map("provider_refund_id") // 第三方退款单号
+
+  // 操作信息
+  operatorId    String        @map("operator_id") // 操作员ID
+
+  // 时间戳
+  createdAt     DateTime      @default(now()) @map("created_at")
+  updatedAt     DateTime      @updatedAt @map("updated_at")
+  refundedAt    DateTime?     @map("refunded_at")
+
+  // 关联关系
+  payment Payment @relation(fields: [paymentId], references: [id], onDelete: Cascade)
+
+  @@map("refunds")
+}
+
+// 文件表
+model File {
+  id           String    @id @default(cuid())
+  userId       String    @map("user_id")
+
+  // 文件信息
+  filename     String    // 存储的文件名
+  originalName String    @map("original_name") // 原始文件名
+  key          String    @unique // OSS存储key
+  url          String    // 访问URL
+  size         Int       // 文件大小（字节）
+  contentType  String    @map("content_type") // MIME类型
+
+  // 文件分类
+  type         String    @default("OTHER") // IMAGE/DOCUMENT/AVATAR/REPORT/OTHER
+  status       String    @default("UPLOADED") // UPLOADING/UPLOADED/FAILED/DELETED
+
+  // 元数据
+  metadata     Json?     // 存储额外信息（如图片尺寸、处理参数等）
+
+  // 时间戳
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
+  deletedAt    DateTime? @map("deleted_at")
+
+  // 关联关系
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("files")
+}
+
+// 系统配置表
+model SystemConfig {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  value     String
+  description String?
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("system_configs")
+}
+
+// AI服务使用统计表
+model AIUsageStats {
+  id          String   @id @default(cuid())
+  provider    String   // AI服务提供商（百度、阿里、讯飞等）
+  model       String   // 模型名称
+  requestCount Int     @default(0) @map("request_count")
+  totalTokens  Int     @default(0) @map("total_tokens")
+  totalCost    Float @default(0)  @map("total_cost")
+  date         DateTime
+
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@unique([provider, model, date])
+  @@map("ai_usage_stats")
+}

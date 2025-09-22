@@ -1,0 +1,645 @@
+{
+  "timestamp": "2025-09-16T09:49:41.870Z",
+  "summary": {
+    "total": 38,
+    "passed": 29,
+    "failed": 9,
+    "successRate": "76.3%"
+  },
+  "categories": {
+    "critical": 0,
+    "security": 3,
+    "general": 6
+  },
+  "tests": [
+    {
+      "status": "PASS",
+      "message": "Server should be accessible",
+      "details": {
+        "status": 500
+      },
+      "severity": "error",
+      "timestamp": "2025-09-16T09:49:38.359Z"
+    },
+    {
+      "status": "FAIL",
+      "message": "Server should return server headers",
+      "details": {
+        "headers": {
+          "cache-control": "no-store, must-revalidate",
+          "connection": "keep-alive",
+          "content-encoding": "gzip",
+          "content-type": "text/html; charset=utf-8",
+          "date": "Tue, 16 Sep 2025 09:49:38 GMT",
+          "keep-alive": "timeout=5",
+          "referrer-policy": "strict-origin-when-cross-origin",
+          "transfer-encoding": "chunked",
+          "vary": "RSC, Next-Router-State-Tree, Next-Router-Prefetch, Accept-Encoding",
+          "x-content-type-options": "nosniff",
+          "x-frame-options": "DENY"
+        }
+      },
+      "severity": "error",
+      "timestamp": "2025-09-16T09:49:38.359Z"
+    },
+    {
+      "status": "PASS",
+      "message": "Login page should be accessible",
+      "details": {
+        "status": 200,
+        "statusText": "OK"
+      },
+      "severity": "error",
+      "timestamp": "2025-09-16T09:49:38.640Z"
+    },
+    {
+      "status": "PASS",
+      "message": "Login page should contain login-related content",
+      "details": {
+        "contentLength": 27992
+      },
+      "severity": "error",
+      "timestamp": "2025-09-16T09:49:38.641Z"
+    },
+    {
+      "status": "PASS",
+      "message": "Registration page should be accessible",
+      "details": {
+        "status": 200,
+        "statusText": "OK"
+      },
+      "severity": "error",
+      "timestamp": "2025-09-16T09:49:38.705Z"
+    },
+    {
+      "status": "PASS",
+      "message": "Registration page should contain registration-related content",
+      "details": {
+        "contentLength": 34784
+      },
+      "severity": "error",
+      "timestamp": "2025-09-16T09:49:38.706Z"
+    },
+    {
+      "status": "PASS",
+      "message": "Registration API should handle CORS preflight",
+      "details": {
+        "status": 204
+      },
+      "severity": "error",
+      "timestamp": "2025-09-16T09:49:39.223Z"
+    },
+    {
+      "status": "PASS",
+      "message": "Registration with empty data should return 400",
+      "details": {
+        "status": 400,
+        "data": {
+          "success": false,
+          "message": "Validation failed",
+          "errors": {
+            "email": [
+              "Required"
+            ],
+            "username": [
+              "Required"
+            ],
+            "password": [
+              "Required"
+            ]
+          }
+        }
+      },
+      "severity": "critical",
+      "timestamp": "2025-09-16T09:49:39.234Z"
+    },
+    {
+      "status": "PASS",
+      "message": "Registration with invalid email should return 400",
+      "details": {
+        "status": 400,
+        "data": {
+          "success": false,
+          "message": "Validation failed",
+          "errors": {
+            "email": [
+              "Invalid email format"
+            ],
+            "firstName": [
+              "Name can only contain letters, spaces, hyphens, and apostrophes"
+            ]
+          }
+        }
+      },
+      "severity": "error",
+      "timestamp": "2025-09-16T09:49:39.243Z"
+    },
+    {
+      "status": "PASS",
+      "message": "Registration with weak password should return 400",
+      "details": {
+        "status": 400,
+        "data": {
+          "success": false,
+          "message": "Validation failed",
+          "errors": {
+            "password": [
+              "Password must be at least 8 characters long",
+              "Password must contain at least one lowercase letter",
+              "Password must contain at least one uppercase letter"
+            ],
+            "firstName": [
+              "Name can only contain letters, spaces, hyphens, and apostrophes"
+            ]
+          }
+        }
+      },
+      "severity": "security",
+      "timestamp": "2025-09-16T09:49:39.247Z"
+    },
+    {
+      "status": "FAIL",
+      "message": "Registration with valid data should succeed",
+      "details": {
+        "status": 429,
+        "data": {
+          "success": false,
+          "message": "Too many registration attempts, please try again in 1 hour",
+          "code": "RATE_LIMIT_EXCEEDED",
+          "rateLimitInfo": {
+            "limit": 3,
+            "remaining": 0,
+            "reset": 1758019779,
+            "retryAfter": 3600
+          }
+        }
+      },
+      "severity": "error",
+      "timestamp": "2025-09-16T09:49:39.253Z"
+    },
+    {
+      "status": "FAIL",
+      "message": "Duplicate registration should return 409 Conflict",
+      "details": {
+        "status": 429,
+        "data": {
+          "success": false,
+          "message": "Too many registration attempts, please try again in 1 hour",
+          "code": "RATE_LIMIT_EXCEEDED",
+          "rateLimitInfo": {
+            "limit": 3,
+            "remaining": 0,
+            "reset": 1758019779,
+            "retryAfter": 3600
+          }
+        }
+      },
+      "severity": "error",
+      "timestamp": "2025-09-16T09:49:39.362Z"
+    },
+    {
+      "status": "FAIL",
+      "message": "Registration with existing username should return 409",
+      "details": {
+        "status": 429,
+        "data": {
+          "success": false,
+          "message": "Too many registration attempts, please try again in 1 hour",
+          "code": "RATE_LIMIT_EXCEEDED",
+          "rateLimitInfo": {
+            "limit": 3,
+            "remaining": 0,
+            "reset": 1758019779,
+            "retryAfter": 3600
+          }
+        }
+      },
+      "severity": "error",
+      "timestamp": "2025-09-16T09:49:39.481Z"
+    },
+    {
+      "status": "PASS",
+      "message": "Login with empty credentials should return 400",
+      "details": {
+        "status": 400,
+        "data": {
+          "success": false,
+          "message": "Validation failed",
+          "errors": {
+            "email": [
+              "Required"
+            ],
+            "password": [
+              "Required"
+            ]
+          }
+        }
+      },
+      "severity": "error",
+      "timestamp": "2025-09-16T09:49:39.814Z"
+    },
+    {
+      "status": "PASS",
+      "message": "Login with invalid email format should return 400",
+      "details": {
+        "status": 400,
+        "data": {
+          "success": false,
+          "message": "Validation failed",
+          "errors": {
+            "email": [
+              "Invalid email format"
+            ]
+          }
+        }
+      },
+      "severity": "error",
+      "timestamp": "2025-09-16T09:49:39.819Z"
+    },
+    {
+      "status": "PASS",
+      "message": "Login with non-existent user should return 401",
+      "details": {
+        "status": 401,
+        "data": {
+          "success": false,
+          "message": "Invalid email or password",
+          "code": "INVALID_CREDENTIALS"
+        }
+      },
+      "severity": "error",
+      "timestamp": "2025-09-16T09:49:39.825Z"
+    },
+    {
+      "status": "PASS",
+      "message": "Login with wrong password should return 401",
+      "details": {
+        "status": 401,
+        "data": {
+          "success": false,
+          "message": "Invalid email or password",
+          "code": "INVALID_CREDENTIALS"
+        }
+      },
+      "severity": "security",
+      "timestamp": "2025-09-16T09:49:39.831Z"
+    },
+    {
+      "status": "FAIL",
+      "message": "Valid login should either succeed (200) or require verification (403)",
+      "details": {
+        "status": 401,
+        "data": {
+          "success": false,
+          "message": "Invalid email or password",
+          "code": "INVALID_CREDENTIALS"
+        }
+      },
+      "severity": "error",
+      "timestamp": "2025-09-16T09:49:39.838Z"
+    },
+    {
+      "status": "PASS",
+      "message": "Protected route should reject request without token",
+      "details": {
+        "status": 401,
+        "data": {
+          "success": false,
+          "message": "No authorization token provided",
+          "code": "INVALID_TOKEN"
+        }
+      },
+      "severity": "security",
+      "timestamp": "2025-09-16T09:49:40.119Z"
+    },
+    {
+      "status": "PASS",
+      "message": "Protected route should reject invalid token",
+      "details": {
+        "status": 401,
+        "data": {
+          "success": false,
+          "message": "Invalid access token",
+          "code": "INVALID_TOKEN"
+        }
+      },
+      "severity": "security",
+      "timestamp": "2025-09-16T09:49:40.123Z"
+    },
+    {
+      "status": "PASS",
+      "message": "Protected route should reject malformed authorization",
+      "details": {
+        "status": 401,
+        "data": {
+          "success": false,
+          "message": "No authorization token provided",
+          "code": "INVALID_TOKEN"
+        }
+      },
+      "severity": "security",
+      "timestamp": "2025-09-16T09:49:40.126Z"
+    },
+    {
+      "status": "PASS",
+      "message": "Should prevent MIME type sniffing (x-content-type-options)",
+      "details": {
+        "headerValue": "nosniff",
+        "allHeaders": [
+          "connection",
+          "content-type",
+          "date",
+          "keep-alive",
+          "referrer-policy",
+          "transfer-encoding",
+          "vary",
+          "x-content-type-options",
+          "x-frame-options",
+          "x-ratelimit-limit",
+          "x-ratelimit-remaining",
+          "x-ratelimit-reset"
+        ]
+      },
+      "severity": "security",
+      "timestamp": "2025-09-16T09:49:40.347Z"
+    },
+    {
+      "status": "PASS",
+      "message": "Should prevent clickjacking attacks (x-frame-options)",
+      "details": {
+        "headerValue": "DENY",
+        "allHeaders": [
+          "connection",
+          "content-type",
+          "date",
+          "keep-alive",
+          "referrer-policy",
+          "transfer-encoding",
+          "vary",
+          "x-content-type-options",
+          "x-frame-options",
+          "x-ratelimit-limit",
+          "x-ratelimit-remaining",
+          "x-ratelimit-reset"
+        ]
+      },
+      "severity": "security",
+      "timestamp": "2025-09-16T09:49:40.347Z"
+    },
+    {
+      "status": "FAIL",
+      "message": "Should enable XSS protection (x-xss-protection)",
+      "details": {
+        "allHeaders": [
+          "connection",
+          "content-type",
+          "date",
+          "keep-alive",
+          "referrer-policy",
+          "transfer-encoding",
+          "vary",
+          "x-content-type-options",
+          "x-frame-options",
+          "x-ratelimit-limit",
+          "x-ratelimit-remaining",
+          "x-ratelimit-reset"
+        ]
+      },
+      "severity": "security",
+      "timestamp": "2025-09-16T09:49:40.347Z"
+    },
+    {
+      "status": "PASS",
+      "message": "Should control referrer information (referrer-policy)",
+      "details": {
+        "headerValue": "strict-origin-when-cross-origin",
+        "allHeaders": [
+          "connection",
+          "content-type",
+          "date",
+          "keep-alive",
+          "referrer-policy",
+          "transfer-encoding",
+          "vary",
+          "x-content-type-options",
+          "x-frame-options",
+          "x-ratelimit-limit",
+          "x-ratelimit-remaining",
+          "x-ratelimit-reset"
+        ]
+      },
+      "severity": "security",
+      "timestamp": "2025-09-16T09:49:40.347Z"
+    },
+    {
+      "status": "FAIL",
+      "message": "Should define content security policy (content-security-policy)",
+      "details": {
+        "allHeaders": [
+          "connection",
+          "content-type",
+          "date",
+          "keep-alive",
+          "referrer-policy",
+          "transfer-encoding",
+          "vary",
+          "x-content-type-options",
+          "x-frame-options",
+          "x-ratelimit-limit",
+          "x-ratelimit-remaining",
+          "x-ratelimit-reset"
+        ]
+      },
+      "severity": "security",
+      "timestamp": "2025-09-16T09:49:40.347Z"
+    },
+    {
+      "status": "FAIL",
+      "message": "CORS should be properly configured",
+      "details": {},
+      "severity": "security",
+      "timestamp": "2025-09-16T09:49:40.347Z"
+    },
+    {
+      "status": "PASS",
+      "message": "XSS Script Tag should be handled securely",
+      "details": {
+        "inputType": "XSS Script Tag",
+        "status": 400,
+        "data": {
+          "success": false,
+          "message": "Validation failed",
+          "errors": {
+            "email": [
+              "Invalid email format"
+            ]
+          }
+        }
+      },
+      "severity": "security",
+      "timestamp": "2025-09-16T09:49:40.564Z"
+    },
+    {
+      "status": "PASS",
+      "message": "XSS Script Tag should be sanitized in response",
+      "details": {
+        "containsMalicious": false
+      },
+      "severity": "security",
+      "timestamp": "2025-09-16T09:49:40.564Z"
+    },
+    {
+      "status": "PASS",
+      "message": "SQL Injection should be handled securely",
+      "details": {
+        "inputType": "SQL Injection",
+        "status": 400,
+        "data": {
+          "success": false,
+          "message": "Validation failed",
+          "errors": {
+            "email": [
+              "Invalid email format"
+            ]
+          }
+        }
+      },
+      "severity": "security",
+      "timestamp": "2025-09-16T09:49:40.676Z"
+    },
+    {
+      "status": "PASS",
+      "message": "SQL Injection should be sanitized in response",
+      "details": {
+        "containsMalicious": false
+      },
+      "severity": "security",
+      "timestamp": "2025-09-16T09:49:40.676Z"
+    },
+    {
+      "status": "PASS",
+      "message": "Long String Attack should be handled securely",
+      "details": {
+        "inputType": "Long String Attack",
+        "status": 400,
+        "data": {
+          "success": false,
+          "message": "Validation failed",
+          "errors": {
+            "email": [
+              "Email must be less than 255 characters"
+            ]
+          }
+        }
+      },
+      "severity": "security",
+      "timestamp": "2025-09-16T09:49:40.794Z"
+    },
+    {
+      "status": "PASS",
+      "message": "Long String Attack should be sanitized in response",
+      "details": {
+        "containsMalicious": false
+      },
+      "severity": "security",
+      "timestamp": "2025-09-16T09:49:40.794Z"
+    },
+    {
+      "status": "PASS",
+      "message": "Unicode/Special Characters should be handled securely",
+      "details": {
+        "inputType": "Unicode/Special Characters",
+        "status": 400,
+        "data": {
+          "success": false,
+          "message": "Validation failed",
+          "errors": {
+            "email": [
+              "Invalid email format"
+            ]
+          }
+        }
+      },
+      "severity": "security",
+      "timestamp": "2025-09-16T09:49:40.904Z"
+    },
+    {
+      "status": "PASS",
+      "message": "Unicode/Special Characters should be sanitized in response",
+      "details": {
+        "containsMalicious": false
+      },
+      "severity": "security",
+      "timestamp": "2025-09-16T09:49:40.904Z"
+    },
+    {
+      "status": "FAIL",
+      "message": "New user registration should succeed",
+      "details": {
+        "status": 429,
+        "data": {
+          "success": false,
+          "message": "Too many registration attempts, please try again in 1 hour",
+          "code": "RATE_LIMIT_EXCEEDED",
+          "rateLimitInfo": {
+            "limit": 3,
+            "remaining": 0,
+            "reset": 1758017080,
+            "retryAfter": 899
+          }
+        }
+      },
+      "severity": "error",
+      "timestamp": "2025-09-16T09:49:41.423Z"
+    },
+    {
+      "status": "PASS",
+      "message": "Rate limiting should block excessive requests",
+      "details": {
+        "totalRequests": 15,
+        "rateLimited": 15,
+        "successful": 0,
+        "errors": 0
+      },
+      "severity": "security",
+      "timestamp": "2025-09-16T09:49:41.660Z"
+    },
+    {
+      "status": "PASS",
+      "message": "Rate limit response should include rate limiting headers",
+      "details": {
+        "headers": {
+          "connection": "keep-alive",
+          "content-type": "application/json",
+          "date": "Tue, 16 Sep 2025 09:49:41 GMT",
+          "keep-alive": "timeout=5",
+          "referrer-policy": "strict-origin-when-cross-origin",
+          "retry-after": "899",
+          "transfer-encoding": "chunked",
+          "vary": "RSC, Next-Router-State-Tree, Next-Router-Prefetch",
+          "x-content-type-options": "nosniff",
+          "x-frame-options": "DENY",
+          "x-ratelimit-limit": "5",
+          "x-ratelimit-remaining": "0",
+          "x-ratelimit-reset": "1758017080"
+        }
+      },
+      "severity": "security",
+      "timestamp": "2025-09-16T09:49:41.660Z"
+    }
+  ],
+  "issues": [
+    "❌ Server should return server headers",
+    "❌ Registration with valid data should succeed",
+    "❌ Duplicate registration should return 409 Conflict",
+    "❌ Registration with existing username should return 409",
+    "❌ Valid login should either succeed (200) or require verification (403)",
+    "🔒 SECURITY: Should enable XSS protection (x-xss-protection)",
+    "🔒 SECURITY: Should define content security policy (content-security-policy)",
+    "🔒 SECURITY: CORS should be properly configured",
+    "❌ New user registration should succeed"
+  ],
+  "recommendations": [
+    "JWT token validation tests skipped - ensure login flow works to test token validation"
+  ]
+}

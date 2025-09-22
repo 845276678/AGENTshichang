@@ -1,0 +1,472 @@
+name: Testing Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+  schedule:
+    # Run tests daily at 2 AM UTC
+    - cron: '0 2 * * *'
+
+env:
+  NODE_VERSION: '18.x'
+  DATABASE_URL: 'file:./test.db'
+  JWT_SECRET: 'test-jwt-secret-for-ci'
+  NEXTAUTH_SECRET: 'test-nextauth-secret-for-ci'
+  NEXTAUTH_URL: 'http://localhost:3000'
+
+jobs:
+  # Code Quality and Type Checking
+  quality:
+    name: Code Quality & Type Checking
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: TypeScript type checking
+        run: npm run type-check
+
+      - name: ESLint code linting
+        run: npm run lint
+
+      - name: Prettier format checking
+        run: npm run format:check
+
+      - name: Generate Prisma client
+        run: npx prisma generate
+
+  # Unit and Integration Tests
+  test-unit-integration:
+    name: Unit & Integration Tests
+    runs-on: ubuntu-latest
+    needs: quality
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Setup test database
+        run: |
+          npx prisma generate
+          npx prisma db push --force-reset
+
+      - name: Run unit tests
+        run: npm run test:unit
+
+      - name: Run integration tests
+        run: npm run test:integration
+
+      - name: Generate coverage report
+        run: npm run test:coverage
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          file: ./coverage/lcov.info
+          flags: unittests
+          name: codecov-umbrella
+          fail_ci_if_error: false
+
+      - name: Upload coverage artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: coverage/
+          retention-days: 30
+
+      - name: Comment coverage on PR
+        if: github.event_name == 'pull_request'
+        uses: romeovs/lcov-reporter-action@v0.3.1
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          lcov-file: ./coverage/lcov.info
+          delete-old-comments: true
+
+  # End-to-End Tests
+  test-e2e:
+    name: E2E Tests (${{ matrix.browser }})
+    runs-on: ubuntu-latest
+    needs: quality
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        browser: [chromium, firefox, webkit]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Setup test database
+        run: |
+          npx prisma generate
+          npx prisma db push --force-reset
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps ${{ matrix.browser }}
+
+      - name: Build Next.js application
+        run: npm run build
+
+      - name: Start application server
+        run: |
+          npm start &
+          npx wait-on http://localhost:3000 --timeout 60000
+
+      - name: Run Playwright tests
+        run: npx playwright test --project=${{ matrix.browser }}
+
+      - name: Upload E2E test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: e2e-results-${{ matrix.browser }}
+          path: test-results/
+          retention-days: 30
+
+      - name: Upload E2E HTML report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: e2e-report-${{ matrix.browser }}
+          path: playwright-report/
+          retention-days: 30
+
+  # Security and Dependency Scanning
+  security:
+    name: Security Scanning
+    runs-on: ubuntu-latest
+    needs: quality
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run npm security audit
+        run: npm audit --audit-level=high
+
+      - name: Run dependency vulnerability scan
+        uses: actions/dependency-review-action@v4
+        if: github.event_name == 'pull_request'
+
+      - name: Scan for secrets with TruffleHog
+        uses: trufflesecurity/trufflehog@main
+        with:
+          path: ./
+          base: ${{ github.event.repository.default_branch }}
+          head: HEAD
+          extra_args: --debug --only-verified
+
+  # Performance Testing (only on PR)
+  performance:
+    name: Performance Testing
+    runs-on: ubuntu-latest
+    needs: [test-unit-integration]
+    if: github.event_name == 'pull_request'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build application
+        run: npm run build
+
+      - name: Start application
+        run: |
+          npm start &
+          npx wait-on http://localhost:3000 --timeout 60000
+
+      - name: Install Lighthouse CI
+        run: npm install -g @lhci/cli@0.12.x
+
+      - name: Run Lighthouse CI
+        run: lhci autorun
+        env:
+          LHCI_GITHUB_APP_TOKEN: ${{ secrets.LHCI_GITHUB_APP_TOKEN }}
+
+      - name: Upload Lighthouse reports
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lighthouse-reports
+          path: .lighthouseci/
+          retention-days: 30
+
+  # Accessibility Testing
+  accessibility:
+    name: Accessibility Testing
+    runs-on: ubuntu-latest
+    needs: [test-unit-integration]
+    if: github.event_name == 'pull_request'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build application
+        run: npm run build
+
+      - name: Start application
+        run: |
+          npm start &
+          npx wait-on http://localhost:3000 --timeout 60000
+
+      - name: Install accessibility testing tools
+        run: |
+          npm install -g pa11y-ci
+          npm install -g axe-core
+
+      - name: Run Pa11y accessibility tests
+        run: |
+          echo "http://localhost:3000" > urls.txt
+          echo "http://localhost:3000/auth/login" >> urls.txt
+          echo "http://localhost:3000/marketplace" >> urls.txt
+          pa11y-ci --sitemap http://localhost:3000/sitemap.xml --reporter json > accessibility-report.json
+        continue-on-error: true
+
+      - name: Upload accessibility report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: accessibility-report
+          path: accessibility-report.json
+          retention-days: 30
+
+  # Test Results Summary
+  test-summary:
+    name: Test Results Summary
+    runs-on: ubuntu-latest
+    needs: [test-unit-integration, test-e2e, security]
+    if: always()
+    steps:
+      - name: Download all test artifacts
+        uses: actions/download-artifact@v4
+
+      - name: Generate comprehensive test summary
+        run: |
+          echo "# 🧪 Test Results Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          # Coverage Report
+          if [ -f "coverage-report/coverage-summary.json" ]; then
+            echo "## 📊 Code Coverage" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            node -e "
+              const fs = require('fs');
+              try {
+                const summary = JSON.parse(fs.readFileSync('coverage-report/coverage-summary.json', 'utf8'));
+                const total = summary.total;
+                console.log('| Metric | Coverage | Status |');
+                console.log('|--------|----------|--------|');
+                console.log('| Lines | ' + total.lines.pct + '% | ' + (total.lines.pct >= 75 ? '✅' : '❌') + ' |');
+                console.log('| Functions | ' + total.functions.pct + '% | ' + (total.functions.pct >= 75 ? '✅' : '❌') + ' |');
+                console.log('| Branches | ' + total.branches.pct + '% | ' + (total.branches.pct >= 70 ? '✅' : '❌') + ' |');
+                console.log('| Statements | ' + total.statements.pct + '% | ' + (total.statements.pct >= 75 ? '✅' : '❌') + ' |');
+              } catch (e) {
+                console.log('Coverage data not available');
+              }
+            " >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          # Test Status
+          echo "## 🎯 Test Execution Status" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Test Suite | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|------------|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Unit & Integration | ${{ needs.test-unit-integration.result == 'success' && '✅ Passed' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| E2E Tests | ${{ needs.test-e2e.result == 'success' && '✅ Passed' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Security Scan | ${{ needs.security.result == 'success' && '✅ Passed' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
+
+          # Browser Matrix Results (if available)
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## 🌐 Browser Compatibility" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Browser | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|---------|--------|" >> $GITHUB_STEP_SUMMARY
+
+          for browser in chromium firefox webkit; do
+            if [ -d "e2e-results-$browser" ]; then
+              echo "| $browser | ✅ Tested |" >> $GITHUB_STEP_SUMMARY
+            else
+              echo "| $browser | ❌ Failed |" >> $GITHUB_STEP_SUMMARY
+            fi
+          done
+
+          # Artifacts Summary
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## 📁 Available Reports" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- 📊 [Coverage Report](./coverage-report/lcov-report/index.html)" >> $GITHUB_STEP_SUMMARY
+          echo "- 🎭 [E2E Test Results](./e2e-results-chromium/)" >> $GITHUB_STEP_SUMMARY
+          echo "- 🔒 Security Scan Results" >> $GITHUB_STEP_SUMMARY
+          if [ -f "lighthouse-reports" ]; then
+            echo "- ⚡ [Performance Report](./lighthouse-reports/)" >> $GITHUB_STEP_SUMMARY
+          fi
+          if [ -f "accessibility-report.json" ]; then
+            echo "- ♿ [Accessibility Report](./accessibility-report.json)" >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: Post results to PR comment
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+
+            let coverageInfo = '';
+            try {
+              const summary = JSON.parse(fs.readFileSync('coverage-report/coverage-summary.json', 'utf8'));
+              const total = summary.total;
+              coverageInfo = `
+            ## 📊 Coverage Report
+            | Metric | Coverage |
+            |--------|----------|
+            | Lines | ${total.lines.pct}% |
+            | Functions | ${total.functions.pct}% |
+            | Branches | ${total.branches.pct}% |
+            | Statements | ${total.statements.pct}% |
+            `;
+            } catch (e) {
+              coverageInfo = '📊 Coverage report not available';
+            }
+
+            const comment = `
+            ## 🧪 Test Results
+
+            ${coverageInfo}
+
+            ### Test Status
+            - Unit & Integration: ${{ needs.test-unit-integration.result == 'success' && '✅' || '❌' }}
+            - E2E Tests: ${{ needs.test-e2e.result == 'success' && '✅' || '❌' }}
+            - Security: ${{ needs.security.result == 'success' && '✅' || '❌' }}
+
+            *Results from commit ${context.sha.substring(0, 7)}*
+            `;
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });
+
+  # Notification
+  notify:
+    name: Notify Results
+    runs-on: ubuntu-latest
+    needs: [test-unit-integration, test-e2e, security]
+    if: always() && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop')
+    steps:
+      - name: Determine overall status
+        id: status
+        run: |
+          if [[ "${{ needs.test-unit-integration.result }}" == "success" &&
+                "${{ needs.test-e2e.result }}" == "success" &&
+                "${{ needs.security.result }}" == "success" ]]; then
+            echo "status=success" >> $GITHUB_OUTPUT
+            echo "emoji=✅" >> $GITHUB_OUTPUT
+          else
+            echo "status=failure" >> $GITHUB_OUTPUT
+            echo "emoji=❌" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Send Slack notification
+        if: env.SLACK_WEBHOOK_URL != ''
+        uses: 8398a7/action-slack@v3
+        with:
+          status: custom
+          custom_payload: |
+            {
+              "text": "${{ steps.status.outputs.emoji }} Tests ${{ steps.status.outputs.status }} on ${{ github.ref_name }}",
+              "attachments": [
+                {
+                  "color": "${{ steps.status.outputs.status == 'success' && 'good' || 'danger' }}",
+                  "fields": [
+                    {
+                      "title": "Repository",
+                      "value": "${{ github.repository }}",
+                      "short": true
+                    },
+                    {
+                      "title": "Branch",
+                      "value": "${{ github.ref_name }}",
+                      "short": true
+                    },
+                    {
+                      "title": "Commit",
+                      "value": "${{ github.sha }}".substring(0, 7),
+                      "short": true
+                    },
+                    {
+                      "title": "Unit Tests",
+                      "value": "${{ needs.test-unit-integration.result }}",
+                      "short": true
+                    },
+                    {
+                      "title": "E2E Tests",
+                      "value": "${{ needs.test-e2e.result }}",
+                      "short": true
+                    },
+                    {
+                      "title": "Security",
+                      "value": "${{ needs.security.result }}",
+                      "short": true
+                    }
+                  ]
+                }
+              ]
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
