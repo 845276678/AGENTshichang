@@ -6,7 +6,8 @@ import { useParams } from 'next/navigation'
 import { Layout } from '@/components/layout'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge, AnimatedSection } from '@/components/ui'
+import { Badge } from '@/components/ui/badge'
+import { AnimatedSection } from '@/components/ui'
 import { Progress } from '@/components/ui/progress'
 import {
   ArrowLeft,

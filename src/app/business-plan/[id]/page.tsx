@@ -14,7 +14,6 @@ import {
   CheckCircle,
   TrendingUp,
   DollarSign,
-  Code,
   Brain,
   Rocket,
   Star,

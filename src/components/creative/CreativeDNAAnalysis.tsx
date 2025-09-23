@@ -35,7 +35,6 @@ import {
   Sparkles,
   Trophy,
   Clock,
-  _ThumbsUp
 } from 'lucide-react'
 
 interface CreativeDNAAnalysisProps {

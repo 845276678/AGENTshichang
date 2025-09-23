@@ -6,11 +6,11 @@ import {
   CreativeConversation,
   AgentPersonalityCard,
   CreativeDNAAnalysis,
-  _CreativeChallengeCard,
-  _CreativeWorkshopInterface
+  CreativeChallengeCard,
+  CreativeWorkshopInterface
 } from '@/components/ui'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui'
+import { Badge } from '@/components/ui/badge'
 
 // 模拟数据
 const mockAgent = {

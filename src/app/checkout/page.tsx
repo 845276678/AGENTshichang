@@ -8,7 +8,7 @@ import { useCart } from '@/contexts/CartContext'
 import { useAuth } from '@/hooks/useAuth'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui'
+import { Badge } from '@/components/ui/badge'
 import { 
   ArrowLeft,
   ArrowRight,
@@ -16,18 +16,12 @@ import {
   Shield,
   Check,
   User,
-  _Mail,
-  _MapPin,
-  _Phone,
-  _Building,
   Globe,
   Lock,
   ShoppingCart,
   CheckCircle,
   AlertCircle,
   Star,
-  _ChevronLeft,
-  _ChevronRight
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import Link from 'next/link'

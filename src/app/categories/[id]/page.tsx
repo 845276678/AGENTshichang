@@ -5,7 +5,8 @@ import { motion } from 'framer-motion'
 import { Layout } from '@/components/layout'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge, AnimatedSection } from '@/components/ui'
+import { Badge } from '@/components/ui/badge'
+import { AnimatedSection } from '@/components/ui/animated-section'
 import { Input } from '@/components/ui/input'
 import {
   Search,
@@ -14,9 +15,6 @@ import {
   Target,
   Heart,
   BookOpen,
-  _Gamepad2,
-  _TreePine,
-  _Puzzle,
   TrendingUp,
   Star,
   Clock,
