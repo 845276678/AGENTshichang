@@ -1,6 +1,6 @@
 # ==========================================
 # AI创意协作平台 - 生产级Docker配置
-# Cache invalidation timestamp: 2025-09-23-v2
+# Prisma Alpine Linux 兼容性修复版本
 # ==========================================
 
 # 基础镜像 - 使用Node.js 18 Alpine
@@ -11,6 +11,7 @@ RUN apk add --no-cache \
     libc6-compat \
     tzdata \
     curl \
+    openssl \
     && cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime \
     && echo "Asia/Shanghai" > /etc/timezone
 
@@ -42,26 +43,21 @@ RUN npm ci --only=production --frozen-lockfile --legacy-peer-deps && \
 # ==========================================
 FROM base AS builder
 
-# 复制依赖配置
+# 复制依赖配置文件 (先复制 Prisma schema)
 COPY package.json package-lock.json* ./
 COPY prisma ./prisma/
 
 # 安装全部依赖（包括开发依赖）
 RUN npm ci --frozen-lockfile --legacy-peer-deps
 
-# 复制源代码
-COPY . .
-
-# Make Prisma setup script executable
-RUN chmod +x ./scripts/docker-prisma-setup.sh
-
-# 生成Prisma客户端（包含多平台二进制文件）
-# Force binary engine type and clear any existing engine variables
+# 在复制其他代码之前生成 Prisma 客户端（关键修复）
+# 这确保为容器环境生成正确的二进制文件
 ENV PRISMA_CLI_QUERY_ENGINE_TYPE=binary
 ENV PRISMA_CLIENT_ENGINE_TYPE=binary
-ENV PRISMA_QUERY_ENGINE_BINARY=""
-ENV PRISMA_QUERY_ENGINE_LIBRARY=""
-RUN ./scripts/docker-prisma-setup.sh
+RUN npx prisma generate
+
+# 现在复制其余源代码
+COPY . .
 
 # 构建Next.js应用
 RUN npm run build
