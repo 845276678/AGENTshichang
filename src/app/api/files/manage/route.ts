@@ -23,7 +23,7 @@ export async function GET(request: NextRequest) {
     const type = searchParams.get('type') || undefined
     const page = parseInt(searchParams.get('page') || '1')
     const limit = parseInt(searchParams.get('limit') || '20')
-    const search = searchParams.get('search') || undefined
+    const search = searchParams.get('search')
 
     // 获取文件列表
     const storageManager = new FileStorageManager()
@@ -31,7 +31,7 @@ export async function GET(request: NextRequest) {
       type: type as any,
       page,
       limit,
-      search
+      ...(search && { search })
     })
 
     return createSuccessResponse({

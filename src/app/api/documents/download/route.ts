@@ -64,7 +64,7 @@ export async function GET(request: NextRequest) {
       // 生成ZIP文件
       const zipBuffer = await zip.generateAsync({ type: 'nodebuffer' })
 
-      return new NextResponse(zipBuffer, {
+      return new NextResponse(zipBuffer as BodyInit, {
         headers: {
           'Content-Type': 'application/zip',
           'Content-Disposition': `attachment; filename="${mockDocumentPackage.title}.zip"`
