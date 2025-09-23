@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { ArrowLeft } from 'lucide-react'
 
 export default function IdeaDiscussionPage() {
-  const ___params = useParams()
+  // const params = useParams()
   const router = useRouter()
 
   return (

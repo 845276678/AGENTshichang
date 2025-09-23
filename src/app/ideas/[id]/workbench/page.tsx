@@ -257,7 +257,7 @@ const mockWorkflow: AIWorkflowStage[] = [
 ]
 
 export default function AIWorkbenchPage() {
-  const ___params = useParams()
+  // const params = useParams()
   const [currentStage, setCurrentStage] = useState(2)
   const [isPlaying, setIsPlaying] = useState(true)
   const [overallProgress, setOverallProgress] = useState(55)

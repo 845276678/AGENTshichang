@@ -145,7 +145,7 @@ const EmptyCartState = () => {
 
 const CartSummary = ({ items, totalPrice }: { items: any[], totalPrice: number }) => {
   const freeItems = items.filter(item => item.price === 0)
-  const ___paidItems = items.filter(item => item.price > 0)
+  // const paidItems = items.filter(item => item.price > 0) // Unused variable
   
   return (
     <Card className="sticky top-24">

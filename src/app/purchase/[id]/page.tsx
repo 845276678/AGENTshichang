@@ -113,7 +113,7 @@ const mockUser: UserProfile = {
 }
 
 export default function PurchasePage() {
-  const ___params = useParams()
+  // const params = useParams()
   const router = useRouter()
   const [isProcessing, setIsProcessing] = useState(false)
   const [purchaseStep, setPurchaseStep] = useState(1) // 1: 确认, 2: 支付, 3: 完成

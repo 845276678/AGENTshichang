@@ -70,7 +70,7 @@ const difficultyConfig = {
   }
 }
 
-const ___rarityConfig = {
+// const rarityConfig = {
   COMMON: {
     color: 'text-gray-500',
     bgColor: 'bg-gray-100',

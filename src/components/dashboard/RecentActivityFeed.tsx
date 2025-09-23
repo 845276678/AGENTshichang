@@ -127,7 +127,7 @@ const mockActivities: ActivityItem[] = [
 const ActivityItemComponent = ({ activity, index }: { activity: ActivityItem; index: number }) => {
   const Icon = activity.icon
 
-  const ___getActivityLink = () => {
+  // const getActivityLink = () => {
     switch (activity.type) {
       case 'purchase':
       case 'view':

@@ -51,7 +51,7 @@ export function SubmissionStatus({ className, showDetails = true }: SubmissionSt
 
   const userCredits = user?.credits || 0;
   const submissionCheck = canSubmitIdea(userCredits);
-  const ___usagePercentage = (todayStats.totalSubmissions / (config.dailyFreeLimit + 5)) * 100; // 假设最多8次
+  // const usagePercentage = (todayStats.totalSubmissions / (config.dailyFreeLimit + 5)) * 100; // Unused variable
 
   return (
     <motion.div

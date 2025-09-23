@@ -59,7 +59,7 @@ export async function GET(request: NextRequest) {
       mockAgents.forEach(agent => {
         if (agent.description.toLowerCase().includes(queryLower) && suggestions.size < limit) {
           // Extract relevant phrase from description
-          const ___words = agent.description.split(' ')
+          // const words = agent.description.split(' ') // Future use for better phrase extraction
           const queryWords = query.split(' ')
           const relevantPhrase = queryWords[0] // Simplified for now
           if (relevantPhrase && !suggestions.has(relevantPhrase)) {
