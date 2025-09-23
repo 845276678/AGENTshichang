@@ -43,11 +43,11 @@
 ## 📊 MySQL服务信息
 
 - **主机**: 8.137.153.81
-- **端口**: 30183
+- **端口**: 31369
 - **数据库**: zeabur
 - **用户**: root
-- **密码**: mw7Wf5Dsv0946qr8PNaHQBMjY123Xugy
-- **连接字符串**: `mysql://root:mw7Wf5Dsv0946qr8PNaHQBMjY123Xugy@8.137.153.81:30183/zeabur`
+- **密码**: Jk8Iq9ijPht04m6ud7G3N12wZVlEMvY5
+- **连接字符串**: `mysql://root:Jk8Iq9ijPht04m6ud7G3N12wZVlEMvY5@8.137.153.81:31369/zeabur`
 
 ## 🔧 维护命令
 
@@ -83,7 +83,7 @@ docker-compose -f docker-compose.mysql.yml restart
 ### 数据库操作
 ```bash
 # 直接连接MySQL
-docker run -it --rm mysql:8.0 mysql -h8.137.153.81 -P30183 -uroot -pmw7Wf5Dsv0946qr8PNaHQBMjY123Xugy zeabur
+docker run -it --rm mysql:8.0 mysql -h8.137.153.81 -P31369 -uroot -pJk8Iq9ijPht04m6ud7G3N12wZVlEMvY5 zeabur
 
 # 数据库备份
 ./scripts/backup-mysql.sh
@@ -123,7 +123,7 @@ ls -la /opt/ai-marketplace/backups/
 ### MySQL连接问题
 ```bash
 # 1. 测试网络连接
-nc -z 8.137.153.81 30183
+nc -z 8.137.153.81 31369
 
 # 2. 测试数据库连接
 ./scripts/test-mysql-connection.sh

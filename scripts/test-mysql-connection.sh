@@ -5,9 +5,9 @@
 
 # MySQL配置
 MYSQL_HOST="8.137.153.81"
-MYSQL_PORT="30183"
+MYSQL_PORT="31369"
 MYSQL_USER="root"
-MYSQL_PASSWORD="mw7Wf5Dsv0946qr8PNaHQBMjY123Xugy"
+MYSQL_PASSWORD="Jk8Iq9ijPht04m6ud7G3N12wZVlEMvY5"
 MYSQL_DATABASE="zeabur"
 
 echo "🔍 测试MySQL连接..."
@@ -52,4 +52,4 @@ echo ""
 echo "🎉 MySQL连接测试完成！"
 echo ""
 echo "连接字符串:"
-echo "mysql://root:mw7Wf5Dsv0946qr8PNaHQBMjY123Xugy@8.137.153.81:30183/zeabur"
+echo "mysql://root:Jk8Iq9ijPht04m6ud7G3N12wZVlEMvY5@8.137.153.81:31369/zeabur"

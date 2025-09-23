@@ -14,9 +14,9 @@ LOG_FILE="/opt/ai-marketplace/logs/backup.log"
 
 # MySQL配置 (从环境变量读取)
 MYSQL_HOST="${DB_HOST:-8.137.153.81}"
-MYSQL_PORT="${DB_PORT:-30183}"
+MYSQL_PORT="${DB_PORT:-31369}"
 MYSQL_USER="${DB_USER:-root}"
-MYSQL_PASSWORD="${DB_PASSWORD:-mw7Wf5Dsv0946qr8PNaHQBMjY123Xugy}"
+MYSQL_PASSWORD="${DB_PASSWORD:-Jk8Iq9ijPht04m6ud7G3N12wZVlEMvY5}"
 MYSQL_DATABASE="${DB_NAME:-zeabur}"
 
 # 颜色定义
