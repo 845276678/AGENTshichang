@@ -279,6 +279,33 @@ exports.Prisma.AIUsageStatsScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.IdeaDiscussionScalarFieldEnum = {
+  id: 'id',
+  ideaId: 'ideaId',
+  userId: 'userId',
+  status: 'status',
+  currentRound: 'currentRound',
+  totalRounds: 'totalRounds',
+  aiAgentType: 'aiAgentType',
+  aiAgentName: 'aiAgentName',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  completedAt: 'completedAt'
+};
+
+exports.Prisma.DiscussionMessageScalarFieldEnum = {
+  id: 'id',
+  discussionId: 'discussionId',
+  content: 'content',
+  messageType: 'messageType',
+  roundNumber: 'roundNumber',
+  senderType: 'senderType',
+  senderName: 'senderName',
+  analysisData: 'analysisData',
+  suggestions: 'suggestions',
+  createdAt: 'createdAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -370,6 +397,26 @@ exports.CreditTransactionType = exports.$Enums.CreditTransactionType = {
   WITHDRAW: 'WITHDRAW'
 };
 
+exports.DiscussionStatus = exports.$Enums.DiscussionStatus = {
+  ACTIVE: 'ACTIVE',
+  COMPLETED: 'COMPLETED',
+  EXPIRED: 'EXPIRED',
+  CANCELLED: 'CANCELLED'
+};
+
+exports.MessageType = exports.$Enums.MessageType = {
+  INITIAL_ANALYSIS: 'INITIAL_ANALYSIS',
+  CLARIFICATION_REQUEST: 'CLARIFICATION_REQUEST',
+  USER_RESPONSE: 'USER_RESPONSE',
+  IMPROVEMENT_SUGGESTION: 'IMPROVEMENT_SUGGESTION',
+  FINAL_ASSESSMENT: 'FINAL_ASSESSMENT'
+};
+
+exports.SenderType = exports.$Enums.SenderType = {
+  USER: 'USER',
+  AI_AGENT: 'AI_AGENT'
+};
+
 exports.Prisma.ModelName = {
   User: 'User',
   UserSession: 'UserSession',
@@ -381,7 +428,9 @@ exports.Prisma.ModelName = {
   Refund: 'Refund',
   File: 'File',
   SystemConfig: 'SystemConfig',
-  AIUsageStats: 'AIUsageStats'
+  AIUsageStats: 'AIUsageStats',
+  IdeaDiscussion: 'IdeaDiscussion',
+  DiscussionMessage: 'DiscussionMessage'
 };
 
 /**

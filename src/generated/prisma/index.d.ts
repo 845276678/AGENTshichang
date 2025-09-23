@@ -68,6 +68,16 @@ export type SystemConfig = $Result.DefaultSelection<Prisma.$SystemConfigPayload>
  * 
  */
 export type AIUsageStats = $Result.DefaultSelection<Prisma.$AIUsageStatsPayload>
+/**
+ * Model IdeaDiscussion
+ * 
+ */
+export type IdeaDiscussion = $Result.DefaultSelection<Prisma.$IdeaDiscussionPayload>
+/**
+ * Model DiscussionMessage
+ * 
+ */
+export type DiscussionMessage = $Result.DefaultSelection<Prisma.$DiscussionMessagePayload>
 
 /**
  * Enums
@@ -158,6 +168,35 @@ export const CreditTransactionType: {
 
 export type CreditTransactionType = (typeof CreditTransactionType)[keyof typeof CreditTransactionType]
 
+
+export const DiscussionStatus: {
+  ACTIVE: 'ACTIVE',
+  COMPLETED: 'COMPLETED',
+  EXPIRED: 'EXPIRED',
+  CANCELLED: 'CANCELLED'
+};
+
+export type DiscussionStatus = (typeof DiscussionStatus)[keyof typeof DiscussionStatus]
+
+
+export const MessageType: {
+  INITIAL_ANALYSIS: 'INITIAL_ANALYSIS',
+  CLARIFICATION_REQUEST: 'CLARIFICATION_REQUEST',
+  USER_RESPONSE: 'USER_RESPONSE',
+  IMPROVEMENT_SUGGESTION: 'IMPROVEMENT_SUGGESTION',
+  FINAL_ASSESSMENT: 'FINAL_ASSESSMENT'
+};
+
+export type MessageType = (typeof MessageType)[keyof typeof MessageType]
+
+
+export const SenderType: {
+  USER: 'USER',
+  AI_AGENT: 'AI_AGENT'
+};
+
+export type SenderType = (typeof SenderType)[keyof typeof SenderType]
+
 }
 
 export type UserStatus = $Enums.UserStatus
@@ -191,6 +230,18 @@ export const ReportStatus: typeof $Enums.ReportStatus
 export type CreditTransactionType = $Enums.CreditTransactionType
 
 export const CreditTransactionType: typeof $Enums.CreditTransactionType
+
+export type DiscussionStatus = $Enums.DiscussionStatus
+
+export const DiscussionStatus: typeof $Enums.DiscussionStatus
+
+export type MessageType = $Enums.MessageType
+
+export const MessageType: typeof $Enums.MessageType
+
+export type SenderType = $Enums.SenderType
+
+export const SenderType: typeof $Enums.SenderType
 
 /**
  * ##  Prisma Client ʲˢ
@@ -419,6 +470,26 @@ export class PrismaClient<
     * ```
     */
   get aIUsageStats(): Prisma.AIUsageStatsDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.ideaDiscussion`: Exposes CRUD operations for the **IdeaDiscussion** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more IdeaDiscussions
+    * const ideaDiscussions = await prisma.ideaDiscussion.findMany()
+    * ```
+    */
+  get ideaDiscussion(): Prisma.IdeaDiscussionDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.discussionMessage`: Exposes CRUD operations for the **DiscussionMessage** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more DiscussionMessages
+    * const discussionMessages = await prisma.discussionMessage.findMany()
+    * ```
+    */
+  get discussionMessage(): Prisma.DiscussionMessageDelegate<ExtArgs, ClientOptions>;
 }
 
 export namespace Prisma {
@@ -869,7 +940,9 @@ export namespace Prisma {
     Refund: 'Refund',
     File: 'File',
     SystemConfig: 'SystemConfig',
-    AIUsageStats: 'AIUsageStats'
+    AIUsageStats: 'AIUsageStats',
+    IdeaDiscussion: 'IdeaDiscussion',
+    DiscussionMessage: 'DiscussionMessage'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -888,7 +961,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "user" | "userSession" | "refreshToken" | "idea" | "researchReport" | "creditTransaction" | "payment" | "refund" | "file" | "systemConfig" | "aIUsageStats"
+      modelProps: "user" | "userSession" | "refreshToken" | "idea" | "researchReport" | "creditTransaction" | "payment" | "refund" | "file" | "systemConfig" | "aIUsageStats" | "ideaDiscussion" | "discussionMessage"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -1706,6 +1779,154 @@ export namespace Prisma {
           }
         }
       }
+      IdeaDiscussion: {
+        payload: Prisma.$IdeaDiscussionPayload<ExtArgs>
+        fields: Prisma.IdeaDiscussionFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.IdeaDiscussionFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$IdeaDiscussionPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.IdeaDiscussionFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$IdeaDiscussionPayload>
+          }
+          findFirst: {
+            args: Prisma.IdeaDiscussionFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$IdeaDiscussionPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.IdeaDiscussionFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$IdeaDiscussionPayload>
+          }
+          findMany: {
+            args: Prisma.IdeaDiscussionFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$IdeaDiscussionPayload>[]
+          }
+          create: {
+            args: Prisma.IdeaDiscussionCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$IdeaDiscussionPayload>
+          }
+          createMany: {
+            args: Prisma.IdeaDiscussionCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.IdeaDiscussionCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$IdeaDiscussionPayload>[]
+          }
+          delete: {
+            args: Prisma.IdeaDiscussionDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$IdeaDiscussionPayload>
+          }
+          update: {
+            args: Prisma.IdeaDiscussionUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$IdeaDiscussionPayload>
+          }
+          deleteMany: {
+            args: Prisma.IdeaDiscussionDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.IdeaDiscussionUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.IdeaDiscussionUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$IdeaDiscussionPayload>[]
+          }
+          upsert: {
+            args: Prisma.IdeaDiscussionUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$IdeaDiscussionPayload>
+          }
+          aggregate: {
+            args: Prisma.IdeaDiscussionAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateIdeaDiscussion>
+          }
+          groupBy: {
+            args: Prisma.IdeaDiscussionGroupByArgs<ExtArgs>
+            result: $Utils.Optional<IdeaDiscussionGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.IdeaDiscussionCountArgs<ExtArgs>
+            result: $Utils.Optional<IdeaDiscussionCountAggregateOutputType> | number
+          }
+        }
+      }
+      DiscussionMessage: {
+        payload: Prisma.$DiscussionMessagePayload<ExtArgs>
+        fields: Prisma.DiscussionMessageFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.DiscussionMessageFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DiscussionMessagePayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.DiscussionMessageFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DiscussionMessagePayload>
+          }
+          findFirst: {
+            args: Prisma.DiscussionMessageFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DiscussionMessagePayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.DiscussionMessageFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DiscussionMessagePayload>
+          }
+          findMany: {
+            args: Prisma.DiscussionMessageFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DiscussionMessagePayload>[]
+          }
+          create: {
+            args: Prisma.DiscussionMessageCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DiscussionMessagePayload>
+          }
+          createMany: {
+            args: Prisma.DiscussionMessageCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.DiscussionMessageCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DiscussionMessagePayload>[]
+          }
+          delete: {
+            args: Prisma.DiscussionMessageDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DiscussionMessagePayload>
+          }
+          update: {
+            args: Prisma.DiscussionMessageUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DiscussionMessagePayload>
+          }
+          deleteMany: {
+            args: Prisma.DiscussionMessageDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.DiscussionMessageUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.DiscussionMessageUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DiscussionMessagePayload>[]
+          }
+          upsert: {
+            args: Prisma.DiscussionMessageUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DiscussionMessagePayload>
+          }
+          aggregate: {
+            args: Prisma.DiscussionMessageAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateDiscussionMessage>
+          }
+          groupBy: {
+            args: Prisma.DiscussionMessageGroupByArgs<ExtArgs>
+            result: $Utils.Optional<DiscussionMessageGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.DiscussionMessageCountArgs<ExtArgs>
+            result: $Utils.Optional<DiscussionMessageCountAggregateOutputType> | number
+          }
+        }
+      }
     }
   } & {
     other: {
@@ -1813,6 +2034,8 @@ export namespace Prisma {
     file?: FileOmit
     systemConfig?: SystemConfigOmit
     aIUsageStats?: AIUsageStatsOmit
+    ideaDiscussion?: IdeaDiscussionOmit
+    discussionMessage?: DiscussionMessageOmit
   }
 
   /* Types for Logging */
@@ -1900,6 +2123,7 @@ export namespace Prisma {
     sessions: number
     refreshTokens: number
     files: number
+    discussions: number
   }
 
   export type UserCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -1910,6 +2134,7 @@ export namespace Prisma {
     sessions?: boolean | UserCountOutputTypeCountSessionsArgs
     refreshTokens?: boolean | UserCountOutputTypeCountRefreshTokensArgs
     files?: boolean | UserCountOutputTypeCountFilesArgs
+    discussions?: boolean | UserCountOutputTypeCountDiscussionsArgs
   }
 
   // Custom InputTypes
@@ -1972,6 +2197,13 @@ export namespace Prisma {
     where?: FileWhereInput
   }
 
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountDiscussionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: IdeaDiscussionWhereInput
+  }
+
 
   /**
    * Count Type IdeaCountOutputType
@@ -1979,10 +2211,12 @@ export namespace Prisma {
 
   export type IdeaCountOutputType = {
     researchReports: number
+    discussions: number
   }
 
   export type IdeaCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     researchReports?: boolean | IdeaCountOutputTypeCountResearchReportsArgs
+    discussions?: boolean | IdeaCountOutputTypeCountDiscussionsArgs
   }
 
   // Custom InputTypes
@@ -2001,6 +2235,13 @@ export namespace Prisma {
    */
   export type IdeaCountOutputTypeCountResearchReportsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: ResearchReportWhereInput
+  }
+
+  /**
+   * IdeaCountOutputType without action
+   */
+  export type IdeaCountOutputTypeCountDiscussionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: IdeaDiscussionWhereInput
   }
 
 
@@ -2032,6 +2273,37 @@ export namespace Prisma {
    */
   export type PaymentCountOutputTypeCountRefundsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: RefundWhereInput
+  }
+
+
+  /**
+   * Count Type IdeaDiscussionCountOutputType
+   */
+
+  export type IdeaDiscussionCountOutputType = {
+    messages: number
+  }
+
+  export type IdeaDiscussionCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    messages?: boolean | IdeaDiscussionCountOutputTypeCountMessagesArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * IdeaDiscussionCountOutputType without action
+   */
+  export type IdeaDiscussionCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the IdeaDiscussionCountOutputType
+     */
+    select?: IdeaDiscussionCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * IdeaDiscussionCountOutputType without action
+   */
+  export type IdeaDiscussionCountOutputTypeCountMessagesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: DiscussionMessageWhereInput
   }
 
 
@@ -2388,6 +2660,7 @@ export namespace Prisma {
     sessions?: boolean | User$sessionsArgs<ExtArgs>
     refreshTokens?: boolean | User$refreshTokensArgs<ExtArgs>
     files?: boolean | User$filesArgs<ExtArgs>
+    discussions?: boolean | User$discussionsArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["user"]>
 
@@ -2475,6 +2748,7 @@ export namespace Prisma {
     sessions?: boolean | User$sessionsArgs<ExtArgs>
     refreshTokens?: boolean | User$refreshTokensArgs<ExtArgs>
     files?: boolean | User$filesArgs<ExtArgs>
+    discussions?: boolean | User$discussionsArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type UserIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
@@ -2490,6 +2764,7 @@ export namespace Prisma {
       sessions: Prisma.$UserSessionPayload<ExtArgs>[]
       refreshTokens: Prisma.$RefreshTokenPayload<ExtArgs>[]
       files: Prisma.$FilePayload<ExtArgs>[]
+      discussions: Prisma.$IdeaDiscussionPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -2915,6 +3190,7 @@ export namespace Prisma {
     sessions<T extends User$sessionsArgs<ExtArgs> = {}>(args?: Subset<T, User$sessionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserSessionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     refreshTokens<T extends User$refreshTokensArgs<ExtArgs> = {}>(args?: Subset<T, User$refreshTokensArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$RefreshTokenPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     files<T extends User$filesArgs<ExtArgs> = {}>(args?: Subset<T, User$filesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FilePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    discussions<T extends User$discussionsArgs<ExtArgs> = {}>(args?: Subset<T, User$discussionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$IdeaDiscussionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -3517,6 +3793,30 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: FileScalarFieldEnum | FileScalarFieldEnum[]
+  }
+
+  /**
+   * User.discussions
+   */
+  export type User$discussionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the IdeaDiscussion
+     */
+    select?: IdeaDiscussionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the IdeaDiscussion
+     */
+    omit?: IdeaDiscussionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: IdeaDiscussionInclude<ExtArgs> | null
+    where?: IdeaDiscussionWhereInput
+    orderBy?: IdeaDiscussionOrderByWithRelationInput | IdeaDiscussionOrderByWithRelationInput[]
+    cursor?: IdeaDiscussionWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: IdeaDiscussionScalarFieldEnum | IdeaDiscussionScalarFieldEnum[]
   }
 
   /**
@@ -5957,6 +6257,7 @@ export namespace Prisma {
     updatedAt?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
     researchReports?: boolean | Idea$researchReportsArgs<ExtArgs>
+    discussions?: boolean | Idea$discussionsArgs<ExtArgs>
     _count?: boolean | IdeaCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["idea"]>
 
@@ -6014,6 +6315,7 @@ export namespace Prisma {
   export type IdeaInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     user?: boolean | UserDefaultArgs<ExtArgs>
     researchReports?: boolean | Idea$researchReportsArgs<ExtArgs>
+    discussions?: boolean | Idea$discussionsArgs<ExtArgs>
     _count?: boolean | IdeaCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type IdeaIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -6028,6 +6330,7 @@ export namespace Prisma {
     objects: {
       user: Prisma.$UserPayload<ExtArgs>
       researchReports: Prisma.$ResearchReportPayload<ExtArgs>[]
+      discussions: Prisma.$IdeaDiscussionPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -6439,6 +6742,7 @@ export namespace Prisma {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     user<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     researchReports<T extends Idea$researchReportsArgs<ExtArgs> = {}>(args?: Subset<T, Idea$researchReportsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ResearchReportPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    discussions<T extends Idea$discussionsArgs<ExtArgs> = {}>(args?: Subset<T, Idea$discussionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$IdeaDiscussionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -6896,6 +7200,30 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: ResearchReportScalarFieldEnum | ResearchReportScalarFieldEnum[]
+  }
+
+  /**
+   * Idea.discussions
+   */
+  export type Idea$discussionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the IdeaDiscussion
+     */
+    select?: IdeaDiscussionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the IdeaDiscussion
+     */
+    omit?: IdeaDiscussionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: IdeaDiscussionInclude<ExtArgs> | null
+    where?: IdeaDiscussionWhereInput
+    orderBy?: IdeaDiscussionOrderByWithRelationInput | IdeaDiscussionOrderByWithRelationInput[]
+    cursor?: IdeaDiscussionWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: IdeaDiscussionScalarFieldEnum | IdeaDiscussionScalarFieldEnum[]
   }
 
   /**
@@ -15020,6 +15348,2363 @@ export namespace Prisma {
 
 
   /**
+   * Model IdeaDiscussion
+   */
+
+  export type AggregateIdeaDiscussion = {
+    _count: IdeaDiscussionCountAggregateOutputType | null
+    _avg: IdeaDiscussionAvgAggregateOutputType | null
+    _sum: IdeaDiscussionSumAggregateOutputType | null
+    _min: IdeaDiscussionMinAggregateOutputType | null
+    _max: IdeaDiscussionMaxAggregateOutputType | null
+  }
+
+  export type IdeaDiscussionAvgAggregateOutputType = {
+    currentRound: number | null
+    totalRounds: number | null
+  }
+
+  export type IdeaDiscussionSumAggregateOutputType = {
+    currentRound: number | null
+    totalRounds: number | null
+  }
+
+  export type IdeaDiscussionMinAggregateOutputType = {
+    id: string | null
+    ideaId: string | null
+    userId: string | null
+    status: $Enums.DiscussionStatus | null
+    currentRound: number | null
+    totalRounds: number | null
+    aiAgentType: string | null
+    aiAgentName: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+    completedAt: Date | null
+  }
+
+  export type IdeaDiscussionMaxAggregateOutputType = {
+    id: string | null
+    ideaId: string | null
+    userId: string | null
+    status: $Enums.DiscussionStatus | null
+    currentRound: number | null
+    totalRounds: number | null
+    aiAgentType: string | null
+    aiAgentName: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+    completedAt: Date | null
+  }
+
+  export type IdeaDiscussionCountAggregateOutputType = {
+    id: number
+    ideaId: number
+    userId: number
+    status: number
+    currentRound: number
+    totalRounds: number
+    aiAgentType: number
+    aiAgentName: number
+    createdAt: number
+    updatedAt: number
+    completedAt: number
+    _all: number
+  }
+
+
+  export type IdeaDiscussionAvgAggregateInputType = {
+    currentRound?: true
+    totalRounds?: true
+  }
+
+  export type IdeaDiscussionSumAggregateInputType = {
+    currentRound?: true
+    totalRounds?: true
+  }
+
+  export type IdeaDiscussionMinAggregateInputType = {
+    id?: true
+    ideaId?: true
+    userId?: true
+    status?: true
+    currentRound?: true
+    totalRounds?: true
+    aiAgentType?: true
+    aiAgentName?: true
+    createdAt?: true
+    updatedAt?: true
+    completedAt?: true
+  }
+
+  export type IdeaDiscussionMaxAggregateInputType = {
+    id?: true
+    ideaId?: true
+    userId?: true
+    status?: true
+    currentRound?: true
+    totalRounds?: true
+    aiAgentType?: true
+    aiAgentName?: true
+    createdAt?: true
+    updatedAt?: true
+    completedAt?: true
+  }
+
+  export type IdeaDiscussionCountAggregateInputType = {
+    id?: true
+    ideaId?: true
+    userId?: true
+    status?: true
+    currentRound?: true
+    totalRounds?: true
+    aiAgentType?: true
+    aiAgentName?: true
+    createdAt?: true
+    updatedAt?: true
+    completedAt?: true
+    _all?: true
+  }
+
+  export type IdeaDiscussionAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which IdeaDiscussion to aggregate.
+     */
+    where?: IdeaDiscussionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of IdeaDiscussions to fetch.
+     */
+    orderBy?: IdeaDiscussionOrderByWithRelationInput | IdeaDiscussionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: IdeaDiscussionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` IdeaDiscussions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` IdeaDiscussions.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned IdeaDiscussions
+    **/
+    _count?: true | IdeaDiscussionCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: IdeaDiscussionAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: IdeaDiscussionSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: IdeaDiscussionMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: IdeaDiscussionMaxAggregateInputType
+  }
+
+  export type GetIdeaDiscussionAggregateType<T extends IdeaDiscussionAggregateArgs> = {
+        [P in keyof T & keyof AggregateIdeaDiscussion]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateIdeaDiscussion[P]>
+      : GetScalarType<T[P], AggregateIdeaDiscussion[P]>
+  }
+
+
+
+
+  export type IdeaDiscussionGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: IdeaDiscussionWhereInput
+    orderBy?: IdeaDiscussionOrderByWithAggregationInput | IdeaDiscussionOrderByWithAggregationInput[]
+    by: IdeaDiscussionScalarFieldEnum[] | IdeaDiscussionScalarFieldEnum
+    having?: IdeaDiscussionScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: IdeaDiscussionCountAggregateInputType | true
+    _avg?: IdeaDiscussionAvgAggregateInputType
+    _sum?: IdeaDiscussionSumAggregateInputType
+    _min?: IdeaDiscussionMinAggregateInputType
+    _max?: IdeaDiscussionMaxAggregateInputType
+  }
+
+  export type IdeaDiscussionGroupByOutputType = {
+    id: string
+    ideaId: string
+    userId: string
+    status: $Enums.DiscussionStatus
+    currentRound: number
+    totalRounds: number
+    aiAgentType: string
+    aiAgentName: string
+    createdAt: Date
+    updatedAt: Date
+    completedAt: Date | null
+    _count: IdeaDiscussionCountAggregateOutputType | null
+    _avg: IdeaDiscussionAvgAggregateOutputType | null
+    _sum: IdeaDiscussionSumAggregateOutputType | null
+    _min: IdeaDiscussionMinAggregateOutputType | null
+    _max: IdeaDiscussionMaxAggregateOutputType | null
+  }
+
+  type GetIdeaDiscussionGroupByPayload<T extends IdeaDiscussionGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<IdeaDiscussionGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof IdeaDiscussionGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], IdeaDiscussionGroupByOutputType[P]>
+            : GetScalarType<T[P], IdeaDiscussionGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type IdeaDiscussionSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    ideaId?: boolean
+    userId?: boolean
+    status?: boolean
+    currentRound?: boolean
+    totalRounds?: boolean
+    aiAgentType?: boolean
+    aiAgentName?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    completedAt?: boolean
+    idea?: boolean | IdeaDefaultArgs<ExtArgs>
+    user?: boolean | UserDefaultArgs<ExtArgs>
+    messages?: boolean | IdeaDiscussion$messagesArgs<ExtArgs>
+    _count?: boolean | IdeaDiscussionCountOutputTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["ideaDiscussion"]>
+
+  export type IdeaDiscussionSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    ideaId?: boolean
+    userId?: boolean
+    status?: boolean
+    currentRound?: boolean
+    totalRounds?: boolean
+    aiAgentType?: boolean
+    aiAgentName?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    completedAt?: boolean
+    idea?: boolean | IdeaDefaultArgs<ExtArgs>
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["ideaDiscussion"]>
+
+  export type IdeaDiscussionSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    ideaId?: boolean
+    userId?: boolean
+    status?: boolean
+    currentRound?: boolean
+    totalRounds?: boolean
+    aiAgentType?: boolean
+    aiAgentName?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    completedAt?: boolean
+    idea?: boolean | IdeaDefaultArgs<ExtArgs>
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["ideaDiscussion"]>
+
+  export type IdeaDiscussionSelectScalar = {
+    id?: boolean
+    ideaId?: boolean
+    userId?: boolean
+    status?: boolean
+    currentRound?: boolean
+    totalRounds?: boolean
+    aiAgentType?: boolean
+    aiAgentName?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    completedAt?: boolean
+  }
+
+  export type IdeaDiscussionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "ideaId" | "userId" | "status" | "currentRound" | "totalRounds" | "aiAgentType" | "aiAgentName" | "createdAt" | "updatedAt" | "completedAt", ExtArgs["result"]["ideaDiscussion"]>
+  export type IdeaDiscussionInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    idea?: boolean | IdeaDefaultArgs<ExtArgs>
+    user?: boolean | UserDefaultArgs<ExtArgs>
+    messages?: boolean | IdeaDiscussion$messagesArgs<ExtArgs>
+    _count?: boolean | IdeaDiscussionCountOutputTypeDefaultArgs<ExtArgs>
+  }
+  export type IdeaDiscussionIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    idea?: boolean | IdeaDefaultArgs<ExtArgs>
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+  export type IdeaDiscussionIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    idea?: boolean | IdeaDefaultArgs<ExtArgs>
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+
+  export type $IdeaDiscussionPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "IdeaDiscussion"
+    objects: {
+      idea: Prisma.$IdeaPayload<ExtArgs>
+      user: Prisma.$UserPayload<ExtArgs>
+      messages: Prisma.$DiscussionMessagePayload<ExtArgs>[]
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      ideaId: string
+      userId: string
+      status: $Enums.DiscussionStatus
+      currentRound: number
+      totalRounds: number
+      aiAgentType: string
+      aiAgentName: string
+      createdAt: Date
+      updatedAt: Date
+      completedAt: Date | null
+    }, ExtArgs["result"]["ideaDiscussion"]>
+    composites: {}
+  }
+
+  type IdeaDiscussionGetPayload<S extends boolean | null | undefined | IdeaDiscussionDefaultArgs> = $Result.GetResult<Prisma.$IdeaDiscussionPayload, S>
+
+  type IdeaDiscussionCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<IdeaDiscussionFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: IdeaDiscussionCountAggregateInputType | true
+    }
+
+  export interface IdeaDiscussionDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['IdeaDiscussion'], meta: { name: 'IdeaDiscussion' } }
+    /**
+     * Find zero or one IdeaDiscussion that matches the filter.
+     * @param {IdeaDiscussionFindUniqueArgs} args - Arguments to find a IdeaDiscussion
+     * @example
+     * // Get one IdeaDiscussion
+     * const ideaDiscussion = await prisma.ideaDiscussion.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends IdeaDiscussionFindUniqueArgs>(args: SelectSubset<T, IdeaDiscussionFindUniqueArgs<ExtArgs>>): Prisma__IdeaDiscussionClient<$Result.GetResult<Prisma.$IdeaDiscussionPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one IdeaDiscussion that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {IdeaDiscussionFindUniqueOrThrowArgs} args - Arguments to find a IdeaDiscussion
+     * @example
+     * // Get one IdeaDiscussion
+     * const ideaDiscussion = await prisma.ideaDiscussion.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends IdeaDiscussionFindUniqueOrThrowArgs>(args: SelectSubset<T, IdeaDiscussionFindUniqueOrThrowArgs<ExtArgs>>): Prisma__IdeaDiscussionClient<$Result.GetResult<Prisma.$IdeaDiscussionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first IdeaDiscussion that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {IdeaDiscussionFindFirstArgs} args - Arguments to find a IdeaDiscussion
+     * @example
+     * // Get one IdeaDiscussion
+     * const ideaDiscussion = await prisma.ideaDiscussion.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends IdeaDiscussionFindFirstArgs>(args?: SelectSubset<T, IdeaDiscussionFindFirstArgs<ExtArgs>>): Prisma__IdeaDiscussionClient<$Result.GetResult<Prisma.$IdeaDiscussionPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first IdeaDiscussion that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {IdeaDiscussionFindFirstOrThrowArgs} args - Arguments to find a IdeaDiscussion
+     * @example
+     * // Get one IdeaDiscussion
+     * const ideaDiscussion = await prisma.ideaDiscussion.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends IdeaDiscussionFindFirstOrThrowArgs>(args?: SelectSubset<T, IdeaDiscussionFindFirstOrThrowArgs<ExtArgs>>): Prisma__IdeaDiscussionClient<$Result.GetResult<Prisma.$IdeaDiscussionPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more IdeaDiscussions that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {IdeaDiscussionFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all IdeaDiscussions
+     * const ideaDiscussions = await prisma.ideaDiscussion.findMany()
+     * 
+     * // Get first 10 IdeaDiscussions
+     * const ideaDiscussions = await prisma.ideaDiscussion.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const ideaDiscussionWithIdOnly = await prisma.ideaDiscussion.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends IdeaDiscussionFindManyArgs>(args?: SelectSubset<T, IdeaDiscussionFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$IdeaDiscussionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a IdeaDiscussion.
+     * @param {IdeaDiscussionCreateArgs} args - Arguments to create a IdeaDiscussion.
+     * @example
+     * // Create one IdeaDiscussion
+     * const IdeaDiscussion = await prisma.ideaDiscussion.create({
+     *   data: {
+     *     // ... data to create a IdeaDiscussion
+     *   }
+     * })
+     * 
+     */
+    create<T extends IdeaDiscussionCreateArgs>(args: SelectSubset<T, IdeaDiscussionCreateArgs<ExtArgs>>): Prisma__IdeaDiscussionClient<$Result.GetResult<Prisma.$IdeaDiscussionPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many IdeaDiscussions.
+     * @param {IdeaDiscussionCreateManyArgs} args - Arguments to create many IdeaDiscussions.
+     * @example
+     * // Create many IdeaDiscussions
+     * const ideaDiscussion = await prisma.ideaDiscussion.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends IdeaDiscussionCreateManyArgs>(args?: SelectSubset<T, IdeaDiscussionCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many IdeaDiscussions and returns the data saved in the database.
+     * @param {IdeaDiscussionCreateManyAndReturnArgs} args - Arguments to create many IdeaDiscussions.
+     * @example
+     * // Create many IdeaDiscussions
+     * const ideaDiscussion = await prisma.ideaDiscussion.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many IdeaDiscussions and only return the `id`
+     * const ideaDiscussionWithIdOnly = await prisma.ideaDiscussion.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends IdeaDiscussionCreateManyAndReturnArgs>(args?: SelectSubset<T, IdeaDiscussionCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$IdeaDiscussionPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a IdeaDiscussion.
+     * @param {IdeaDiscussionDeleteArgs} args - Arguments to delete one IdeaDiscussion.
+     * @example
+     * // Delete one IdeaDiscussion
+     * const IdeaDiscussion = await prisma.ideaDiscussion.delete({
+     *   where: {
+     *     // ... filter to delete one IdeaDiscussion
+     *   }
+     * })
+     * 
+     */
+    delete<T extends IdeaDiscussionDeleteArgs>(args: SelectSubset<T, IdeaDiscussionDeleteArgs<ExtArgs>>): Prisma__IdeaDiscussionClient<$Result.GetResult<Prisma.$IdeaDiscussionPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one IdeaDiscussion.
+     * @param {IdeaDiscussionUpdateArgs} args - Arguments to update one IdeaDiscussion.
+     * @example
+     * // Update one IdeaDiscussion
+     * const ideaDiscussion = await prisma.ideaDiscussion.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends IdeaDiscussionUpdateArgs>(args: SelectSubset<T, IdeaDiscussionUpdateArgs<ExtArgs>>): Prisma__IdeaDiscussionClient<$Result.GetResult<Prisma.$IdeaDiscussionPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more IdeaDiscussions.
+     * @param {IdeaDiscussionDeleteManyArgs} args - Arguments to filter IdeaDiscussions to delete.
+     * @example
+     * // Delete a few IdeaDiscussions
+     * const { count } = await prisma.ideaDiscussion.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends IdeaDiscussionDeleteManyArgs>(args?: SelectSubset<T, IdeaDiscussionDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more IdeaDiscussions.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {IdeaDiscussionUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many IdeaDiscussions
+     * const ideaDiscussion = await prisma.ideaDiscussion.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends IdeaDiscussionUpdateManyArgs>(args: SelectSubset<T, IdeaDiscussionUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more IdeaDiscussions and returns the data updated in the database.
+     * @param {IdeaDiscussionUpdateManyAndReturnArgs} args - Arguments to update many IdeaDiscussions.
+     * @example
+     * // Update many IdeaDiscussions
+     * const ideaDiscussion = await prisma.ideaDiscussion.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more IdeaDiscussions and only return the `id`
+     * const ideaDiscussionWithIdOnly = await prisma.ideaDiscussion.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends IdeaDiscussionUpdateManyAndReturnArgs>(args: SelectSubset<T, IdeaDiscussionUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$IdeaDiscussionPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one IdeaDiscussion.
+     * @param {IdeaDiscussionUpsertArgs} args - Arguments to update or create a IdeaDiscussion.
+     * @example
+     * // Update or create a IdeaDiscussion
+     * const ideaDiscussion = await prisma.ideaDiscussion.upsert({
+     *   create: {
+     *     // ... data to create a IdeaDiscussion
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the IdeaDiscussion we want to update
+     *   }
+     * })
+     */
+    upsert<T extends IdeaDiscussionUpsertArgs>(args: SelectSubset<T, IdeaDiscussionUpsertArgs<ExtArgs>>): Prisma__IdeaDiscussionClient<$Result.GetResult<Prisma.$IdeaDiscussionPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of IdeaDiscussions.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {IdeaDiscussionCountArgs} args - Arguments to filter IdeaDiscussions to count.
+     * @example
+     * // Count the number of IdeaDiscussions
+     * const count = await prisma.ideaDiscussion.count({
+     *   where: {
+     *     // ... the filter for the IdeaDiscussions we want to count
+     *   }
+     * })
+    **/
+    count<T extends IdeaDiscussionCountArgs>(
+      args?: Subset<T, IdeaDiscussionCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], IdeaDiscussionCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a IdeaDiscussion.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {IdeaDiscussionAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends IdeaDiscussionAggregateArgs>(args: Subset<T, IdeaDiscussionAggregateArgs>): Prisma.PrismaPromise<GetIdeaDiscussionAggregateType<T>>
+
+    /**
+     * Group by IdeaDiscussion.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {IdeaDiscussionGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends IdeaDiscussionGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: IdeaDiscussionGroupByArgs['orderBy'] }
+        : { orderBy?: IdeaDiscussionGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, IdeaDiscussionGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetIdeaDiscussionGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the IdeaDiscussion model
+   */
+  readonly fields: IdeaDiscussionFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for IdeaDiscussion.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__IdeaDiscussionClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    idea<T extends IdeaDefaultArgs<ExtArgs> = {}>(args?: Subset<T, IdeaDefaultArgs<ExtArgs>>): Prisma__IdeaClient<$Result.GetResult<Prisma.$IdeaPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    user<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    messages<T extends IdeaDiscussion$messagesArgs<ExtArgs> = {}>(args?: Subset<T, IdeaDiscussion$messagesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DiscussionMessagePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the IdeaDiscussion model
+   */
+  interface IdeaDiscussionFieldRefs {
+    readonly id: FieldRef<"IdeaDiscussion", 'String'>
+    readonly ideaId: FieldRef<"IdeaDiscussion", 'String'>
+    readonly userId: FieldRef<"IdeaDiscussion", 'String'>
+    readonly status: FieldRef<"IdeaDiscussion", 'DiscussionStatus'>
+    readonly currentRound: FieldRef<"IdeaDiscussion", 'Int'>
+    readonly totalRounds: FieldRef<"IdeaDiscussion", 'Int'>
+    readonly aiAgentType: FieldRef<"IdeaDiscussion", 'String'>
+    readonly aiAgentName: FieldRef<"IdeaDiscussion", 'String'>
+    readonly createdAt: FieldRef<"IdeaDiscussion", 'DateTime'>
+    readonly updatedAt: FieldRef<"IdeaDiscussion", 'DateTime'>
+    readonly completedAt: FieldRef<"IdeaDiscussion", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * IdeaDiscussion findUnique
+   */
+  export type IdeaDiscussionFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the IdeaDiscussion
+     */
+    select?: IdeaDiscussionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the IdeaDiscussion
+     */
+    omit?: IdeaDiscussionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: IdeaDiscussionInclude<ExtArgs> | null
+    /**
+     * Filter, which IdeaDiscussion to fetch.
+     */
+    where: IdeaDiscussionWhereUniqueInput
+  }
+
+  /**
+   * IdeaDiscussion findUniqueOrThrow
+   */
+  export type IdeaDiscussionFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the IdeaDiscussion
+     */
+    select?: IdeaDiscussionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the IdeaDiscussion
+     */
+    omit?: IdeaDiscussionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: IdeaDiscussionInclude<ExtArgs> | null
+    /**
+     * Filter, which IdeaDiscussion to fetch.
+     */
+    where: IdeaDiscussionWhereUniqueInput
+  }
+
+  /**
+   * IdeaDiscussion findFirst
+   */
+  export type IdeaDiscussionFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the IdeaDiscussion
+     */
+    select?: IdeaDiscussionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the IdeaDiscussion
+     */
+    omit?: IdeaDiscussionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: IdeaDiscussionInclude<ExtArgs> | null
+    /**
+     * Filter, which IdeaDiscussion to fetch.
+     */
+    where?: IdeaDiscussionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of IdeaDiscussions to fetch.
+     */
+    orderBy?: IdeaDiscussionOrderByWithRelationInput | IdeaDiscussionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for IdeaDiscussions.
+     */
+    cursor?: IdeaDiscussionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` IdeaDiscussions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` IdeaDiscussions.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of IdeaDiscussions.
+     */
+    distinct?: IdeaDiscussionScalarFieldEnum | IdeaDiscussionScalarFieldEnum[]
+  }
+
+  /**
+   * IdeaDiscussion findFirstOrThrow
+   */
+  export type IdeaDiscussionFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the IdeaDiscussion
+     */
+    select?: IdeaDiscussionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the IdeaDiscussion
+     */
+    omit?: IdeaDiscussionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: IdeaDiscussionInclude<ExtArgs> | null
+    /**
+     * Filter, which IdeaDiscussion to fetch.
+     */
+    where?: IdeaDiscussionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of IdeaDiscussions to fetch.
+     */
+    orderBy?: IdeaDiscussionOrderByWithRelationInput | IdeaDiscussionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for IdeaDiscussions.
+     */
+    cursor?: IdeaDiscussionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` IdeaDiscussions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` IdeaDiscussions.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of IdeaDiscussions.
+     */
+    distinct?: IdeaDiscussionScalarFieldEnum | IdeaDiscussionScalarFieldEnum[]
+  }
+
+  /**
+   * IdeaDiscussion findMany
+   */
+  export type IdeaDiscussionFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the IdeaDiscussion
+     */
+    select?: IdeaDiscussionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the IdeaDiscussion
+     */
+    omit?: IdeaDiscussionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: IdeaDiscussionInclude<ExtArgs> | null
+    /**
+     * Filter, which IdeaDiscussions to fetch.
+     */
+    where?: IdeaDiscussionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of IdeaDiscussions to fetch.
+     */
+    orderBy?: IdeaDiscussionOrderByWithRelationInput | IdeaDiscussionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing IdeaDiscussions.
+     */
+    cursor?: IdeaDiscussionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` IdeaDiscussions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` IdeaDiscussions.
+     */
+    skip?: number
+    distinct?: IdeaDiscussionScalarFieldEnum | IdeaDiscussionScalarFieldEnum[]
+  }
+
+  /**
+   * IdeaDiscussion create
+   */
+  export type IdeaDiscussionCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the IdeaDiscussion
+     */
+    select?: IdeaDiscussionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the IdeaDiscussion
+     */
+    omit?: IdeaDiscussionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: IdeaDiscussionInclude<ExtArgs> | null
+    /**
+     * The data needed to create a IdeaDiscussion.
+     */
+    data: XOR<IdeaDiscussionCreateInput, IdeaDiscussionUncheckedCreateInput>
+  }
+
+  /**
+   * IdeaDiscussion createMany
+   */
+  export type IdeaDiscussionCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many IdeaDiscussions.
+     */
+    data: IdeaDiscussionCreateManyInput | IdeaDiscussionCreateManyInput[]
+  }
+
+  /**
+   * IdeaDiscussion createManyAndReturn
+   */
+  export type IdeaDiscussionCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the IdeaDiscussion
+     */
+    select?: IdeaDiscussionSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the IdeaDiscussion
+     */
+    omit?: IdeaDiscussionOmit<ExtArgs> | null
+    /**
+     * The data used to create many IdeaDiscussions.
+     */
+    data: IdeaDiscussionCreateManyInput | IdeaDiscussionCreateManyInput[]
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: IdeaDiscussionIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * IdeaDiscussion update
+   */
+  export type IdeaDiscussionUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the IdeaDiscussion
+     */
+    select?: IdeaDiscussionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the IdeaDiscussion
+     */
+    omit?: IdeaDiscussionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: IdeaDiscussionInclude<ExtArgs> | null
+    /**
+     * The data needed to update a IdeaDiscussion.
+     */
+    data: XOR<IdeaDiscussionUpdateInput, IdeaDiscussionUncheckedUpdateInput>
+    /**
+     * Choose, which IdeaDiscussion to update.
+     */
+    where: IdeaDiscussionWhereUniqueInput
+  }
+
+  /**
+   * IdeaDiscussion updateMany
+   */
+  export type IdeaDiscussionUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update IdeaDiscussions.
+     */
+    data: XOR<IdeaDiscussionUpdateManyMutationInput, IdeaDiscussionUncheckedUpdateManyInput>
+    /**
+     * Filter which IdeaDiscussions to update
+     */
+    where?: IdeaDiscussionWhereInput
+    /**
+     * Limit how many IdeaDiscussions to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * IdeaDiscussion updateManyAndReturn
+   */
+  export type IdeaDiscussionUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the IdeaDiscussion
+     */
+    select?: IdeaDiscussionSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the IdeaDiscussion
+     */
+    omit?: IdeaDiscussionOmit<ExtArgs> | null
+    /**
+     * The data used to update IdeaDiscussions.
+     */
+    data: XOR<IdeaDiscussionUpdateManyMutationInput, IdeaDiscussionUncheckedUpdateManyInput>
+    /**
+     * Filter which IdeaDiscussions to update
+     */
+    where?: IdeaDiscussionWhereInput
+    /**
+     * Limit how many IdeaDiscussions to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: IdeaDiscussionIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * IdeaDiscussion upsert
+   */
+  export type IdeaDiscussionUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the IdeaDiscussion
+     */
+    select?: IdeaDiscussionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the IdeaDiscussion
+     */
+    omit?: IdeaDiscussionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: IdeaDiscussionInclude<ExtArgs> | null
+    /**
+     * The filter to search for the IdeaDiscussion to update in case it exists.
+     */
+    where: IdeaDiscussionWhereUniqueInput
+    /**
+     * In case the IdeaDiscussion found by the `where` argument doesn't exist, create a new IdeaDiscussion with this data.
+     */
+    create: XOR<IdeaDiscussionCreateInput, IdeaDiscussionUncheckedCreateInput>
+    /**
+     * In case the IdeaDiscussion was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<IdeaDiscussionUpdateInput, IdeaDiscussionUncheckedUpdateInput>
+  }
+
+  /**
+   * IdeaDiscussion delete
+   */
+  export type IdeaDiscussionDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the IdeaDiscussion
+     */
+    select?: IdeaDiscussionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the IdeaDiscussion
+     */
+    omit?: IdeaDiscussionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: IdeaDiscussionInclude<ExtArgs> | null
+    /**
+     * Filter which IdeaDiscussion to delete.
+     */
+    where: IdeaDiscussionWhereUniqueInput
+  }
+
+  /**
+   * IdeaDiscussion deleteMany
+   */
+  export type IdeaDiscussionDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which IdeaDiscussions to delete
+     */
+    where?: IdeaDiscussionWhereInput
+    /**
+     * Limit how many IdeaDiscussions to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * IdeaDiscussion.messages
+   */
+  export type IdeaDiscussion$messagesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DiscussionMessage
+     */
+    select?: DiscussionMessageSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DiscussionMessage
+     */
+    omit?: DiscussionMessageOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DiscussionMessageInclude<ExtArgs> | null
+    where?: DiscussionMessageWhereInput
+    orderBy?: DiscussionMessageOrderByWithRelationInput | DiscussionMessageOrderByWithRelationInput[]
+    cursor?: DiscussionMessageWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: DiscussionMessageScalarFieldEnum | DiscussionMessageScalarFieldEnum[]
+  }
+
+  /**
+   * IdeaDiscussion without action
+   */
+  export type IdeaDiscussionDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the IdeaDiscussion
+     */
+    select?: IdeaDiscussionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the IdeaDiscussion
+     */
+    omit?: IdeaDiscussionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: IdeaDiscussionInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model DiscussionMessage
+   */
+
+  export type AggregateDiscussionMessage = {
+    _count: DiscussionMessageCountAggregateOutputType | null
+    _avg: DiscussionMessageAvgAggregateOutputType | null
+    _sum: DiscussionMessageSumAggregateOutputType | null
+    _min: DiscussionMessageMinAggregateOutputType | null
+    _max: DiscussionMessageMaxAggregateOutputType | null
+  }
+
+  export type DiscussionMessageAvgAggregateOutputType = {
+    roundNumber: number | null
+  }
+
+  export type DiscussionMessageSumAggregateOutputType = {
+    roundNumber: number | null
+  }
+
+  export type DiscussionMessageMinAggregateOutputType = {
+    id: string | null
+    discussionId: string | null
+    content: string | null
+    messageType: $Enums.MessageType | null
+    roundNumber: number | null
+    senderType: $Enums.SenderType | null
+    senderName: string | null
+    createdAt: Date | null
+  }
+
+  export type DiscussionMessageMaxAggregateOutputType = {
+    id: string | null
+    discussionId: string | null
+    content: string | null
+    messageType: $Enums.MessageType | null
+    roundNumber: number | null
+    senderType: $Enums.SenderType | null
+    senderName: string | null
+    createdAt: Date | null
+  }
+
+  export type DiscussionMessageCountAggregateOutputType = {
+    id: number
+    discussionId: number
+    content: number
+    messageType: number
+    roundNumber: number
+    senderType: number
+    senderName: number
+    analysisData: number
+    suggestions: number
+    createdAt: number
+    _all: number
+  }
+
+
+  export type DiscussionMessageAvgAggregateInputType = {
+    roundNumber?: true
+  }
+
+  export type DiscussionMessageSumAggregateInputType = {
+    roundNumber?: true
+  }
+
+  export type DiscussionMessageMinAggregateInputType = {
+    id?: true
+    discussionId?: true
+    content?: true
+    messageType?: true
+    roundNumber?: true
+    senderType?: true
+    senderName?: true
+    createdAt?: true
+  }
+
+  export type DiscussionMessageMaxAggregateInputType = {
+    id?: true
+    discussionId?: true
+    content?: true
+    messageType?: true
+    roundNumber?: true
+    senderType?: true
+    senderName?: true
+    createdAt?: true
+  }
+
+  export type DiscussionMessageCountAggregateInputType = {
+    id?: true
+    discussionId?: true
+    content?: true
+    messageType?: true
+    roundNumber?: true
+    senderType?: true
+    senderName?: true
+    analysisData?: true
+    suggestions?: true
+    createdAt?: true
+    _all?: true
+  }
+
+  export type DiscussionMessageAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which DiscussionMessage to aggregate.
+     */
+    where?: DiscussionMessageWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of DiscussionMessages to fetch.
+     */
+    orderBy?: DiscussionMessageOrderByWithRelationInput | DiscussionMessageOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: DiscussionMessageWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` DiscussionMessages from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` DiscussionMessages.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned DiscussionMessages
+    **/
+    _count?: true | DiscussionMessageCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: DiscussionMessageAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: DiscussionMessageSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: DiscussionMessageMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: DiscussionMessageMaxAggregateInputType
+  }
+
+  export type GetDiscussionMessageAggregateType<T extends DiscussionMessageAggregateArgs> = {
+        [P in keyof T & keyof AggregateDiscussionMessage]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateDiscussionMessage[P]>
+      : GetScalarType<T[P], AggregateDiscussionMessage[P]>
+  }
+
+
+
+
+  export type DiscussionMessageGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: DiscussionMessageWhereInput
+    orderBy?: DiscussionMessageOrderByWithAggregationInput | DiscussionMessageOrderByWithAggregationInput[]
+    by: DiscussionMessageScalarFieldEnum[] | DiscussionMessageScalarFieldEnum
+    having?: DiscussionMessageScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: DiscussionMessageCountAggregateInputType | true
+    _avg?: DiscussionMessageAvgAggregateInputType
+    _sum?: DiscussionMessageSumAggregateInputType
+    _min?: DiscussionMessageMinAggregateInputType
+    _max?: DiscussionMessageMaxAggregateInputType
+  }
+
+  export type DiscussionMessageGroupByOutputType = {
+    id: string
+    discussionId: string
+    content: string
+    messageType: $Enums.MessageType
+    roundNumber: number
+    senderType: $Enums.SenderType
+    senderName: string | null
+    analysisData: JsonValue | null
+    suggestions: JsonValue | null
+    createdAt: Date
+    _count: DiscussionMessageCountAggregateOutputType | null
+    _avg: DiscussionMessageAvgAggregateOutputType | null
+    _sum: DiscussionMessageSumAggregateOutputType | null
+    _min: DiscussionMessageMinAggregateOutputType | null
+    _max: DiscussionMessageMaxAggregateOutputType | null
+  }
+
+  type GetDiscussionMessageGroupByPayload<T extends DiscussionMessageGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<DiscussionMessageGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof DiscussionMessageGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], DiscussionMessageGroupByOutputType[P]>
+            : GetScalarType<T[P], DiscussionMessageGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type DiscussionMessageSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    discussionId?: boolean
+    content?: boolean
+    messageType?: boolean
+    roundNumber?: boolean
+    senderType?: boolean
+    senderName?: boolean
+    analysisData?: boolean
+    suggestions?: boolean
+    createdAt?: boolean
+    discussion?: boolean | IdeaDiscussionDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["discussionMessage"]>
+
+  export type DiscussionMessageSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    discussionId?: boolean
+    content?: boolean
+    messageType?: boolean
+    roundNumber?: boolean
+    senderType?: boolean
+    senderName?: boolean
+    analysisData?: boolean
+    suggestions?: boolean
+    createdAt?: boolean
+    discussion?: boolean | IdeaDiscussionDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["discussionMessage"]>
+
+  export type DiscussionMessageSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    discussionId?: boolean
+    content?: boolean
+    messageType?: boolean
+    roundNumber?: boolean
+    senderType?: boolean
+    senderName?: boolean
+    analysisData?: boolean
+    suggestions?: boolean
+    createdAt?: boolean
+    discussion?: boolean | IdeaDiscussionDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["discussionMessage"]>
+
+  export type DiscussionMessageSelectScalar = {
+    id?: boolean
+    discussionId?: boolean
+    content?: boolean
+    messageType?: boolean
+    roundNumber?: boolean
+    senderType?: boolean
+    senderName?: boolean
+    analysisData?: boolean
+    suggestions?: boolean
+    createdAt?: boolean
+  }
+
+  export type DiscussionMessageOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "discussionId" | "content" | "messageType" | "roundNumber" | "senderType" | "senderName" | "analysisData" | "suggestions" | "createdAt", ExtArgs["result"]["discussionMessage"]>
+  export type DiscussionMessageInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    discussion?: boolean | IdeaDiscussionDefaultArgs<ExtArgs>
+  }
+  export type DiscussionMessageIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    discussion?: boolean | IdeaDiscussionDefaultArgs<ExtArgs>
+  }
+  export type DiscussionMessageIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    discussion?: boolean | IdeaDiscussionDefaultArgs<ExtArgs>
+  }
+
+  export type $DiscussionMessagePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "DiscussionMessage"
+    objects: {
+      discussion: Prisma.$IdeaDiscussionPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      discussionId: string
+      content: string
+      messageType: $Enums.MessageType
+      roundNumber: number
+      senderType: $Enums.SenderType
+      senderName: string | null
+      analysisData: Prisma.JsonValue | null
+      suggestions: Prisma.JsonValue | null
+      createdAt: Date
+    }, ExtArgs["result"]["discussionMessage"]>
+    composites: {}
+  }
+
+  type DiscussionMessageGetPayload<S extends boolean | null | undefined | DiscussionMessageDefaultArgs> = $Result.GetResult<Prisma.$DiscussionMessagePayload, S>
+
+  type DiscussionMessageCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<DiscussionMessageFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: DiscussionMessageCountAggregateInputType | true
+    }
+
+  export interface DiscussionMessageDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['DiscussionMessage'], meta: { name: 'DiscussionMessage' } }
+    /**
+     * Find zero or one DiscussionMessage that matches the filter.
+     * @param {DiscussionMessageFindUniqueArgs} args - Arguments to find a DiscussionMessage
+     * @example
+     * // Get one DiscussionMessage
+     * const discussionMessage = await prisma.discussionMessage.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends DiscussionMessageFindUniqueArgs>(args: SelectSubset<T, DiscussionMessageFindUniqueArgs<ExtArgs>>): Prisma__DiscussionMessageClient<$Result.GetResult<Prisma.$DiscussionMessagePayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one DiscussionMessage that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {DiscussionMessageFindUniqueOrThrowArgs} args - Arguments to find a DiscussionMessage
+     * @example
+     * // Get one DiscussionMessage
+     * const discussionMessage = await prisma.discussionMessage.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends DiscussionMessageFindUniqueOrThrowArgs>(args: SelectSubset<T, DiscussionMessageFindUniqueOrThrowArgs<ExtArgs>>): Prisma__DiscussionMessageClient<$Result.GetResult<Prisma.$DiscussionMessagePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first DiscussionMessage that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DiscussionMessageFindFirstArgs} args - Arguments to find a DiscussionMessage
+     * @example
+     * // Get one DiscussionMessage
+     * const discussionMessage = await prisma.discussionMessage.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends DiscussionMessageFindFirstArgs>(args?: SelectSubset<T, DiscussionMessageFindFirstArgs<ExtArgs>>): Prisma__DiscussionMessageClient<$Result.GetResult<Prisma.$DiscussionMessagePayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first DiscussionMessage that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DiscussionMessageFindFirstOrThrowArgs} args - Arguments to find a DiscussionMessage
+     * @example
+     * // Get one DiscussionMessage
+     * const discussionMessage = await prisma.discussionMessage.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends DiscussionMessageFindFirstOrThrowArgs>(args?: SelectSubset<T, DiscussionMessageFindFirstOrThrowArgs<ExtArgs>>): Prisma__DiscussionMessageClient<$Result.GetResult<Prisma.$DiscussionMessagePayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more DiscussionMessages that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DiscussionMessageFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all DiscussionMessages
+     * const discussionMessages = await prisma.discussionMessage.findMany()
+     * 
+     * // Get first 10 DiscussionMessages
+     * const discussionMessages = await prisma.discussionMessage.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const discussionMessageWithIdOnly = await prisma.discussionMessage.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends DiscussionMessageFindManyArgs>(args?: SelectSubset<T, DiscussionMessageFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DiscussionMessagePayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a DiscussionMessage.
+     * @param {DiscussionMessageCreateArgs} args - Arguments to create a DiscussionMessage.
+     * @example
+     * // Create one DiscussionMessage
+     * const DiscussionMessage = await prisma.discussionMessage.create({
+     *   data: {
+     *     // ... data to create a DiscussionMessage
+     *   }
+     * })
+     * 
+     */
+    create<T extends DiscussionMessageCreateArgs>(args: SelectSubset<T, DiscussionMessageCreateArgs<ExtArgs>>): Prisma__DiscussionMessageClient<$Result.GetResult<Prisma.$DiscussionMessagePayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many DiscussionMessages.
+     * @param {DiscussionMessageCreateManyArgs} args - Arguments to create many DiscussionMessages.
+     * @example
+     * // Create many DiscussionMessages
+     * const discussionMessage = await prisma.discussionMessage.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends DiscussionMessageCreateManyArgs>(args?: SelectSubset<T, DiscussionMessageCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many DiscussionMessages and returns the data saved in the database.
+     * @param {DiscussionMessageCreateManyAndReturnArgs} args - Arguments to create many DiscussionMessages.
+     * @example
+     * // Create many DiscussionMessages
+     * const discussionMessage = await prisma.discussionMessage.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many DiscussionMessages and only return the `id`
+     * const discussionMessageWithIdOnly = await prisma.discussionMessage.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends DiscussionMessageCreateManyAndReturnArgs>(args?: SelectSubset<T, DiscussionMessageCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DiscussionMessagePayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a DiscussionMessage.
+     * @param {DiscussionMessageDeleteArgs} args - Arguments to delete one DiscussionMessage.
+     * @example
+     * // Delete one DiscussionMessage
+     * const DiscussionMessage = await prisma.discussionMessage.delete({
+     *   where: {
+     *     // ... filter to delete one DiscussionMessage
+     *   }
+     * })
+     * 
+     */
+    delete<T extends DiscussionMessageDeleteArgs>(args: SelectSubset<T, DiscussionMessageDeleteArgs<ExtArgs>>): Prisma__DiscussionMessageClient<$Result.GetResult<Prisma.$DiscussionMessagePayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one DiscussionMessage.
+     * @param {DiscussionMessageUpdateArgs} args - Arguments to update one DiscussionMessage.
+     * @example
+     * // Update one DiscussionMessage
+     * const discussionMessage = await prisma.discussionMessage.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends DiscussionMessageUpdateArgs>(args: SelectSubset<T, DiscussionMessageUpdateArgs<ExtArgs>>): Prisma__DiscussionMessageClient<$Result.GetResult<Prisma.$DiscussionMessagePayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more DiscussionMessages.
+     * @param {DiscussionMessageDeleteManyArgs} args - Arguments to filter DiscussionMessages to delete.
+     * @example
+     * // Delete a few DiscussionMessages
+     * const { count } = await prisma.discussionMessage.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends DiscussionMessageDeleteManyArgs>(args?: SelectSubset<T, DiscussionMessageDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more DiscussionMessages.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DiscussionMessageUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many DiscussionMessages
+     * const discussionMessage = await prisma.discussionMessage.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends DiscussionMessageUpdateManyArgs>(args: SelectSubset<T, DiscussionMessageUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more DiscussionMessages and returns the data updated in the database.
+     * @param {DiscussionMessageUpdateManyAndReturnArgs} args - Arguments to update many DiscussionMessages.
+     * @example
+     * // Update many DiscussionMessages
+     * const discussionMessage = await prisma.discussionMessage.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more DiscussionMessages and only return the `id`
+     * const discussionMessageWithIdOnly = await prisma.discussionMessage.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends DiscussionMessageUpdateManyAndReturnArgs>(args: SelectSubset<T, DiscussionMessageUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DiscussionMessagePayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one DiscussionMessage.
+     * @param {DiscussionMessageUpsertArgs} args - Arguments to update or create a DiscussionMessage.
+     * @example
+     * // Update or create a DiscussionMessage
+     * const discussionMessage = await prisma.discussionMessage.upsert({
+     *   create: {
+     *     // ... data to create a DiscussionMessage
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the DiscussionMessage we want to update
+     *   }
+     * })
+     */
+    upsert<T extends DiscussionMessageUpsertArgs>(args: SelectSubset<T, DiscussionMessageUpsertArgs<ExtArgs>>): Prisma__DiscussionMessageClient<$Result.GetResult<Prisma.$DiscussionMessagePayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of DiscussionMessages.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DiscussionMessageCountArgs} args - Arguments to filter DiscussionMessages to count.
+     * @example
+     * // Count the number of DiscussionMessages
+     * const count = await prisma.discussionMessage.count({
+     *   where: {
+     *     // ... the filter for the DiscussionMessages we want to count
+     *   }
+     * })
+    **/
+    count<T extends DiscussionMessageCountArgs>(
+      args?: Subset<T, DiscussionMessageCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], DiscussionMessageCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a DiscussionMessage.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DiscussionMessageAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends DiscussionMessageAggregateArgs>(args: Subset<T, DiscussionMessageAggregateArgs>): Prisma.PrismaPromise<GetDiscussionMessageAggregateType<T>>
+
+    /**
+     * Group by DiscussionMessage.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DiscussionMessageGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends DiscussionMessageGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: DiscussionMessageGroupByArgs['orderBy'] }
+        : { orderBy?: DiscussionMessageGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, DiscussionMessageGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetDiscussionMessageGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the DiscussionMessage model
+   */
+  readonly fields: DiscussionMessageFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for DiscussionMessage.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__DiscussionMessageClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    discussion<T extends IdeaDiscussionDefaultArgs<ExtArgs> = {}>(args?: Subset<T, IdeaDiscussionDefaultArgs<ExtArgs>>): Prisma__IdeaDiscussionClient<$Result.GetResult<Prisma.$IdeaDiscussionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the DiscussionMessage model
+   */
+  interface DiscussionMessageFieldRefs {
+    readonly id: FieldRef<"DiscussionMessage", 'String'>
+    readonly discussionId: FieldRef<"DiscussionMessage", 'String'>
+    readonly content: FieldRef<"DiscussionMessage", 'String'>
+    readonly messageType: FieldRef<"DiscussionMessage", 'MessageType'>
+    readonly roundNumber: FieldRef<"DiscussionMessage", 'Int'>
+    readonly senderType: FieldRef<"DiscussionMessage", 'SenderType'>
+    readonly senderName: FieldRef<"DiscussionMessage", 'String'>
+    readonly analysisData: FieldRef<"DiscussionMessage", 'Json'>
+    readonly suggestions: FieldRef<"DiscussionMessage", 'Json'>
+    readonly createdAt: FieldRef<"DiscussionMessage", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * DiscussionMessage findUnique
+   */
+  export type DiscussionMessageFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DiscussionMessage
+     */
+    select?: DiscussionMessageSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DiscussionMessage
+     */
+    omit?: DiscussionMessageOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DiscussionMessageInclude<ExtArgs> | null
+    /**
+     * Filter, which DiscussionMessage to fetch.
+     */
+    where: DiscussionMessageWhereUniqueInput
+  }
+
+  /**
+   * DiscussionMessage findUniqueOrThrow
+   */
+  export type DiscussionMessageFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DiscussionMessage
+     */
+    select?: DiscussionMessageSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DiscussionMessage
+     */
+    omit?: DiscussionMessageOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DiscussionMessageInclude<ExtArgs> | null
+    /**
+     * Filter, which DiscussionMessage to fetch.
+     */
+    where: DiscussionMessageWhereUniqueInput
+  }
+
+  /**
+   * DiscussionMessage findFirst
+   */
+  export type DiscussionMessageFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DiscussionMessage
+     */
+    select?: DiscussionMessageSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DiscussionMessage
+     */
+    omit?: DiscussionMessageOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DiscussionMessageInclude<ExtArgs> | null
+    /**
+     * Filter, which DiscussionMessage to fetch.
+     */
+    where?: DiscussionMessageWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of DiscussionMessages to fetch.
+     */
+    orderBy?: DiscussionMessageOrderByWithRelationInput | DiscussionMessageOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for DiscussionMessages.
+     */
+    cursor?: DiscussionMessageWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` DiscussionMessages from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` DiscussionMessages.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of DiscussionMessages.
+     */
+    distinct?: DiscussionMessageScalarFieldEnum | DiscussionMessageScalarFieldEnum[]
+  }
+
+  /**
+   * DiscussionMessage findFirstOrThrow
+   */
+  export type DiscussionMessageFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DiscussionMessage
+     */
+    select?: DiscussionMessageSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DiscussionMessage
+     */
+    omit?: DiscussionMessageOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DiscussionMessageInclude<ExtArgs> | null
+    /**
+     * Filter, which DiscussionMessage to fetch.
+     */
+    where?: DiscussionMessageWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of DiscussionMessages to fetch.
+     */
+    orderBy?: DiscussionMessageOrderByWithRelationInput | DiscussionMessageOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for DiscussionMessages.
+     */
+    cursor?: DiscussionMessageWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` DiscussionMessages from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` DiscussionMessages.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of DiscussionMessages.
+     */
+    distinct?: DiscussionMessageScalarFieldEnum | DiscussionMessageScalarFieldEnum[]
+  }
+
+  /**
+   * DiscussionMessage findMany
+   */
+  export type DiscussionMessageFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DiscussionMessage
+     */
+    select?: DiscussionMessageSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DiscussionMessage
+     */
+    omit?: DiscussionMessageOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DiscussionMessageInclude<ExtArgs> | null
+    /**
+     * Filter, which DiscussionMessages to fetch.
+     */
+    where?: DiscussionMessageWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of DiscussionMessages to fetch.
+     */
+    orderBy?: DiscussionMessageOrderByWithRelationInput | DiscussionMessageOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing DiscussionMessages.
+     */
+    cursor?: DiscussionMessageWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` DiscussionMessages from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` DiscussionMessages.
+     */
+    skip?: number
+    distinct?: DiscussionMessageScalarFieldEnum | DiscussionMessageScalarFieldEnum[]
+  }
+
+  /**
+   * DiscussionMessage create
+   */
+  export type DiscussionMessageCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DiscussionMessage
+     */
+    select?: DiscussionMessageSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DiscussionMessage
+     */
+    omit?: DiscussionMessageOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DiscussionMessageInclude<ExtArgs> | null
+    /**
+     * The data needed to create a DiscussionMessage.
+     */
+    data: XOR<DiscussionMessageCreateInput, DiscussionMessageUncheckedCreateInput>
+  }
+
+  /**
+   * DiscussionMessage createMany
+   */
+  export type DiscussionMessageCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many DiscussionMessages.
+     */
+    data: DiscussionMessageCreateManyInput | DiscussionMessageCreateManyInput[]
+  }
+
+  /**
+   * DiscussionMessage createManyAndReturn
+   */
+  export type DiscussionMessageCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DiscussionMessage
+     */
+    select?: DiscussionMessageSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the DiscussionMessage
+     */
+    omit?: DiscussionMessageOmit<ExtArgs> | null
+    /**
+     * The data used to create many DiscussionMessages.
+     */
+    data: DiscussionMessageCreateManyInput | DiscussionMessageCreateManyInput[]
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DiscussionMessageIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * DiscussionMessage update
+   */
+  export type DiscussionMessageUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DiscussionMessage
+     */
+    select?: DiscussionMessageSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DiscussionMessage
+     */
+    omit?: DiscussionMessageOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DiscussionMessageInclude<ExtArgs> | null
+    /**
+     * The data needed to update a DiscussionMessage.
+     */
+    data: XOR<DiscussionMessageUpdateInput, DiscussionMessageUncheckedUpdateInput>
+    /**
+     * Choose, which DiscussionMessage to update.
+     */
+    where: DiscussionMessageWhereUniqueInput
+  }
+
+  /**
+   * DiscussionMessage updateMany
+   */
+  export type DiscussionMessageUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update DiscussionMessages.
+     */
+    data: XOR<DiscussionMessageUpdateManyMutationInput, DiscussionMessageUncheckedUpdateManyInput>
+    /**
+     * Filter which DiscussionMessages to update
+     */
+    where?: DiscussionMessageWhereInput
+    /**
+     * Limit how many DiscussionMessages to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * DiscussionMessage updateManyAndReturn
+   */
+  export type DiscussionMessageUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DiscussionMessage
+     */
+    select?: DiscussionMessageSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the DiscussionMessage
+     */
+    omit?: DiscussionMessageOmit<ExtArgs> | null
+    /**
+     * The data used to update DiscussionMessages.
+     */
+    data: XOR<DiscussionMessageUpdateManyMutationInput, DiscussionMessageUncheckedUpdateManyInput>
+    /**
+     * Filter which DiscussionMessages to update
+     */
+    where?: DiscussionMessageWhereInput
+    /**
+     * Limit how many DiscussionMessages to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DiscussionMessageIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * DiscussionMessage upsert
+   */
+  export type DiscussionMessageUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DiscussionMessage
+     */
+    select?: DiscussionMessageSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DiscussionMessage
+     */
+    omit?: DiscussionMessageOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DiscussionMessageInclude<ExtArgs> | null
+    /**
+     * The filter to search for the DiscussionMessage to update in case it exists.
+     */
+    where: DiscussionMessageWhereUniqueInput
+    /**
+     * In case the DiscussionMessage found by the `where` argument doesn't exist, create a new DiscussionMessage with this data.
+     */
+    create: XOR<DiscussionMessageCreateInput, DiscussionMessageUncheckedCreateInput>
+    /**
+     * In case the DiscussionMessage was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<DiscussionMessageUpdateInput, DiscussionMessageUncheckedUpdateInput>
+  }
+
+  /**
+   * DiscussionMessage delete
+   */
+  export type DiscussionMessageDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DiscussionMessage
+     */
+    select?: DiscussionMessageSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DiscussionMessage
+     */
+    omit?: DiscussionMessageOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DiscussionMessageInclude<ExtArgs> | null
+    /**
+     * Filter which DiscussionMessage to delete.
+     */
+    where: DiscussionMessageWhereUniqueInput
+  }
+
+  /**
+   * DiscussionMessage deleteMany
+   */
+  export type DiscussionMessageDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which DiscussionMessages to delete
+     */
+    where?: DiscussionMessageWhereInput
+    /**
+     * Limit how many DiscussionMessages to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * DiscussionMessage without action
+   */
+  export type DiscussionMessageDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DiscussionMessage
+     */
+    select?: DiscussionMessageSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DiscussionMessage
+     */
+    omit?: DiscussionMessageOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DiscussionMessageInclude<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
@@ -15225,6 +17910,39 @@ export namespace Prisma {
   export type AIUsageStatsScalarFieldEnum = (typeof AIUsageStatsScalarFieldEnum)[keyof typeof AIUsageStatsScalarFieldEnum]
 
 
+  export const IdeaDiscussionScalarFieldEnum: {
+    id: 'id',
+    ideaId: 'ideaId',
+    userId: 'userId',
+    status: 'status',
+    currentRound: 'currentRound',
+    totalRounds: 'totalRounds',
+    aiAgentType: 'aiAgentType',
+    aiAgentName: 'aiAgentName',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt',
+    completedAt: 'completedAt'
+  };
+
+  export type IdeaDiscussionScalarFieldEnum = (typeof IdeaDiscussionScalarFieldEnum)[keyof typeof IdeaDiscussionScalarFieldEnum]
+
+
+  export const DiscussionMessageScalarFieldEnum: {
+    id: 'id',
+    discussionId: 'discussionId',
+    content: 'content',
+    messageType: 'messageType',
+    roundNumber: 'roundNumber',
+    senderType: 'senderType',
+    senderName: 'senderName',
+    analysisData: 'analysisData',
+    suggestions: 'suggestions',
+    createdAt: 'createdAt'
+  };
+
+  export type DiscussionMessageScalarFieldEnum = (typeof DiscussionMessageScalarFieldEnum)[keyof typeof DiscussionMessageScalarFieldEnum]
+
+
   export const SortOrder: {
     asc: 'asc',
     desc: 'desc'
@@ -15381,6 +18099,27 @@ export namespace Prisma {
    */
   export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float'>
     
+
+
+  /**
+   * Reference to a field of type 'DiscussionStatus'
+   */
+  export type EnumDiscussionStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DiscussionStatus'>
+    
+
+
+  /**
+   * Reference to a field of type 'MessageType'
+   */
+  export type EnumMessageTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'MessageType'>
+    
+
+
+  /**
+   * Reference to a field of type 'SenderType'
+   */
+  export type EnumSenderTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'SenderType'>
+    
   /**
    * Deep Input Types
    */
@@ -15419,6 +18158,7 @@ export namespace Prisma {
     sessions?: UserSessionListRelationFilter
     refreshTokens?: RefreshTokenListRelationFilter
     files?: FileListRelationFilter
+    discussions?: IdeaDiscussionListRelationFilter
   }
 
   export type UserOrderByWithRelationInput = {
@@ -15451,6 +18191,7 @@ export namespace Prisma {
     sessions?: UserSessionOrderByRelationAggregateInput
     refreshTokens?: RefreshTokenOrderByRelationAggregateInput
     files?: FileOrderByRelationAggregateInput
+    discussions?: IdeaDiscussionOrderByRelationAggregateInput
   }
 
   export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -15486,6 +18227,7 @@ export namespace Prisma {
     sessions?: UserSessionListRelationFilter
     refreshTokens?: RefreshTokenListRelationFilter
     files?: FileListRelationFilter
+    discussions?: IdeaDiscussionListRelationFilter
   }, "id" | "email" | "username" | "phone">
 
   export type UserOrderByWithAggregationInput = {
@@ -15690,6 +18432,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFilter<"Idea"> | Date | string
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
     researchReports?: ResearchReportListRelationFilter
+    discussions?: IdeaDiscussionListRelationFilter
   }
 
   export type IdeaOrderByWithRelationInput = {
@@ -15708,6 +18451,7 @@ export namespace Prisma {
     updatedAt?: SortOrder
     user?: UserOrderByWithRelationInput
     researchReports?: ResearchReportOrderByRelationAggregateInput
+    discussions?: IdeaDiscussionOrderByRelationAggregateInput
   }
 
   export type IdeaWhereUniqueInput = Prisma.AtLeast<{
@@ -15729,6 +18473,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFilter<"Idea"> | Date | string
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
     researchReports?: ResearchReportListRelationFilter
+    discussions?: IdeaDiscussionListRelationFilter
   }, "id">
 
   export type IdeaOrderByWithAggregationInput = {
@@ -16399,6 +19144,181 @@ export namespace Prisma {
     updatedAt?: DateTimeWithAggregatesFilter<"AIUsageStats"> | Date | string
   }
 
+  export type IdeaDiscussionWhereInput = {
+    AND?: IdeaDiscussionWhereInput | IdeaDiscussionWhereInput[]
+    OR?: IdeaDiscussionWhereInput[]
+    NOT?: IdeaDiscussionWhereInput | IdeaDiscussionWhereInput[]
+    id?: StringFilter<"IdeaDiscussion"> | string
+    ideaId?: StringFilter<"IdeaDiscussion"> | string
+    userId?: StringFilter<"IdeaDiscussion"> | string
+    status?: EnumDiscussionStatusFilter<"IdeaDiscussion"> | $Enums.DiscussionStatus
+    currentRound?: IntFilter<"IdeaDiscussion"> | number
+    totalRounds?: IntFilter<"IdeaDiscussion"> | number
+    aiAgentType?: StringFilter<"IdeaDiscussion"> | string
+    aiAgentName?: StringFilter<"IdeaDiscussion"> | string
+    createdAt?: DateTimeFilter<"IdeaDiscussion"> | Date | string
+    updatedAt?: DateTimeFilter<"IdeaDiscussion"> | Date | string
+    completedAt?: DateTimeNullableFilter<"IdeaDiscussion"> | Date | string | null
+    idea?: XOR<IdeaScalarRelationFilter, IdeaWhereInput>
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+    messages?: DiscussionMessageListRelationFilter
+  }
+
+  export type IdeaDiscussionOrderByWithRelationInput = {
+    id?: SortOrder
+    ideaId?: SortOrder
+    userId?: SortOrder
+    status?: SortOrder
+    currentRound?: SortOrder
+    totalRounds?: SortOrder
+    aiAgentType?: SortOrder
+    aiAgentName?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    completedAt?: SortOrderInput | SortOrder
+    idea?: IdeaOrderByWithRelationInput
+    user?: UserOrderByWithRelationInput
+    messages?: DiscussionMessageOrderByRelationAggregateInput
+  }
+
+  export type IdeaDiscussionWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: IdeaDiscussionWhereInput | IdeaDiscussionWhereInput[]
+    OR?: IdeaDiscussionWhereInput[]
+    NOT?: IdeaDiscussionWhereInput | IdeaDiscussionWhereInput[]
+    ideaId?: StringFilter<"IdeaDiscussion"> | string
+    userId?: StringFilter<"IdeaDiscussion"> | string
+    status?: EnumDiscussionStatusFilter<"IdeaDiscussion"> | $Enums.DiscussionStatus
+    currentRound?: IntFilter<"IdeaDiscussion"> | number
+    totalRounds?: IntFilter<"IdeaDiscussion"> | number
+    aiAgentType?: StringFilter<"IdeaDiscussion"> | string
+    aiAgentName?: StringFilter<"IdeaDiscussion"> | string
+    createdAt?: DateTimeFilter<"IdeaDiscussion"> | Date | string
+    updatedAt?: DateTimeFilter<"IdeaDiscussion"> | Date | string
+    completedAt?: DateTimeNullableFilter<"IdeaDiscussion"> | Date | string | null
+    idea?: XOR<IdeaScalarRelationFilter, IdeaWhereInput>
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+    messages?: DiscussionMessageListRelationFilter
+  }, "id">
+
+  export type IdeaDiscussionOrderByWithAggregationInput = {
+    id?: SortOrder
+    ideaId?: SortOrder
+    userId?: SortOrder
+    status?: SortOrder
+    currentRound?: SortOrder
+    totalRounds?: SortOrder
+    aiAgentType?: SortOrder
+    aiAgentName?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    completedAt?: SortOrderInput | SortOrder
+    _count?: IdeaDiscussionCountOrderByAggregateInput
+    _avg?: IdeaDiscussionAvgOrderByAggregateInput
+    _max?: IdeaDiscussionMaxOrderByAggregateInput
+    _min?: IdeaDiscussionMinOrderByAggregateInput
+    _sum?: IdeaDiscussionSumOrderByAggregateInput
+  }
+
+  export type IdeaDiscussionScalarWhereWithAggregatesInput = {
+    AND?: IdeaDiscussionScalarWhereWithAggregatesInput | IdeaDiscussionScalarWhereWithAggregatesInput[]
+    OR?: IdeaDiscussionScalarWhereWithAggregatesInput[]
+    NOT?: IdeaDiscussionScalarWhereWithAggregatesInput | IdeaDiscussionScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"IdeaDiscussion"> | string
+    ideaId?: StringWithAggregatesFilter<"IdeaDiscussion"> | string
+    userId?: StringWithAggregatesFilter<"IdeaDiscussion"> | string
+    status?: EnumDiscussionStatusWithAggregatesFilter<"IdeaDiscussion"> | $Enums.DiscussionStatus
+    currentRound?: IntWithAggregatesFilter<"IdeaDiscussion"> | number
+    totalRounds?: IntWithAggregatesFilter<"IdeaDiscussion"> | number
+    aiAgentType?: StringWithAggregatesFilter<"IdeaDiscussion"> | string
+    aiAgentName?: StringWithAggregatesFilter<"IdeaDiscussion"> | string
+    createdAt?: DateTimeWithAggregatesFilter<"IdeaDiscussion"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"IdeaDiscussion"> | Date | string
+    completedAt?: DateTimeNullableWithAggregatesFilter<"IdeaDiscussion"> | Date | string | null
+  }
+
+  export type DiscussionMessageWhereInput = {
+    AND?: DiscussionMessageWhereInput | DiscussionMessageWhereInput[]
+    OR?: DiscussionMessageWhereInput[]
+    NOT?: DiscussionMessageWhereInput | DiscussionMessageWhereInput[]
+    id?: StringFilter<"DiscussionMessage"> | string
+    discussionId?: StringFilter<"DiscussionMessage"> | string
+    content?: StringFilter<"DiscussionMessage"> | string
+    messageType?: EnumMessageTypeFilter<"DiscussionMessage"> | $Enums.MessageType
+    roundNumber?: IntFilter<"DiscussionMessage"> | number
+    senderType?: EnumSenderTypeFilter<"DiscussionMessage"> | $Enums.SenderType
+    senderName?: StringNullableFilter<"DiscussionMessage"> | string | null
+    analysisData?: JsonNullableFilter<"DiscussionMessage">
+    suggestions?: JsonNullableFilter<"DiscussionMessage">
+    createdAt?: DateTimeFilter<"DiscussionMessage"> | Date | string
+    discussion?: XOR<IdeaDiscussionScalarRelationFilter, IdeaDiscussionWhereInput>
+  }
+
+  export type DiscussionMessageOrderByWithRelationInput = {
+    id?: SortOrder
+    discussionId?: SortOrder
+    content?: SortOrder
+    messageType?: SortOrder
+    roundNumber?: SortOrder
+    senderType?: SortOrder
+    senderName?: SortOrderInput | SortOrder
+    analysisData?: SortOrderInput | SortOrder
+    suggestions?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    discussion?: IdeaDiscussionOrderByWithRelationInput
+  }
+
+  export type DiscussionMessageWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: DiscussionMessageWhereInput | DiscussionMessageWhereInput[]
+    OR?: DiscussionMessageWhereInput[]
+    NOT?: DiscussionMessageWhereInput | DiscussionMessageWhereInput[]
+    discussionId?: StringFilter<"DiscussionMessage"> | string
+    content?: StringFilter<"DiscussionMessage"> | string
+    messageType?: EnumMessageTypeFilter<"DiscussionMessage"> | $Enums.MessageType
+    roundNumber?: IntFilter<"DiscussionMessage"> | number
+    senderType?: EnumSenderTypeFilter<"DiscussionMessage"> | $Enums.SenderType
+    senderName?: StringNullableFilter<"DiscussionMessage"> | string | null
+    analysisData?: JsonNullableFilter<"DiscussionMessage">
+    suggestions?: JsonNullableFilter<"DiscussionMessage">
+    createdAt?: DateTimeFilter<"DiscussionMessage"> | Date | string
+    discussion?: XOR<IdeaDiscussionScalarRelationFilter, IdeaDiscussionWhereInput>
+  }, "id">
+
+  export type DiscussionMessageOrderByWithAggregationInput = {
+    id?: SortOrder
+    discussionId?: SortOrder
+    content?: SortOrder
+    messageType?: SortOrder
+    roundNumber?: SortOrder
+    senderType?: SortOrder
+    senderName?: SortOrderInput | SortOrder
+    analysisData?: SortOrderInput | SortOrder
+    suggestions?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    _count?: DiscussionMessageCountOrderByAggregateInput
+    _avg?: DiscussionMessageAvgOrderByAggregateInput
+    _max?: DiscussionMessageMaxOrderByAggregateInput
+    _min?: DiscussionMessageMinOrderByAggregateInput
+    _sum?: DiscussionMessageSumOrderByAggregateInput
+  }
+
+  export type DiscussionMessageScalarWhereWithAggregatesInput = {
+    AND?: DiscussionMessageScalarWhereWithAggregatesInput | DiscussionMessageScalarWhereWithAggregatesInput[]
+    OR?: DiscussionMessageScalarWhereWithAggregatesInput[]
+    NOT?: DiscussionMessageScalarWhereWithAggregatesInput | DiscussionMessageScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"DiscussionMessage"> | string
+    discussionId?: StringWithAggregatesFilter<"DiscussionMessage"> | string
+    content?: StringWithAggregatesFilter<"DiscussionMessage"> | string
+    messageType?: EnumMessageTypeWithAggregatesFilter<"DiscussionMessage"> | $Enums.MessageType
+    roundNumber?: IntWithAggregatesFilter<"DiscussionMessage"> | number
+    senderType?: EnumSenderTypeWithAggregatesFilter<"DiscussionMessage"> | $Enums.SenderType
+    senderName?: StringNullableWithAggregatesFilter<"DiscussionMessage"> | string | null
+    analysisData?: JsonNullableWithAggregatesFilter<"DiscussionMessage">
+    suggestions?: JsonNullableWithAggregatesFilter<"DiscussionMessage">
+    createdAt?: DateTimeWithAggregatesFilter<"DiscussionMessage"> | Date | string
+  }
+
   export type UserCreateInput = {
     id?: string
     email: string
@@ -16429,6 +19349,7 @@ export namespace Prisma {
     sessions?: UserSessionCreateNestedManyWithoutUserInput
     refreshTokens?: RefreshTokenCreateNestedManyWithoutUserInput
     files?: FileCreateNestedManyWithoutUserInput
+    discussions?: IdeaDiscussionCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateInput = {
@@ -16461,6 +19382,7 @@ export namespace Prisma {
     sessions?: UserSessionUncheckedCreateNestedManyWithoutUserInput
     refreshTokens?: RefreshTokenUncheckedCreateNestedManyWithoutUserInput
     files?: FileUncheckedCreateNestedManyWithoutUserInput
+    discussions?: IdeaDiscussionUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserUpdateInput = {
@@ -16493,6 +19415,7 @@ export namespace Prisma {
     sessions?: UserSessionUpdateManyWithoutUserNestedInput
     refreshTokens?: RefreshTokenUpdateManyWithoutUserNestedInput
     files?: FileUpdateManyWithoutUserNestedInput
+    discussions?: IdeaDiscussionUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateInput = {
@@ -16525,6 +19448,7 @@ export namespace Prisma {
     sessions?: UserSessionUncheckedUpdateManyWithoutUserNestedInput
     refreshTokens?: RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
     files?: FileUncheckedUpdateManyWithoutUserNestedInput
+    discussions?: IdeaDiscussionUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateManyInput = {
@@ -16748,6 +19672,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     user: UserCreateNestedOneWithoutIdeasInput
     researchReports?: ResearchReportCreateNestedManyWithoutIdeaInput
+    discussions?: IdeaDiscussionCreateNestedManyWithoutIdeaInput
   }
 
   export type IdeaUncheckedCreateInput = {
@@ -16765,6 +19690,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     researchReports?: ResearchReportUncheckedCreateNestedManyWithoutIdeaInput
+    discussions?: IdeaDiscussionUncheckedCreateNestedManyWithoutIdeaInput
   }
 
   export type IdeaUpdateInput = {
@@ -16782,6 +19708,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     user?: UserUpdateOneRequiredWithoutIdeasNestedInput
     researchReports?: ResearchReportUpdateManyWithoutIdeaNestedInput
+    discussions?: IdeaDiscussionUpdateManyWithoutIdeaNestedInput
   }
 
   export type IdeaUncheckedUpdateInput = {
@@ -16799,6 +19726,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     researchReports?: ResearchReportUncheckedUpdateManyWithoutIdeaNestedInput
+    discussions?: IdeaDiscussionUncheckedUpdateManyWithoutIdeaNestedInput
   }
 
   export type IdeaCreateManyInput = {
@@ -17560,6 +20488,196 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type IdeaDiscussionCreateInput = {
+    id?: string
+    status?: $Enums.DiscussionStatus
+    currentRound?: number
+    totalRounds?: number
+    aiAgentType: string
+    aiAgentName: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    completedAt?: Date | string | null
+    idea: IdeaCreateNestedOneWithoutDiscussionsInput
+    user: UserCreateNestedOneWithoutDiscussionsInput
+    messages?: DiscussionMessageCreateNestedManyWithoutDiscussionInput
+  }
+
+  export type IdeaDiscussionUncheckedCreateInput = {
+    id?: string
+    ideaId: string
+    userId: string
+    status?: $Enums.DiscussionStatus
+    currentRound?: number
+    totalRounds?: number
+    aiAgentType: string
+    aiAgentName: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    completedAt?: Date | string | null
+    messages?: DiscussionMessageUncheckedCreateNestedManyWithoutDiscussionInput
+  }
+
+  export type IdeaDiscussionUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    status?: EnumDiscussionStatusFieldUpdateOperationsInput | $Enums.DiscussionStatus
+    currentRound?: IntFieldUpdateOperationsInput | number
+    totalRounds?: IntFieldUpdateOperationsInput | number
+    aiAgentType?: StringFieldUpdateOperationsInput | string
+    aiAgentName?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    idea?: IdeaUpdateOneRequiredWithoutDiscussionsNestedInput
+    user?: UserUpdateOneRequiredWithoutDiscussionsNestedInput
+    messages?: DiscussionMessageUpdateManyWithoutDiscussionNestedInput
+  }
+
+  export type IdeaDiscussionUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    ideaId?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    status?: EnumDiscussionStatusFieldUpdateOperationsInput | $Enums.DiscussionStatus
+    currentRound?: IntFieldUpdateOperationsInput | number
+    totalRounds?: IntFieldUpdateOperationsInput | number
+    aiAgentType?: StringFieldUpdateOperationsInput | string
+    aiAgentName?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    messages?: DiscussionMessageUncheckedUpdateManyWithoutDiscussionNestedInput
+  }
+
+  export type IdeaDiscussionCreateManyInput = {
+    id?: string
+    ideaId: string
+    userId: string
+    status?: $Enums.DiscussionStatus
+    currentRound?: number
+    totalRounds?: number
+    aiAgentType: string
+    aiAgentName: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    completedAt?: Date | string | null
+  }
+
+  export type IdeaDiscussionUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    status?: EnumDiscussionStatusFieldUpdateOperationsInput | $Enums.DiscussionStatus
+    currentRound?: IntFieldUpdateOperationsInput | number
+    totalRounds?: IntFieldUpdateOperationsInput | number
+    aiAgentType?: StringFieldUpdateOperationsInput | string
+    aiAgentName?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type IdeaDiscussionUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    ideaId?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    status?: EnumDiscussionStatusFieldUpdateOperationsInput | $Enums.DiscussionStatus
+    currentRound?: IntFieldUpdateOperationsInput | number
+    totalRounds?: IntFieldUpdateOperationsInput | number
+    aiAgentType?: StringFieldUpdateOperationsInput | string
+    aiAgentName?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type DiscussionMessageCreateInput = {
+    id?: string
+    content: string
+    messageType: $Enums.MessageType
+    roundNumber: number
+    senderType: $Enums.SenderType
+    senderName?: string | null
+    analysisData?: NullableJsonNullValueInput | InputJsonValue
+    suggestions?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    discussion: IdeaDiscussionCreateNestedOneWithoutMessagesInput
+  }
+
+  export type DiscussionMessageUncheckedCreateInput = {
+    id?: string
+    discussionId: string
+    content: string
+    messageType: $Enums.MessageType
+    roundNumber: number
+    senderType: $Enums.SenderType
+    senderName?: string | null
+    analysisData?: NullableJsonNullValueInput | InputJsonValue
+    suggestions?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+  }
+
+  export type DiscussionMessageUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    content?: StringFieldUpdateOperationsInput | string
+    messageType?: EnumMessageTypeFieldUpdateOperationsInput | $Enums.MessageType
+    roundNumber?: IntFieldUpdateOperationsInput | number
+    senderType?: EnumSenderTypeFieldUpdateOperationsInput | $Enums.SenderType
+    senderName?: NullableStringFieldUpdateOperationsInput | string | null
+    analysisData?: NullableJsonNullValueInput | InputJsonValue
+    suggestions?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    discussion?: IdeaDiscussionUpdateOneRequiredWithoutMessagesNestedInput
+  }
+
+  export type DiscussionMessageUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    discussionId?: StringFieldUpdateOperationsInput | string
+    content?: StringFieldUpdateOperationsInput | string
+    messageType?: EnumMessageTypeFieldUpdateOperationsInput | $Enums.MessageType
+    roundNumber?: IntFieldUpdateOperationsInput | number
+    senderType?: EnumSenderTypeFieldUpdateOperationsInput | $Enums.SenderType
+    senderName?: NullableStringFieldUpdateOperationsInput | string | null
+    analysisData?: NullableJsonNullValueInput | InputJsonValue
+    suggestions?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type DiscussionMessageCreateManyInput = {
+    id?: string
+    discussionId: string
+    content: string
+    messageType: $Enums.MessageType
+    roundNumber: number
+    senderType: $Enums.SenderType
+    senderName?: string | null
+    analysisData?: NullableJsonNullValueInput | InputJsonValue
+    suggestions?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+  }
+
+  export type DiscussionMessageUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    content?: StringFieldUpdateOperationsInput | string
+    messageType?: EnumMessageTypeFieldUpdateOperationsInput | $Enums.MessageType
+    roundNumber?: IntFieldUpdateOperationsInput | number
+    senderType?: EnumSenderTypeFieldUpdateOperationsInput | $Enums.SenderType
+    senderName?: NullableStringFieldUpdateOperationsInput | string | null
+    analysisData?: NullableJsonNullValueInput | InputJsonValue
+    suggestions?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type DiscussionMessageUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    discussionId?: StringFieldUpdateOperationsInput | string
+    content?: StringFieldUpdateOperationsInput | string
+    messageType?: EnumMessageTypeFieldUpdateOperationsInput | $Enums.MessageType
+    roundNumber?: IntFieldUpdateOperationsInput | number
+    senderType?: EnumSenderTypeFieldUpdateOperationsInput | $Enums.SenderType
+    senderName?: NullableStringFieldUpdateOperationsInput | string | null
+    analysisData?: NullableJsonNullValueInput | InputJsonValue
+    suggestions?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type StringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[]
@@ -17689,6 +20807,12 @@ export namespace Prisma {
     none?: FileWhereInput
   }
 
+  export type IdeaDiscussionListRelationFilter = {
+    every?: IdeaDiscussionWhereInput
+    some?: IdeaDiscussionWhereInput
+    none?: IdeaDiscussionWhereInput
+  }
+
   export type SortOrderInput = {
     sort: SortOrder
     nulls?: NullsOrder
@@ -17719,6 +20843,10 @@ export namespace Prisma {
   }
 
   export type FileOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type IdeaDiscussionOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -18613,6 +21741,167 @@ export namespace Prisma {
     totalCost?: SortOrder
   }
 
+  export type EnumDiscussionStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.DiscussionStatus | EnumDiscussionStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.DiscussionStatus[]
+    notIn?: $Enums.DiscussionStatus[]
+    not?: NestedEnumDiscussionStatusFilter<$PrismaModel> | $Enums.DiscussionStatus
+  }
+
+  export type DiscussionMessageListRelationFilter = {
+    every?: DiscussionMessageWhereInput
+    some?: DiscussionMessageWhereInput
+    none?: DiscussionMessageWhereInput
+  }
+
+  export type DiscussionMessageOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type IdeaDiscussionCountOrderByAggregateInput = {
+    id?: SortOrder
+    ideaId?: SortOrder
+    userId?: SortOrder
+    status?: SortOrder
+    currentRound?: SortOrder
+    totalRounds?: SortOrder
+    aiAgentType?: SortOrder
+    aiAgentName?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    completedAt?: SortOrder
+  }
+
+  export type IdeaDiscussionAvgOrderByAggregateInput = {
+    currentRound?: SortOrder
+    totalRounds?: SortOrder
+  }
+
+  export type IdeaDiscussionMaxOrderByAggregateInput = {
+    id?: SortOrder
+    ideaId?: SortOrder
+    userId?: SortOrder
+    status?: SortOrder
+    currentRound?: SortOrder
+    totalRounds?: SortOrder
+    aiAgentType?: SortOrder
+    aiAgentName?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    completedAt?: SortOrder
+  }
+
+  export type IdeaDiscussionMinOrderByAggregateInput = {
+    id?: SortOrder
+    ideaId?: SortOrder
+    userId?: SortOrder
+    status?: SortOrder
+    currentRound?: SortOrder
+    totalRounds?: SortOrder
+    aiAgentType?: SortOrder
+    aiAgentName?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    completedAt?: SortOrder
+  }
+
+  export type IdeaDiscussionSumOrderByAggregateInput = {
+    currentRound?: SortOrder
+    totalRounds?: SortOrder
+  }
+
+  export type EnumDiscussionStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.DiscussionStatus | EnumDiscussionStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.DiscussionStatus[]
+    notIn?: $Enums.DiscussionStatus[]
+    not?: NestedEnumDiscussionStatusWithAggregatesFilter<$PrismaModel> | $Enums.DiscussionStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumDiscussionStatusFilter<$PrismaModel>
+    _max?: NestedEnumDiscussionStatusFilter<$PrismaModel>
+  }
+
+  export type EnumMessageTypeFilter<$PrismaModel = never> = {
+    equals?: $Enums.MessageType | EnumMessageTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.MessageType[]
+    notIn?: $Enums.MessageType[]
+    not?: NestedEnumMessageTypeFilter<$PrismaModel> | $Enums.MessageType
+  }
+
+  export type EnumSenderTypeFilter<$PrismaModel = never> = {
+    equals?: $Enums.SenderType | EnumSenderTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.SenderType[]
+    notIn?: $Enums.SenderType[]
+    not?: NestedEnumSenderTypeFilter<$PrismaModel> | $Enums.SenderType
+  }
+
+  export type IdeaDiscussionScalarRelationFilter = {
+    is?: IdeaDiscussionWhereInput
+    isNot?: IdeaDiscussionWhereInput
+  }
+
+  export type DiscussionMessageCountOrderByAggregateInput = {
+    id?: SortOrder
+    discussionId?: SortOrder
+    content?: SortOrder
+    messageType?: SortOrder
+    roundNumber?: SortOrder
+    senderType?: SortOrder
+    senderName?: SortOrder
+    analysisData?: SortOrder
+    suggestions?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type DiscussionMessageAvgOrderByAggregateInput = {
+    roundNumber?: SortOrder
+  }
+
+  export type DiscussionMessageMaxOrderByAggregateInput = {
+    id?: SortOrder
+    discussionId?: SortOrder
+    content?: SortOrder
+    messageType?: SortOrder
+    roundNumber?: SortOrder
+    senderType?: SortOrder
+    senderName?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type DiscussionMessageMinOrderByAggregateInput = {
+    id?: SortOrder
+    discussionId?: SortOrder
+    content?: SortOrder
+    messageType?: SortOrder
+    roundNumber?: SortOrder
+    senderType?: SortOrder
+    senderName?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type DiscussionMessageSumOrderByAggregateInput = {
+    roundNumber?: SortOrder
+  }
+
+  export type EnumMessageTypeWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.MessageType | EnumMessageTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.MessageType[]
+    notIn?: $Enums.MessageType[]
+    not?: NestedEnumMessageTypeWithAggregatesFilter<$PrismaModel> | $Enums.MessageType
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumMessageTypeFilter<$PrismaModel>
+    _max?: NestedEnumMessageTypeFilter<$PrismaModel>
+  }
+
+  export type EnumSenderTypeWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.SenderType | EnumSenderTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.SenderType[]
+    notIn?: $Enums.SenderType[]
+    not?: NestedEnumSenderTypeWithAggregatesFilter<$PrismaModel> | $Enums.SenderType
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumSenderTypeFilter<$PrismaModel>
+    _max?: NestedEnumSenderTypeFilter<$PrismaModel>
+  }
+
   export type IdeaCreateNestedManyWithoutUserInput = {
     create?: XOR<IdeaCreateWithoutUserInput, IdeaUncheckedCreateWithoutUserInput> | IdeaCreateWithoutUserInput[] | IdeaUncheckedCreateWithoutUserInput[]
     connectOrCreate?: IdeaCreateOrConnectWithoutUserInput | IdeaCreateOrConnectWithoutUserInput[]
@@ -18662,6 +21951,13 @@ export namespace Prisma {
     connect?: FileWhereUniqueInput | FileWhereUniqueInput[]
   }
 
+  export type IdeaDiscussionCreateNestedManyWithoutUserInput = {
+    create?: XOR<IdeaDiscussionCreateWithoutUserInput, IdeaDiscussionUncheckedCreateWithoutUserInput> | IdeaDiscussionCreateWithoutUserInput[] | IdeaDiscussionUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: IdeaDiscussionCreateOrConnectWithoutUserInput | IdeaDiscussionCreateOrConnectWithoutUserInput[]
+    createMany?: IdeaDiscussionCreateManyUserInputEnvelope
+    connect?: IdeaDiscussionWhereUniqueInput | IdeaDiscussionWhereUniqueInput[]
+  }
+
   export type IdeaUncheckedCreateNestedManyWithoutUserInput = {
     create?: XOR<IdeaCreateWithoutUserInput, IdeaUncheckedCreateWithoutUserInput> | IdeaCreateWithoutUserInput[] | IdeaUncheckedCreateWithoutUserInput[]
     connectOrCreate?: IdeaCreateOrConnectWithoutUserInput | IdeaCreateOrConnectWithoutUserInput[]
@@ -18709,6 +22005,13 @@ export namespace Prisma {
     connectOrCreate?: FileCreateOrConnectWithoutUserInput | FileCreateOrConnectWithoutUserInput[]
     createMany?: FileCreateManyUserInputEnvelope
     connect?: FileWhereUniqueInput | FileWhereUniqueInput[]
+  }
+
+  export type IdeaDiscussionUncheckedCreateNestedManyWithoutUserInput = {
+    create?: XOR<IdeaDiscussionCreateWithoutUserInput, IdeaDiscussionUncheckedCreateWithoutUserInput> | IdeaDiscussionCreateWithoutUserInput[] | IdeaDiscussionUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: IdeaDiscussionCreateOrConnectWithoutUserInput | IdeaDiscussionCreateOrConnectWithoutUserInput[]
+    createMany?: IdeaDiscussionCreateManyUserInputEnvelope
+    connect?: IdeaDiscussionWhereUniqueInput | IdeaDiscussionWhereUniqueInput[]
   }
 
   export type StringFieldUpdateOperationsInput = {
@@ -18849,6 +22152,20 @@ export namespace Prisma {
     deleteMany?: FileScalarWhereInput | FileScalarWhereInput[]
   }
 
+  export type IdeaDiscussionUpdateManyWithoutUserNestedInput = {
+    create?: XOR<IdeaDiscussionCreateWithoutUserInput, IdeaDiscussionUncheckedCreateWithoutUserInput> | IdeaDiscussionCreateWithoutUserInput[] | IdeaDiscussionUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: IdeaDiscussionCreateOrConnectWithoutUserInput | IdeaDiscussionCreateOrConnectWithoutUserInput[]
+    upsert?: IdeaDiscussionUpsertWithWhereUniqueWithoutUserInput | IdeaDiscussionUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: IdeaDiscussionCreateManyUserInputEnvelope
+    set?: IdeaDiscussionWhereUniqueInput | IdeaDiscussionWhereUniqueInput[]
+    disconnect?: IdeaDiscussionWhereUniqueInput | IdeaDiscussionWhereUniqueInput[]
+    delete?: IdeaDiscussionWhereUniqueInput | IdeaDiscussionWhereUniqueInput[]
+    connect?: IdeaDiscussionWhereUniqueInput | IdeaDiscussionWhereUniqueInput[]
+    update?: IdeaDiscussionUpdateWithWhereUniqueWithoutUserInput | IdeaDiscussionUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: IdeaDiscussionUpdateManyWithWhereWithoutUserInput | IdeaDiscussionUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: IdeaDiscussionScalarWhereInput | IdeaDiscussionScalarWhereInput[]
+  }
+
   export type IdeaUncheckedUpdateManyWithoutUserNestedInput = {
     create?: XOR<IdeaCreateWithoutUserInput, IdeaUncheckedCreateWithoutUserInput> | IdeaCreateWithoutUserInput[] | IdeaUncheckedCreateWithoutUserInput[]
     connectOrCreate?: IdeaCreateOrConnectWithoutUserInput | IdeaCreateOrConnectWithoutUserInput[]
@@ -18947,6 +22264,20 @@ export namespace Prisma {
     deleteMany?: FileScalarWhereInput | FileScalarWhereInput[]
   }
 
+  export type IdeaDiscussionUncheckedUpdateManyWithoutUserNestedInput = {
+    create?: XOR<IdeaDiscussionCreateWithoutUserInput, IdeaDiscussionUncheckedCreateWithoutUserInput> | IdeaDiscussionCreateWithoutUserInput[] | IdeaDiscussionUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: IdeaDiscussionCreateOrConnectWithoutUserInput | IdeaDiscussionCreateOrConnectWithoutUserInput[]
+    upsert?: IdeaDiscussionUpsertWithWhereUniqueWithoutUserInput | IdeaDiscussionUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: IdeaDiscussionCreateManyUserInputEnvelope
+    set?: IdeaDiscussionWhereUniqueInput | IdeaDiscussionWhereUniqueInput[]
+    disconnect?: IdeaDiscussionWhereUniqueInput | IdeaDiscussionWhereUniqueInput[]
+    delete?: IdeaDiscussionWhereUniqueInput | IdeaDiscussionWhereUniqueInput[]
+    connect?: IdeaDiscussionWhereUniqueInput | IdeaDiscussionWhereUniqueInput[]
+    update?: IdeaDiscussionUpdateWithWhereUniqueWithoutUserInput | IdeaDiscussionUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: IdeaDiscussionUpdateManyWithWhereWithoutUserInput | IdeaDiscussionUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: IdeaDiscussionScalarWhereInput | IdeaDiscussionScalarWhereInput[]
+  }
+
   export type UserCreateNestedOneWithoutSessionsInput = {
     create?: XOR<UserCreateWithoutSessionsInput, UserUncheckedCreateWithoutSessionsInput>
     connectOrCreate?: UserCreateOrConnectWithoutSessionsInput
@@ -18988,11 +22319,25 @@ export namespace Prisma {
     connect?: ResearchReportWhereUniqueInput | ResearchReportWhereUniqueInput[]
   }
 
+  export type IdeaDiscussionCreateNestedManyWithoutIdeaInput = {
+    create?: XOR<IdeaDiscussionCreateWithoutIdeaInput, IdeaDiscussionUncheckedCreateWithoutIdeaInput> | IdeaDiscussionCreateWithoutIdeaInput[] | IdeaDiscussionUncheckedCreateWithoutIdeaInput[]
+    connectOrCreate?: IdeaDiscussionCreateOrConnectWithoutIdeaInput | IdeaDiscussionCreateOrConnectWithoutIdeaInput[]
+    createMany?: IdeaDiscussionCreateManyIdeaInputEnvelope
+    connect?: IdeaDiscussionWhereUniqueInput | IdeaDiscussionWhereUniqueInput[]
+  }
+
   export type ResearchReportUncheckedCreateNestedManyWithoutIdeaInput = {
     create?: XOR<ResearchReportCreateWithoutIdeaInput, ResearchReportUncheckedCreateWithoutIdeaInput> | ResearchReportCreateWithoutIdeaInput[] | ResearchReportUncheckedCreateWithoutIdeaInput[]
     connectOrCreate?: ResearchReportCreateOrConnectWithoutIdeaInput | ResearchReportCreateOrConnectWithoutIdeaInput[]
     createMany?: ResearchReportCreateManyIdeaInputEnvelope
     connect?: ResearchReportWhereUniqueInput | ResearchReportWhereUniqueInput[]
+  }
+
+  export type IdeaDiscussionUncheckedCreateNestedManyWithoutIdeaInput = {
+    create?: XOR<IdeaDiscussionCreateWithoutIdeaInput, IdeaDiscussionUncheckedCreateWithoutIdeaInput> | IdeaDiscussionCreateWithoutIdeaInput[] | IdeaDiscussionUncheckedCreateWithoutIdeaInput[]
+    connectOrCreate?: IdeaDiscussionCreateOrConnectWithoutIdeaInput | IdeaDiscussionCreateOrConnectWithoutIdeaInput[]
+    createMany?: IdeaDiscussionCreateManyIdeaInputEnvelope
+    connect?: IdeaDiscussionWhereUniqueInput | IdeaDiscussionWhereUniqueInput[]
   }
 
   export type EnumIdeaCategoryFieldUpdateOperationsInput = {
@@ -19029,6 +22374,20 @@ export namespace Prisma {
     deleteMany?: ResearchReportScalarWhereInput | ResearchReportScalarWhereInput[]
   }
 
+  export type IdeaDiscussionUpdateManyWithoutIdeaNestedInput = {
+    create?: XOR<IdeaDiscussionCreateWithoutIdeaInput, IdeaDiscussionUncheckedCreateWithoutIdeaInput> | IdeaDiscussionCreateWithoutIdeaInput[] | IdeaDiscussionUncheckedCreateWithoutIdeaInput[]
+    connectOrCreate?: IdeaDiscussionCreateOrConnectWithoutIdeaInput | IdeaDiscussionCreateOrConnectWithoutIdeaInput[]
+    upsert?: IdeaDiscussionUpsertWithWhereUniqueWithoutIdeaInput | IdeaDiscussionUpsertWithWhereUniqueWithoutIdeaInput[]
+    createMany?: IdeaDiscussionCreateManyIdeaInputEnvelope
+    set?: IdeaDiscussionWhereUniqueInput | IdeaDiscussionWhereUniqueInput[]
+    disconnect?: IdeaDiscussionWhereUniqueInput | IdeaDiscussionWhereUniqueInput[]
+    delete?: IdeaDiscussionWhereUniqueInput | IdeaDiscussionWhereUniqueInput[]
+    connect?: IdeaDiscussionWhereUniqueInput | IdeaDiscussionWhereUniqueInput[]
+    update?: IdeaDiscussionUpdateWithWhereUniqueWithoutIdeaInput | IdeaDiscussionUpdateWithWhereUniqueWithoutIdeaInput[]
+    updateMany?: IdeaDiscussionUpdateManyWithWhereWithoutIdeaInput | IdeaDiscussionUpdateManyWithWhereWithoutIdeaInput[]
+    deleteMany?: IdeaDiscussionScalarWhereInput | IdeaDiscussionScalarWhereInput[]
+  }
+
   export type ResearchReportUncheckedUpdateManyWithoutIdeaNestedInput = {
     create?: XOR<ResearchReportCreateWithoutIdeaInput, ResearchReportUncheckedCreateWithoutIdeaInput> | ResearchReportCreateWithoutIdeaInput[] | ResearchReportUncheckedCreateWithoutIdeaInput[]
     connectOrCreate?: ResearchReportCreateOrConnectWithoutIdeaInput | ResearchReportCreateOrConnectWithoutIdeaInput[]
@@ -19041,6 +22400,20 @@ export namespace Prisma {
     update?: ResearchReportUpdateWithWhereUniqueWithoutIdeaInput | ResearchReportUpdateWithWhereUniqueWithoutIdeaInput[]
     updateMany?: ResearchReportUpdateManyWithWhereWithoutIdeaInput | ResearchReportUpdateManyWithWhereWithoutIdeaInput[]
     deleteMany?: ResearchReportScalarWhereInput | ResearchReportScalarWhereInput[]
+  }
+
+  export type IdeaDiscussionUncheckedUpdateManyWithoutIdeaNestedInput = {
+    create?: XOR<IdeaDiscussionCreateWithoutIdeaInput, IdeaDiscussionUncheckedCreateWithoutIdeaInput> | IdeaDiscussionCreateWithoutIdeaInput[] | IdeaDiscussionUncheckedCreateWithoutIdeaInput[]
+    connectOrCreate?: IdeaDiscussionCreateOrConnectWithoutIdeaInput | IdeaDiscussionCreateOrConnectWithoutIdeaInput[]
+    upsert?: IdeaDiscussionUpsertWithWhereUniqueWithoutIdeaInput | IdeaDiscussionUpsertWithWhereUniqueWithoutIdeaInput[]
+    createMany?: IdeaDiscussionCreateManyIdeaInputEnvelope
+    set?: IdeaDiscussionWhereUniqueInput | IdeaDiscussionWhereUniqueInput[]
+    disconnect?: IdeaDiscussionWhereUniqueInput | IdeaDiscussionWhereUniqueInput[]
+    delete?: IdeaDiscussionWhereUniqueInput | IdeaDiscussionWhereUniqueInput[]
+    connect?: IdeaDiscussionWhereUniqueInput | IdeaDiscussionWhereUniqueInput[]
+    update?: IdeaDiscussionUpdateWithWhereUniqueWithoutIdeaInput | IdeaDiscussionUpdateWithWhereUniqueWithoutIdeaInput[]
+    updateMany?: IdeaDiscussionUpdateManyWithWhereWithoutIdeaInput | IdeaDiscussionUpdateManyWithWhereWithoutIdeaInput[]
+    deleteMany?: IdeaDiscussionScalarWhereInput | IdeaDiscussionScalarWhereInput[]
   }
 
   export type IdeaCreateNestedOneWithoutResearchReportsInput = {
@@ -19183,6 +22556,102 @@ export namespace Prisma {
     upsert?: UserUpsertWithoutFilesInput
     connect?: UserWhereUniqueInput
     update?: XOR<XOR<UserUpdateToOneWithWhereWithoutFilesInput, UserUpdateWithoutFilesInput>, UserUncheckedUpdateWithoutFilesInput>
+  }
+
+  export type IdeaCreateNestedOneWithoutDiscussionsInput = {
+    create?: XOR<IdeaCreateWithoutDiscussionsInput, IdeaUncheckedCreateWithoutDiscussionsInput>
+    connectOrCreate?: IdeaCreateOrConnectWithoutDiscussionsInput
+    connect?: IdeaWhereUniqueInput
+  }
+
+  export type UserCreateNestedOneWithoutDiscussionsInput = {
+    create?: XOR<UserCreateWithoutDiscussionsInput, UserUncheckedCreateWithoutDiscussionsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutDiscussionsInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type DiscussionMessageCreateNestedManyWithoutDiscussionInput = {
+    create?: XOR<DiscussionMessageCreateWithoutDiscussionInput, DiscussionMessageUncheckedCreateWithoutDiscussionInput> | DiscussionMessageCreateWithoutDiscussionInput[] | DiscussionMessageUncheckedCreateWithoutDiscussionInput[]
+    connectOrCreate?: DiscussionMessageCreateOrConnectWithoutDiscussionInput | DiscussionMessageCreateOrConnectWithoutDiscussionInput[]
+    createMany?: DiscussionMessageCreateManyDiscussionInputEnvelope
+    connect?: DiscussionMessageWhereUniqueInput | DiscussionMessageWhereUniqueInput[]
+  }
+
+  export type DiscussionMessageUncheckedCreateNestedManyWithoutDiscussionInput = {
+    create?: XOR<DiscussionMessageCreateWithoutDiscussionInput, DiscussionMessageUncheckedCreateWithoutDiscussionInput> | DiscussionMessageCreateWithoutDiscussionInput[] | DiscussionMessageUncheckedCreateWithoutDiscussionInput[]
+    connectOrCreate?: DiscussionMessageCreateOrConnectWithoutDiscussionInput | DiscussionMessageCreateOrConnectWithoutDiscussionInput[]
+    createMany?: DiscussionMessageCreateManyDiscussionInputEnvelope
+    connect?: DiscussionMessageWhereUniqueInput | DiscussionMessageWhereUniqueInput[]
+  }
+
+  export type EnumDiscussionStatusFieldUpdateOperationsInput = {
+    set?: $Enums.DiscussionStatus
+  }
+
+  export type IdeaUpdateOneRequiredWithoutDiscussionsNestedInput = {
+    create?: XOR<IdeaCreateWithoutDiscussionsInput, IdeaUncheckedCreateWithoutDiscussionsInput>
+    connectOrCreate?: IdeaCreateOrConnectWithoutDiscussionsInput
+    upsert?: IdeaUpsertWithoutDiscussionsInput
+    connect?: IdeaWhereUniqueInput
+    update?: XOR<XOR<IdeaUpdateToOneWithWhereWithoutDiscussionsInput, IdeaUpdateWithoutDiscussionsInput>, IdeaUncheckedUpdateWithoutDiscussionsInput>
+  }
+
+  export type UserUpdateOneRequiredWithoutDiscussionsNestedInput = {
+    create?: XOR<UserCreateWithoutDiscussionsInput, UserUncheckedCreateWithoutDiscussionsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutDiscussionsInput
+    upsert?: UserUpsertWithoutDiscussionsInput
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutDiscussionsInput, UserUpdateWithoutDiscussionsInput>, UserUncheckedUpdateWithoutDiscussionsInput>
+  }
+
+  export type DiscussionMessageUpdateManyWithoutDiscussionNestedInput = {
+    create?: XOR<DiscussionMessageCreateWithoutDiscussionInput, DiscussionMessageUncheckedCreateWithoutDiscussionInput> | DiscussionMessageCreateWithoutDiscussionInput[] | DiscussionMessageUncheckedCreateWithoutDiscussionInput[]
+    connectOrCreate?: DiscussionMessageCreateOrConnectWithoutDiscussionInput | DiscussionMessageCreateOrConnectWithoutDiscussionInput[]
+    upsert?: DiscussionMessageUpsertWithWhereUniqueWithoutDiscussionInput | DiscussionMessageUpsertWithWhereUniqueWithoutDiscussionInput[]
+    createMany?: DiscussionMessageCreateManyDiscussionInputEnvelope
+    set?: DiscussionMessageWhereUniqueInput | DiscussionMessageWhereUniqueInput[]
+    disconnect?: DiscussionMessageWhereUniqueInput | DiscussionMessageWhereUniqueInput[]
+    delete?: DiscussionMessageWhereUniqueInput | DiscussionMessageWhereUniqueInput[]
+    connect?: DiscussionMessageWhereUniqueInput | DiscussionMessageWhereUniqueInput[]
+    update?: DiscussionMessageUpdateWithWhereUniqueWithoutDiscussionInput | DiscussionMessageUpdateWithWhereUniqueWithoutDiscussionInput[]
+    updateMany?: DiscussionMessageUpdateManyWithWhereWithoutDiscussionInput | DiscussionMessageUpdateManyWithWhereWithoutDiscussionInput[]
+    deleteMany?: DiscussionMessageScalarWhereInput | DiscussionMessageScalarWhereInput[]
+  }
+
+  export type DiscussionMessageUncheckedUpdateManyWithoutDiscussionNestedInput = {
+    create?: XOR<DiscussionMessageCreateWithoutDiscussionInput, DiscussionMessageUncheckedCreateWithoutDiscussionInput> | DiscussionMessageCreateWithoutDiscussionInput[] | DiscussionMessageUncheckedCreateWithoutDiscussionInput[]
+    connectOrCreate?: DiscussionMessageCreateOrConnectWithoutDiscussionInput | DiscussionMessageCreateOrConnectWithoutDiscussionInput[]
+    upsert?: DiscussionMessageUpsertWithWhereUniqueWithoutDiscussionInput | DiscussionMessageUpsertWithWhereUniqueWithoutDiscussionInput[]
+    createMany?: DiscussionMessageCreateManyDiscussionInputEnvelope
+    set?: DiscussionMessageWhereUniqueInput | DiscussionMessageWhereUniqueInput[]
+    disconnect?: DiscussionMessageWhereUniqueInput | DiscussionMessageWhereUniqueInput[]
+    delete?: DiscussionMessageWhereUniqueInput | DiscussionMessageWhereUniqueInput[]
+    connect?: DiscussionMessageWhereUniqueInput | DiscussionMessageWhereUniqueInput[]
+    update?: DiscussionMessageUpdateWithWhereUniqueWithoutDiscussionInput | DiscussionMessageUpdateWithWhereUniqueWithoutDiscussionInput[]
+    updateMany?: DiscussionMessageUpdateManyWithWhereWithoutDiscussionInput | DiscussionMessageUpdateManyWithWhereWithoutDiscussionInput[]
+    deleteMany?: DiscussionMessageScalarWhereInput | DiscussionMessageScalarWhereInput[]
+  }
+
+  export type IdeaDiscussionCreateNestedOneWithoutMessagesInput = {
+    create?: XOR<IdeaDiscussionCreateWithoutMessagesInput, IdeaDiscussionUncheckedCreateWithoutMessagesInput>
+    connectOrCreate?: IdeaDiscussionCreateOrConnectWithoutMessagesInput
+    connect?: IdeaDiscussionWhereUniqueInput
+  }
+
+  export type EnumMessageTypeFieldUpdateOperationsInput = {
+    set?: $Enums.MessageType
+  }
+
+  export type EnumSenderTypeFieldUpdateOperationsInput = {
+    set?: $Enums.SenderType
+  }
+
+  export type IdeaDiscussionUpdateOneRequiredWithoutMessagesNestedInput = {
+    create?: XOR<IdeaDiscussionCreateWithoutMessagesInput, IdeaDiscussionUncheckedCreateWithoutMessagesInput>
+    connectOrCreate?: IdeaDiscussionCreateOrConnectWithoutMessagesInput
+    upsert?: IdeaDiscussionUpsertWithoutMessagesInput
+    connect?: IdeaDiscussionWhereUniqueInput
+    update?: XOR<XOR<IdeaDiscussionUpdateToOneWithWhereWithoutMessagesInput, IdeaDiscussionUpdateWithoutMessagesInput>, IdeaDiscussionUncheckedUpdateWithoutMessagesInput>
   }
 
   export type NestedStringFilter<$PrismaModel = never> = {
@@ -19547,6 +23016,57 @@ export namespace Prisma {
     _max?: NestedFloatFilter<$PrismaModel>
   }
 
+  export type NestedEnumDiscussionStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.DiscussionStatus | EnumDiscussionStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.DiscussionStatus[]
+    notIn?: $Enums.DiscussionStatus[]
+    not?: NestedEnumDiscussionStatusFilter<$PrismaModel> | $Enums.DiscussionStatus
+  }
+
+  export type NestedEnumDiscussionStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.DiscussionStatus | EnumDiscussionStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.DiscussionStatus[]
+    notIn?: $Enums.DiscussionStatus[]
+    not?: NestedEnumDiscussionStatusWithAggregatesFilter<$PrismaModel> | $Enums.DiscussionStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumDiscussionStatusFilter<$PrismaModel>
+    _max?: NestedEnumDiscussionStatusFilter<$PrismaModel>
+  }
+
+  export type NestedEnumMessageTypeFilter<$PrismaModel = never> = {
+    equals?: $Enums.MessageType | EnumMessageTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.MessageType[]
+    notIn?: $Enums.MessageType[]
+    not?: NestedEnumMessageTypeFilter<$PrismaModel> | $Enums.MessageType
+  }
+
+  export type NestedEnumSenderTypeFilter<$PrismaModel = never> = {
+    equals?: $Enums.SenderType | EnumSenderTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.SenderType[]
+    notIn?: $Enums.SenderType[]
+    not?: NestedEnumSenderTypeFilter<$PrismaModel> | $Enums.SenderType
+  }
+
+  export type NestedEnumMessageTypeWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.MessageType | EnumMessageTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.MessageType[]
+    notIn?: $Enums.MessageType[]
+    not?: NestedEnumMessageTypeWithAggregatesFilter<$PrismaModel> | $Enums.MessageType
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumMessageTypeFilter<$PrismaModel>
+    _max?: NestedEnumMessageTypeFilter<$PrismaModel>
+  }
+
+  export type NestedEnumSenderTypeWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.SenderType | EnumSenderTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.SenderType[]
+    notIn?: $Enums.SenderType[]
+    not?: NestedEnumSenderTypeWithAggregatesFilter<$PrismaModel> | $Enums.SenderType
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumSenderTypeFilter<$PrismaModel>
+    _max?: NestedEnumSenderTypeFilter<$PrismaModel>
+  }
+
   export type IdeaCreateWithoutUserInput = {
     id?: string
     title: string
@@ -19561,6 +23081,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     researchReports?: ResearchReportCreateNestedManyWithoutIdeaInput
+    discussions?: IdeaDiscussionCreateNestedManyWithoutIdeaInput
   }
 
   export type IdeaUncheckedCreateWithoutUserInput = {
@@ -19577,6 +23098,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     researchReports?: ResearchReportUncheckedCreateNestedManyWithoutIdeaInput
+    discussions?: IdeaDiscussionUncheckedCreateNestedManyWithoutIdeaInput
   }
 
   export type IdeaCreateOrConnectWithoutUserInput = {
@@ -19802,6 +23324,43 @@ export namespace Prisma {
 
   export type FileCreateManyUserInputEnvelope = {
     data: FileCreateManyUserInput | FileCreateManyUserInput[]
+  }
+
+  export type IdeaDiscussionCreateWithoutUserInput = {
+    id?: string
+    status?: $Enums.DiscussionStatus
+    currentRound?: number
+    totalRounds?: number
+    aiAgentType: string
+    aiAgentName: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    completedAt?: Date | string | null
+    idea: IdeaCreateNestedOneWithoutDiscussionsInput
+    messages?: DiscussionMessageCreateNestedManyWithoutDiscussionInput
+  }
+
+  export type IdeaDiscussionUncheckedCreateWithoutUserInput = {
+    id?: string
+    ideaId: string
+    status?: $Enums.DiscussionStatus
+    currentRound?: number
+    totalRounds?: number
+    aiAgentType: string
+    aiAgentName: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    completedAt?: Date | string | null
+    messages?: DiscussionMessageUncheckedCreateNestedManyWithoutDiscussionInput
+  }
+
+  export type IdeaDiscussionCreateOrConnectWithoutUserInput = {
+    where: IdeaDiscussionWhereUniqueInput
+    create: XOR<IdeaDiscussionCreateWithoutUserInput, IdeaDiscussionUncheckedCreateWithoutUserInput>
+  }
+
+  export type IdeaDiscussionCreateManyUserInputEnvelope = {
+    data: IdeaDiscussionCreateManyUserInput | IdeaDiscussionCreateManyUserInput[]
   }
 
   export type IdeaUpsertWithWhereUniqueWithoutUserInput = {
@@ -20039,6 +23598,39 @@ export namespace Prisma {
     deletedAt?: DateTimeNullableFilter<"File"> | Date | string | null
   }
 
+  export type IdeaDiscussionUpsertWithWhereUniqueWithoutUserInput = {
+    where: IdeaDiscussionWhereUniqueInput
+    update: XOR<IdeaDiscussionUpdateWithoutUserInput, IdeaDiscussionUncheckedUpdateWithoutUserInput>
+    create: XOR<IdeaDiscussionCreateWithoutUserInput, IdeaDiscussionUncheckedCreateWithoutUserInput>
+  }
+
+  export type IdeaDiscussionUpdateWithWhereUniqueWithoutUserInput = {
+    where: IdeaDiscussionWhereUniqueInput
+    data: XOR<IdeaDiscussionUpdateWithoutUserInput, IdeaDiscussionUncheckedUpdateWithoutUserInput>
+  }
+
+  export type IdeaDiscussionUpdateManyWithWhereWithoutUserInput = {
+    where: IdeaDiscussionScalarWhereInput
+    data: XOR<IdeaDiscussionUpdateManyMutationInput, IdeaDiscussionUncheckedUpdateManyWithoutUserInput>
+  }
+
+  export type IdeaDiscussionScalarWhereInput = {
+    AND?: IdeaDiscussionScalarWhereInput | IdeaDiscussionScalarWhereInput[]
+    OR?: IdeaDiscussionScalarWhereInput[]
+    NOT?: IdeaDiscussionScalarWhereInput | IdeaDiscussionScalarWhereInput[]
+    id?: StringFilter<"IdeaDiscussion"> | string
+    ideaId?: StringFilter<"IdeaDiscussion"> | string
+    userId?: StringFilter<"IdeaDiscussion"> | string
+    status?: EnumDiscussionStatusFilter<"IdeaDiscussion"> | $Enums.DiscussionStatus
+    currentRound?: IntFilter<"IdeaDiscussion"> | number
+    totalRounds?: IntFilter<"IdeaDiscussion"> | number
+    aiAgentType?: StringFilter<"IdeaDiscussion"> | string
+    aiAgentName?: StringFilter<"IdeaDiscussion"> | string
+    createdAt?: DateTimeFilter<"IdeaDiscussion"> | Date | string
+    updatedAt?: DateTimeFilter<"IdeaDiscussion"> | Date | string
+    completedAt?: DateTimeNullableFilter<"IdeaDiscussion"> | Date | string | null
+  }
+
   export type UserCreateWithoutSessionsInput = {
     id?: string
     email: string
@@ -20068,6 +23660,7 @@ export namespace Prisma {
     payments?: PaymentCreateNestedManyWithoutUserInput
     refreshTokens?: RefreshTokenCreateNestedManyWithoutUserInput
     files?: FileCreateNestedManyWithoutUserInput
+    discussions?: IdeaDiscussionCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutSessionsInput = {
@@ -20099,6 +23692,7 @@ export namespace Prisma {
     payments?: PaymentUncheckedCreateNestedManyWithoutUserInput
     refreshTokens?: RefreshTokenUncheckedCreateNestedManyWithoutUserInput
     files?: FileUncheckedCreateNestedManyWithoutUserInput
+    discussions?: IdeaDiscussionUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutSessionsInput = {
@@ -20146,6 +23740,7 @@ export namespace Prisma {
     payments?: PaymentUpdateManyWithoutUserNestedInput
     refreshTokens?: RefreshTokenUpdateManyWithoutUserNestedInput
     files?: FileUpdateManyWithoutUserNestedInput
+    discussions?: IdeaDiscussionUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutSessionsInput = {
@@ -20177,6 +23772,7 @@ export namespace Prisma {
     payments?: PaymentUncheckedUpdateManyWithoutUserNestedInput
     refreshTokens?: RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
     files?: FileUncheckedUpdateManyWithoutUserNestedInput
+    discussions?: IdeaDiscussionUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutRefreshTokensInput = {
@@ -20208,6 +23804,7 @@ export namespace Prisma {
     payments?: PaymentCreateNestedManyWithoutUserInput
     sessions?: UserSessionCreateNestedManyWithoutUserInput
     files?: FileCreateNestedManyWithoutUserInput
+    discussions?: IdeaDiscussionCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutRefreshTokensInput = {
@@ -20239,6 +23836,7 @@ export namespace Prisma {
     payments?: PaymentUncheckedCreateNestedManyWithoutUserInput
     sessions?: UserSessionUncheckedCreateNestedManyWithoutUserInput
     files?: FileUncheckedCreateNestedManyWithoutUserInput
+    discussions?: IdeaDiscussionUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutRefreshTokensInput = {
@@ -20286,6 +23884,7 @@ export namespace Prisma {
     payments?: PaymentUpdateManyWithoutUserNestedInput
     sessions?: UserSessionUpdateManyWithoutUserNestedInput
     files?: FileUpdateManyWithoutUserNestedInput
+    discussions?: IdeaDiscussionUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutRefreshTokensInput = {
@@ -20317,6 +23916,7 @@ export namespace Prisma {
     payments?: PaymentUncheckedUpdateManyWithoutUserNestedInput
     sessions?: UserSessionUncheckedUpdateManyWithoutUserNestedInput
     files?: FileUncheckedUpdateManyWithoutUserNestedInput
+    discussions?: IdeaDiscussionUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutIdeasInput = {
@@ -20348,6 +23948,7 @@ export namespace Prisma {
     sessions?: UserSessionCreateNestedManyWithoutUserInput
     refreshTokens?: RefreshTokenCreateNestedManyWithoutUserInput
     files?: FileCreateNestedManyWithoutUserInput
+    discussions?: IdeaDiscussionCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutIdeasInput = {
@@ -20379,6 +23980,7 @@ export namespace Prisma {
     sessions?: UserSessionUncheckedCreateNestedManyWithoutUserInput
     refreshTokens?: RefreshTokenUncheckedCreateNestedManyWithoutUserInput
     files?: FileUncheckedCreateNestedManyWithoutUserInput
+    discussions?: IdeaDiscussionUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutIdeasInput = {
@@ -20431,6 +24033,43 @@ export namespace Prisma {
     data: ResearchReportCreateManyIdeaInput | ResearchReportCreateManyIdeaInput[]
   }
 
+  export type IdeaDiscussionCreateWithoutIdeaInput = {
+    id?: string
+    status?: $Enums.DiscussionStatus
+    currentRound?: number
+    totalRounds?: number
+    aiAgentType: string
+    aiAgentName: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    completedAt?: Date | string | null
+    user: UserCreateNestedOneWithoutDiscussionsInput
+    messages?: DiscussionMessageCreateNestedManyWithoutDiscussionInput
+  }
+
+  export type IdeaDiscussionUncheckedCreateWithoutIdeaInput = {
+    id?: string
+    userId: string
+    status?: $Enums.DiscussionStatus
+    currentRound?: number
+    totalRounds?: number
+    aiAgentType: string
+    aiAgentName: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    completedAt?: Date | string | null
+    messages?: DiscussionMessageUncheckedCreateNestedManyWithoutDiscussionInput
+  }
+
+  export type IdeaDiscussionCreateOrConnectWithoutIdeaInput = {
+    where: IdeaDiscussionWhereUniqueInput
+    create: XOR<IdeaDiscussionCreateWithoutIdeaInput, IdeaDiscussionUncheckedCreateWithoutIdeaInput>
+  }
+
+  export type IdeaDiscussionCreateManyIdeaInputEnvelope = {
+    data: IdeaDiscussionCreateManyIdeaInput | IdeaDiscussionCreateManyIdeaInput[]
+  }
+
   export type UserUpsertWithoutIdeasInput = {
     update: XOR<UserUpdateWithoutIdeasInput, UserUncheckedUpdateWithoutIdeasInput>
     create: XOR<UserCreateWithoutIdeasInput, UserUncheckedCreateWithoutIdeasInput>
@@ -20471,6 +24110,7 @@ export namespace Prisma {
     sessions?: UserSessionUpdateManyWithoutUserNestedInput
     refreshTokens?: RefreshTokenUpdateManyWithoutUserNestedInput
     files?: FileUpdateManyWithoutUserNestedInput
+    discussions?: IdeaDiscussionUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutIdeasInput = {
@@ -20502,6 +24142,7 @@ export namespace Prisma {
     sessions?: UserSessionUncheckedUpdateManyWithoutUserNestedInput
     refreshTokens?: RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
     files?: FileUncheckedUpdateManyWithoutUserNestedInput
+    discussions?: IdeaDiscussionUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type ResearchReportUpsertWithWhereUniqueWithoutIdeaInput = {
@@ -20520,6 +24161,22 @@ export namespace Prisma {
     data: XOR<ResearchReportUpdateManyMutationInput, ResearchReportUncheckedUpdateManyWithoutIdeaInput>
   }
 
+  export type IdeaDiscussionUpsertWithWhereUniqueWithoutIdeaInput = {
+    where: IdeaDiscussionWhereUniqueInput
+    update: XOR<IdeaDiscussionUpdateWithoutIdeaInput, IdeaDiscussionUncheckedUpdateWithoutIdeaInput>
+    create: XOR<IdeaDiscussionCreateWithoutIdeaInput, IdeaDiscussionUncheckedCreateWithoutIdeaInput>
+  }
+
+  export type IdeaDiscussionUpdateWithWhereUniqueWithoutIdeaInput = {
+    where: IdeaDiscussionWhereUniqueInput
+    data: XOR<IdeaDiscussionUpdateWithoutIdeaInput, IdeaDiscussionUncheckedUpdateWithoutIdeaInput>
+  }
+
+  export type IdeaDiscussionUpdateManyWithWhereWithoutIdeaInput = {
+    where: IdeaDiscussionScalarWhereInput
+    data: XOR<IdeaDiscussionUpdateManyMutationInput, IdeaDiscussionUncheckedUpdateManyWithoutIdeaInput>
+  }
+
   export type IdeaCreateWithoutResearchReportsInput = {
     id?: string
     title: string
@@ -20534,6 +24191,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     user: UserCreateNestedOneWithoutIdeasInput
+    discussions?: IdeaDiscussionCreateNestedManyWithoutIdeaInput
   }
 
   export type IdeaUncheckedCreateWithoutResearchReportsInput = {
@@ -20550,6 +24208,7 @@ export namespace Prisma {
     likeCount?: number
     createdAt?: Date | string
     updatedAt?: Date | string
+    discussions?: IdeaDiscussionUncheckedCreateNestedManyWithoutIdeaInput
   }
 
   export type IdeaCreateOrConnectWithoutResearchReportsInput = {
@@ -20586,6 +24245,7 @@ export namespace Prisma {
     sessions?: UserSessionCreateNestedManyWithoutUserInput
     refreshTokens?: RefreshTokenCreateNestedManyWithoutUserInput
     files?: FileCreateNestedManyWithoutUserInput
+    discussions?: IdeaDiscussionCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutResearchReportsInput = {
@@ -20617,6 +24277,7 @@ export namespace Prisma {
     sessions?: UserSessionUncheckedCreateNestedManyWithoutUserInput
     refreshTokens?: RefreshTokenUncheckedCreateNestedManyWithoutUserInput
     files?: FileUncheckedCreateNestedManyWithoutUserInput
+    discussions?: IdeaDiscussionUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutResearchReportsInput = {
@@ -20649,6 +24310,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     user?: UserUpdateOneRequiredWithoutIdeasNestedInput
+    discussions?: IdeaDiscussionUpdateManyWithoutIdeaNestedInput
   }
 
   export type IdeaUncheckedUpdateWithoutResearchReportsInput = {
@@ -20665,6 +24327,7 @@ export namespace Prisma {
     likeCount?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    discussions?: IdeaDiscussionUncheckedUpdateManyWithoutIdeaNestedInput
   }
 
   export type UserUpsertWithoutResearchReportsInput = {
@@ -20707,6 +24370,7 @@ export namespace Prisma {
     sessions?: UserSessionUpdateManyWithoutUserNestedInput
     refreshTokens?: RefreshTokenUpdateManyWithoutUserNestedInput
     files?: FileUpdateManyWithoutUserNestedInput
+    discussions?: IdeaDiscussionUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutResearchReportsInput = {
@@ -20738,6 +24402,7 @@ export namespace Prisma {
     sessions?: UserSessionUncheckedUpdateManyWithoutUserNestedInput
     refreshTokens?: RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
     files?: FileUncheckedUpdateManyWithoutUserNestedInput
+    discussions?: IdeaDiscussionUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutCreditTransactionsInput = {
@@ -20769,6 +24434,7 @@ export namespace Prisma {
     sessions?: UserSessionCreateNestedManyWithoutUserInput
     refreshTokens?: RefreshTokenCreateNestedManyWithoutUserInput
     files?: FileCreateNestedManyWithoutUserInput
+    discussions?: IdeaDiscussionCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutCreditTransactionsInput = {
@@ -20800,6 +24466,7 @@ export namespace Prisma {
     sessions?: UserSessionUncheckedCreateNestedManyWithoutUserInput
     refreshTokens?: RefreshTokenUncheckedCreateNestedManyWithoutUserInput
     files?: FileUncheckedCreateNestedManyWithoutUserInput
+    discussions?: IdeaDiscussionUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutCreditTransactionsInput = {
@@ -20847,6 +24514,7 @@ export namespace Prisma {
     sessions?: UserSessionUpdateManyWithoutUserNestedInput
     refreshTokens?: RefreshTokenUpdateManyWithoutUserNestedInput
     files?: FileUpdateManyWithoutUserNestedInput
+    discussions?: IdeaDiscussionUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutCreditTransactionsInput = {
@@ -20878,6 +24546,7 @@ export namespace Prisma {
     sessions?: UserSessionUncheckedUpdateManyWithoutUserNestedInput
     refreshTokens?: RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
     files?: FileUncheckedUpdateManyWithoutUserNestedInput
+    discussions?: IdeaDiscussionUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutPaymentsInput = {
@@ -20909,6 +24578,7 @@ export namespace Prisma {
     sessions?: UserSessionCreateNestedManyWithoutUserInput
     refreshTokens?: RefreshTokenCreateNestedManyWithoutUserInput
     files?: FileCreateNestedManyWithoutUserInput
+    discussions?: IdeaDiscussionCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutPaymentsInput = {
@@ -20940,6 +24610,7 @@ export namespace Prisma {
     sessions?: UserSessionUncheckedCreateNestedManyWithoutUserInput
     refreshTokens?: RefreshTokenUncheckedCreateNestedManyWithoutUserInput
     files?: FileUncheckedCreateNestedManyWithoutUserInput
+    discussions?: IdeaDiscussionUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutPaymentsInput = {
@@ -21022,6 +24693,7 @@ export namespace Prisma {
     sessions?: UserSessionUpdateManyWithoutUserNestedInput
     refreshTokens?: RefreshTokenUpdateManyWithoutUserNestedInput
     files?: FileUpdateManyWithoutUserNestedInput
+    discussions?: IdeaDiscussionUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutPaymentsInput = {
@@ -21053,6 +24725,7 @@ export namespace Prisma {
     sessions?: UserSessionUncheckedUpdateManyWithoutUserNestedInput
     refreshTokens?: RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
     files?: FileUncheckedUpdateManyWithoutUserNestedInput
+    discussions?: IdeaDiscussionUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type RefundUpsertWithWhereUniqueWithoutPaymentInput = {
@@ -21209,6 +24882,7 @@ export namespace Prisma {
     payments?: PaymentCreateNestedManyWithoutUserInput
     sessions?: UserSessionCreateNestedManyWithoutUserInput
     refreshTokens?: RefreshTokenCreateNestedManyWithoutUserInput
+    discussions?: IdeaDiscussionCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutFilesInput = {
@@ -21240,6 +24914,7 @@ export namespace Prisma {
     payments?: PaymentUncheckedCreateNestedManyWithoutUserInput
     sessions?: UserSessionUncheckedCreateNestedManyWithoutUserInput
     refreshTokens?: RefreshTokenUncheckedCreateNestedManyWithoutUserInput
+    discussions?: IdeaDiscussionUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutFilesInput = {
@@ -21287,6 +24962,7 @@ export namespace Prisma {
     payments?: PaymentUpdateManyWithoutUserNestedInput
     sessions?: UserSessionUpdateManyWithoutUserNestedInput
     refreshTokens?: RefreshTokenUpdateManyWithoutUserNestedInput
+    discussions?: IdeaDiscussionUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutFilesInput = {
@@ -21318,6 +24994,372 @@ export namespace Prisma {
     payments?: PaymentUncheckedUpdateManyWithoutUserNestedInput
     sessions?: UserSessionUncheckedUpdateManyWithoutUserNestedInput
     refreshTokens?: RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
+    discussions?: IdeaDiscussionUncheckedUpdateManyWithoutUserNestedInput
+  }
+
+  export type IdeaCreateWithoutDiscussionsInput = {
+    id?: string
+    title: string
+    description: string
+    category: $Enums.IdeaCategory
+    tags?: string
+    isAnonymous?: boolean
+    status?: $Enums.IdeaStatus
+    visibility?: $Enums.IdeaVisibility
+    viewCount?: number
+    likeCount?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    user: UserCreateNestedOneWithoutIdeasInput
+    researchReports?: ResearchReportCreateNestedManyWithoutIdeaInput
+  }
+
+  export type IdeaUncheckedCreateWithoutDiscussionsInput = {
+    id?: string
+    title: string
+    description: string
+    category: $Enums.IdeaCategory
+    tags?: string
+    userId: string
+    isAnonymous?: boolean
+    status?: $Enums.IdeaStatus
+    visibility?: $Enums.IdeaVisibility
+    viewCount?: number
+    likeCount?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    researchReports?: ResearchReportUncheckedCreateNestedManyWithoutIdeaInput
+  }
+
+  export type IdeaCreateOrConnectWithoutDiscussionsInput = {
+    where: IdeaWhereUniqueInput
+    create: XOR<IdeaCreateWithoutDiscussionsInput, IdeaUncheckedCreateWithoutDiscussionsInput>
+  }
+
+  export type UserCreateWithoutDiscussionsInput = {
+    id?: string
+    email: string
+    username: string
+    passwordHash: string
+    firstName?: string | null
+    lastName?: string | null
+    phone?: string | null
+    avatar?: string | null
+    bio?: string | null
+    status?: $Enums.UserStatus
+    role?: $Enums.UserRole
+    isEmailVerified?: boolean
+    isPhoneVerified?: boolean
+    credits?: number
+    level?: $Enums.UserLevel
+    totalSpent?: number
+    totalEarned?: number
+    emailNotifications?: boolean
+    marketingEmails?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    lastLoginAt?: Date | string | null
+    ideas?: IdeaCreateNestedManyWithoutUserInput
+    researchReports?: ResearchReportCreateNestedManyWithoutUserInput
+    creditTransactions?: CreditTransactionCreateNestedManyWithoutUserInput
+    payments?: PaymentCreateNestedManyWithoutUserInput
+    sessions?: UserSessionCreateNestedManyWithoutUserInput
+    refreshTokens?: RefreshTokenCreateNestedManyWithoutUserInput
+    files?: FileCreateNestedManyWithoutUserInput
+  }
+
+  export type UserUncheckedCreateWithoutDiscussionsInput = {
+    id?: string
+    email: string
+    username: string
+    passwordHash: string
+    firstName?: string | null
+    lastName?: string | null
+    phone?: string | null
+    avatar?: string | null
+    bio?: string | null
+    status?: $Enums.UserStatus
+    role?: $Enums.UserRole
+    isEmailVerified?: boolean
+    isPhoneVerified?: boolean
+    credits?: number
+    level?: $Enums.UserLevel
+    totalSpent?: number
+    totalEarned?: number
+    emailNotifications?: boolean
+    marketingEmails?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    lastLoginAt?: Date | string | null
+    ideas?: IdeaUncheckedCreateNestedManyWithoutUserInput
+    researchReports?: ResearchReportUncheckedCreateNestedManyWithoutUserInput
+    creditTransactions?: CreditTransactionUncheckedCreateNestedManyWithoutUserInput
+    payments?: PaymentUncheckedCreateNestedManyWithoutUserInput
+    sessions?: UserSessionUncheckedCreateNestedManyWithoutUserInput
+    refreshTokens?: RefreshTokenUncheckedCreateNestedManyWithoutUserInput
+    files?: FileUncheckedCreateNestedManyWithoutUserInput
+  }
+
+  export type UserCreateOrConnectWithoutDiscussionsInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutDiscussionsInput, UserUncheckedCreateWithoutDiscussionsInput>
+  }
+
+  export type DiscussionMessageCreateWithoutDiscussionInput = {
+    id?: string
+    content: string
+    messageType: $Enums.MessageType
+    roundNumber: number
+    senderType: $Enums.SenderType
+    senderName?: string | null
+    analysisData?: NullableJsonNullValueInput | InputJsonValue
+    suggestions?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+  }
+
+  export type DiscussionMessageUncheckedCreateWithoutDiscussionInput = {
+    id?: string
+    content: string
+    messageType: $Enums.MessageType
+    roundNumber: number
+    senderType: $Enums.SenderType
+    senderName?: string | null
+    analysisData?: NullableJsonNullValueInput | InputJsonValue
+    suggestions?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+  }
+
+  export type DiscussionMessageCreateOrConnectWithoutDiscussionInput = {
+    where: DiscussionMessageWhereUniqueInput
+    create: XOR<DiscussionMessageCreateWithoutDiscussionInput, DiscussionMessageUncheckedCreateWithoutDiscussionInput>
+  }
+
+  export type DiscussionMessageCreateManyDiscussionInputEnvelope = {
+    data: DiscussionMessageCreateManyDiscussionInput | DiscussionMessageCreateManyDiscussionInput[]
+  }
+
+  export type IdeaUpsertWithoutDiscussionsInput = {
+    update: XOR<IdeaUpdateWithoutDiscussionsInput, IdeaUncheckedUpdateWithoutDiscussionsInput>
+    create: XOR<IdeaCreateWithoutDiscussionsInput, IdeaUncheckedCreateWithoutDiscussionsInput>
+    where?: IdeaWhereInput
+  }
+
+  export type IdeaUpdateToOneWithWhereWithoutDiscussionsInput = {
+    where?: IdeaWhereInput
+    data: XOR<IdeaUpdateWithoutDiscussionsInput, IdeaUncheckedUpdateWithoutDiscussionsInput>
+  }
+
+  export type IdeaUpdateWithoutDiscussionsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: StringFieldUpdateOperationsInput | string
+    category?: EnumIdeaCategoryFieldUpdateOperationsInput | $Enums.IdeaCategory
+    tags?: StringFieldUpdateOperationsInput | string
+    isAnonymous?: BoolFieldUpdateOperationsInput | boolean
+    status?: EnumIdeaStatusFieldUpdateOperationsInput | $Enums.IdeaStatus
+    visibility?: EnumIdeaVisibilityFieldUpdateOperationsInput | $Enums.IdeaVisibility
+    viewCount?: IntFieldUpdateOperationsInput | number
+    likeCount?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    user?: UserUpdateOneRequiredWithoutIdeasNestedInput
+    researchReports?: ResearchReportUpdateManyWithoutIdeaNestedInput
+  }
+
+  export type IdeaUncheckedUpdateWithoutDiscussionsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: StringFieldUpdateOperationsInput | string
+    category?: EnumIdeaCategoryFieldUpdateOperationsInput | $Enums.IdeaCategory
+    tags?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    isAnonymous?: BoolFieldUpdateOperationsInput | boolean
+    status?: EnumIdeaStatusFieldUpdateOperationsInput | $Enums.IdeaStatus
+    visibility?: EnumIdeaVisibilityFieldUpdateOperationsInput | $Enums.IdeaVisibility
+    viewCount?: IntFieldUpdateOperationsInput | number
+    likeCount?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    researchReports?: ResearchReportUncheckedUpdateManyWithoutIdeaNestedInput
+  }
+
+  export type UserUpsertWithoutDiscussionsInput = {
+    update: XOR<UserUpdateWithoutDiscussionsInput, UserUncheckedUpdateWithoutDiscussionsInput>
+    create: XOR<UserCreateWithoutDiscussionsInput, UserUncheckedCreateWithoutDiscussionsInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutDiscussionsInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutDiscussionsInput, UserUncheckedUpdateWithoutDiscussionsInput>
+  }
+
+  export type UserUpdateWithoutDiscussionsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    username?: StringFieldUpdateOperationsInput | string
+    passwordHash?: StringFieldUpdateOperationsInput | string
+    firstName?: NullableStringFieldUpdateOperationsInput | string | null
+    lastName?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    avatar?: NullableStringFieldUpdateOperationsInput | string | null
+    bio?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+    role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    isEmailVerified?: BoolFieldUpdateOperationsInput | boolean
+    isPhoneVerified?: BoolFieldUpdateOperationsInput | boolean
+    credits?: IntFieldUpdateOperationsInput | number
+    level?: EnumUserLevelFieldUpdateOperationsInput | $Enums.UserLevel
+    totalSpent?: IntFieldUpdateOperationsInput | number
+    totalEarned?: IntFieldUpdateOperationsInput | number
+    emailNotifications?: BoolFieldUpdateOperationsInput | boolean
+    marketingEmails?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    ideas?: IdeaUpdateManyWithoutUserNestedInput
+    researchReports?: ResearchReportUpdateManyWithoutUserNestedInput
+    creditTransactions?: CreditTransactionUpdateManyWithoutUserNestedInput
+    payments?: PaymentUpdateManyWithoutUserNestedInput
+    sessions?: UserSessionUpdateManyWithoutUserNestedInput
+    refreshTokens?: RefreshTokenUpdateManyWithoutUserNestedInput
+    files?: FileUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutDiscussionsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    username?: StringFieldUpdateOperationsInput | string
+    passwordHash?: StringFieldUpdateOperationsInput | string
+    firstName?: NullableStringFieldUpdateOperationsInput | string | null
+    lastName?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    avatar?: NullableStringFieldUpdateOperationsInput | string | null
+    bio?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumUserStatusFieldUpdateOperationsInput | $Enums.UserStatus
+    role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    isEmailVerified?: BoolFieldUpdateOperationsInput | boolean
+    isPhoneVerified?: BoolFieldUpdateOperationsInput | boolean
+    credits?: IntFieldUpdateOperationsInput | number
+    level?: EnumUserLevelFieldUpdateOperationsInput | $Enums.UserLevel
+    totalSpent?: IntFieldUpdateOperationsInput | number
+    totalEarned?: IntFieldUpdateOperationsInput | number
+    emailNotifications?: BoolFieldUpdateOperationsInput | boolean
+    marketingEmails?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    lastLoginAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    ideas?: IdeaUncheckedUpdateManyWithoutUserNestedInput
+    researchReports?: ResearchReportUncheckedUpdateManyWithoutUserNestedInput
+    creditTransactions?: CreditTransactionUncheckedUpdateManyWithoutUserNestedInput
+    payments?: PaymentUncheckedUpdateManyWithoutUserNestedInput
+    sessions?: UserSessionUncheckedUpdateManyWithoutUserNestedInput
+    refreshTokens?: RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
+    files?: FileUncheckedUpdateManyWithoutUserNestedInput
+  }
+
+  export type DiscussionMessageUpsertWithWhereUniqueWithoutDiscussionInput = {
+    where: DiscussionMessageWhereUniqueInput
+    update: XOR<DiscussionMessageUpdateWithoutDiscussionInput, DiscussionMessageUncheckedUpdateWithoutDiscussionInput>
+    create: XOR<DiscussionMessageCreateWithoutDiscussionInput, DiscussionMessageUncheckedCreateWithoutDiscussionInput>
+  }
+
+  export type DiscussionMessageUpdateWithWhereUniqueWithoutDiscussionInput = {
+    where: DiscussionMessageWhereUniqueInput
+    data: XOR<DiscussionMessageUpdateWithoutDiscussionInput, DiscussionMessageUncheckedUpdateWithoutDiscussionInput>
+  }
+
+  export type DiscussionMessageUpdateManyWithWhereWithoutDiscussionInput = {
+    where: DiscussionMessageScalarWhereInput
+    data: XOR<DiscussionMessageUpdateManyMutationInput, DiscussionMessageUncheckedUpdateManyWithoutDiscussionInput>
+  }
+
+  export type DiscussionMessageScalarWhereInput = {
+    AND?: DiscussionMessageScalarWhereInput | DiscussionMessageScalarWhereInput[]
+    OR?: DiscussionMessageScalarWhereInput[]
+    NOT?: DiscussionMessageScalarWhereInput | DiscussionMessageScalarWhereInput[]
+    id?: StringFilter<"DiscussionMessage"> | string
+    discussionId?: StringFilter<"DiscussionMessage"> | string
+    content?: StringFilter<"DiscussionMessage"> | string
+    messageType?: EnumMessageTypeFilter<"DiscussionMessage"> | $Enums.MessageType
+    roundNumber?: IntFilter<"DiscussionMessage"> | number
+    senderType?: EnumSenderTypeFilter<"DiscussionMessage"> | $Enums.SenderType
+    senderName?: StringNullableFilter<"DiscussionMessage"> | string | null
+    analysisData?: JsonNullableFilter<"DiscussionMessage">
+    suggestions?: JsonNullableFilter<"DiscussionMessage">
+    createdAt?: DateTimeFilter<"DiscussionMessage"> | Date | string
+  }
+
+  export type IdeaDiscussionCreateWithoutMessagesInput = {
+    id?: string
+    status?: $Enums.DiscussionStatus
+    currentRound?: number
+    totalRounds?: number
+    aiAgentType: string
+    aiAgentName: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    completedAt?: Date | string | null
+    idea: IdeaCreateNestedOneWithoutDiscussionsInput
+    user: UserCreateNestedOneWithoutDiscussionsInput
+  }
+
+  export type IdeaDiscussionUncheckedCreateWithoutMessagesInput = {
+    id?: string
+    ideaId: string
+    userId: string
+    status?: $Enums.DiscussionStatus
+    currentRound?: number
+    totalRounds?: number
+    aiAgentType: string
+    aiAgentName: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    completedAt?: Date | string | null
+  }
+
+  export type IdeaDiscussionCreateOrConnectWithoutMessagesInput = {
+    where: IdeaDiscussionWhereUniqueInput
+    create: XOR<IdeaDiscussionCreateWithoutMessagesInput, IdeaDiscussionUncheckedCreateWithoutMessagesInput>
+  }
+
+  export type IdeaDiscussionUpsertWithoutMessagesInput = {
+    update: XOR<IdeaDiscussionUpdateWithoutMessagesInput, IdeaDiscussionUncheckedUpdateWithoutMessagesInput>
+    create: XOR<IdeaDiscussionCreateWithoutMessagesInput, IdeaDiscussionUncheckedCreateWithoutMessagesInput>
+    where?: IdeaDiscussionWhereInput
+  }
+
+  export type IdeaDiscussionUpdateToOneWithWhereWithoutMessagesInput = {
+    where?: IdeaDiscussionWhereInput
+    data: XOR<IdeaDiscussionUpdateWithoutMessagesInput, IdeaDiscussionUncheckedUpdateWithoutMessagesInput>
+  }
+
+  export type IdeaDiscussionUpdateWithoutMessagesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    status?: EnumDiscussionStatusFieldUpdateOperationsInput | $Enums.DiscussionStatus
+    currentRound?: IntFieldUpdateOperationsInput | number
+    totalRounds?: IntFieldUpdateOperationsInput | number
+    aiAgentType?: StringFieldUpdateOperationsInput | string
+    aiAgentName?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    idea?: IdeaUpdateOneRequiredWithoutDiscussionsNestedInput
+    user?: UserUpdateOneRequiredWithoutDiscussionsNestedInput
+  }
+
+  export type IdeaDiscussionUncheckedUpdateWithoutMessagesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    ideaId?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    status?: EnumDiscussionStatusFieldUpdateOperationsInput | $Enums.DiscussionStatus
+    currentRound?: IntFieldUpdateOperationsInput | number
+    totalRounds?: IntFieldUpdateOperationsInput | number
+    aiAgentType?: StringFieldUpdateOperationsInput | string
+    aiAgentName?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
   export type IdeaCreateManyUserInput = {
@@ -21415,6 +25457,19 @@ export namespace Prisma {
     deletedAt?: Date | string | null
   }
 
+  export type IdeaDiscussionCreateManyUserInput = {
+    id?: string
+    ideaId: string
+    status?: $Enums.DiscussionStatus
+    currentRound?: number
+    totalRounds?: number
+    aiAgentType: string
+    aiAgentName: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    completedAt?: Date | string | null
+  }
+
   export type IdeaUpdateWithoutUserInput = {
     id?: StringFieldUpdateOperationsInput | string
     title?: StringFieldUpdateOperationsInput | string
@@ -21429,6 +25484,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     researchReports?: ResearchReportUpdateManyWithoutIdeaNestedInput
+    discussions?: IdeaDiscussionUpdateManyWithoutIdeaNestedInput
   }
 
   export type IdeaUncheckedUpdateWithoutUserInput = {
@@ -21445,6 +25501,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     researchReports?: ResearchReportUncheckedUpdateManyWithoutIdeaNestedInput
+    discussions?: IdeaDiscussionUncheckedUpdateManyWithoutIdeaNestedInput
   }
 
   export type IdeaUncheckedUpdateManyWithoutUserInput = {
@@ -21704,6 +25761,47 @@ export namespace Prisma {
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
+  export type IdeaDiscussionUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    status?: EnumDiscussionStatusFieldUpdateOperationsInput | $Enums.DiscussionStatus
+    currentRound?: IntFieldUpdateOperationsInput | number
+    totalRounds?: IntFieldUpdateOperationsInput | number
+    aiAgentType?: StringFieldUpdateOperationsInput | string
+    aiAgentName?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    idea?: IdeaUpdateOneRequiredWithoutDiscussionsNestedInput
+    messages?: DiscussionMessageUpdateManyWithoutDiscussionNestedInput
+  }
+
+  export type IdeaDiscussionUncheckedUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    ideaId?: StringFieldUpdateOperationsInput | string
+    status?: EnumDiscussionStatusFieldUpdateOperationsInput | $Enums.DiscussionStatus
+    currentRound?: IntFieldUpdateOperationsInput | number
+    totalRounds?: IntFieldUpdateOperationsInput | number
+    aiAgentType?: StringFieldUpdateOperationsInput | string
+    aiAgentName?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    messages?: DiscussionMessageUncheckedUpdateManyWithoutDiscussionNestedInput
+  }
+
+  export type IdeaDiscussionUncheckedUpdateManyWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    ideaId?: StringFieldUpdateOperationsInput | string
+    status?: EnumDiscussionStatusFieldUpdateOperationsInput | $Enums.DiscussionStatus
+    currentRound?: IntFieldUpdateOperationsInput | number
+    totalRounds?: IntFieldUpdateOperationsInput | number
+    aiAgentType?: StringFieldUpdateOperationsInput | string
+    aiAgentName?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
   export type ResearchReportCreateManyIdeaInput = {
     id?: string
     userId: string
@@ -21717,6 +25815,19 @@ export namespace Prisma {
     status?: $Enums.ReportStatus
     progress?: number
     creditsCost: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    completedAt?: Date | string | null
+  }
+
+  export type IdeaDiscussionCreateManyIdeaInput = {
+    id?: string
+    userId: string
+    status?: $Enums.DiscussionStatus
+    currentRound?: number
+    totalRounds?: number
+    aiAgentType: string
+    aiAgentName: string
     createdAt?: Date | string
     updatedAt?: Date | string
     completedAt?: Date | string | null
@@ -21776,6 +25887,47 @@ export namespace Prisma {
     completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
+  export type IdeaDiscussionUpdateWithoutIdeaInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    status?: EnumDiscussionStatusFieldUpdateOperationsInput | $Enums.DiscussionStatus
+    currentRound?: IntFieldUpdateOperationsInput | number
+    totalRounds?: IntFieldUpdateOperationsInput | number
+    aiAgentType?: StringFieldUpdateOperationsInput | string
+    aiAgentName?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    user?: UserUpdateOneRequiredWithoutDiscussionsNestedInput
+    messages?: DiscussionMessageUpdateManyWithoutDiscussionNestedInput
+  }
+
+  export type IdeaDiscussionUncheckedUpdateWithoutIdeaInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    status?: EnumDiscussionStatusFieldUpdateOperationsInput | $Enums.DiscussionStatus
+    currentRound?: IntFieldUpdateOperationsInput | number
+    totalRounds?: IntFieldUpdateOperationsInput | number
+    aiAgentType?: StringFieldUpdateOperationsInput | string
+    aiAgentName?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    messages?: DiscussionMessageUncheckedUpdateManyWithoutDiscussionNestedInput
+  }
+
+  export type IdeaDiscussionUncheckedUpdateManyWithoutIdeaInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    status?: EnumDiscussionStatusFieldUpdateOperationsInput | $Enums.DiscussionStatus
+    currentRound?: IntFieldUpdateOperationsInput | number
+    totalRounds?: IntFieldUpdateOperationsInput | number
+    aiAgentType?: StringFieldUpdateOperationsInput | string
+    aiAgentName?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
   export type RefundCreateManyPaymentInput = {
     id?: string
     outRefundNo: string
@@ -21826,6 +25978,54 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     refundedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type DiscussionMessageCreateManyDiscussionInput = {
+    id?: string
+    content: string
+    messageType: $Enums.MessageType
+    roundNumber: number
+    senderType: $Enums.SenderType
+    senderName?: string | null
+    analysisData?: NullableJsonNullValueInput | InputJsonValue
+    suggestions?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+  }
+
+  export type DiscussionMessageUpdateWithoutDiscussionInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    content?: StringFieldUpdateOperationsInput | string
+    messageType?: EnumMessageTypeFieldUpdateOperationsInput | $Enums.MessageType
+    roundNumber?: IntFieldUpdateOperationsInput | number
+    senderType?: EnumSenderTypeFieldUpdateOperationsInput | $Enums.SenderType
+    senderName?: NullableStringFieldUpdateOperationsInput | string | null
+    analysisData?: NullableJsonNullValueInput | InputJsonValue
+    suggestions?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type DiscussionMessageUncheckedUpdateWithoutDiscussionInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    content?: StringFieldUpdateOperationsInput | string
+    messageType?: EnumMessageTypeFieldUpdateOperationsInput | $Enums.MessageType
+    roundNumber?: IntFieldUpdateOperationsInput | number
+    senderType?: EnumSenderTypeFieldUpdateOperationsInput | $Enums.SenderType
+    senderName?: NullableStringFieldUpdateOperationsInput | string | null
+    analysisData?: NullableJsonNullValueInput | InputJsonValue
+    suggestions?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type DiscussionMessageUncheckedUpdateManyWithoutDiscussionInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    content?: StringFieldUpdateOperationsInput | string
+    messageType?: EnumMessageTypeFieldUpdateOperationsInput | $Enums.MessageType
+    roundNumber?: IntFieldUpdateOperationsInput | number
+    senderType?: EnumSenderTypeFieldUpdateOperationsInput | $Enums.SenderType
+    senderName?: NullableStringFieldUpdateOperationsInput | string | null
+    analysisData?: NullableJsonNullValueInput | InputJsonValue
+    suggestions?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
 

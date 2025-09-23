@@ -63,6 +63,7 @@ export default function SubmitIdeaPage() {
     cost: number;
     isFree: boolean;
     earnedCredits: number;
+    ideaId: string;
   } | null>(null)
 
   // 创意评分算法
@@ -132,33 +133,32 @@ export default function SubmitIdeaPage() {
 
     setTimeout(async () => {
       try {
-        // 记录提交并扣除积分（如果需要）
-        await recordSubmission(submissionCheck.cost)
-
-        // 计算奖励积分（提交创意总是能获得一些积分）
-        const baseReward = 10
-        const qualityBonus = Math.floor(ideaScore / 20) * 5 // 根据创意质量给予奖励
-        const earnedCredits = baseReward + qualityBonus
-
-        // 添加奖励积分
-        if (user) {
-          const currentUser = JSON.parse(localStorage.getItem('auth.user') || '{}')
-          currentUser.credits = (currentUser.credits || 0) + earnedCredits
-          localStorage.setItem('auth.user', JSON.stringify(currentUser))
-        }
-
-        setSubmissionResult({
-          cost: submissionCheck.cost,
-          isFree: submissionCheck.isFree,
-          earnedCredits
+        // 真实API调用
+        const response = await fetch('/api/ideas', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            title,
+            description: idea,
+            category
+          })
         })
 
+        const data = await response.json()
+
+        if (!response.ok || !data.success) {
+          throw new Error(data.error || '提交失败')
+        }
+
+        setSubmissionResult(data.submissionResult)
         setIsSubmitting(false)
         setShowSuccess(true)
       } catch (error) {
         console.error('提交失败:', error)
         setIsSubmitting(false)
-        alert('提交失败，请稍后重试')
+        alert('提交失败，请稍后重试: ' + (error instanceof Error ? error.message : '未知错误'))
       }
     }, 4000)
   }
@@ -608,11 +608,11 @@ export default function SubmitIdeaPage() {
                         )}
 
                         <Button
-                          onClick={() => window.location.href = '/marketplace'}
+                          onClick={() => window.location.href = `/ideas/${submissionResult.ideaId}/discussion`}
                           className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
                         >
-                          <TrendingUp className="w-4 h-4 mr-2" />
-                          前往竞价市场
+                          <MessageCircle className="w-4 h-4 mr-2" />
+                          开始AI讨论
                         </Button>
                       </motion.div>
                     )}

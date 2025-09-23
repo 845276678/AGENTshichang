@@ -73,7 +73,7 @@ const mockIdea: IdeaDetail = {
   submittedAt: '2小时前',
   tags: ['智能家居', '食材管理', '健康生活', 'AI识别'],
   status: 'bidding',
-  currentBids: 4,
+  currentBids: 5,
   highestBid: 380,
   timeLeft: '4小时23分钟',
   views: 128,
@@ -87,47 +87,58 @@ const mockIdea: IdeaDetail = {
 const mockAgents: AIAgent[] = [
   {
     id: 'agent1',
-    name: 'HomeTech智能家居专家',
-    avatar: '/agents/hometech.jpg',
-    expertise: ['IoT', '智能家居', '硬件集成'],
+    name: '商人老王',
+    avatar: '/agents/wang.jpg',
+    expertise: ['商业模式', 'ROI分析', '盈利策略'],
+    currentBid: 380,
+    confidence: 90,
+    status: 'bidding',
+    timeLeft: '刚刚',
+    aiType: 'business'
+  },
+  {
+    id: 'agent2',
+    name: '文艺小琳',
+    avatar: '/agents/lin.jpg',
+    expertise: ['情感设计', '美学包装', '故事创作'],
     currentBid: 280,
     confidence: 85,
     status: 'bidding',
     timeLeft: '2分钟前',
-    aiType: 'tech'
-  },
-  {
-    id: 'agent2',
-    name: 'AppGenius移动应用大师',
-    avatar: '/agents/appgenius.jpg',
-    expertise: ['移动开发', 'UX设计', '用户体验'],
-    currentBid: 320,
-    confidence: 78,
-    status: 'analyzing',
-    timeLeft: '1分钟前',
-    aiType: 'design'
+    aiType: 'artistic'
   },
   {
     id: 'agent3',
-    name: 'DataWiz数据科学家',
-    avatar: '/agents/datawiz.jpg',
-    expertise: ['机器学习', 'AI算法', '推荐系统'],
+    name: '科技艾克斯',
+    avatar: '/agents/alex.jpg',
+    expertise: ['技术架构', '创新设计', '性能优化'],
     currentBid: 350,
     confidence: 92,
-    status: 'bidding',
+    status: 'analyzing',
     timeLeft: '30秒前',
-    aiType: 'data'
+    aiType: 'tech'
   },
   {
     id: 'agent4',
-    name: 'BizMaster商业策略师',
-    avatar: '/agents/bizmaster.jpg',
-    expertise: ['商业模式', '市场分析', '盈利策略'],
-    currentBid: 380,
+    name: '趋势阿伦',
+    avatar: '/agents/allen.jpg',
+    expertise: ['趋势预测', '营销策划', '传播设计'],
+    currentBid: 320,
+    confidence: 78,
+    status: 'bidding',
+    timeLeft: '1分钟前',
+    aiType: 'trend'
+  },
+  {
+    id: 'agent5',
+    name: '教授李博',
+    avatar: '/agents/li.jpg',
+    expertise: ['理论建构', '学术研究', '体系完善'],
+    currentBid: 260,
     confidence: 88,
     status: 'bidding',
-    timeLeft: '刚刚',
-    aiType: 'business'
+    timeLeft: '3分钟前',
+    aiType: 'academic'
   }
 ]
 
@@ -163,10 +174,11 @@ export default function IdeaDetailPage() {
 
   const getAgentTypeColor = (type: string) => {
     switch (type) {
-      case 'tech': return 'from-blue-500 to-cyan-500'
-      case 'business': return 'from-green-500 to-emerald-500'
-      case 'design': return 'from-purple-500 to-pink-500'
-      case 'data': return 'from-orange-500 to-red-500'
+      case 'business': return 'from-green-500 to-emerald-500'  // 商人老王
+      case 'artistic': return 'from-purple-500 to-pink-500'   // 文艺小琳
+      case 'tech': return 'from-blue-500 to-cyan-500'         // 科技艾克斯
+      case 'trend': return 'from-orange-500 to-red-500'       // 趋势阿伦
+      case 'academic': return 'from-indigo-500 to-blue-500'   // 教授李博
       default: return 'from-gray-500 to-slate-500'
     }
   }
@@ -447,7 +459,13 @@ export default function IdeaDetailPage() {
               <Card>
                 <CardContent className="pt-6">
                   <div className="space-y-3">
-                    <Button className="w-full" onClick={triggerBidAnimation}>
+                    <Button className="w-full" asChild>
+                      <a href={`/ideas/${params.id}/discussion`}>
+                        <MessageCircle className="w-4 h-4 mr-2" />
+                        AI创意讨论
+                      </a>
+                    </Button>
+                    <Button variant="outline" className="w-full" onClick={triggerBidAnimation}>
                       <Eye className="w-4 h-4 mr-2" />
                       关注竞价
                     </Button>
