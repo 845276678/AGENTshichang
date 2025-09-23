@@ -87,7 +87,7 @@ export async function GET(request: NextRequest) {
 }
 
 // 生成模拟技术文档
-async function generateMockTechnicalDoc(): string {
+async function generateMockTechnicalDoc(): Promise<string> {
   return `# 技术架构设计文档
 
 ## 系统概述
@@ -112,7 +112,7 @@ SmartHealth是一个基于AI的个人健康管理平台，采用微服务架构�
 }
 
 // 生成模拟商业计划书
-async function generateMockBusinessDoc(): string {
+async function generateMockBusinessDoc(): Promise<string> {
   return `# 商业计划书
 
 ## 市场分析
@@ -140,7 +140,7 @@ AI驱动的个人健康管家，提供专业的健康监护和智能建议。
 }
 
 // 生成模拟用户体验文档
-async function generateMockUXDoc(): string {
+async function generateMockUXDoc(): Promise<string> {
   return `# 用户体验设计
 
 ## 设计理念
