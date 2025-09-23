@@ -1,5 +1,6 @@
 # ==========================================
 # AI创意协作平台 - 生产级Docker配置
+# Cache invalidation timestamp: 2025-09-23-v2
 # ==========================================
 
 # 基础镜像 - 使用Node.js 18 Alpine
@@ -51,10 +52,16 @@ RUN npm ci --frozen-lockfile --legacy-peer-deps
 # 复制源代码
 COPY . .
 
+# Make Prisma setup script executable
+RUN chmod +x ./scripts/docker-prisma-setup.sh
+
 # 生成Prisma客户端（包含多平台二进制文件）
+# Force binary engine type and clear any existing engine variables
 ENV PRISMA_CLI_QUERY_ENGINE_TYPE=binary
 ENV PRISMA_CLIENT_ENGINE_TYPE=binary
-RUN unset PRISMA_QUERY_ENGINE_LIBRARY PRISMA_QUERY_ENGINE_BINARY && npx prisma generate
+ENV PRISMA_QUERY_ENGINE_BINARY=""
+ENV PRISMA_QUERY_ENGINE_LIBRARY=""
+RUN ./scripts/docker-prisma-setup.sh
 
 # 构建Next.js应用
 RUN npm run build
@@ -94,7 +101,11 @@ EXPOSE 3000
 
 # 环境变量
 ENV PORT=3000 \
-    HOSTNAME="0.0.0.0"
+    HOSTNAME="0.0.0.0" \
+    PRISMA_CLI_QUERY_ENGINE_TYPE=binary \
+    PRISMA_CLIENT_ENGINE_TYPE=binary \
+    PRISMA_QUERY_ENGINE_BINARY="" \
+    PRISMA_QUERY_ENGINE_LIBRARY=""
 
 # 健康检查
 HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \

@@ -8,6 +8,10 @@
   "env": {
     "NODE_ENV": "production",
     "PORT": "3000",
+    "PRISMA_CLI_QUERY_ENGINE_TYPE": "binary",
+    "PRISMA_CLIENT_ENGINE_TYPE": "binary",
+    "PRISMA_QUERY_ENGINE_BINARY": "",
+    "PRISMA_QUERY_ENGINE_LIBRARY": "",
     "DATABASE_URL": "$DATABASE_URL",
     "JWT_SECRET": "$JWT_SECRET",
     "NEXTAUTH_SECRET": "$NEXTAUTH_SECRET",
