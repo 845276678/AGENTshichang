@@ -26,7 +26,7 @@ function getClientInfo(request: NextRequest) {
   let ipAddress = 'unknown';
 
   if (forwarded) {
-    ipAddress = forwarded.split(',')[0].trim();
+    ipAddress = forwarded.split(',')[0]?.trim() || 'unknown';
   } else if (realIp) {
     ipAddress = realIp;
   } else if (cfConnectingIp) {

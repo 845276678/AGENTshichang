@@ -332,7 +332,6 @@ export default function AdminDashboardPage() {
           <StatCard
             title="Total Revenue"
             value={dashboardStats.totalRevenue.current}
-            previousValue={dashboardStats.totalRevenue.previous}
             change={dashboardStats.totalRevenue.change}
             icon={DollarSign}
             prefix="$"
@@ -340,21 +339,18 @@ export default function AdminDashboardPage() {
           <StatCard
             title="Active Users"
             value={dashboardStats.activeUsers.current}
-            previousValue={dashboardStats.activeUsers.previous}
             change={dashboardStats.activeUsers.change}
             icon={Users}
           />
           <StatCard
             title="Total Agents"
             value={dashboardStats.totalAgents.current}
-            previousValue={dashboardStats.totalAgents.previous}
             change={dashboardStats.totalAgents.change}
             icon={Zap}
           />
           <StatCard
             title="New Registrations"
             value={dashboardStats.newRegistrations.current}
-            previousValue={dashboardStats.newRegistrations.previous}
             change={dashboardStats.newRegistrations.change}
             icon={TrendingUp}
           />

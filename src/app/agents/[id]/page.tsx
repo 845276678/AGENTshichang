@@ -198,7 +198,8 @@ const AgentDetailPage = () => {
   }
 
   const handleTryDemo = () => {
-    setShowDemo(true)
+    // setShowDemo(true) // Demo functionality not implemented yet
+    console.log('Try demo clicked')
   }
 
   const handleFavorite = () => {

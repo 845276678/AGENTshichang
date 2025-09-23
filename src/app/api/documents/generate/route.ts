@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const { ideaId, agentId, templateIds, customization } = validationResult.data
+    const { ideaId, agentId, templateIds: _templateIds, customization: _customization } = validationResult.data
 
     // 模拟获取创意和AI Agent信息
     // 实际应用中应该从数据库查询

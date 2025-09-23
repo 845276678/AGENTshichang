@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { getUserFromToken } from '@/lib/auth'
+import { $Enums } from '@/generated/prisma'
+
+type MessageType = $Enums.MessageType
+const MessageType = $Enums.MessageType
 
 export async function POST(req: NextRequest) {
   try {
@@ -60,7 +64,7 @@ export async function POST(req: NextRequest) {
       data: {
         discussionId,
         content: aiResponse.content,
-        messageType: aiResponse.messageType,
+        messageType: aiResponse.messageType as MessageType,
         roundNumber: discussion.currentRound,
         senderType: 'AI_AGENT',
         senderName: discussion.aiAgentName,
@@ -611,8 +615,8 @@ function extractSuggestions(aiResponse: string): string[] {
   const listRegex = /[•\-\*]\s*(.+)/g
   let match
   while ((match = listRegex.exec(aiResponse)) !== null) {
-    const suggestion = match[1].trim()
-    if (suggestion.length > 10 && suggestion.length < 100) {
+    const suggestion = match[1]?.trim()
+    if (suggestion && suggestion.length > 10 && suggestion.length < 100) {
       suggestions.push(suggestion)
     }
   }

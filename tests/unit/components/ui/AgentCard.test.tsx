@@ -83,7 +83,7 @@ describe('AgentCard', () => {
   })
 
   it('renders default icon when no image provided', () => {
-    const agentWithoutImage = { ...mockAgent, image: undefined }
+    const agentWithoutImage = { ...mockAgent, image: '' }
     render(<AgentCard agent={agentWithoutImage} />)
 
     // The Zap icon should be rendered instead of an image

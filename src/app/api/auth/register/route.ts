@@ -63,8 +63,8 @@ async function registerHandler(request: NextRequest): Promise<NextResponse> {
       email,
       username,
       password,
-      firstName,
-      lastName
+      firstName: firstName || '',
+      lastName: lastName || ''
     });
 
     // Generate email verification token
