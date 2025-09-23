@@ -285,8 +285,8 @@ const AgentsTable = () => {
             value={`${sortBy}_${sortOrder}`}
             onChange={(e) => {
               const [field, order] = e.target.value.split('_')
-              setSortBy(field)
-              setSortOrder(order)
+              setSortBy(field || '')
+              setSortOrder(order || 'asc')
             }}
             className="rounded-md border border-input bg-background px-3 py-2 text-sm"
           >
