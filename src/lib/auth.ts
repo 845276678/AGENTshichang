@@ -333,7 +333,7 @@ export async function loginUser(request: NextRequest) {
 }
 
 // 发送短信验证码
-export async function sendVerificationCode(request: NextRequest) {
+export async function sendSMSVerificationCode(request: NextRequest) {
   try {
     // Rate limiting for SMS
     const smsRateLimitKey = `sms_rate_limit:${request.ip || 'unknown'}`
