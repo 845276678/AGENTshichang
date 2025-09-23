@@ -6,9 +6,8 @@ import { AdminLayout } from '@/components/admin/AdminLayout'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui'
-import { 
+import {
   Search,
-  Filter,
   MoreHorizontal,
   Eye,
   RefreshCcw,
