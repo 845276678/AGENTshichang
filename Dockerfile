@@ -17,8 +17,7 @@ WORKDIR /app
 
 # 全局环境变量
 ENV NODE_ENV=production \
-    NEXT_TELEMETRY_DISABLED=1 \
-    PRISMA_QUERY_ENGINE_LIBRARY=/app/node_modules/.prisma/client/libquery_engine-linux-musl.so.node
+    NEXT_TELEMETRY_DISABLED=1
 
 # 创建应用用户
 RUN addgroup --system --gid 1001 nodejs && \
@@ -52,7 +51,7 @@ RUN npm ci --frozen-lockfile --legacy-peer-deps
 # 复制源代码
 COPY . .
 
-# 生成Prisma客户端
+# 生成Prisma客户端（包含多平台二进制文件）
 RUN npx prisma generate
 
 # 构建Next.js应用

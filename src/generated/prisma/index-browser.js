@@ -114,6 +114,9 @@ Prisma.NullTypes = {
  */
 
 exports.Prisma.TransactionIsolationLevel = makeStrictEnum({
+  ReadUncommitted: 'ReadUncommitted',
+  ReadCommitted: 'ReadCommitted',
+  RepeatableRead: 'RepeatableRead',
   Serializable: 'Serializable'
 });
 
@@ -325,6 +328,40 @@ exports.Prisma.NullsOrder = {
   last: 'last'
 };
 
+exports.Prisma.UserOrderByRelevanceFieldEnum = {
+  id: 'id',
+  email: 'email',
+  username: 'username',
+  passwordHash: 'passwordHash',
+  firstName: 'firstName',
+  lastName: 'lastName',
+  phone: 'phone',
+  avatar: 'avatar',
+  bio: 'bio'
+};
+
+exports.Prisma.UserSessionOrderByRelevanceFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  token: 'token',
+  ipAddress: 'ipAddress',
+  userAgent: 'userAgent'
+};
+
+exports.Prisma.RefreshTokenOrderByRelevanceFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  token: 'token'
+};
+
+exports.Prisma.IdeaOrderByRelevanceFieldEnum = {
+  id: 'id',
+  title: 'title',
+  description: 'description',
+  tags: 'tags',
+  userId: 'userId'
+};
+
 exports.Prisma.JsonNullValueFilter = {
   DbNull: Prisma.DbNull,
   JsonNull: Prisma.JsonNull,
@@ -334,6 +371,83 @@ exports.Prisma.JsonNullValueFilter = {
 exports.Prisma.QueryMode = {
   default: 'default',
   insensitive: 'insensitive'
+};
+
+exports.Prisma.ResearchReportOrderByRelevanceFieldEnum = {
+  id: 'id',
+  ideaId: 'ideaId',
+  userId: 'userId',
+  summary: 'summary'
+};
+
+exports.Prisma.CreditTransactionOrderByRelevanceFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  description: 'description',
+  relatedId: 'relatedId'
+};
+
+exports.Prisma.PaymentOrderByRelevanceFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  outTradeNo: 'outTradeNo',
+  description: 'description',
+  currency: 'currency',
+  provider: 'provider',
+  providerOrderId: 'providerOrderId',
+  payUrl: 'payUrl',
+  qrCodeUrl: 'qrCodeUrl',
+  status: 'status'
+};
+
+exports.Prisma.RefundOrderByRelevanceFieldEnum = {
+  id: 'id',
+  paymentId: 'paymentId',
+  outRefundNo: 'outRefundNo',
+  reason: 'reason',
+  status: 'status',
+  providerRefundId: 'providerRefundId',
+  operatorId: 'operatorId'
+};
+
+exports.Prisma.FileOrderByRelevanceFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  filename: 'filename',
+  originalName: 'originalName',
+  key: 'key',
+  url: 'url',
+  contentType: 'contentType',
+  type: 'type',
+  status: 'status'
+};
+
+exports.Prisma.SystemConfigOrderByRelevanceFieldEnum = {
+  id: 'id',
+  key: 'key',
+  value: 'value',
+  description: 'description'
+};
+
+exports.Prisma.AIUsageStatsOrderByRelevanceFieldEnum = {
+  id: 'id',
+  provider: 'provider',
+  model: 'model'
+};
+
+exports.Prisma.IdeaDiscussionOrderByRelevanceFieldEnum = {
+  id: 'id',
+  ideaId: 'ideaId',
+  userId: 'userId',
+  aiAgentType: 'aiAgentType',
+  aiAgentName: 'aiAgentName'
+};
+
+exports.Prisma.DiscussionMessageOrderByRelevanceFieldEnum = {
+  id: 'id',
+  discussionId: 'discussionId',
+  content: 'content',
+  senderName: 'senderName'
 };
 exports.UserStatus = exports.$Enums.UserStatus = {
   ACTIVE: 'ACTIVE',

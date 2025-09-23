@@ -86,6 +86,9 @@ Prisma.NullTypes = {
  * Enums
  */
 exports.Prisma.TransactionIsolationLevel = makeStrictEnum({
+  ReadUncommitted: 'ReadUncommitted',
+  ReadCommitted: 'ReadCommitted',
+  RepeatableRead: 'RepeatableRead',
   Serializable: 'Serializable'
 });
 
@@ -297,6 +300,40 @@ exports.Prisma.NullsOrder = {
   last: 'last'
 };
 
+exports.Prisma.UserOrderByRelevanceFieldEnum = {
+  id: 'id',
+  email: 'email',
+  username: 'username',
+  passwordHash: 'passwordHash',
+  firstName: 'firstName',
+  lastName: 'lastName',
+  phone: 'phone',
+  avatar: 'avatar',
+  bio: 'bio'
+};
+
+exports.Prisma.UserSessionOrderByRelevanceFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  token: 'token',
+  ipAddress: 'ipAddress',
+  userAgent: 'userAgent'
+};
+
+exports.Prisma.RefreshTokenOrderByRelevanceFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  token: 'token'
+};
+
+exports.Prisma.IdeaOrderByRelevanceFieldEnum = {
+  id: 'id',
+  title: 'title',
+  description: 'description',
+  tags: 'tags',
+  userId: 'userId'
+};
+
 exports.Prisma.JsonNullValueFilter = {
   DbNull: Prisma.DbNull,
   JsonNull: Prisma.JsonNull,
@@ -306,6 +343,83 @@ exports.Prisma.JsonNullValueFilter = {
 exports.Prisma.QueryMode = {
   default: 'default',
   insensitive: 'insensitive'
+};
+
+exports.Prisma.ResearchReportOrderByRelevanceFieldEnum = {
+  id: 'id',
+  ideaId: 'ideaId',
+  userId: 'userId',
+  summary: 'summary'
+};
+
+exports.Prisma.CreditTransactionOrderByRelevanceFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  description: 'description',
+  relatedId: 'relatedId'
+};
+
+exports.Prisma.PaymentOrderByRelevanceFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  outTradeNo: 'outTradeNo',
+  description: 'description',
+  currency: 'currency',
+  provider: 'provider',
+  providerOrderId: 'providerOrderId',
+  payUrl: 'payUrl',
+  qrCodeUrl: 'qrCodeUrl',
+  status: 'status'
+};
+
+exports.Prisma.RefundOrderByRelevanceFieldEnum = {
+  id: 'id',
+  paymentId: 'paymentId',
+  outRefundNo: 'outRefundNo',
+  reason: 'reason',
+  status: 'status',
+  providerRefundId: 'providerRefundId',
+  operatorId: 'operatorId'
+};
+
+exports.Prisma.FileOrderByRelevanceFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  filename: 'filename',
+  originalName: 'originalName',
+  key: 'key',
+  url: 'url',
+  contentType: 'contentType',
+  type: 'type',
+  status: 'status'
+};
+
+exports.Prisma.SystemConfigOrderByRelevanceFieldEnum = {
+  id: 'id',
+  key: 'key',
+  value: 'value',
+  description: 'description'
+};
+
+exports.Prisma.AIUsageStatsOrderByRelevanceFieldEnum = {
+  id: 'id',
+  provider: 'provider',
+  model: 'model'
+};
+
+exports.Prisma.IdeaDiscussionOrderByRelevanceFieldEnum = {
+  id: 'id',
+  ideaId: 'ideaId',
+  userId: 'userId',
+  aiAgentType: 'aiAgentType',
+  aiAgentName: 'aiAgentName'
+};
+
+exports.Prisma.DiscussionMessageOrderByRelevanceFieldEnum = {
+  id: 'id',
+  discussionId: 'discussionId',
+  content: 'content',
+  senderName: 'senderName'
 };
 exports.UserStatus = exports.$Enums.UserStatus = {
   ACTIVE: 'ACTIVE',
@@ -426,6 +540,14 @@ const config = {
         "fromEnvVar": null,
         "value": "windows",
         "native": true
+      },
+      {
+        "fromEnvVar": null,
+        "value": "linux-musl"
+      },
+      {
+        "fromEnvVar": null,
+        "value": "linux-musl-openssl-3.0.x"
       }
     ],
     "previewFeatures": [],
@@ -442,7 +564,8 @@ const config = {
   "datasourceNames": [
     "db"
   ],
-  "activeProvider": "sqlite",
+  "activeProvider": "mysql",
+  "postinstall": false,
   "inlineDatasources": {
     "db": {
       "url": {
@@ -451,8 +574,8 @@ const config = {
       }
     }
   },
-  "inlineSchema": "// AI创意调研平台数据库模式\n// 支持用户管理、创意提交、调研指导、积分系统等核心功能\n\ngenerator client {\n  provider = \"prisma-client-js\"\n  output   = \"../src/generated/prisma\"\n}\n\ndatasource db {\n  provider = \"sqlite\"\n  url      = env(\"DATABASE_URL\")\n}\n\n// 用户表\nmodel User {\n  id           String  @id @default(cuid())\n  email        String  @unique\n  username     String  @unique\n  passwordHash String  @map(\"password_hash\")\n  firstName    String? @map(\"first_name\")\n  lastName     String? @map(\"last_name\")\n  phone        String? @unique\n  avatar       String?\n  bio          String?\n\n  // 用户状态\n  status          UserStatus @default(ACTIVE)\n  role            UserRole   @default(USER)\n  isEmailVerified Boolean    @default(false) @map(\"is_email_verified\")\n  isPhoneVerified Boolean    @default(false) @map(\"is_phone_verified\")\n\n  // 积分和等级\n  credits     Int       @default(1000) // 注册赠送1000积分\n  level       UserLevel @default(BRONZE)\n  totalSpent  Int       @default(0) @map(\"total_spent\")\n  totalEarned Int       @default(0) @map(\"total_earned\")\n\n  // 通知设置\n  emailNotifications Boolean @default(true) @map(\"email_notifications\")\n  marketingEmails    Boolean @default(false) @map(\"marketing_emails\")\n\n  // 时间戳\n  createdAt   DateTime  @default(now()) @map(\"created_at\")\n  updatedAt   DateTime  @updatedAt @map(\"updated_at\")\n  lastLoginAt DateTime? @map(\"last_login_at\")\n\n  // 关联关系\n  ideas              Idea[]\n  researchReports    ResearchReport[]\n  creditTransactions CreditTransaction[]\n  payments           Payment[]\n  sessions           UserSession[]\n  refreshTokens      RefreshToken[]\n  files              File[]\n  discussions        IdeaDiscussion[]\n\n  @@map(\"users\")\n}\n\n// 用户状态枚举\nenum UserStatus {\n  ACTIVE\n  INACTIVE\n  SUSPENDED\n  BANNED\n}\n\n// 用户角色枚举\nenum UserRole {\n  USER\n  ADMIN\n  MODERATOR\n}\n\n// 用户等级枚举\nenum UserLevel {\n  BRONZE\n  SILVER\n  GOLD\n  PLATINUM\n  DIAMOND\n}\n\n// 用户会话表\nmodel UserSession {\n  id        String   @id @default(cuid())\n  userId    String   @map(\"user_id\")\n  token     String   @unique\n  ipAddress String?  @map(\"ip_address\")\n  userAgent String?  @map(\"user_agent\")\n  expiresAt DateTime @map(\"expires_at\")\n  createdAt DateTime @default(now()) @map(\"created_at\")\n\n  user User @relation(fields: [userId], references: [id], onDelete: Cascade)\n\n  @@map(\"user_sessions\")\n}\n\n// 刷新令牌表\nmodel RefreshToken {\n  id        String   @id @default(cuid())\n  userId    String   @map(\"user_id\")\n  token     String   @unique\n  expiresAt DateTime @map(\"expires_at\")\n  isRevoked Boolean  @default(false) @map(\"is_revoked\")\n  createdAt DateTime @default(now()) @map(\"created_at\")\n\n  user User @relation(fields: [userId], references: [id], onDelete: Cascade)\n\n  @@map(\"refresh_tokens\")\n}\n\n// 创意表\nmodel Idea {\n  id          String       @id @default(cuid())\n  title       String\n  description String\n  category    IdeaCategory\n  tags        String       @default(\"\") // 标签，用逗号分隔\n\n  // 提交者信息\n  userId      String  @map(\"user_id\")\n  isAnonymous Boolean @default(false) @map(\"is_anonymous\")\n\n  // 状态管理\n  status     IdeaStatus     @default(PENDING)\n  visibility IdeaVisibility @default(PUBLIC)\n\n  // 统计数据\n  viewCount Int @default(0) @map(\"view_count\")\n  likeCount Int @default(0) @map(\"like_count\")\n\n  // 时间戳\n  createdAt DateTime @default(now()) @map(\"created_at\")\n  updatedAt DateTime @updatedAt @map(\"updated_at\")\n\n  // 关联关系\n  user            User             @relation(fields: [userId], references: [id], onDelete: Cascade)\n  researchReports ResearchReport[]\n  discussions     IdeaDiscussion[]\n\n  @@map(\"ideas\")\n}\n\n// 创意分类枚举\nenum IdeaCategory {\n  TECH\n  LIFESTYLE\n  EDUCATION\n  HEALTH\n  FINANCE\n  ENTERTAINMENT\n  BUSINESS\n  RETAIL\n  OTHER\n}\n\n// 创意状态枚举\nenum IdeaStatus {\n  PENDING\n  APPROVED\n  REJECTED\n  ARCHIVED\n}\n\n// 创意可见性枚举\nenum IdeaVisibility {\n  PUBLIC\n  PRIVATE\n  UNLISTED\n}\n\n// 调研报告表\nmodel ResearchReport {\n  id     String @id @default(cuid())\n  ideaId String @map(\"idea_id\")\n  userId String @map(\"user_id\")\n\n  // 报告内容\n  reportData Json    @map(\"report_data\") // 存储完整的调研指导结果\n  summary    String? // 报告摘要\n\n  // AI专家分析结果\n  basicAnalysis   Json? @map(\"basic_analysis\") // 基本盘分析结果\n  researchMethods Json? @map(\"research_methods\") // 调研方法指导\n  dataSources     Json? @map(\"data_sources\") // 数据源推荐\n  mvpGuidance     Json? @map(\"mvp_guidance\") // MVP验证指导\n  businessModel   Json? @map(\"business_model\") // 商业模式指导\n\n  // 生成状态\n  status   ReportStatus @default(GENERATING)\n  progress Int          @default(0) // 生成进度 0-100\n\n  // 成本信息\n  creditsCost Int @map(\"credits_cost\") // 消耗的积分\n\n  // 时间戳\n  createdAt   DateTime  @default(now()) @map(\"created_at\")\n  updatedAt   DateTime  @updatedAt @map(\"updated_at\")\n  completedAt DateTime? @map(\"completed_at\")\n\n  // 关联关系\n  idea Idea @relation(fields: [ideaId], references: [id], onDelete: Cascade)\n  user User @relation(fields: [userId], references: [id], onDelete: Cascade)\n\n  @@map(\"research_reports\")\n}\n\n// 报告状态枚举\nenum ReportStatus {\n  GENERATING\n  COMPLETED\n  FAILED\n  CANCELLED\n}\n\n// 积分交易表\nmodel CreditTransaction {\n  id     String                @id @default(cuid())\n  userId String                @map(\"user_id\")\n  amount Int // 正数为收入，负数为支出\n  type   CreditTransactionType\n\n  // 交易详情\n  description String?\n  relatedId   String? @map(\"related_id\") // 关联的业务ID（如报告ID、支付ID等）\n\n  // 余额快照\n  balanceBefore Int @map(\"balance_before\")\n  balanceAfter  Int @map(\"balance_after\")\n\n  // 时间戳\n  createdAt DateTime @default(now()) @map(\"created_at\")\n\n  // 关联关系\n  user User @relation(fields: [userId], references: [id], onDelete: Cascade)\n\n  @@map(\"credit_transactions\")\n}\n\n// 积分交易类型枚举\nenum CreditTransactionType {\n  REGISTER_BONUS // 注册奖励\n  PURCHASE // 购买积分\n  RESEARCH_COST // 调研指导消费\n  REFUND // 退款\n  ADMIN_ADJUSTMENT // 管理员调整\n  WITHDRAW // 提现\n}\n\n// 支付表\nmodel Payment {\n  id     String @id @default(cuid())\n  userId String @map(\"user_id\")\n\n  // 支付信息\n  outTradeNo  String @unique @map(\"out_trade_no\") // 商户订单号\n  amount      Float // 支付金额（元）\n  credits     Int // 对应积分数量\n  description String // 支付描述\n  currency    String @default(\"CNY\")\n\n  // 支付渠道\n  provider        String // 支付提供商（ALIPAY/WECHAT）\n  providerOrderId String? @map(\"provider_order_id\") // 第三方订单号\n\n  // 支付URL和二维码\n  payUrl    String? @map(\"pay_url\")\n  qrCodeUrl String? @map(\"qr_code_url\")\n\n  // 支付状态\n  status String @default(\"PENDING\") // PENDING/SUCCESS/FAILED/CANCELLED/REFUNDED\n\n  // 时间戳\n  createdAt DateTime  @default(now()) @map(\"created_at\")\n  updatedAt DateTime  @updatedAt @map(\"updated_at\")\n  paidAt    DateTime? @map(\"paid_at\")\n  expiredAt DateTime  @map(\"expired_at\") // 支付过期时间\n\n  // 关联关系\n  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)\n  refunds Refund[]\n\n  @@map(\"payments\")\n}\n\n// 退款表\nmodel Refund {\n  id        String @id @default(cuid())\n  paymentId String @map(\"payment_id\")\n\n  // 退款信息\n  outRefundNo  String @unique @map(\"out_refund_no\") // 商户退款单号\n  refundAmount Float  @map(\"refund_amount\") // 退款金额\n  reason       String // 退款原因\n\n  // 退款状态\n  status           String  @default(\"PROCESSING\") // PROCESSING/SUCCESS/FAILED\n  providerRefundId String? @map(\"provider_refund_id\") // 第三方退款单号\n\n  // 操作信息\n  operatorId String @map(\"operator_id\") // 操作员ID\n\n  // 时间戳\n  createdAt  DateTime  @default(now()) @map(\"created_at\")\n  updatedAt  DateTime  @updatedAt @map(\"updated_at\")\n  refundedAt DateTime? @map(\"refunded_at\")\n\n  // 关联关系\n  payment Payment @relation(fields: [paymentId], references: [id], onDelete: Cascade)\n\n  @@map(\"refunds\")\n}\n\n// 文件表\nmodel File {\n  id     String @id @default(cuid())\n  userId String @map(\"user_id\")\n\n  // 文件信息\n  filename     String // 存储的文件名\n  originalName String @map(\"original_name\") // 原始文件名\n  key          String @unique // OSS存储key\n  url          String // 访问URL\n  size         Int // 文件大小（字节）\n  contentType  String @map(\"content_type\") // MIME类型\n\n  // 文件分类\n  type   String @default(\"OTHER\") // IMAGE/DOCUMENT/AVATAR/REPORT/OTHER\n  status String @default(\"UPLOADED\") // UPLOADING/UPLOADED/FAILED/DELETED\n\n  // 元数据\n  metadata Json? // 存储额外信息（如图片尺寸、处理参数等）\n\n  // 时间戳\n  createdAt DateTime  @default(now()) @map(\"created_at\")\n  updatedAt DateTime  @updatedAt @map(\"updated_at\")\n  deletedAt DateTime? @map(\"deleted_at\")\n\n  // 关联关系\n  user User @relation(fields: [userId], references: [id], onDelete: Cascade)\n\n  @@map(\"files\")\n}\n\n// 系统配置表\nmodel SystemConfig {\n  id          String   @id @default(cuid())\n  key         String   @unique\n  value       String\n  description String?\n  createdAt   DateTime @default(now()) @map(\"created_at\")\n  updatedAt   DateTime @updatedAt @map(\"updated_at\")\n\n  @@map(\"system_configs\")\n}\n\n// AI服务使用统计表\nmodel AIUsageStats {\n  id           String   @id @default(cuid())\n  provider     String // AI服务提供商（百度、阿里、讯飞等）\n  model        String // 模型名称\n  requestCount Int      @default(0) @map(\"request_count\")\n  totalTokens  Int      @default(0) @map(\"total_tokens\")\n  totalCost    Float    @default(0) @map(\"total_cost\")\n  date         DateTime\n\n  createdAt DateTime @default(now()) @map(\"created_at\")\n  updatedAt DateTime @updatedAt @map(\"updated_at\")\n\n  @@unique([provider, model, date])\n  @@map(\"ai_usage_stats\")\n}\n\n// 创意讨论会话表\nmodel IdeaDiscussion {\n  id     String @id @default(cuid())\n  ideaId String @map(\"idea_id\")\n  userId String @map(\"user_id\")\n\n  // 讨论状态\n  status       DiscussionStatus @default(ACTIVE)\n  currentRound Int              @default(1) @map(\"current_round\") // 当前轮数 1-3\n  totalRounds  Int              @default(3) @map(\"total_rounds\") // 总轮数限制\n\n  // AI Agent信息\n  aiAgentType String @map(\"ai_agent_type\") // 分配的AI专家类型\n  aiAgentName String @map(\"ai_agent_name\") // AI专家名称\n\n  // 时间戳\n  createdAt   DateTime  @default(now()) @map(\"created_at\")\n  updatedAt   DateTime  @updatedAt @map(\"updated_at\")\n  completedAt DateTime? @map(\"completed_at\")\n\n  // 关联关系\n  idea     Idea                @relation(fields: [ideaId], references: [id], onDelete: Cascade)\n  user     User                @relation(fields: [userId], references: [id], onDelete: Cascade)\n  messages DiscussionMessage[]\n\n  @@map(\"idea_discussions\")\n}\n\n// 讨论状态枚举\nenum DiscussionStatus {\n  ACTIVE // 进行中\n  COMPLETED // 已完成\n  EXPIRED // 已过期\n  CANCELLED // 已取消\n}\n\n// 讨论消息表\nmodel DiscussionMessage {\n  id           String @id @default(cuid())\n  discussionId String @map(\"discussion_id\")\n\n  // 消息内容\n  content     String // 消息内容\n  messageType MessageType @map(\"message_type\") // 消息类型\n  roundNumber Int         @map(\"round_number\") // 所属轮数\n\n  // 发送者信息\n  senderType SenderType @map(\"sender_type\") // 发送者类型\n  senderName String?    @map(\"sender_name\") // 发送者名称\n\n  // AI分析结果（仅AI消息有）\n  analysisData Json? @map(\"analysis_data\") // AI分析数据\n  suggestions  Json? // AI建议\n\n  // 时间戳\n  createdAt DateTime @default(now()) @map(\"created_at\")\n\n  // 关联关系\n  discussion IdeaDiscussion @relation(fields: [discussionId], references: [id], onDelete: Cascade)\n\n  @@map(\"discussion_messages\")\n}\n\n// 消息类型枚举\nenum MessageType {\n  INITIAL_ANALYSIS // 初始分析\n  CLARIFICATION_REQUEST // 澄清问题\n  USER_RESPONSE // 用户回应\n  IMPROVEMENT_SUGGESTION // 改进建议\n  FINAL_ASSESSMENT // 最终评估\n}\n\n// 发送者类型枚举\nenum SenderType {\n  USER // 用户\n  AI_AGENT // AI专家\n}\n",
-  "inlineSchemaHash": "f77dcec81c88b0492c474ab6a9c6340545c5052760d9d25a6515af32794f63bc",
+  "inlineSchema": "// AI创意调研平台数据库模式\n// 支持用户管理、创意提交、调研指导、积分系统等核心功能\n\ngenerator client {\n  provider      = \"prisma-client-js\"\n  output        = \"../src/generated/prisma\"\n  binaryTargets = [\"native\", \"linux-musl\", \"linux-musl-openssl-3.0.x\"]\n}\n\ndatasource db {\n  provider = \"mysql\"\n  url      = env(\"DATABASE_URL\")\n}\n\n// 用户表\nmodel User {\n  id           String  @id @default(cuid())\n  email        String  @unique\n  username     String  @unique\n  passwordHash String  @map(\"password_hash\")\n  firstName    String? @map(\"first_name\")\n  lastName     String? @map(\"last_name\")\n  phone        String? @unique\n  avatar       String?\n  bio          String?\n\n  // 用户状态\n  status          UserStatus @default(ACTIVE)\n  role            UserRole   @default(USER)\n  isEmailVerified Boolean    @default(false) @map(\"is_email_verified\")\n  isPhoneVerified Boolean    @default(false) @map(\"is_phone_verified\")\n\n  // 积分和等级\n  credits     Int       @default(1000) // 注册赠送1000积分\n  level       UserLevel @default(BRONZE)\n  totalSpent  Int       @default(0) @map(\"total_spent\")\n  totalEarned Int       @default(0) @map(\"total_earned\")\n\n  // 通知设置\n  emailNotifications Boolean @default(true) @map(\"email_notifications\")\n  marketingEmails    Boolean @default(false) @map(\"marketing_emails\")\n\n  // 时间戳\n  createdAt   DateTime  @default(now()) @map(\"created_at\")\n  updatedAt   DateTime  @updatedAt @map(\"updated_at\")\n  lastLoginAt DateTime? @map(\"last_login_at\")\n\n  // 关联关系\n  ideas              Idea[]\n  researchReports    ResearchReport[]\n  creditTransactions CreditTransaction[]\n  payments           Payment[]\n  sessions           UserSession[]\n  refreshTokens      RefreshToken[]\n  files              File[]\n  discussions        IdeaDiscussion[]\n\n  @@map(\"users\")\n}\n\n// 用户状态枚举\nenum UserStatus {\n  ACTIVE\n  INACTIVE\n  SUSPENDED\n  BANNED\n}\n\n// 用户角色枚举\nenum UserRole {\n  USER\n  ADMIN\n  MODERATOR\n}\n\n// 用户等级枚举\nenum UserLevel {\n  BRONZE\n  SILVER\n  GOLD\n  PLATINUM\n  DIAMOND\n}\n\n// 用户会话表\nmodel UserSession {\n  id        String   @id @default(cuid())\n  userId    String   @map(\"user_id\")\n  token     String   @unique\n  ipAddress String?  @map(\"ip_address\")\n  userAgent String?  @map(\"user_agent\")\n  expiresAt DateTime @map(\"expires_at\")\n  createdAt DateTime @default(now()) @map(\"created_at\")\n\n  user User @relation(fields: [userId], references: [id], onDelete: Cascade)\n\n  @@map(\"user_sessions\")\n}\n\n// 刷新令牌表\nmodel RefreshToken {\n  id        String   @id @default(cuid())\n  userId    String   @map(\"user_id\")\n  token     String   @unique\n  expiresAt DateTime @map(\"expires_at\")\n  isRevoked Boolean  @default(false) @map(\"is_revoked\")\n  createdAt DateTime @default(now()) @map(\"created_at\")\n\n  user User @relation(fields: [userId], references: [id], onDelete: Cascade)\n\n  @@map(\"refresh_tokens\")\n}\n\n// 创意表\nmodel Idea {\n  id          String       @id @default(cuid())\n  title       String\n  description String\n  category    IdeaCategory\n  tags        String       @default(\"\") // 标签，用逗号分隔\n\n  // 提交者信息\n  userId      String  @map(\"user_id\")\n  isAnonymous Boolean @default(false) @map(\"is_anonymous\")\n\n  // 状态管理\n  status     IdeaStatus     @default(PENDING)\n  visibility IdeaVisibility @default(PUBLIC)\n\n  // 统计数据\n  viewCount Int @default(0) @map(\"view_count\")\n  likeCount Int @default(0) @map(\"like_count\")\n\n  // 时间戳\n  createdAt DateTime @default(now()) @map(\"created_at\")\n  updatedAt DateTime @updatedAt @map(\"updated_at\")\n\n  // 关联关系\n  user            User             @relation(fields: [userId], references: [id], onDelete: Cascade)\n  researchReports ResearchReport[]\n  discussions     IdeaDiscussion[]\n\n  @@map(\"ideas\")\n}\n\n// 创意分类枚举\nenum IdeaCategory {\n  TECH\n  LIFESTYLE\n  EDUCATION\n  HEALTH\n  FINANCE\n  ENTERTAINMENT\n  BUSINESS\n  RETAIL\n  OTHER\n}\n\n// 创意状态枚举\nenum IdeaStatus {\n  PENDING\n  APPROVED\n  REJECTED\n  ARCHIVED\n}\n\n// 创意可见性枚举\nenum IdeaVisibility {\n  PUBLIC\n  PRIVATE\n  UNLISTED\n}\n\n// 调研报告表\nmodel ResearchReport {\n  id     String @id @default(cuid())\n  ideaId String @map(\"idea_id\")\n  userId String @map(\"user_id\")\n\n  // 报告内容\n  reportData Json    @map(\"report_data\") // 存储完整的调研指导结果\n  summary    String? // 报告摘要\n\n  // AI专家分析结果\n  basicAnalysis   Json? @map(\"basic_analysis\") // 基本盘分析结果\n  researchMethods Json? @map(\"research_methods\") // 调研方法指导\n  dataSources     Json? @map(\"data_sources\") // 数据源推荐\n  mvpGuidance     Json? @map(\"mvp_guidance\") // MVP验证指导\n  businessModel   Json? @map(\"business_model\") // 商业模式指导\n\n  // 生成状态\n  status   ReportStatus @default(GENERATING)\n  progress Int          @default(0) // 生成进度 0-100\n\n  // 成本信息\n  creditsCost Int @map(\"credits_cost\") // 消耗的积分\n\n  // 时间戳\n  createdAt   DateTime  @default(now()) @map(\"created_at\")\n  updatedAt   DateTime  @updatedAt @map(\"updated_at\")\n  completedAt DateTime? @map(\"completed_at\")\n\n  // 关联关系\n  idea Idea @relation(fields: [ideaId], references: [id], onDelete: Cascade)\n  user User @relation(fields: [userId], references: [id], onDelete: Cascade)\n\n  @@map(\"research_reports\")\n}\n\n// 报告状态枚举\nenum ReportStatus {\n  GENERATING\n  COMPLETED\n  FAILED\n  CANCELLED\n}\n\n// 积分交易表\nmodel CreditTransaction {\n  id     String                @id @default(cuid())\n  userId String                @map(\"user_id\")\n  amount Int // 正数为收入，负数为支出\n  type   CreditTransactionType\n\n  // 交易详情\n  description String?\n  relatedId   String? @map(\"related_id\") // 关联的业务ID（如报告ID、支付ID等）\n\n  // 余额快照\n  balanceBefore Int @map(\"balance_before\")\n  balanceAfter  Int @map(\"balance_after\")\n\n  // 时间戳\n  createdAt DateTime @default(now()) @map(\"created_at\")\n\n  // 关联关系\n  user User @relation(fields: [userId], references: [id], onDelete: Cascade)\n\n  @@map(\"credit_transactions\")\n}\n\n// 积分交易类型枚举\nenum CreditTransactionType {\n  REGISTER_BONUS // 注册奖励\n  PURCHASE // 购买积分\n  RESEARCH_COST // 调研指导消费\n  REFUND // 退款\n  ADMIN_ADJUSTMENT // 管理员调整\n  WITHDRAW // 提现\n}\n\n// 支付表\nmodel Payment {\n  id     String @id @default(cuid())\n  userId String @map(\"user_id\")\n\n  // 支付信息\n  outTradeNo  String @unique @map(\"out_trade_no\") // 商户订单号\n  amount      Float // 支付金额（元）\n  credits     Int // 对应积分数量\n  description String // 支付描述\n  currency    String @default(\"CNY\")\n\n  // 支付渠道\n  provider        String // 支付提供商（ALIPAY/WECHAT）\n  providerOrderId String? @map(\"provider_order_id\") // 第三方订单号\n\n  // 支付URL和二维码\n  payUrl    String? @map(\"pay_url\")\n  qrCodeUrl String? @map(\"qr_code_url\")\n\n  // 支付状态\n  status String @default(\"PENDING\") // PENDING/SUCCESS/FAILED/CANCELLED/REFUNDED\n\n  // 时间戳\n  createdAt DateTime  @default(now()) @map(\"created_at\")\n  updatedAt DateTime  @updatedAt @map(\"updated_at\")\n  paidAt    DateTime? @map(\"paid_at\")\n  expiredAt DateTime  @map(\"expired_at\") // 支付过期时间\n\n  // 关联关系\n  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)\n  refunds Refund[]\n\n  @@map(\"payments\")\n}\n\n// 退款表\nmodel Refund {\n  id        String @id @default(cuid())\n  paymentId String @map(\"payment_id\")\n\n  // 退款信息\n  outRefundNo  String @unique @map(\"out_refund_no\") // 商户退款单号\n  refundAmount Float  @map(\"refund_amount\") // 退款金额\n  reason       String // 退款原因\n\n  // 退款状态\n  status           String  @default(\"PROCESSING\") // PROCESSING/SUCCESS/FAILED\n  providerRefundId String? @map(\"provider_refund_id\") // 第三方退款单号\n\n  // 操作信息\n  operatorId String @map(\"operator_id\") // 操作员ID\n\n  // 时间戳\n  createdAt  DateTime  @default(now()) @map(\"created_at\")\n  updatedAt  DateTime  @updatedAt @map(\"updated_at\")\n  refundedAt DateTime? @map(\"refunded_at\")\n\n  // 关联关系\n  payment Payment @relation(fields: [paymentId], references: [id], onDelete: Cascade)\n\n  @@map(\"refunds\")\n}\n\n// 文件表\nmodel File {\n  id     String @id @default(cuid())\n  userId String @map(\"user_id\")\n\n  // 文件信息\n  filename     String // 存储的文件名\n  originalName String @map(\"original_name\") // 原始文件名\n  key          String @unique // OSS存储key\n  url          String // 访问URL\n  size         Int // 文件大小（字节）\n  contentType  String @map(\"content_type\") // MIME类型\n\n  // 文件分类\n  type   String @default(\"OTHER\") // IMAGE/DOCUMENT/AVATAR/REPORT/OTHER\n  status String @default(\"UPLOADED\") // UPLOADING/UPLOADED/FAILED/DELETED\n\n  // 元数据\n  metadata Json? // 存储额外信息（如图片尺寸、处理参数等）\n\n  // 时间戳\n  createdAt DateTime  @default(now()) @map(\"created_at\")\n  updatedAt DateTime  @updatedAt @map(\"updated_at\")\n  deletedAt DateTime? @map(\"deleted_at\")\n\n  // 关联关系\n  user User @relation(fields: [userId], references: [id], onDelete: Cascade)\n\n  @@map(\"files\")\n}\n\n// 系统配置表\nmodel SystemConfig {\n  id          String   @id @default(cuid())\n  key         String   @unique\n  value       String\n  description String?\n  createdAt   DateTime @default(now()) @map(\"created_at\")\n  updatedAt   DateTime @updatedAt @map(\"updated_at\")\n\n  @@map(\"system_configs\")\n}\n\n// AI服务使用统计表\nmodel AIUsageStats {\n  id           String   @id @default(cuid())\n  provider     String // AI服务提供商（百度、阿里、讯飞等）\n  model        String // 模型名称\n  requestCount Int      @default(0) @map(\"request_count\")\n  totalTokens  Int      @default(0) @map(\"total_tokens\")\n  totalCost    Float    @default(0) @map(\"total_cost\")\n  date         DateTime\n\n  createdAt DateTime @default(now()) @map(\"created_at\")\n  updatedAt DateTime @updatedAt @map(\"updated_at\")\n\n  @@unique([provider, model, date])\n  @@map(\"ai_usage_stats\")\n}\n\n// 创意讨论会话表\nmodel IdeaDiscussion {\n  id     String @id @default(cuid())\n  ideaId String @map(\"idea_id\")\n  userId String @map(\"user_id\")\n\n  // 讨论状态\n  status       DiscussionStatus @default(ACTIVE)\n  currentRound Int              @default(1) @map(\"current_round\") // 当前轮数 1-3\n  totalRounds  Int              @default(3) @map(\"total_rounds\") // 总轮数限制\n\n  // AI Agent信息\n  aiAgentType String @map(\"ai_agent_type\") // 分配的AI专家类型\n  aiAgentName String @map(\"ai_agent_name\") // AI专家名称\n\n  // 时间戳\n  createdAt   DateTime  @default(now()) @map(\"created_at\")\n  updatedAt   DateTime  @updatedAt @map(\"updated_at\")\n  completedAt DateTime? @map(\"completed_at\")\n\n  // 关联关系\n  idea     Idea                @relation(fields: [ideaId], references: [id], onDelete: Cascade)\n  user     User                @relation(fields: [userId], references: [id], onDelete: Cascade)\n  messages DiscussionMessage[]\n\n  @@map(\"idea_discussions\")\n}\n\n// 讨论状态枚举\nenum DiscussionStatus {\n  ACTIVE // 进行中\n  COMPLETED // 已完成\n  EXPIRED // 已过期\n  CANCELLED // 已取消\n}\n\n// 讨论消息表\nmodel DiscussionMessage {\n  id           String @id @default(cuid())\n  discussionId String @map(\"discussion_id\")\n\n  // 消息内容\n  content     String // 消息内容\n  messageType MessageType @map(\"message_type\") // 消息类型\n  roundNumber Int         @map(\"round_number\") // 所属轮数\n\n  // 发送者信息\n  senderType SenderType @map(\"sender_type\") // 发送者类型\n  senderName String?    @map(\"sender_name\") // 发送者名称\n\n  // AI分析结果（仅AI消息有）\n  analysisData Json? @map(\"analysis_data\") // AI分析数据\n  suggestions  Json? // AI建议\n\n  // 时间戳\n  createdAt DateTime @default(now()) @map(\"created_at\")\n\n  // 关联关系\n  discussion IdeaDiscussion @relation(fields: [discussionId], references: [id], onDelete: Cascade)\n\n  @@map(\"discussion_messages\")\n}\n\n// 消息类型枚举\nenum MessageType {\n  INITIAL_ANALYSIS // 初始分析\n  CLARIFICATION_REQUEST // 澄清问题\n  USER_RESPONSE // 用户回应\n  IMPROVEMENT_SUGGESTION // 改进建议\n  FINAL_ASSESSMENT // 最终评估\n}\n\n// 发送者类型枚举\nenum SenderType {\n  USER // 用户\n  AI_AGENT // AI专家\n}\n",
+  "inlineSchemaHash": "ef88d1605cb7023b8f76d7763de3dcd6bec225cac0a5a693b4ccc45a4001da6a",
   "copyEngine": true
 }
 config.dirname = '/'
