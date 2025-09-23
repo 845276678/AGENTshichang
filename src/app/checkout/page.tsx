@@ -20,12 +20,12 @@ import {
   _MapPin,
   _Phone,
   _Building,
-  _Globe,
+  Globe,
   Lock,
   ShoppingCart,
   CheckCircle,
-  _AlertCircle,
-  _Star,
+  AlertCircle,
+  Star,
   _ChevronLeft,
   _ChevronRight
 } from 'lucide-react'

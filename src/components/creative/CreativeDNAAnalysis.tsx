@@ -16,7 +16,7 @@ import {
 } from '@/types'
 import {
   Brain,
-  _Lightbulb,
+  Lightbulb,
   Target,
   TrendingUp,
   Users,
@@ -34,7 +34,7 @@ import {
   RefreshCw,
   Sparkles,
   Trophy,
-  _Clock,
+  Clock,
   _ThumbsUp
 } from 'lucide-react'
 

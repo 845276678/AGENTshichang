@@ -10,15 +10,15 @@ import {
   Brain,
   FileText,
   Download,
-  _Clock,
+  Clock,
   CheckCircle,
   AlertCircle,
   Loader2,
   Sparkles,
   TrendingUp,
-  _Users,
-  _Shield,
-  _Zap
+  Users,
+  Shield,
+  Zap
 } from 'lucide-react'
 
 interface DocumentGenerationProps {

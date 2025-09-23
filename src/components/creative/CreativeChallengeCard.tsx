@@ -15,7 +15,7 @@ import {
 } from '@/types'
 import {
   Trophy,
-  _Clock,
+  Clock,
   Target,
   Users,
   Star,
@@ -27,9 +27,9 @@ import {
   AlertCircle,
   Timer,
   Brain,
-  _Lightbulb,
-  _TrendingUp,
-  _Shield,
+  Lightbulb,
+  TrendingUp,
+  Shield,
   Flame,
   Crown,
   Gift

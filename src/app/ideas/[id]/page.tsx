@@ -18,15 +18,15 @@ import {
   MessageCircle,
   Share2,
   Star,
-  _TrendingUp,
-  _Users,
+  TrendingUp,
+  Users,
   Zap,
   Timer,
-  _Award,
-  _Target,
-  _Lightbulb,
+  Award,
+  Target,
+  Lightbulb,
   Rocket,
-  _DollarSign,
+  DollarSign,
   Activity
 } from 'lucide-react'
 

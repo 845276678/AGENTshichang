@@ -12,7 +12,7 @@ import {
   Coins,
   Star,
   CheckCircle,
-  _Clock,
+  Clock,
   TrendingUp,
   Flame
 } from 'lucide-react';

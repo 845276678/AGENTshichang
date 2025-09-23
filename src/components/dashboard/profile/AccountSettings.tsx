@@ -14,7 +14,7 @@ import {
   Shield, 
   Trash2,
   Download,
-  _Eye,
+  Eye,
   _EyeOff,
   AlertTriangle
 } from 'lucide-react'

@@ -18,7 +18,7 @@ import {
   MoreHorizontal,
   ExternalLink,
   Heart,
-  _Calendar,
+  Calendar,
   Activity,
   Star
 } from 'lucide-react'

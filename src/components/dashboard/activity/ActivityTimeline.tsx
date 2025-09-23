@@ -12,8 +12,8 @@ import {
   Star, 
   User, 
   Activity,
-  _Calendar,
-  _Filter
+  Calendar,
+  Filter
 } from 'lucide-react'
 
 interface ActivityTimelineProps {

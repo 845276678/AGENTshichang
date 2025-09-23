@@ -14,10 +14,10 @@ import { Progress } from '@/components/ui/progress'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import {
   Search,
-  _Users,
-  _TrendingUp,
+  Users,
+  TrendingUp,
   Database,
-  _TestTube,
+  TestTube,
   Target,
   ArrowRight,
   CheckCircle,
@@ -26,7 +26,7 @@ import {
   MessageCircle,
   BookOpen,
   Lightbulb,
-  _AlertTriangle,
+  AlertTriangle,
   ExternalLink
 } from 'lucide-react'
 

@@ -16,7 +16,7 @@ import {
   Brain,
   Clock,
   Users,
-  _Zap,
+  Zap,
   CheckCircle,
   Play,
   Pause,

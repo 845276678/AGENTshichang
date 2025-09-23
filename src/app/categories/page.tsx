@@ -20,9 +20,9 @@ import {
   Puzzle,
   TrendingUp,
   Users,
-  _Star,
+  Star,
   ArrowRight,
-  _Filter,
+  Filter,
   Grid3X3,
   List
 } from 'lucide-react'
