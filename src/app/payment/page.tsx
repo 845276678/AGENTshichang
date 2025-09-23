@@ -1,11 +1,11 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import { motion } from 'framer-motion'
 import { Layout } from '@/components/layout'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Button } from '@/components/ui/button'
+
 import { Badge } from '@/components/ui/badge'
 import { useToast } from '@/hooks/use-toast'
 import CreditPurchase from '@/components/payment/CreditPurchase'
@@ -18,7 +18,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import {
-  Coins,
+  _Coins,
   CreditCard,
   History,
   Gift,
@@ -44,10 +44,10 @@ interface PaymentRecord {
 }
 
 export default function PaymentPage() {
-  const [userCredits, setUserCredits] = useState(1250)
+  const [userCredits] = useState(1250)
   const [isLoading, setIsLoading] = useState(false)
   const [selectedPayment, setSelectedPayment] = useState<PaymentRecord | null>(null)
-  const [refreshing, setRefreshing] = useState(false)
+  const [_refreshing, setRefreshing] = useState(false)
   const { toast } = useToast()
 
   const handlePaymentCreate = async (data: {

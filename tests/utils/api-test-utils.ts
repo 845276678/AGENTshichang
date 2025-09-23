@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createMocks } from 'node-mocks-http'
+
 
 // Helper to create a Next.js request object for testing
 export function createTestRequest(
@@ -272,7 +272,7 @@ export function expectSuccessResponse(response: any, data?: any) {
   }
 }
 
-export function expectErrorResponse(response: any, message?: string, status?: number) {
+export function expectErrorResponse(response: any, message?: string, _status?: number) {
   expect(response.success).toBe(false)
   if (message) {
     expect(response.message || response.error).toMatch(message)

@@ -340,7 +340,7 @@ export class FileStorageManager {
 
   // 生成上传签名（前端直传）
   async generateUploadSignature(
-    userId: string,
+    _userId: string,
     type: FileType = FileType.OTHER,
     maxSize: number = 10 * 1024 * 1024
   ): Promise<{

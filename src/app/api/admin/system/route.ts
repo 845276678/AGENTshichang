@@ -7,7 +7,7 @@ import PaymentManager from '@/lib/payment'
 import FileStorageManager from '@/lib/storage'
 
 // 系统监控和状态检查API
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     const session = await getServerSession(authOptions)
 

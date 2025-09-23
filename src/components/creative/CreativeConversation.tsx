@@ -5,12 +5,12 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui'
-import { Input } from '@/components/ui/input'
+
 import { Textarea } from '@/components/ui/textarea'
 import {
   CreativeConversation as CreativeConversationType,
   CreativeMessage,
-  CreativeAgent,
+  _CreativeAgent,
   CreativePhase,
   CreativeMessageType,
   CreativeMessageMetadata
@@ -21,12 +21,12 @@ import {
   Lightbulb,
   HelpCircle,
   Target,
-  Zap,
+  _Zap,
   CheckCircle,
   Send,
-  Clock,
+  _Clock,
   TrendingUp,
-  MessageCircle,
+  _MessageCircle,
   Sparkles,
   ArrowRight,
   ThumbsUp,
@@ -84,7 +84,7 @@ const messageTypeLabels = {
 export const CreativeConversation: React.FC<CreativeConversationProps> = ({
   conversation,
   onSendMessage,
-  onPhaseTransition,
+  __onPhaseTransition,
   isLoading = false
 }) => {
   const [newMessage, setNewMessage] = useState('')

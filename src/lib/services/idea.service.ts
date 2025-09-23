@@ -236,7 +236,7 @@ export class IdeaService {
   }
 
   // 审核创意状态
-  static async updateStatus(id: string, status: IdeaStatus, adminId: string): Promise<Idea> {
+  static async updateStatus(id: string, status: IdeaStatus, _adminId: string): Promise<Idea> {
     try {
       // 检查管理员权限（在实际实现中）
       // const admin = await UserService.findById(adminId)
@@ -408,7 +408,7 @@ export class IdeaService {
   static async batchUpdateStatus(
     ideaIds: string[],
     status: IdeaStatus,
-    adminId: string
+    _adminId: string
   ): Promise<number> {
     try {
       const result = await prisma.idea.updateMany({

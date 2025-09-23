@@ -15,7 +15,7 @@ import {
   AlertCircle,
   TrendingUp,
   Calendar,
-  RefreshCw
+  _RefreshCw
 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -51,7 +51,7 @@ export function SubmissionStatus({ className, showDetails = true }: SubmissionSt
 
   const userCredits = user?.credits || 0;
   const submissionCheck = canSubmitIdea(userCredits);
-  const usagePercentage = (todayStats.totalSubmissions / (config.dailyFreeLimit + 5)) * 100; // 假设最多8次
+  const ___usagePercentage = (todayStats.totalSubmissions / (config.dailyFreeLimit + 5)) * 100; // 假设最多8次
 
   return (
     <motion.div

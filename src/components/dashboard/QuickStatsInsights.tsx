@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
 import { 
-  TrendingUp, 
+  _TrendingUp, 
   DollarSign, 
   Clock, 
   Target,
@@ -16,7 +16,7 @@ import {
   ArrowRight,
   BarChart3,
   PieChart,
-  Calendar
+  _Calendar
 } from 'lucide-react'
 
 interface InsightItem {

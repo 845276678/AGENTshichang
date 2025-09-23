@@ -4,7 +4,7 @@ import React, { useState } from 'react'
 import { motion } from 'framer-motion'
 import { Layout } from '@/components/layout'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge, AnimatedSection } from '@/components/ui'
 import { Progress } from '@/components/ui/progress'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
@@ -13,20 +13,20 @@ import {
   DollarSign,
   Eye,
   Heart,
-  Brain,
+  _Brain,
   Lightbulb,
   Award,
   Users,
-  Calendar,
+  _Calendar,
   Download,
-  Star,
-  Clock,
+  _Star,
+  _Clock,
   Activity,
   BarChart3,
   PieChart,
   LineChart,
   ArrowUpRight,
-  ArrowDownRight,
+  _ArrowDownRight,
   Plus,
   Filter,
   Search,

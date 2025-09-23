@@ -81,7 +81,7 @@ interface AuthProviderWrapperProps {
   children: ReactNode;
 }
 
-const AuthProviderWrapper: React.FC<AuthProviderWrapperProps> = ({ children }) => {
+const ___AuthProviderWrapper: React.FC<AuthProviderWrapperProps> = ({ children }) => {
   const auth = useAuth();
   const [showSessionWarning, setShowSessionWarning] = useState(false);
   const [sessionExpiresIn, setSessionExpiresIn] = useState(0);

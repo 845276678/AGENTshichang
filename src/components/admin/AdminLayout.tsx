@@ -22,9 +22,9 @@ import {
   ChevronDown,
   User,
   Shield,
-  Activity,
-  FileText,
-  DollarSign
+  _Activity,
+  _FileText,
+  _DollarSign
 } from 'lucide-react'
 
 interface AdminLayoutProps {

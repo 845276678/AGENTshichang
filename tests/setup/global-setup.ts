@@ -1,4 +1,4 @@
-import { setupTestDatabase, teardownTestDatabase } from '../utils/test-database'
+import { setupTestDatabase } from '../utils/test-database'
 
 export default async function globalSetup() {
   console.log('Setting up test environment...')

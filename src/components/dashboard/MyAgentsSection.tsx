@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -18,7 +18,7 @@ import {
   MoreHorizontal,
   ExternalLink,
   Heart,
-  Calendar,
+  _Calendar,
   Activity,
   Star
 } from 'lucide-react'
@@ -242,7 +242,7 @@ const AgentCard = ({ agent }: { agent: Agent }) => {
 }
 
 export function MyAgentsSection() {
-  const [agents, setAgents] = useState<Agent[]>(mockAgents)
+  const [agents] = useState<Agent[]>(mockAgents)
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('All')
   const [sortBy, setSortBy] = useState<'lastUsed' | 'usage' | 'rating' | 'name'>('lastUsed')

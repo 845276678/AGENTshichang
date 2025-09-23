@@ -1,7 +1,6 @@
 // 微信支付服务
 import crypto from 'crypto'
 import axios from 'axios'
-import fs from 'fs'
 
 interface WechatPayConfig {
   appid: string
@@ -302,7 +301,7 @@ export class WechatPayService {
   }
 
   // 解密回调内容
-  decryptNotify(ciphertext: string, associatedData: string, nonce: string): any {
+  decryptNotify(ciphertext: string, associatedData: string, _nonce: string): any {
     try {
       const decipher = crypto.createDecipherGCM('aes-256-gcm')
       decipher.setAuthTag(Buffer.from(ciphertext.slice(-32), 'hex'))
@@ -403,7 +402,7 @@ export class WechatPayService {
   }
 
   // 验证签名（需要微信支付证书）
-  private verifySignature(message: string, signature: string, serial: string): boolean {
+  private verifySignature(_message: string, _signature: string, _serial: string): boolean {
     // 这里需要实现证书验证逻辑
     // 实际使用时需要下载微信支付的平台证书
     console.warn('微信支付签名验证需要平台证书，当前为模拟验证')

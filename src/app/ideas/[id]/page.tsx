@@ -18,15 +18,15 @@ import {
   MessageCircle,
   Share2,
   Star,
-  TrendingUp,
-  Users,
+  _TrendingUp,
+  _Users,
   Zap,
   Timer,
-  Award,
-  Target,
-  Lightbulb,
+  _Award,
+  _Target,
+  _Lightbulb,
   Rocket,
-  DollarSign,
+  _DollarSign,
   Activity
 } from 'lucide-react'
 
@@ -144,7 +144,7 @@ const mockAgents: AIAgent[] = [
 
 export default function IdeaDetailPage() {
   const params = useParams()
-  const [currentTime, setCurrentTime] = useState(new Date())
+  const [_currentTime, setCurrentTime] = useState(new Date())
   const [biddingProgress, setBiddingProgress] = useState(65)
   const [isLiked, setIsLiked] = useState(false)
   const [showBidAnimation, setShowBidAnimation] = useState(false)

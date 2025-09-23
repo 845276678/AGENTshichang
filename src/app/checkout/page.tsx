@@ -16,18 +16,18 @@ import {
   Shield,
   Check,
   User,
-  Mail,
-  MapPin,
-  Phone,
-  Building,
-  Globe,
+  _Mail,
+  _MapPin,
+  _Phone,
+  _Building,
+  _Globe,
   Lock,
   ShoppingCart,
   CheckCircle,
-  AlertCircle,
-  Star,
-  ChevronLeft,
-  ChevronRight
+  _AlertCircle,
+  _Star,
+  _ChevronLeft,
+  _ChevronRight
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import Link from 'next/link'
@@ -155,7 +155,7 @@ const OrderSummary = ({ items, totalPrice }: { items: any[], totalPrice: number 
   )
 }
 
-const ReviewOrderStep = ({ items, totalPrice, onNext }: { 
+const ReviewOrderStep = ({ items, totalPrice, onNext }: {
   items: any[], 
   totalPrice: number, 
   onNext: () => void 

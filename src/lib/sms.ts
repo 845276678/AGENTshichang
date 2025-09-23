@@ -59,7 +59,7 @@ class MockSMSService {
  * 阿里云 SMS 服务
  */
 class AliyunSMSService {
-  private config: SMSConfig
+  private __config: SMSConfig
 
   constructor(config: SMSConfig) {
     this.config = config

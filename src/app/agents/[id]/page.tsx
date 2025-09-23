@@ -1,7 +1,6 @@
 'use client'
 import React, { useState, useEffect } from 'react'
 import { useParams, useRouter } from 'next/navigation'
-import { motion } from 'framer-motion'
 import { Layout } from '@/components/layout'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -9,10 +8,10 @@ import { Badge, AnimatedSection } from '@/components/ui'
 import { Rating } from '@/components/ui/rating'
 import { Agent } from '@/components/ui/agent-card'
 import { useCart } from '@/contexts/CartContext'
-import { 
+import {
   ArrowLeft,
-  Download, 
-  Users, 
+  Download,
+  Users,
   Calendar,
   Shield,
   Star,
@@ -22,7 +21,6 @@ import {
   ExternalLink,
   CheckCircle,
   AlertCircle,
-  Clock,
   Zap,
   Sparkles,
   Tag,
@@ -87,11 +85,11 @@ const AgentDetailPage = () => {
   const { isAuthenticated } = useAuth()
   const { addToCart, items } = useCart()
   const [agent, setAgent] = useState<Agent | null>(null)
-  const [reviews, setReviews] = useState<Review[]>(mockReviews)
+  const [reviews] = useState<Review[]>(mockReviews)
   const [isLoading, setIsLoading] = useState(true)
   const [activeTab, setActiveTab] = useState('overview')
   const [isFavorited, setIsFavorited] = useState(false)
-  const [showDemo, setShowDemo] = useState(false)
+  const [_showDemo] = useState(false)
   const [addingToCart, setAddingToCart] = useState(false)
 
   // Check if agent is already in cart

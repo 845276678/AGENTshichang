@@ -6,10 +6,9 @@ import { Layout } from '@/components/layout'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge, AnimatedSection } from '@/components/ui'
-import { AgentCard, Agent } from '@/components/ui/agent-card'
-import { 
-  Search, 
-  Filter, 
+import { AgentCard } from '@/components/ui/agent-card'
+import {
+  Search,
   SlidersHorizontal,
   Star,
   TrendingUp,
@@ -53,7 +52,6 @@ const AgentsBrowsePage = () => {
   
   const [showFilters, setShowFilters] = useState(false)
   const [currentPage, setCurrentPage] = useState(1)
-  const [isLoading, setIsLoading] = useState(false)
 
   // Filter and sort agents
   const filteredAgents = useMemo(() => {

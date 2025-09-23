@@ -1,5 +1,5 @@
 // 数据库集成测试脚本
-import { prisma, checkDatabaseConnection, initializeDatabase } from './database'
+import { prisma, checkDatabaseConnection } from './database'
 import UserService from './services/user.service'
 import IdeaService from './services/idea.service'
 import ResearchReportService from './services/research-report.service'

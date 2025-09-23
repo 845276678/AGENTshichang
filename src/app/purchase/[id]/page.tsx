@@ -1,13 +1,13 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import React, { useState } from 'react'
+import { motion } from 'framer-motion'
 import { useParams, useRouter } from 'next/navigation'
 import { Layout } from '@/components/layout'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge, AnimatedSection } from '@/components/ui'
-import { Input } from '@/components/ui/input'
+
 import { Label } from '@/components/ui/label'
 import {
   ArrowLeft,
@@ -15,18 +15,18 @@ import {
   Wallet,
   Shield,
   CheckCircle,
-  AlertCircle,
+  _AlertCircle,
   Download,
   Star,
   Clock,
   Users,
-  Eye,
-  Heart,
+  _Eye,
+  _Heart,
   Brain,
-  Zap,
+  _Zap,
   FileText,
-  Award,
-  Target,
+  _Award,
+  _Target,
   TrendingUp
 } from 'lucide-react'
 
@@ -113,7 +113,7 @@ const mockUser: UserProfile = {
 }
 
 export default function PurchasePage() {
-  const params = useParams()
+  const ___params = useParams()
   const router = useRouter()
   const [isProcessing, setIsProcessing] = useState(false)
   const [purchaseStep, setPurchaseStep] = useState(1) // 1: 确认, 2: 支付, 3: 完成

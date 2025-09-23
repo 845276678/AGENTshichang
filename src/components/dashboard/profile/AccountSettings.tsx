@@ -5,17 +5,17 @@ import { motion } from 'framer-motion'
 import { useAuth } from '@/hooks/useAuth'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { FormField } from '@/components/ui/FormField'
+
+
 import { 
   Settings, 
   Bell, 
-  Mail, 
+  _Mail, 
   Shield, 
   Trash2,
   Download,
-  Eye,
-  EyeOff,
+  _Eye,
+  _EyeOff,
   AlertTriangle
 } from 'lucide-react'
 

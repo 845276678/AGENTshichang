@@ -1,27 +1,27 @@
 'use client'
 
 import React, { useState } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion } from 'framer-motion'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { Label } from '@/components/ui/label'
 import { Input } from '@/components/ui/input'
-import { Textarea } from '@/components/ui/textarea'
+
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
+  _DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
+  _DialogTrigger,
 } from '@/components/ui/dialog'
 import {
   CreditCard,
   Smartphone,
   QrCode,
-  Gift,
+  _Gift,
   Zap,
   Star,
   Crown,

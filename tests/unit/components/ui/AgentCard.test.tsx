@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react'
 import { AgentCard, Agent } from '@/components/ui/agent-card'
-import { createMockAgent } from '@/tests/fixtures/mock-data'
+
 
 // Mock Next.js components
 jest.mock('next/link', () => {

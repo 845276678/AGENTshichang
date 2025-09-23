@@ -7,7 +7,7 @@
 import { useCallback, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth as useAuthContext, AuthContextValue } from '@/contexts/AuthContext';
-import { LoginRequest, RegisterRequest, User } from '@/types/auth';
+import { LoginRequest, RegisterRequest } from '@/types/auth';
 import { tokenStorage } from '@/lib/token-storage';
 
 // Extended auth hook interface

@@ -48,7 +48,7 @@ export async function GET(request: NextRequest) {
     // Sort tags by frequency and add to suggestions
     Array.from(tagCounts.entries())
       .sort((a, b) => b[1] - a[1])
-      .forEach(([tag, count]) => {
+      .forEach(([tag, _count]) => {
         if (suggestions.size < limit) {
           suggestions.add(tag)
         }
@@ -59,7 +59,7 @@ export async function GET(request: NextRequest) {
       mockAgents.forEach(agent => {
         if (agent.description.toLowerCase().includes(queryLower) && suggestions.size < limit) {
           // Extract relevant phrase from description
-          const words = agent.description.split(' ')
+          const ___words = agent.description.split(' ')
           const queryWords = query.split(' ')
           const relevantPhrase = queryWords[0] // Simplified for now
           if (relevantPhrase && !suggestions.has(relevantPhrase)) {

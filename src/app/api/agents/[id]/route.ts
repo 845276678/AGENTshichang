@@ -3,7 +3,7 @@ import { mockAgents } from '@/lib/agents-mock-data'
 
 // GET /api/agents/[id] - Get a specific agent by ID
 export async function GET(
-  request: NextRequest,
+  _request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
@@ -76,12 +76,12 @@ export async function GET(
 
 // PUT /api/agents/[id] - Update an agent (for future use)
 export async function PUT(
-  request: NextRequest,
+  _request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
-    const { id } = params
-    const body = await request.json()
+    const { id: _id } = params
+    // const body = await request.json()
     
     // TODO: Validate request body
     // TODO: Check authentication and permissions
@@ -108,11 +108,11 @@ export async function PUT(
 
 // DELETE /api/agents/[id] - Delete an agent (for future use)
 export async function DELETE(
-  request: NextRequest,
+  _request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
-    const { id } = params
+    const { id: _id } = params
     
     // TODO: Check authentication and permissions
     // TODO: Delete agent from database

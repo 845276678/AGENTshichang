@@ -133,7 +133,7 @@ async function testPaymentFlow(): Promise<void> {
   console.log('\n🔄 测试支付业务流程...')
 
   try {
-    const paymentManager = new PaymentManager()
+    const ___paymentManager = new PaymentManager()
 
     // 模拟创建支付订单（不实际调用支付接口）
     console.log('模拟支付订单创建流程...')
@@ -183,10 +183,10 @@ async function testPaymentSecurity(): Promise<void> {
     console.log('测试支付宝签名验证...')
 
     try {
-      const alipayService = new AlipayService()
+      const ___alipayService = new AlipayService()
 
       // 模拟回调参数
-      const mockParams = {
+      const ___mockParams = {
         out_trade_no: 'TEST123456789',
         trade_status: 'TRADE_SUCCESS',
         total_amount: '10.00',
@@ -204,10 +204,10 @@ async function testPaymentSecurity(): Promise<void> {
     console.log('测试微信支付签名验证...')
 
     try {
-      const wechatService = new WechatPayService()
+      const ___wechatService = new WechatPayService()
 
       // 模拟回调头部
-      const mockHeaders = {
+      const ___mockHeaders = {
         'wechatpay-timestamp': '1234567890',
         'wechatpay-nonce': 'test_nonce',
         'wechatpay-signature': 'mock_signature',

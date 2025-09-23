@@ -220,7 +220,7 @@ async function checkResponseQuality(response: string, prompt: string, agentType:
 }
 
 // 相关性检查
-function checkRelevance(response: string, prompt: string, agentType: string): number {
+function checkRelevance(response: string, _prompt: string, agentType: string): number {
   let score = 0
 
   // 检查是否包含专家特色词汇
@@ -294,7 +294,7 @@ function checkProfessionalism(response: string, agentType: string): number {
 }
 
 // 改进回复质量
-async function improveResponse(originalResponse: string, prompt: string, agentType: string): Promise<string> {
+async function improveResponse(originalResponse: string, _prompt: string, agentType: string): Promise<string> {
   // 简单的改进策略：添加更多结构化内容
   let improved = originalResponse
 
@@ -571,7 +571,7 @@ function parseAIResponse(aiResponse: string, agentType: string, currentRound: nu
 }
 
 // 生成分析数据
-function generateAnalysisData(agentType: string, currentRound: number) {
+function generateAnalysisData(agentType: string, _currentRound: number) {
   const baseScores = {
     'tech': {
       technicalInnovation: 85 + Math.floor(Math.random() * 10),
@@ -628,7 +628,7 @@ function extractSuggestions(aiResponse: string): string[] {
 
 // 备用回复生成（当AI服务不可用时）
 // 备用回复生成（当AI服务不可用时）
-function generateFallbackResponse(agentType: string, idea: any, userContent: string, currentRound: number) {
+function generateFallbackResponse(agentType: string, idea: any, _userContent: string, currentRound: number) {
   const agentNames = {
     'tech': '科技艾克斯',
     'business': '商人老王',

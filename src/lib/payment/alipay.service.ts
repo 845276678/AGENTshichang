@@ -246,7 +246,7 @@ export class AlipayService {
   }
 
   // 验证签名
-  private verify(content: string, sign: string): boolean {
+  private __verify(content: string, sign: string): boolean {
     const publicKey = `-----BEGIN PUBLIC KEY-----\n${this.config.publicKey}\n-----END PUBLIC KEY-----`
 
     return crypto

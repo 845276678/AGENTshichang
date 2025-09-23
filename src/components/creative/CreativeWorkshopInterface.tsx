@@ -9,14 +9,14 @@ import { Progress } from '@/components/ui/progress'
 import { Textarea } from '@/components/ui/textarea'
 import {
   CreativeWorkshop,
-  WorkshopExercise,
-  CreativeAgent
+  _WorkshopExercise,
+  _CreativeAgent
 } from '@/types'
 import {
   Brain,
   Clock,
   Users,
-  Zap,
+  _Zap,
   CheckCircle,
   Play,
   Pause,
@@ -26,7 +26,7 @@ import {
   Target,
   BarChart3,
   Presentation,
-  Timer,
+  _Timer,
   Star,
   Trophy,
   BookOpen
@@ -77,7 +77,7 @@ export const CreativeWorkshopInterface: React.FC<CreativeWorkshopProps> = ({
   workshop,
   onSubmitExercise,
   onCompleteWorkshop,
-  currentUserId
+  __currentUserId
 }) => {
   const [currentExerciseIndex, setCurrentExerciseIndex] = useState(0)
   const [exerciseSubmissions, setExerciseSubmissions] = useState<Record<string, string>>({})
@@ -370,7 +370,7 @@ export const CreativeWorkshopInterface: React.FC<CreativeWorkshopProps> = ({
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            {workshop.exercises.slice(0, currentExerciseIndex).map((exercise, index) => (
+            {workshop.exercises.slice(0, currentExerciseIndex).map((exercise, _index) => (
               <div key={exercise.id} className="p-4 bg-secondary/20 rounded-lg">
                 <div className="flex items-center gap-2 mb-2">
                   <CheckCircle className="w-4 h-4 text-green-500" />

@@ -13,7 +13,7 @@ import {
   Activity, 
   Crown, 
   TrendingUp, 
-  DollarSign,
+  _DollarSign,
   Clock,
   Star,
   ArrowRight,

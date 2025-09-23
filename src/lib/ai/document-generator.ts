@@ -8,7 +8,7 @@ interface AIDocumentGeneratorConfig {
 }
 
 class AIDocumentGenerator {
-  private config: AIDocumentGeneratorConfig
+  private __config: AIDocumentGeneratorConfig
 
   constructor(config: AIDocumentGeneratorConfig) {
     this.config = config
@@ -217,7 +217,7 @@ AI Agent信息:
   /**
    * 生成技术架构内容
    */
-  private generateTechnicalArchitectureContent(prompt: string): string {
+  private generateTechnicalArchitectureContent(_prompt: string): string {
     return `
 ## 技术架构设计
 
@@ -267,7 +267,7 @@ AI Agent信息:
   /**
    * 生成商业计划内容
    */
-  private generateBusinessPlanContent(prompt: string): string {
+  private generateBusinessPlanContent(_prompt: string): string {
     return `
 ## 商业计划分析
 
@@ -316,7 +316,7 @@ AI Agent信息:
   /**
    * 生成营销内容
    */
-  private generateMarketingContent(prompt: string): string {
+  private generateMarketingContent(_prompt: string): string {
     return `
 ## 市场推广策略
 
@@ -363,7 +363,7 @@ AI Agent信息:
   /**
    * 生成通用内容
    */
-  private generateGenericContent(prompt: string): string {
+  private generateGenericContent(_prompt: string): string {
     return `
 ## 专业分析报告
 
@@ -528,7 +528,7 @@ AI Agent信息:
     return '100-200%'
   }
 
-  private generateFeaturesList(request: DocumentGenerationRequest): string[] {
+  private generateFeaturesList(_request: DocumentGenerationRequest): string[] {
     return [
       '完整技术实现方案',
       '详细商业模式设计',
@@ -541,7 +541,7 @@ AI Agent信息:
     ]
   }
 
-  private generateFallbackContent(prompt: string): string {
+  private generateFallbackContent(_prompt: string): string {
     return '由于AI服务暂时不可用，此处为预设内容。请稍后重试获取完整的AI生成内容。'
   }
 

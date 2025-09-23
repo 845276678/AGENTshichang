@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest } from 'next/server'
 import PaymentManager from '@/lib/payment'
 import { verifyToken } from '@/lib/jwt'
 import { createSuccessResponse, createErrorResponse, handleApiError } from '@/lib/errors'

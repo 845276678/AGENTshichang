@@ -151,7 +151,7 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   loadingComponent: CustomLoadingComponent,
   unauthorizedComponent: CustomUnauthorizedComponent,
   emailVerificationComponent: CustomEmailVerificationComponent,
-  fallback,
+  __fallback,
   hasPermission,
 }) => {
   const router = useRouter();

@@ -111,7 +111,7 @@ export const PaymentHistory: React.FC<PaymentHistoryProps> = ({
   const pageSize = 10
 
   // 模拟数据加载
-  const loadPayments = async (currentPage: number = 1) => {
+  const loadPayments = async (_currentPage: number = 1) => {
     setLoading(true)
     try {
       // 这里应该调用实际的API

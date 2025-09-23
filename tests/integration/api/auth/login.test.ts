@@ -5,7 +5,7 @@ import {
   setupApiMocks,
   cleanupApiMocks,
   mockPrisma,
-  mockServices,
+  _mockServices,
   mockUser,
   TestDatabase,
   expectSuccessResponse,
@@ -45,7 +45,7 @@ jest.mock('@/lib/rate-limit', () => ({
 }))
 
 const UserService = require('@/lib/services/user.service').default
-const { generateTokenPair } = require('@/lib/jwt')
+const { ____generateTokenPair } = require('@/lib/jwt')
 const { emailService } = require('@/lib/email')
 
 describe('/api/auth/login', () => {
@@ -267,7 +267,7 @@ describe('/api/auth/login', () => {
       })
 
       const response = await POST(request as any)
-      const data = await getResponseData(response)
+      const ___data = await getResponseData(response)
 
       expect(response.status).toBe(400)
     })

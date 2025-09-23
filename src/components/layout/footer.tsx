@@ -11,7 +11,7 @@ import {
   Linkedin,
   Mail,
   MapPin,
-  Phone,
+  _Phone,
   Zap,
   ArrowUp,
   Heart

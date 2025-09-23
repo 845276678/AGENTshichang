@@ -62,7 +62,7 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    console.log(`🚀 开始为用户 ${user.id} 生成文档包`)
+    console.log(`🚀 开始为用户 ${(user as any).id || 'unknown'} 生成文档包`)
     console.log(`📝 创意: ${mockIdeaData.idea.title}`)
     console.log(`🤖 AI专家: ${mockIdeaData.agent.name}`)
 

@@ -72,7 +72,7 @@ test.describe('Admin Panel Access Control', () => {
   })
 
   test.describe('User Management', () => {
-    test.beforeEach(async ({ page }) => {
+    test.beforeEach(async ({ __page }) => {
       await helpers.loginAsAdmin()
     })
 
@@ -188,7 +188,7 @@ test.describe('Admin Panel Access Control', () => {
   })
 
   test.describe('Agent Management', () => {
-    test.beforeEach(async ({ page }) => {
+    test.beforeEach(async ({ __page }) => {
       await helpers.loginAsAdmin()
     })
 
@@ -276,7 +276,7 @@ test.describe('Admin Panel Access Control', () => {
   })
 
   test.describe('Order Management', () => {
-    test.beforeEach(async ({ page }) => {
+    test.beforeEach(async ({ __page }) => {
       await helpers.loginAsAdmin()
     })
 
@@ -340,7 +340,7 @@ test.describe('Admin Panel Access Control', () => {
   })
 
   test.describe('Analytics Dashboard', () => {
-    test.beforeEach(async ({ page }) => {
+    test.beforeEach(async ({ __page }) => {
       await helpers.loginAsAdmin()
     })
 
@@ -384,7 +384,7 @@ test.describe('Admin Panel Access Control', () => {
   })
 
   test.describe('System Settings', () => {
-    test.beforeEach(async ({ page }) => {
+    test.beforeEach(async ({ __page }) => {
       await helpers.loginAsAdmin()
     })
 

@@ -672,7 +672,7 @@ export class AIOrchestrator {
   }
 
   // 结果后处理
-  private async postProcessResult(result: string, format: string): Promise<any> {
+  private async __postProcessResult(result: string, format: string): Promise<any> {
     switch (format) {
       case 'json':
         try {
@@ -696,7 +696,7 @@ export class AIOrchestrator {
   }
 
   // 生成最终报告
-  private generateFinalReport(results: Record<string, any>): any {
+  private __generateFinalReport(results: Record<string, any>): any {
     return {
       metadata: {
         generatedAt: new Date().toISOString(),

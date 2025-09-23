@@ -13,21 +13,21 @@ import {
   Sparkles, 
   Zap,
   Brain,
-  Code,
-  Palette,
-  BarChart3,
-  MessageCircle,
-  BookOpen,
+  _Code,
+  _Palette,
+  _BarChart3,
+  _MessageCircle,
+  _BookOpen,
   Briefcase,
   Star,
-  Users,
-  Shield,
-  Rocket,
+  _Users,
+  _Shield,
+  _Rocket,
   TrendingUp,
   PlayCircle,
-  Github,
-  Twitter,
-  Linkedin
+  _Github,
+  _Twitter,
+  _Linkedin
 } from 'lucide-react'
 
 // Featured AI Agents from the product document

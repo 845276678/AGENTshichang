@@ -6,15 +6,12 @@ import { AdminLayout } from '@/components/admin/AdminLayout'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui'
-import { 
+import {
   TrendingUp,
-  TrendingDown,
   Users,
   Zap,
   ShoppingCart,
   DollarSign,
-  Activity,
-  Eye,
   Download,
   Star,
   AlertCircle,
@@ -118,10 +115,9 @@ const topPerformingAgents = [
   }
 ]
 
-const StatCard = ({ title, value, previousValue, change, icon: Icon, prefix = '', suffix = '' }: {
+const StatCard = ({ title, value, change, icon: Icon, prefix = '', suffix = '' }: {
   title: string
   value: number
-  previousValue: number
   change: number
   icon: React.ElementType
   prefix?: string

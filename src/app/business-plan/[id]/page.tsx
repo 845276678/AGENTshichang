@@ -1,10 +1,10 @@
 'use client'
 
 import { useState } from 'react'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { Progress } from '@/components/ui/progress'
+
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import {
   FileText,
@@ -14,14 +14,14 @@ import {
   CheckCircle,
   TrendingUp,
   DollarSign,
-  Shield,
-  Code,
+  _Shield,
+  _Code,
   Brain,
-  Rocket,
+  _Rocket,
   Star,
   Calendar,
-  User,
-  BarChart3,
+  _User,
+  _BarChart3,
   Target,
   Lightbulb,
   Building

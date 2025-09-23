@@ -226,8 +226,8 @@ const OrdersTable = () => {
   const [searchTerm, setSearchTerm] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
   const [paymentFilter, setPaymentFilter] = useState('all')
-  const [sortBy, setSortBy] = useState('createdAt')
-  const [sortOrder, setSortOrder] = useState('desc')
+  const [sortBy] = useState('createdAt')
+  const [sortOrder] = useState('desc')
 
   const filteredOrders = mockOrders
     .filter(order => {

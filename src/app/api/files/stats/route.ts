@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest } from 'next/server'
 import FileStorageManager from '@/lib/storage'
 import { verifyToken } from '@/lib/jwt'
 import { createSuccessResponse, createErrorResponse, handleApiError } from '@/lib/errors'

@@ -86,7 +86,7 @@ class Logger {
     }
   }
 
-  private async sendToExternalService(entry: LogEntry) {
+  private async sendToExternalService(_entry: LogEntry) {
     // Implement integration with logging services like:
     // - Sentry
     // - DataDog

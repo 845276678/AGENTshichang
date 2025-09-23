@@ -3,7 +3,7 @@ import { http, HttpResponse } from 'msw'
 // Mock API handlers for MSW
 export const authHandlers = [
   // Login
-  http.post('/api/auth/login', ({ request }) => {
+  http.post('/api/auth/login', ({ __request }) => {
     return HttpResponse.json({
       success: true,
       data: {
@@ -19,7 +19,7 @@ export const authHandlers = [
   }),
 
   // Register
-  http.post('/api/auth/register', ({ request }) => {
+  http.post('/api/auth/register', ({ __request }) => {
     return HttpResponse.json({
       success: true,
       data: {
@@ -56,7 +56,7 @@ export const authHandlers = [
   }),
 
   // Logout
-  http.post('/api/auth/logout', ({ request }) => {
+  http.post('/api/auth/logout', ({ __request }) => {
     return HttpResponse.json({
       success: true,
       message: 'Logged out successfully',
@@ -64,7 +64,7 @@ export const authHandlers = [
   }),
 
   // Forgot password
-  http.post('/api/auth/forgot-password', ({ request }) => {
+  http.post('/api/auth/forgot-password', ({ __request }) => {
     return HttpResponse.json({
       success: true,
       message: 'Password reset email sent',
@@ -72,7 +72,7 @@ export const authHandlers = [
   }),
 
   // Reset password
-  http.post('/api/auth/reset-password', ({ request }) => {
+  http.post('/api/auth/reset-password', ({ __request }) => {
     return HttpResponse.json({
       success: true,
       message: 'Password reset successfully',
@@ -80,7 +80,7 @@ export const authHandlers = [
   }),
 
   // Verify email
-  http.post('/api/auth/verify-email', ({ request }) => {
+  http.post('/api/auth/verify-email', ({ __request }) => {
     return HttpResponse.json({
       success: true,
       message: 'Email verified successfully',
@@ -88,7 +88,7 @@ export const authHandlers = [
   }),
 
   // Refresh token
-  http.post('/api/auth/refresh', ({ request }) => {
+  http.post('/api/auth/refresh', ({ __request }) => {
     return HttpResponse.json({
       success: true,
       data: {
@@ -201,7 +201,7 @@ export const agentsHandlers = [
 ]
 
 export const categoriesHandlers = [
-  http.get('/api/categories', ({ request }) => {
+  http.get('/api/categories', ({ __request }) => {
     return HttpResponse.json({
       success: true,
       data: [
@@ -244,7 +244,7 @@ export const searchHandlers = [
 
 // Payment handlers
 export const paymentHandlers = [
-  http.post('/api/payments/create-intent', ({ request }) => {
+  http.post('/api/payments/create-intent', ({ __request }) => {
     return HttpResponse.json({
       success: true,
       data: {
@@ -253,7 +253,7 @@ export const paymentHandlers = [
     })
   }),
 
-  http.post('/api/payments/confirm', ({ request }) => {
+  http.post('/api/payments/confirm', ({ __request }) => {
     return HttpResponse.json({
       success: true,
       data: {
@@ -266,14 +266,14 @@ export const paymentHandlers = [
 
 // Error handlers for testing error scenarios
 export const errorHandlers = [
-  http.get('/api/agents/error', ({ request }) => {
+  http.get('/api/agents/error', ({ __request }) => {
     return HttpResponse.json(
       { success: false, error: 'Internal server error' },
       { status: 500 }
     )
   }),
 
-  http.post('/api/auth/login-error', ({ request }) => {
+  http.post('/api/auth/login-error', ({ __request }) => {
     return HttpResponse.json(
       { success: false, error: 'Invalid credentials' },
       { status: 401 }

@@ -33,7 +33,7 @@ export function Rating({
   count,
   size = 'md',
   className,
-  readonly = true,
+  __readonly = true,
 }: RatingProps) {
   const filledStars = Math.floor(value)
   const hasHalfStar = value % 1 !== 0

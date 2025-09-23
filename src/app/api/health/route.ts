@@ -49,7 +49,7 @@ interface ProcessMetrics {
 }
 
 // 健康检查API
-export async function GET(request: NextRequest): Promise<NextResponse> {
+export async function GET(_request: NextRequest): Promise<NextResponse> {
   const startTime = Date.now()
   const health: HealthStatus = {
     status: 'healthy',

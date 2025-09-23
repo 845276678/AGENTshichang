@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion } from 'framer-motion'
 import { useParams } from 'next/navigation'
 import { Layout } from '@/components/layout'
 import { Button } from '@/components/ui/button'
@@ -15,22 +15,22 @@ import {
   Clock,
   CheckCircle,
   AlertCircle,
-  Code,
+  _Code,
   FileText,
   TrendingUp,
-  Users,
+  _Users,
   Lightbulb,
   Rocket,
-  Target,
-  DollarSign,
+  _Target,
+  _DollarSign,
   Activity,
   Cpu,
-  Database,
-  Globe,
-  Shield,
-  Zap,
+  _Database,
+  _Globe,
+  _Shield,
+  _Zap,
   Download,
-  Eye,
+  _Eye,
   Play,
   Pause
 } from 'lucide-react'
@@ -257,7 +257,7 @@ const mockWorkflow: AIWorkflowStage[] = [
 ]
 
 export default function AIWorkbenchPage() {
-  const params = useParams()
+  const ___params = useParams()
   const [currentStage, setCurrentStage] = useState(2)
   const [isPlaying, setIsPlaying] = useState(true)
   const [overallProgress, setOverallProgress] = useState(55)

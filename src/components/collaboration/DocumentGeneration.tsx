@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -10,15 +10,15 @@ import {
   Brain,
   FileText,
   Download,
-  Clock,
+  _Clock,
   CheckCircle,
   AlertCircle,
   Loader2,
   Sparkles,
   TrendingUp,
-  Users,
-  Shield,
-  Zap
+  _Users,
+  _Shield,
+  _Zap
 } from 'lucide-react'
 
 interface DocumentGenerationProps {

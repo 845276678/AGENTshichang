@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { mockAgents, categories, priceRanges, sortOptions } from '@/lib/agents-mock-data'
+import { mockAgents, priceRanges } from '@/lib/agents-mock-data'
 
 // GET /api/agents - Get all agents with optional filtering and pagination
 export async function GET(request: NextRequest) {
@@ -129,9 +129,9 @@ export async function GET(request: NextRequest) {
 }
 
 // POST /api/agents - Create a new agent (for future use)
-export async function POST(request: NextRequest) {
+export async function POST(_request: NextRequest) {
   try {
-    const body = await request.json()
+    // const body = await request.json()
     
     // TODO: Validate request body
     // TODO: Check authentication and permissions

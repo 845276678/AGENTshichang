@@ -436,7 +436,7 @@ export class AliyunOSSService {
   }
 
   // 检测内容类型
-  private detectContentType(filename: string, file: Buffer | string): string {
+  private detectContentType(filename: string, _file: Buffer | string): string {
     // 简单的内容类型检测
     const ext = path.extname(filename).toLowerCase()
     const mimeTypes: Record<string, string> = {

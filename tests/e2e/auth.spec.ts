@@ -7,7 +7,7 @@ const testUser = {
   name: 'Test User',
 }
 
-const adminUser = {
+const ___adminUser = {
   email: 'admin@example.com',
   password: 'AdminPassword123!',
   name: 'Admin User',

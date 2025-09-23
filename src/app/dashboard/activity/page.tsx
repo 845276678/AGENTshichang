@@ -49,7 +49,7 @@ export default function ActivityPage() {
     console.log('Exporting activity data...')
   }
 
-  const filteredActivityTypes = activeFilter === 'all' 
+  const ___filteredActivityTypes = activeFilter === 'all' 
     ? activityTypes.slice(1) // Exclude 'all' option
     : activityTypes.filter(type => type.id === activeFilter)
 

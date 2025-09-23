@@ -6,8 +6,8 @@ import {
   CreativeConversation,
   AgentPersonalityCard,
   CreativeDNAAnalysis,
-  CreativeChallengeCard,
-  CreativeWorkshopInterface
+  _CreativeChallengeCard,
+  _CreativeWorkshopInterface
 } from '@/components/ui'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui'

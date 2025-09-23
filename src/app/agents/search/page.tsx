@@ -6,18 +6,15 @@ import { motion } from 'framer-motion'
 import { Layout } from '@/components/layout'
 import { Button } from '@/components/ui/button'
 import { Badge, AnimatedSection } from '@/components/ui'
-import { AgentCard, Agent } from '@/components/ui/agent-card'
+import { AgentCard } from '@/components/ui/agent-card'
 import { Input } from '@/components/ui/input'
-import { 
-  Search, 
-  X, 
-  Filter,
+import {
+  Search,
+  X,
   SlidersHorizontal,
   Grid3X3,
   List,
   ChevronDown,
-  TrendingUp,
-  Clock,
   Zap,
   ArrowLeft
 } from 'lucide-react'

@@ -365,7 +365,7 @@ export async function sendSMSVerificationCode(request: NextRequest) {
     await redis.setex(smsCodeKey, 300, code)
 
     // 发送短信
-    const templateCode = type === 'register'
+    const ___templateCode = type === 'register'
       ? productionConfig.sms.templateCode.register
       : productionConfig.sms.templateCode.login
 

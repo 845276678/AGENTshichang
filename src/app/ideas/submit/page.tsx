@@ -16,7 +16,7 @@ import {
   Lightbulb,
   Sparkles,
   TrendingUp,
-  Clock,
+  _Clock,
   Users,
   Zap,
   ArrowRight,
@@ -27,17 +27,17 @@ import {
   Heart,
   Coffee,
   Palette,
-  Code,
-  Globe,
+  _Code,
+  _Globe,
   BookOpen,
   Gamepad2,
-  Music,
-  Camera,
+  _Music,
+  _Camera,
   Atom,
   TreePine,
   Puzzle,
   Coins,
-  AlertCircle,
+  _AlertCircle,
   CheckCircle
 } from 'lucide-react'
 
@@ -45,7 +45,7 @@ export default function SubmitIdeaPage() {
   const { user, isAuthenticated } = useAuth()
   const {
     canSubmitIdea,
-    recordSubmission,
+    __recordSubmission,
     hasFreeSlotsAvailable,
     nextSubmissionCost,
     remainingFreeSubmissions

@@ -6,16 +6,16 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui'
 import { Textarea } from '@/components/ui/textarea'
-import { Progress } from '@/components/ui/progress'
+
 import {
   CreativeChallenge,
   ChallengeSubmission,
   ChallengeReward,
-  CreativeAgent
+  _CreativeAgent
 } from '@/types'
 import {
   Trophy,
-  Clock,
+  _Clock,
   Target,
   Users,
   Star,
@@ -27,9 +27,9 @@ import {
   AlertCircle,
   Timer,
   Brain,
-  Lightbulb,
-  TrendingUp,
-  Shield,
+  _Lightbulb,
+  _TrendingUp,
+  _Shield,
   Flame,
   Crown,
   Gift
@@ -70,7 +70,7 @@ const difficultyConfig = {
   }
 }
 
-const rarityConfig = {
+const ___rarityConfig = {
   COMMON: {
     color: 'text-gray-500',
     bgColor: 'bg-gray-100',

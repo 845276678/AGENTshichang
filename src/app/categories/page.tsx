@@ -20,9 +20,9 @@ import {
   Puzzle,
   TrendingUp,
   Users,
-  Star,
+  _Star,
   ArrowRight,
-  Filter,
+  _Filter,
   Grid3X3,
   List
 } from 'lucide-react'
@@ -152,7 +152,7 @@ const categories = [
 
 export default function CategoriesPage() {
   const [searchQuery, setSearchQuery] = useState('')
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
+  const [_selectedCategory] = useState<string | null>(null)
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
 
   const filteredCategories = categories.filter(category =>

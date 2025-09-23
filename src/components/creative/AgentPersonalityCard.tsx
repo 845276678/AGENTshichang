@@ -8,15 +8,15 @@ import { Badge } from '@/components/ui'
 import { Progress } from '@/components/ui/progress'
 import {
   CreativeAgent,
-  AgentPersonality,
-  CognitionStyle,
-  AgentMood,
-  BiddingStrategy
+  _AgentPersonality,
+  _CognitionStyle,
+  _AgentMood,
+  _BiddingStrategy
 } from '@/types'
 import {
   Brain,
   Heart,
-  Zap,
+  _Zap,
   Target,
   TrendingUp,
   Clock,
@@ -24,15 +24,15 @@ import {
   Star,
   BarChart3,
   Lightbulb,
-  Shield,
+  _Shield,
   Flame,
   Snowflake,
   Sun,
   Cloud,
-  Moon,
+  _Moon,
   Activity,
   MessageCircle,
-  Eye,
+  _Eye,
   Sparkles,
   ChevronDown,
   ChevronUp

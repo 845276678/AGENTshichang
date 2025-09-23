@@ -12,11 +12,11 @@ import {
   UserCreativeProfile,
   CreativeDNA,
   CreativeAgent,
-  CollaborationHistory
+  _CollaborationHistory
 } from '@/types'
 import {
   Brain,
-  Lightbulb,
+  _Lightbulb,
   Target,
   TrendingUp,
   Users,
@@ -34,8 +34,8 @@ import {
   RefreshCw,
   Sparkles,
   Trophy,
-  Clock,
-  ThumbsUp
+  _Clock,
+  _ThumbsUp
 } from 'lucide-react'
 
 interface CreativeDNAAnalysisProps {
