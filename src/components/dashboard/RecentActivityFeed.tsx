@@ -128,18 +128,18 @@ const ActivityItemComponent = ({ activity, index }: { activity: ActivityItem; in
   const Icon = activity.icon
 
   // const getActivityLink = () => {
-    switch (activity.type) {
-      case 'purchase':
-      case 'view':
-      case 'usage':
-      case 'review':
-        return activity.metadata?.agentName ? `/agents/${activity.metadata.agentName.toLowerCase().replace(/\s+/g, '-')}` : '#'
-      case 'account':
-        return '/dashboard/profile'
-      default:
-        return '#'
-    }
-  }
+  //   switch (activity.type) {
+  //     case 'purchase':
+  //     case 'view':
+  //     case 'usage':
+  //     case 'review':
+  //       return activity.metadata?.agentName ? `/agents/${activity.metadata.agentName.toLowerCase().replace(/\s+/g, '-')}` : '#'
+  //     case 'account':
+  //       return '/dashboard/profile'
+  //     default:
+  //       return '#'
+  //   }
+  // }
 
   const renderMetadata = () => {
     if (!activity.metadata) {return null}

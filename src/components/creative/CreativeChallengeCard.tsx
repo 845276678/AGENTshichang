@@ -71,27 +71,27 @@ const difficultyConfig = {
 }
 
 // const rarityConfig = {
-  COMMON: {
-    color: 'text-gray-500',
-    bgColor: 'bg-gray-100',
-    label: '普通'
-  },
-  RARE: {
-    color: 'text-blue-500',
-    bgColor: 'bg-blue-100',
-    label: '稀有'
-  },
-  EPIC: {
-    color: 'text-purple-500',
-    bgColor: 'bg-purple-100',
-    label: '史诗'
-  },
-  LEGENDARY: {
-    color: 'text-yellow-500',
-    bgColor: 'bg-yellow-100',
-    label: '传说'
-  }
-}
+//   COMMON: {
+//     color: 'text-gray-500',
+//     bgColor: 'bg-gray-100',
+//     label: '普通'
+//   },
+//   RARE: {
+//     color: 'text-blue-500',
+//     bgColor: 'bg-blue-100',
+//     label: '稀有'
+//   },
+//   EPIC: {
+//     color: 'text-purple-500',
+//     bgColor: 'bg-purple-100',
+//     label: '史诗'
+//   },
+//   LEGENDARY: {
+//     color: 'text-yellow-500',
+//     bgColor: 'bg-yellow-100',
+//     label: '传说'
+//   }
+// }
 
 export const CreativeChallengeCard: React.FC<CreativeChallengeCardProps> = ({
   challenge,
