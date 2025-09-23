@@ -17,6 +17,9 @@ if (process.env.NODE_ENV !== 'production') {
   globalThis.prisma = prisma
 }
 
+// 向后兼容性：导出db作为prisma的别名
+export const db = prisma
+
 // 数据库连接健康检查
 export async function checkDatabaseConnection(): Promise<boolean> {
   try {

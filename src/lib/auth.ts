@@ -4,13 +4,11 @@ import jwt from 'jsonwebtoken'
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { productionConfig } from '@/config/production'
-import { db } from '@/lib/database'
+import { prisma } from '@/lib/prisma'
 import { redis } from '@/lib/redis'
-import { sendSMS } from '@/lib/sms'
-import { rateLimit } from '@/lib/rate-limit'
+import { sendVerificationCode } from '@/lib/sms'
 import { NextAuthOptions } from 'next-auth'
 import CredentialsProvider from 'next-auth/providers/credentials'
-import { prisma } from '@/lib/database'
 
 // NextAuth configuration
 export const authOptions: NextAuthOptions = {
@@ -115,13 +113,16 @@ const loginSchema = z.object({
 // 用户注册接口
 export async function registerUser(request: NextRequest) {
   try {
-    // 限流检查
-    const limiter = rateLimit({
-      interval: 15 * 60 * 1000, // 15分钟
-      uniqueTokenPerInterval: 500,
-    })
-
-    await limiter.check(request.ip || 'unknown')
+    // Rate limiting using Redis
+    const rateLimitKey = `rate_limit_register:${request.ip || 'unknown'}`
+    const current = await redis.get(rateLimitKey)
+    if (current && parseInt(current) > 5) {
+      return NextResponse.json(
+        { error: '注册请求过于频繁，请稍后再试' },
+        { status: 429 }
+      )
+    }
+    await redis.setex(rateLimitKey, 15 * 60, (parseInt(current || '0') + 1).toString())
 
     const body = await request.json()
     const validatedData = registerSchema.parse(body)
@@ -138,12 +139,17 @@ export async function registerUser(request: NextRequest) {
     }
 
     // 检查用户是否已存在
-    const existingUser = await db.execute(`
-      SELECT id FROM users
-      WHERE email = ? OR username = ? OR phone = ?
-    `, [validatedData.email, validatedData.username, validatedData.phone])
+    const existingUser = await prisma.user.findFirst({
+      where: {
+        OR: [
+          { email: validatedData.email },
+          { username: validatedData.username },
+          { phone: validatedData.phone }
+        ]
+      }
+    })
 
-    if (existingUser.length > 0) {
+    if (existingUser) {
       return NextResponse.json(
         { error: '用户已存在' },
         { status: 409 }
@@ -157,19 +163,18 @@ export async function registerUser(request: NextRequest) {
     )
 
     // 创建用户
-    const result = await db.execute(`
-      INSERT INTO users (username, email, password_hash, phone, credits, status)
-      VALUES (?, ?, ?, ?, ?, ?)
-    `, [
-      validatedData.username,
-      validatedData.email,
-      passwordHash,
-      validatedData.phone,
-      1000, // 新用户赠送1000积分
-      'active'
-    ])
+    const newUser = await prisma.user.create({
+      data: {
+        username: validatedData.username,
+        email: validatedData.email,
+        passwordHash,
+        phone: validatedData.phone,
+        credits: 1000, // 新用户赠送1000积分
+        status: 'ACTIVE'
+      }
+    })
 
-    const userId = result.insertId
+    const userId = newUser.id
 
     // 生成JWT token
     const token = jwt.sign(
@@ -178,16 +183,14 @@ export async function registerUser(request: NextRequest) {
       { expiresIn: productionConfig.security.jwtExpiresIn }
     )
 
-    // 创建用户会话
-    await db.execute(`
-      INSERT INTO user_sessions (id, user_id, ip_address, user_agent, expires_at)
-      VALUES (?, ?, ?, ?, DATE_ADD(NOW(), INTERVAL 7 DAY))
-    `, [
-      token,
+    // 创建用户会话 (使用Redis存储)
+    await redis.setex(`session:${token}`, 7 * 24 * 60 * 60, JSON.stringify({
       userId,
-      request.ip || '',
-      request.headers.get('user-agent') || ''
-    ])
+      username: validatedData.username,
+      createdAt: new Date().toISOString(),
+      ipAddress: request.ip || '',
+      userAgent: request.headers.get('user-agent') || ''
+    }))
 
     // 删除验证码
     await redis.del(smsCodeKey)
@@ -223,31 +226,40 @@ export async function registerUser(request: NextRequest) {
 // 用户登录接口
 export async function loginUser(request: NextRequest) {
   try {
-    await rateLimit({ interval: 15 * 60 * 1000, uniqueTokenPerInterval: 500 })
-      .check(request.ip || 'unknown')
+    // Rate limiting using Redis
+    const rateLimitKey = `rate_limit:${request.ip || 'unknown'}`
+    const current = await redis.get(rateLimitKey)
+    if (current && parseInt(current) > 10) {
+      return NextResponse.json(
+        { error: '请求过于频繁，请稍后再试' },
+        { status: 429 }
+      )
+    }
+    await redis.setex(rateLimitKey, 15 * 60, (parseInt(current || '0') + 1).toString())
 
     const body = await request.json()
     const validatedData = loginSchema.parse(body)
 
     // 查找用户（支持邮箱/用户名/手机号登录）
-    const user = await db.execute(`
-      SELECT id, username, email, password_hash, credits, level, status
-      FROM users
-      WHERE email = ? OR username = ? OR phone = ?
-      LIMIT 1
-    `, [validatedData.identifier, validatedData.identifier, validatedData.identifier])
+    const userData = await prisma.user.findFirst({
+      where: {
+        OR: [
+          { email: validatedData.identifier },
+          { username: validatedData.identifier },
+          { phone: validatedData.identifier }
+        ]
+      }
+    })
 
-    if (user.length === 0) {
+    if (!userData) {
       return NextResponse.json(
         { error: '用户不存在' },
         { status: 404 }
       )
     }
 
-    const userData = user[0]
-
     // 检查用户状态
-    if (userData.status !== 'active') {
+    if (userData.status !== 'ACTIVE') {
       return NextResponse.json(
         { error: '账户已被禁用，请联系客服' },
         { status: 403 }
@@ -257,7 +269,7 @@ export async function loginUser(request: NextRequest) {
     // 验证密码
     const isPasswordValid = await bcrypt.compare(
       validatedData.password,
-      userData.password_hash
+      userData.passwordHash
     )
 
     if (!isPasswordValid) {
@@ -275,22 +287,21 @@ export async function loginUser(request: NextRequest) {
       { expiresIn }
     )
 
-    // 创建用户会话
-    await db.execute(`
-      INSERT INTO user_sessions (id, user_id, ip_address, user_agent, expires_at)
-      VALUES (?, ?, ?, ?, DATE_ADD(NOW(), INTERVAL ? DAY))
-    `, [
-      token,
-      userData.id,
-      request.ip || '',
-      request.headers.get('user-agent') || '',
-      validatedData.rememberMe ? 30 : 7
-    ])
+    // 创建用户会话 (使用Redis存储)
+    const sessionTTL = validatedData.rememberMe ? 30 * 24 * 60 * 60 : 7 * 24 * 60 * 60
+    await redis.setex(`session:${token}`, sessionTTL, JSON.stringify({
+      userId: userData.id,
+      username: userData.username,
+      createdAt: new Date().toISOString(),
+      ipAddress: request.ip || '',
+      userAgent: request.headers.get('user-agent') || ''
+    }))
 
     // 更新最后登录时间
-    await db.execute(`
-      UPDATE users SET updated_at = NOW() WHERE id = ?
-    `, [userData.id])
+    await prisma.user.update({
+      where: { id: userData.id },
+      data: { updatedAt: new Date() }
+    })
 
     return NextResponse.json({
       success: true,
@@ -299,7 +310,7 @@ export async function loginUser(request: NextRequest) {
         username: userData.username,
         email: userData.email,
         credits: userData.credits,
-        level: userData.level
+        level: userData.level || 1
       },
       token
     })
@@ -324,8 +335,16 @@ export async function loginUser(request: NextRequest) {
 // 发送短信验证码
 export async function sendVerificationCode(request: NextRequest) {
   try {
-    await rateLimit({ interval: 60 * 1000, uniqueTokenPerInterval: 100 })
-      .check(request.ip || 'unknown')
+    // Rate limiting for SMS
+    const smsRateLimitKey = `sms_rate_limit:${request.ip || 'unknown'}`
+    const smsCurrent = await redis.get(smsRateLimitKey)
+    if (smsCurrent && parseInt(smsCurrent) > 3) {
+      return NextResponse.json(
+        { error: '短信发送过于频繁，请稍后再试' },
+        { status: 429 }
+      )
+    }
+    await redis.setex(smsRateLimitKey, 60, (parseInt(smsCurrent || '0') + 1).toString())
 
     const body = await request.json()
     const { phone, type } = body
@@ -350,11 +369,7 @@ export async function sendVerificationCode(request: NextRequest) {
       ? productionConfig.sms.templateCode.register
       : productionConfig.sms.templateCode.login
 
-    await sendSMS({
-      phoneNumber: phone,
-      templateCode,
-      templateParam: { code }
-    })
+    await sendVerificationCode(phone, code)
 
     return NextResponse.json({
       success: true,
@@ -389,12 +404,8 @@ export async function verifyToken(request: NextRequest) {
     }
 
     // 检查会话是否存在
-    const session = await db.execute(`
-      SELECT user_id FROM user_sessions
-      WHERE id = ? AND expires_at > NOW()
-    `, [token])
-
-    if (session.length === 0) {
+    const sessionData = await redis.get(`session:${token}`)
+    if (!sessionData) {
       return NextResponse.json(
         { error: 'token已过期' },
         { status: 401 }
@@ -402,12 +413,11 @@ export async function verifyToken(request: NextRequest) {
     }
 
     // 获取用户信息
-    const user = await db.execute(`
-      SELECT id, username, email, credits, level, status
-      FROM users WHERE id = ?
-    `, [decoded.userId])
+    const user = await prisma.user.findUnique({
+      where: { id: decoded.userId }
+    })
 
-    if (user.length === 0 || user[0].status !== 'active') {
+    if (!user || user.status !== 'ACTIVE') {
       return NextResponse.json(
         { error: '用户不存在或已被禁用' },
         { status: 401 }
@@ -416,7 +426,14 @@ export async function verifyToken(request: NextRequest) {
 
     return {
       success: true,
-      user: user[0]
+      user: {
+        id: user.id,
+        username: user.username,
+        email: user.email,
+        credits: user.credits,
+        level: user.level || 1,
+        status: user.status
+      }
     }
 
   } catch (error) {

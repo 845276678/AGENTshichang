@@ -6,7 +6,12 @@ function verifyJWTToken(token: string): any {
   try {
     // In a real implementation, you would verify the signature
     // For now, we just decode the payload
-    const base64Url = token.split('.')[1];
+    const parts = token.split('.');
+    if (parts.length !== 3) {
+      return null; // Invalid token format
+    }
+
+    const base64Url = parts[1];
     const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
     const jsonPayload = decodeURIComponent(
       atob(base64)
@@ -15,13 +20,13 @@ function verifyJWTToken(token: string): any {
         .join('')
     );
     const payload = JSON.parse(jsonPayload);
-    
+
     // Check if token is expired
     const now = Math.floor(Date.now() / 1000);
     if (payload.exp && payload.exp <= now) {
       return null; // Token expired
     }
-    
+
     return payload;
   } catch (error) {
     return null; // Invalid token

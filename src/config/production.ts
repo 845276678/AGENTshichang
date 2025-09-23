@@ -3,38 +3,38 @@ import { z } from 'zod'
 
 const envSchema = z.object({
   // 数据库配置
-  DATABASE_URL: z.string().url(),
-  DATABASE_PASSWORD: z.string(),
-  REDIS_URL: z.string().url(),
-  REDIS_PASSWORD: z.string(),
+  DATABASE_URL: z.string().optional(),
+  DATABASE_PASSWORD: z.string().optional(),
+  REDIS_URL: z.string().optional(),
+  REDIS_PASSWORD: z.string().optional(),
 
   // 阿里云配置
-  ALIYUN_ACCESS_KEY_ID: z.string(),
-  ALIYUN_ACCESS_KEY_SECRET: z.string(),
-  ALIYUN_OSS_BUCKET: z.string(),
-  ALIYUN_OSS_REGION: z.string(),
+  ALIYUN_ACCESS_KEY_ID: z.string().optional(),
+  ALIYUN_ACCESS_KEY_SECRET: z.string().optional(),
+  ALIYUN_OSS_BUCKET: z.string().optional(),
+  ALIYUN_OSS_REGION: z.string().optional(),
 
   // AI服务配置
-  BAIDU_API_KEY: z.string(),
-  BAIDU_SECRET_KEY: z.string(),
-  ALIBABA_DASHSCOPE_API_KEY: z.string(),
-  IFLYTEK_APP_ID: z.string(),
-  IFLYTEK_API_SECRET: z.string(),
-  TENCENT_SECRET_ID: z.string(),
-  TENCENT_SECRET_KEY: z.string(),
-  ZHIPU_API_KEY: z.string(),
+  BAIDU_API_KEY: z.string().optional(),
+  BAIDU_SECRET_KEY: z.string().optional(),
+  ALIBABA_DASHSCOPE_API_KEY: z.string().optional(),
+  IFLYTEK_APP_ID: z.string().optional(),
+  IFLYTEK_API_SECRET: z.string().optional(),
+  TENCENT_SECRET_ID: z.string().optional(),
+  TENCENT_SECRET_KEY: z.string().optional(),
+  ZHIPU_API_KEY: z.string().optional(),
 
   // 短信服务
-  ALIYUN_SMS_ACCESS_KEY: z.string(),
-  ALIYUN_SMS_SECRET: z.string(),
+  ALIYUN_SMS_ACCESS_KEY: z.string().optional(),
+  ALIYUN_SMS_SECRET: z.string().optional(),
 
   // 应用配置
-  NEXTAUTH_SECRET: z.string(),
-  NEXTAUTH_URL: z.string().url(),
-  JWT_SECRET: z.string(),
+  NEXTAUTH_SECRET: z.string().optional(),
+  NEXTAUTH_URL: z.string().optional(),
+  JWT_SECRET: z.string().optional(),
 
   // 环境标识
-  NODE_ENV: z.enum(['development', 'production', 'test']),
+  NODE_ENV: z.enum(['development', 'production', 'test']).optional(),
   PORT: z.string().default('3000'),
 })
 
@@ -47,7 +47,7 @@ export const productionConfig = {
     host: 'rm-xxxx.mysql.rds.aliyuncs.com', // RDS内网地址
     port: 3306,
     user: 'aimarket',
-    password: env.DATABASE_PASSWORD,
+    password: env.DATABASE_PASSWORD || 'default_password',
     database: 'aimarket_prod',
     connectionLimit: 20,
     acquireTimeout: 60000,
@@ -60,7 +60,7 @@ export const productionConfig = {
   redis: {
     host: 'r-xxxx.redis.rds.aliyuncs.com',
     port: 6379,
-    password: env.REDIS_PASSWORD,
+    password: env.REDIS_PASSWORD || '',
     db: 0,
     maxRetriesPerRequest: 3,
     retryDelayOnFailover: 100
@@ -70,43 +70,43 @@ export const productionConfig = {
   oss: {
     region: 'oss-cn-hangzhou',
     bucket: 'aimarket-prod',
-    accessKeyId: env.ALIYUN_ACCESS_KEY_ID,
-    accessKeySecret: env.ALIYUN_ACCESS_KEY_SECRET,
+    accessKeyId: env.ALIYUN_ACCESS_KEY_ID || '',
+    accessKeySecret: env.ALIYUN_ACCESS_KEY_SECRET || '',
     secure: true
   },
 
   // AI服务配置
   aiServices: {
     baidu: {
-      apiKey: env.BAIDU_API_KEY,
-      secretKey: env.BAIDU_SECRET_KEY,
+      apiKey: env.BAIDU_API_KEY || '',
+      secretKey: env.BAIDU_SECRET_KEY || '',
       endpoint: 'https://aip.baidubce.com/rpc/2.0/ai_custom/v1/wenxinworkshop/chat/completions'
     },
     alibaba: {
-      apiKey: env.ALIBABA_DASHSCOPE_API_KEY,
+      apiKey: env.ALIBABA_DASHSCOPE_API_KEY || '',
       endpoint: 'https://dashscope.aliyuncs.com/api/v1/services/aigc/text-generation/generation'
     },
     iflytek: {
-      appId: env.IFLYTEK_APP_ID,
-      apiSecret: env.IFLYTEK_API_SECRET,
+      appId: env.IFLYTEK_APP_ID || '',
+      apiSecret: env.IFLYTEK_API_SECRET || '',
       endpoint: 'https://spark-api.xf-yun.com/v3.1/chat/completions'
     },
     tencent: {
-      secretId: env.TENCENT_SECRET_ID,
-      secretKey: env.TENCENT_SECRET_KEY,
+      secretId: env.TENCENT_SECRET_ID || '',
+      secretKey: env.TENCENT_SECRET_KEY || '',
       region: 'ap-beijing',
       endpoint: 'hunyuan.tencentcloudapi.com'
     },
     zhipu: {
-      apiKey: env.ZHIPU_API_KEY,
+      apiKey: env.ZHIPU_API_KEY || '',
       endpoint: 'https://open.bigmodel.cn/api/paas/v4/chat/completions'
     }
   },
 
   // 短信服务配置
   sms: {
-    accessKeyId: env.ALIYUN_SMS_ACCESS_KEY,
-    secretAccessKey: env.ALIYUN_SMS_SECRET,
+    accessKeyId: env.ALIYUN_SMS_ACCESS_KEY || '',
+    secretAccessKey: env.ALIYUN_SMS_SECRET || '',
     signName: 'AI创意市场',
     templateCode: {
       register: 'SMS_123456789',
@@ -117,7 +117,7 @@ export const productionConfig = {
 
   // 安全配置
   security: {
-    jwtSecret: env.JWT_SECRET,
+    jwtSecret: env.JWT_SECRET || 'default-jwt-secret-for-development',
     jwtExpiresIn: '7d',
     bcryptRounds: 12,
     rateLimitWindow: 15 * 60 * 1000, // 15分钟
