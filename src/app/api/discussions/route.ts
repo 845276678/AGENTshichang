@@ -1,13 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { auth } from '@/lib/auth'
+import { verifyToken } from '@/lib/auth'
 
 export async function POST(req: NextRequest) {
   try {
-    const session = await auth()
-    if (!session?.user?.id) {
-      return NextResponse.json({ error: '需要登录' }, { status: 401 })
+    const authResult = await verifyToken(req)
+    if (!authResult.success) {
+      return authResult // 返回错误响应
     }
+    const user = authResult.user
 
     const { ideaId } = await req.json()
 
@@ -19,7 +20,7 @@ export async function POST(req: NextRequest) {
     const idea = await prisma.idea.findFirst({
       where: {
         id: ideaId,
-        userId: session.user.id
+        userId: user.id
       }
     })
 
@@ -31,7 +32,7 @@ export async function POST(req: NextRequest) {
     const existingDiscussion = await prisma.ideaDiscussion.findFirst({
       where: {
         ideaId,
-        userId: session.user.id,
+        userId: user.id,
         status: 'ACTIVE'
       }
     })
@@ -41,13 +42,13 @@ export async function POST(req: NextRequest) {
     }
 
     // 智能专家匹配算法 - 基于创意内容和用户需求
-    const selectedAgent = await selectOptimalAgent(idea, session.user.id)
+    const selectedAgent = await selectOptimalAgent(idea, user.id)
 
     // 创建讨论会话
     const discussion = await prisma.ideaDiscussion.create({
       data: {
         ideaId,
-        userId: session.user.id,
+        userId: user.id,
         aiAgentType: selectedAgent.type,
         aiAgentName: selectedAgent.name,
         status: 'ACTIVE',
@@ -91,10 +92,11 @@ export async function POST(req: NextRequest) {
 
 export async function GET(req: NextRequest) {
   try {
-    const session = await auth()
-    if (!session?.user?.id) {
-      return NextResponse.json({ error: '需要登录' }, { status: 401 })
+    const authResult = await verifyToken(req)
+    if (!authResult.success) {
+      return authResult // 返回错误响应
     }
+    const user = authResult.user
 
     const { searchParams } = new URL(req.url)
     const ideaId = searchParams.get('ideaId')
@@ -107,7 +109,7 @@ export async function GET(req: NextRequest) {
     const discussion = await prisma.ideaDiscussion.findFirst({
       where: {
         ideaId,
-        userId: session.user.id
+        userId: user.id
       },
       include: {
         messages: {

@@ -1,13 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { auth } from '@/lib/auth'
+import { verifyToken } from '@/lib/auth'
 
 export async function POST(req: NextRequest) {
   try {
-    const session = await auth()
-    if (!session?.user?.id) {
-      return NextResponse.json({ error: '需要登录' }, { status: 401 })
+    const authResult = await verifyToken(req)
+    if (!authResult.success) {
+      return authResult // 返回错误响应
     }
+    const user = authResult.user
 
     const { title, description, category } = await req.json()
 
@@ -16,18 +17,18 @@ export async function POST(req: NextRequest) {
     }
 
     // 检查用户积分和提交限制
-    const user = await prisma.user.findUnique({
-      where: { id: session.user.id }
+    const userData = await prisma.user.findUnique({
+      where: { id: user.id }
     })
 
-    if (!user) {
+    if (!userData) {
       return NextResponse.json({ error: '用户不存在' }, { status: 404 })
     }
 
     // 简单的提交限制检查（这里可以添加更复杂的逻辑）
     const todaySubmissions = await prisma.idea.count({
       where: {
-        userId: session.user.id,
+        userId: user.id,
         createdAt: {
           gte: new Date(new Date().setHours(0, 0, 0, 0))
         }
@@ -37,7 +38,7 @@ export async function POST(req: NextRequest) {
     const isFreeSubmission = todaySubmissions < 3
     const submissionCost = isFreeSubmission ? 0 : 50
 
-    if (!isFreeSubmission && user.credits < submissionCost) {
+    if (!isFreeSubmission && userData.credits < submissionCost) {
       return NextResponse.json({ error: '积分不足' }, { status: 400 })
     }
 
@@ -47,7 +48,7 @@ export async function POST(req: NextRequest) {
         title: title.trim(),
         description: description.trim(),
         category: category as any,
-        userId: session.user.id,
+        userId: user.id,
         status: 'PENDING'
       }
     })
@@ -58,9 +59,9 @@ export async function POST(req: NextRequest) {
     const earnedCredits = baseReward + qualityBonus
 
     // 更新用户积分
-    const newCredits = user.credits - submissionCost + earnedCredits
+    const newCredits = userData.credits - submissionCost + earnedCredits
     await prisma.user.update({
-      where: { id: session.user.id },
+      where: { id: user.id },
       data: { credits: newCredits }
     })
 
@@ -68,13 +69,13 @@ export async function POST(req: NextRequest) {
     if (submissionCost > 0) {
       await prisma.creditTransaction.create({
         data: {
-          userId: session.user.id,
+          userId: user.id,
           amount: -submissionCost,
           type: 'RESEARCH_COST',
           description: `创意提交 - ${title}`,
           relatedId: idea.id,
-          balanceBefore: user.credits,
-          balanceAfter: user.credits - submissionCost
+          balanceBefore: userData.credits,
+          balanceAfter: userData.credits - submissionCost
         }
       })
     }
@@ -82,12 +83,12 @@ export async function POST(req: NextRequest) {
     // 奖励积分记录
     await prisma.creditTransaction.create({
       data: {
-        userId: session.user.id,
+        userId: user.id,
         amount: earnedCredits,
         type: 'RESEARCH_COST', // 临时使用，实际项目中可以添加新的类型
         description: `创意提交奖励 - ${title}`,
         relatedId: idea.id,
-        balanceBefore: user.credits - submissionCost,
+        balanceBefore: userData.credits - submissionCost,
         balanceAfter: newCredits
       }
     })

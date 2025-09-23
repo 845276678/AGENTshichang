@@ -12,6 +12,10 @@ function verifyJWTToken(token: string): any {
     }
 
     const base64Url = parts[1];
+    if (!base64Url) {
+      return null; // Invalid token format
+    }
+
     const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
     const jsonPayload = decodeURIComponent(
       atob(base64)

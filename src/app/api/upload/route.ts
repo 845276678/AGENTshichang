@@ -1,16 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { authMiddleware } from '@/lib/auth-middleware'
+import { verifyToken } from '@/lib/auth'
 import { ossService } from '@/lib/storage/oss.service'
 
 export async function POST(request: NextRequest) {
   try {
     // 身份验证
-    const authResult = await authMiddleware(request)
+    const authResult = await verifyToken(request)
     if (!authResult.success) {
-      return NextResponse.json(
-        { success: false, message: authResult.message },
-        { status: 401 }
-      )
+      return authResult // 返回错误响应
     }
 
     const user = authResult.user!
@@ -73,12 +70,9 @@ export async function POST(request: NextRequest) {
 export async function GET(request: NextRequest) {
   try {
     // 身份验证
-    const authResult = await authMiddleware(request)
+    const authResult = await verifyToken(request)
     if (!authResult.success) {
-      return NextResponse.json(
-        { success: false, message: authResult.message },
-        { status: 401 }
-      )
+      return authResult // 返回错误响应
     }
 
     const user = authResult.user!

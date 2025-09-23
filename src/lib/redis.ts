@@ -8,6 +8,7 @@ let Redis: any
 let redis: any
 
 try {
+  // 尝试导入 ioredis
   Redis = require('ioredis')
 
   // Redis 连接配置
@@ -59,13 +60,15 @@ try {
   const memoryCache = new Map<string, { value: any; expiry?: number }>()
 
   redis = {
-    async set(key: string, value: string): Promise<void> {
+    async set(key: string, value: string): Promise<string> {
       memoryCache.set(key, { value })
+      return 'OK'
     },
 
-    async setex(key: string, ttl: number, value: string): Promise<void> {
+    async setex(key: string, ttl: number, value: string): Promise<string> {
       const expiry = Date.now() + ttl * 1000
       memoryCache.set(key, { value, expiry })
+      return 'OK'
     },
 
     async get(key: string): Promise<string | null> {
@@ -80,8 +83,10 @@ try {
       return item.value
     },
 
-    async del(key: string): Promise<void> {
+    async del(key: string): Promise<number> {
+      const existed = memoryCache.has(key)
       memoryCache.delete(key)
+      return existed ? 1 : 0
     },
 
     async exists(key: string): Promise<number> {
@@ -96,15 +101,18 @@ try {
       return 1
     },
 
-    async expire(key: string, ttl: number): Promise<void> {
+    async expire(key: string, ttl: number): Promise<number> {
       const item = memoryCache.get(key)
       if (item) {
         item.expiry = Date.now() + ttl * 1000
+        return 1
       }
+      return 0
     },
 
-    async quit(): Promise<void> {
+    async quit(): Promise<string> {
       memoryCache.clear()
+      return 'OK'
     }
   }
 }
