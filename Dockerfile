@@ -38,7 +38,7 @@ COPY package.json package-lock.json* ./
 COPY prisma ./prisma/
 
 # 安装生产依赖
-RUN npm ci --only=production --frozen-lockfile --legacy-peer-deps && \
+RUN npm ci --frozen-lockfile --legacy-peer-deps && \
     npm cache clean --force
 
 # ==========================================

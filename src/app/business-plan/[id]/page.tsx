@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -15,7 +15,6 @@ import {
   TrendingUp,
   DollarSign,
   Brain,
-  Rocket,
   Star,
   Calendar,
   User,
@@ -34,154 +33,154 @@ interface BusinessPlanResultProps {
 export default function BusinessPlanResultPage({ params }: BusinessPlanResultProps) {
   const [activeSection, setActiveSection] = useState('overview')
 
-  // 模拟生成结果数据
+  // 妯℃嫙鐢熸垚缁撴灉鏁版嵁
   const businessPlan = {
     id: params.id,
-    title: "智能冰箱食材管理助手",
-    category: "生活创意",
+    title: "鏅鸿兘鍐扮椋熸潗绠＄悊鍔╂墜",
+    category: "鐢熸椿鍒涙剰",
     generatedAt: "2024-01-15T10:30:00Z",
     status: "completed",
     overallScore: 8.7,
 
-    // 概览数据
+    // 姒傝鏁版嵁
     overview: {
-      valueIncrease: "16倍",
-      marketSize: "1,200亿元",
+      valueIncrease: "16鍊?,
+      marketSize: "1,200浜垮厓",
       roi: "35%",
-      timeline: "18个月",
-      fundingNeeded: "800万元"
+      timeline: "18涓湀",
+      fundingNeeded: "800涓囧厓"
     },
 
-    // AI分析阶段结果
+    // AI鍒嗘瀽闃舵缁撴灉
     stages: [
       {
         id: 'concept_analysis',
-        name: '创意解析与理解',
-        aiProvider: '百度文心一言',
+        name: '鍒涙剰瑙ｆ瀽涓庣悊瑙?,
+        aiProvider: '鐧惧害鏂囧績涓€瑷€',
         status: 'completed',
         score: 8.5,
         keyFindings: [
-          '核心痛点：食材浪费率高达30%，管理效率低',
-          '目标用户：25-45岁中产家庭，健康意识强',
-          '创新点：AI视觉识别+智能推荐算法结合'
+          '鏍稿績鐥涚偣锛氶鏉愭氮璐圭巼楂樿揪30%锛岀鐞嗘晥鐜囦綆',
+          '鐩爣鐢ㄦ埛锛?5-45宀佷腑浜у搴紝鍋ュ悍鎰忚瘑寮?,
+          '鍒涙柊鐐癸細AI瑙嗚璇嗗埆+鏅鸿兘鎺ㄨ崘绠楁硶缁撳悎'
         ],
-        deliverables: ['概念提取报告', '关键词标签', '问题陈述']
+        deliverables: ['姒傚康鎻愬彇鎶ュ憡', '鍏抽敭璇嶆爣绛?, '闂闄堣堪']
       },
       {
         id: 'market_research',
-        name: '市场调研与分析',
-        aiProvider: '讯飞星火',
+        name: '甯傚満璋冪爺涓庡垎鏋?,
+        aiProvider: '璁鏄熺伀',
         status: 'completed',
         score: 9.1,
         keyFindings: [
-          'TAM: 1,200亿元（智能家居食品管理市场）',
-          '发现8个直接竞品，市场竞争激烈但有差异化空间',
-          '目标用户付费意愿强，平均可接受价格299元/年'
+          'TAM: 1,200浜垮厓锛堟櫤鑳藉灞呴鍝佺鐞嗗競鍦猴級',
+          '鍙戠幇8涓洿鎺ョ珵鍝侊紝甯傚満绔炰簤婵€鐑堜絾鏈夊樊寮傚寲绌洪棿',
+          '鐩爣鐢ㄦ埛浠樿垂鎰忔効寮猴紝骞冲潎鍙帴鍙椾环鏍?99鍏?骞?
         ],
-        deliverables: ['市场规模报告', '竞品分析', '用户画像']
+        deliverables: ['甯傚満瑙勬ā鎶ュ憡', '绔炲搧鍒嗘瀽', '鐢ㄦ埛鐢诲儚']
       },
       {
         id: 'tech_architecture',
-        name: '技术架构设计',
-        aiProvider: '阿里通义千问',
+        name: '鎶€鏈灦鏋勮璁?,
+        aiProvider: '闃块噷閫氫箟鍗冮棶',
         status: 'completed',
         score: 8.8,
         keyFindings: [
-          '采用微服务架构，支持千万级用户并发',
-          '核心技术：计算机视觉+NLP+推荐算法',
-          '云服务成本预估：15万元/月（成熟期）'
+          '閲囩敤寰湇鍔℃灦鏋勶紝鏀寔鍗冧竾绾х敤鎴峰苟鍙?,
+          '鏍稿績鎶€鏈細璁＄畻鏈鸿瑙?NLP+鎺ㄨ崘绠楁硶',
+          '浜戞湇鍔℃垚鏈浼帮細15涓囧厓/鏈堬紙鎴愮啛鏈燂級'
         ],
-        deliverables: ['系统架构图', 'API设计', '技术栈选择']
+        deliverables: ['绯荤粺鏋舵瀯鍥?, 'API璁捐', '鎶€鏈爤閫夋嫨']
       },
       {
         id: 'financial_model',
-        name: '财务建模与预测',
-        aiProvider: '腾讯混元',
+        name: '璐㈠姟寤烘ā涓庨娴?,
+        aiProvider: '鑵捐娣峰厓',
         status: 'completed',
         score: 8.9,
         keyFindings: [
-          '5年预计收入：2.8亿元，净利润率达25%',
-          '投资回报率：35%，回收期：2.5年',
-          '融资需求：A轮800万，B轮3000万'
+          '5骞撮璁℃敹鍏ワ細2.8浜垮厓锛屽噣鍒╂鼎鐜囪揪25%',
+          '鎶曡祫鍥炴姤鐜囷細35%锛屽洖鏀舵湡锛?.5骞?,
+          '铻嶈祫闇€姹傦細A杞?00涓囷紝B杞?000涓?
         ],
-        deliverables: ['5年财务预测', '投资回报分析', '估值模型']
+        deliverables: ['5骞磋储鍔￠娴?, '鎶曡祫鍥炴姤鍒嗘瀽', '浼板€兼ā鍨?]
       },
       {
         id: 'legal_compliance',
-        name: '法律合规分析',
-        aiProvider: '智谱GLM',
+        name: '娉曞緥鍚堣鍒嗘瀽',
+        aiProvider: '鏅鸿氨GLM',
         status: 'completed',
         score: 8.3,
         keyFindings: [
-          '需申请2项发明专利，3项实用新型专利',
-          '符合《个人信息保护法》要求，无重大合规风险',
-          '建议注册5个类别商标，预估费用3万元'
+          '闇€鐢宠2椤瑰彂鏄庝笓鍒╋紝3椤瑰疄鐢ㄦ柊鍨嬩笓鍒?,
+          '绗﹀悎銆婁釜浜轰俊鎭繚鎶ゆ硶銆嬭姹傦紝鏃犻噸澶у悎瑙勯闄?,
+          '寤鸿娉ㄥ唽5涓被鍒晢鏍囷紝棰勪及璐圭敤3涓囧厓'
         ],
-        deliverables: ['合规检查表', '知识产权策略', '风险评估']
+        deliverables: ['鍚堣妫€鏌ヨ〃', '鐭ヨ瘑浜ф潈绛栫暐', '椋庨櫓璇勪及']
       }
     ],
 
-    // 文档列表
+    // 鏂囨。鍒楄〃
     documents: [
       {
-        name: '完整商业计划书',
+        name: '瀹屾暣鍟嗕笟璁″垝涔?,
         type: 'PDF',
         pages: 120,
         size: '12.5MB',
-        description: '包含所有分析内容的完整版商业计划书'
+        description: '鍖呭惈鎵€鏈夊垎鏋愬唴瀹圭殑瀹屾暣鐗堝晢涓氳鍒掍功'
       },
       {
-        name: '投资者演示文稿',
+        name: '鎶曡祫鑰呮紨绀烘枃绋?,
         type: 'PPT',
         pages: 25,
         size: '8.2MB',
-        description: '15分钟路演专用PPT，突出核心亮点'
+        description: '15鍒嗛挓璺紨涓撶敤PPT锛岀獊鍑烘牳蹇冧寒鐐?
       },
       {
-        name: '技术实现文档',
+        name: '鎶€鏈疄鐜版枃妗?,
         type: 'PDF',
         pages: 45,
         size: '6.8MB',
-        description: '详细的技术架构和实现方案'
+        description: '璇︾粏鐨勬妧鏈灦鏋勫拰瀹炵幇鏂规'
       },
       {
-        name: '财务预测模型',
+        name: '璐㈠姟棰勬祴妯″瀷',
         type: 'Excel',
         pages: 1,
         size: '2.1MB',
-        description: '可编辑的5年财务预测Excel模型'
+        description: '鍙紪杈戠殑5骞磋储鍔￠娴婨xcel妯″瀷'
       },
       {
-        name: '法律合规指南',
+        name: '娉曞緥鍚堣鎸囧崡',
         type: 'PDF',
         pages: 28,
         size: '3.2MB',
-        description: '法律风险评估和合规操作指南'
+        description: '娉曞緥椋庨櫓璇勪及鍜屽悎瑙勬搷浣滄寚鍗?
       }
     ]
   }
 
   const handleDownload = (docType: string) => {
-    console.log(`下载 ${docType}`)
-    // 实际下载逻辑
+    console.log(`涓嬭浇 ${docType}`)
+    // 瀹為檯涓嬭浇閫昏緫
   }
 
   const handleShare = () => {
-    console.log('分享商业计划')
-    // 分享逻辑
+    console.log('鍒嗕韩鍟嗕笟璁″垝')
+    // 鍒嗕韩閫昏緫
   }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
       <div className="container mx-auto px-4 py-8">
-        {/* 页面头部 */}
+        {/* 椤甸潰澶撮儴 */}
         <div className="mb-8">
           <div className="flex items-center justify-between mb-6">
             <div>
               <div className="flex items-center gap-2 mb-2">
                 <CheckCircle className="w-6 h-6 text-green-500" />
                 <Badge variant="default" className="bg-green-100 text-green-800">
-                  生成完成
+                  鐢熸垚瀹屾垚
                 </Badge>
               </div>
               <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-2">
@@ -190,11 +189,11 @@ export default function BusinessPlanResultPage({ params }: BusinessPlanResultPro
               <div className="flex items-center gap-4 text-muted-foreground">
                 <span className="flex items-center gap-1">
                   <Calendar className="w-4 h-4" />
-                  生成时间：{new Date(businessPlan.generatedAt).toLocaleString('zh-CN')}
+                  鐢熸垚鏃堕棿锛歿new Date(businessPlan.generatedAt).toLocaleString('zh-CN')}
                 </span>
                 <span className="flex items-center gap-1">
                   <Star className="w-4 h-4" />
-                  综合评分：{businessPlan.overallScore}/10
+                  缁煎悎璇勫垎锛歿businessPlan.overallScore}/10
                 </span>
               </div>
             </div>
@@ -202,23 +201,23 @@ export default function BusinessPlanResultPage({ params }: BusinessPlanResultPro
             <div className="flex gap-3">
               <Button variant="outline" onClick={handleShare}>
                 <Share2 className="w-4 h-4 mr-2" />
-                分享
+                鍒嗕韩
               </Button>
               <Button onClick={() => handleDownload('all')}>
                 <Download className="w-4 h-4 mr-2" />
-                下载全部
+                涓嬭浇鍏ㄩ儴
               </Button>
             </div>
           </div>
 
-          {/* 核心指标概览 */}
+          {/* 鏍稿績鎸囨爣姒傝 */}
           <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
             <Card>
               <CardContent className="pt-6">
                 <div className="text-center">
                   <TrendingUp className="w-8 h-8 text-green-500 mx-auto mb-2" />
                   <div className="text-2xl font-bold text-green-600">{businessPlan.overview.valueIncrease}</div>
-                  <div className="text-sm text-muted-foreground">价值提升</div>
+                  <div className="text-sm text-muted-foreground">浠峰€兼彁鍗?/div>
                 </div>
               </CardContent>
             </Card>
@@ -227,7 +226,7 @@ export default function BusinessPlanResultPage({ params }: BusinessPlanResultPro
                 <div className="text-center">
                   <Target className="w-8 h-8 text-blue-500 mx-auto mb-2" />
                   <div className="text-2xl font-bold text-blue-600">{businessPlan.overview.marketSize}</div>
-                  <div className="text-sm text-muted-foreground">市场规模</div>
+                  <div className="text-sm text-muted-foreground">甯傚満瑙勬ā</div>
                 </div>
               </CardContent>
             </Card>
@@ -236,7 +235,7 @@ export default function BusinessPlanResultPage({ params }: BusinessPlanResultPro
                 <div className="text-center">
                   <DollarSign className="w-8 h-8 text-purple-500 mx-auto mb-2" />
                   <div className="text-2xl font-bold text-purple-600">{businessPlan.overview.roi}</div>
-                  <div className="text-sm text-muted-foreground">投资回报率</div>
+                  <div className="text-sm text-muted-foreground">鎶曡祫鍥炴姤鐜?/div>
                 </div>
               </CardContent>
             </Card>
@@ -245,7 +244,7 @@ export default function BusinessPlanResultPage({ params }: BusinessPlanResultPro
                 <div className="text-center">
                   <Calendar className="w-8 h-8 text-orange-500 mx-auto mb-2" />
                   <div className="text-2xl font-bold text-orange-600">{businessPlan.overview.timeline}</div>
-                  <div className="text-sm text-muted-foreground">预期时间</div>
+                  <div className="text-sm text-muted-foreground">棰勬湡鏃堕棿</div>
                 </div>
               </CardContent>
             </Card>
@@ -254,7 +253,7 @@ export default function BusinessPlanResultPage({ params }: BusinessPlanResultPro
                 <div className="text-center">
                   <Building className="w-8 h-8 text-indigo-500 mx-auto mb-2" />
                   <div className="text-2xl font-bold text-indigo-600">{businessPlan.overview.fundingNeeded}</div>
-                  <div className="text-sm text-muted-foreground">融资需求</div>
+                  <div className="text-sm text-muted-foreground">铻嶈祫闇€姹?/div>
                 </div>
               </CardContent>
             </Card>
@@ -263,21 +262,21 @@ export default function BusinessPlanResultPage({ params }: BusinessPlanResultPro
 
         <Tabs value={activeSection} onValueChange={setActiveSection} className="space-y-6">
           <TabsList className="grid grid-cols-4 w-full max-w-md">
-            <TabsTrigger value="overview">总览</TabsTrigger>
-            <TabsTrigger value="analysis">分析</TabsTrigger>
-            <TabsTrigger value="documents">文档</TabsTrigger>
-            <TabsTrigger value="insights">洞察</TabsTrigger>
+            <TabsTrigger value="overview">鎬昏</TabsTrigger>
+            <TabsTrigger value="analysis">鍒嗘瀽</TabsTrigger>
+            <TabsTrigger value="documents">鏂囨。</TabsTrigger>
+            <TabsTrigger value="insights">娲炲療</TabsTrigger>
           </TabsList>
 
-          {/* 总览页签 */}
+          {/* 鎬昏椤电 */}
           <TabsContent value="overview" className="space-y-6">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {/* AI分析阶段总览 */}
+              {/* AI鍒嗘瀽闃舵鎬昏 */}
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <Brain className="w-5 h-5" />
-                    AI分析阶段完成情况
+                    AI鍒嗘瀽闃舵瀹屾垚鎯呭喌
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -303,32 +302,32 @@ export default function BusinessPlanResultPage({ params }: BusinessPlanResultPro
                 </CardContent>
               </Card>
 
-              {/* 关键成果摘要 */}
+              {/* 鍏抽敭鎴愭灉鎽樿 */}
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <Lightbulb className="w-5 h-5" />
-                    关键成果摘要
+                    鍏抽敭鎴愭灉鎽樿
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
                     <div className="p-3 bg-green-50 rounded-lg border border-green-200">
-                      <h4 className="font-medium text-green-800 mb-2">市场机会</h4>
+                      <h4 className="font-medium text-green-800 mb-2">甯傚満鏈轰細</h4>
                       <p className="text-sm text-green-700">
-                        智能家居食品管理市场规模达1,200亿元，年增长率25%，具有巨大商业潜力
+                        鏅鸿兘瀹跺眳椋熷搧绠＄悊甯傚満瑙勬ā杈?,200浜垮厓锛屽勾澧為暱鐜?5%锛屽叿鏈夊法澶у晢涓氭綔鍔?
                       </p>
                     </div>
                     <div className="p-3 bg-blue-50 rounded-lg border border-blue-200">
-                      <h4 className="font-medium text-blue-800 mb-2">技术可行性</h4>
+                      <h4 className="font-medium text-blue-800 mb-2">鎶€鏈彲琛屾€?/h4>
                       <p className="text-sm text-blue-700">
-                        基于成熟的AI视觉识别技术，技术风险可控，预计18个月内可完成产品开发
+                        鍩轰簬鎴愮啛鐨凙I瑙嗚璇嗗埆鎶€鏈紝鎶€鏈闄╁彲鎺э紝棰勮18涓湀鍐呭彲瀹屾垚浜у搧寮€鍙?
                       </p>
                     </div>
                     <div className="p-3 bg-purple-50 rounded-lg border border-purple-200">
-                      <h4 className="font-medium text-purple-800 mb-2">盈利前景</h4>
+                      <h4 className="font-medium text-purple-800 mb-2">鐩堝埄鍓嶆櫙</h4>
                       <p className="text-sm text-purple-700">
-                        5年内预计实现2.8亿元收入，净利润率25%，投资回报率35%
+                        5骞村唴棰勮瀹炵幇2.8浜垮厓鏀跺叆锛屽噣鍒╂鼎鐜?5%锛屾姇璧勫洖鎶ョ巼35%
                       </p>
                     </div>
                   </div>
@@ -337,7 +336,7 @@ export default function BusinessPlanResultPage({ params }: BusinessPlanResultPro
             </div>
           </TabsContent>
 
-          {/* 详细分析页签 */}
+          {/* 璇︾粏鍒嗘瀽椤电 */}
           <TabsContent value="analysis" className="space-y-6">
             {businessPlan.stages.map((stage) => (
               <Card key={stage.id}>
@@ -345,7 +344,7 @@ export default function BusinessPlanResultPage({ params }: BusinessPlanResultPro
                   <div className="flex items-center justify-between">
                     <CardTitle className="flex items-center gap-2">
                       <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full flex items-center justify-center">
-                        <span className="text-white text-sm font-bold">✓</span>
+                        <span className="text-white text-sm font-bold">鉁?/span>
                       </div>
                       {stage.name}
                     </CardTitle>
@@ -361,7 +360,7 @@ export default function BusinessPlanResultPage({ params }: BusinessPlanResultPro
                 <CardContent>
                   <div className="space-y-4">
                     <div>
-                      <h4 className="font-medium mb-2">关键发现</h4>
+                      <h4 className="font-medium mb-2">鍏抽敭鍙戠幇</h4>
                       <ul className="space-y-2">
                         {stage.keyFindings.map((finding, index) => (
                           <li key={index} className="flex items-start gap-2 text-sm">
@@ -372,7 +371,7 @@ export default function BusinessPlanResultPage({ params }: BusinessPlanResultPro
                       </ul>
                     </div>
                     <div>
-                      <h4 className="font-medium mb-2">交付物</h4>
+                      <h4 className="font-medium mb-2">浜や粯鐗?/h4>
                       <div className="flex flex-wrap gap-2">
                         {stage.deliverables.map((deliverable, index) => (
                           <Badge key={index} variant="secondary" className="text-xs">
@@ -387,7 +386,7 @@ export default function BusinessPlanResultPage({ params }: BusinessPlanResultPro
             ))}
           </TabsContent>
 
-          {/* 文档下载页签 */}
+          {/* 鏂囨。涓嬭浇椤电 */}
           <TabsContent value="documents" className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {businessPlan.documents.map((doc, index) => (
@@ -402,9 +401,9 @@ export default function BusinessPlanResultPage({ params }: BusinessPlanResultPro
                           <h3 className="font-semibold">{doc.name}</h3>
                           <div className="flex items-center gap-2 text-sm text-muted-foreground">
                             <span>{doc.type}</span>
-                            <span>•</span>
-                            <span>{doc.pages > 1 ? `${doc.pages}页` : doc.pages + '个文件'}</span>
-                            <span>•</span>
+                            <span>鈥?/span>
+                            <span>{doc.pages > 1 ? `${doc.pages}椤礰 : doc.pages + '涓枃浠?}</span>
+                            <span>鈥?/span>
                             <span>{doc.size}</span>
                           </div>
                         </div>
@@ -415,17 +414,17 @@ export default function BusinessPlanResultPage({ params }: BusinessPlanResultPro
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => console.log(`预览 ${doc.name}`)}
+                        onClick={() => console.log(`棰勮 ${doc.name}`)}
                       >
                         <Eye className="w-4 h-4 mr-1" />
-                        预览
+                        棰勮
                       </Button>
                       <Button
                         size="sm"
                         onClick={() => handleDownload(doc.type)}
                       >
                         <Download className="w-4 h-4 mr-1" />
-                        下载
+                        涓嬭浇
                       </Button>
                     </div>
                   </CardContent>
@@ -434,30 +433,30 @@ export default function BusinessPlanResultPage({ params }: BusinessPlanResultPro
             </div>
           </TabsContent>
 
-          {/* AI洞察页签 */}
+          {/* AI娲炲療椤电 */}
           <TabsContent value="insights" className="space-y-6">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <Card>
                 <CardHeader>
-                  <CardTitle>成功关键因素</CardTitle>
+                  <CardTitle>鎴愬姛鍏抽敭鍥犵礌</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-3">
                     <div className="flex items-center gap-2">
                       <div className="w-2 h-2 bg-green-500 rounded-full" />
-                      <span className="text-sm">AI技术优势和专利保护</span>
+                      <span className="text-sm">AI鎶€鏈紭鍔垮拰涓撳埄淇濇姢</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <div className="w-2 h-2 bg-blue-500 rounded-full" />
-                      <span className="text-sm">用户体验和产品差异化</span>
+                      <span className="text-sm">鐢ㄦ埛浣撻獙鍜屼骇鍝佸樊寮傚寲</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <div className="w-2 h-2 bg-purple-500 rounded-full" />
-                      <span className="text-sm">快速扩张和市场教育</span>
+                      <span className="text-sm">蹇€熸墿寮犲拰甯傚満鏁欒偛</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <div className="w-2 h-2 bg-orange-500 rounded-full" />
-                      <span className="text-sm">合作伙伴和渠道建设</span>
+                      <span className="text-sm">鍚堜綔浼欎即鍜屾笭閬撳缓璁?/span>
                     </div>
                   </div>
                 </CardContent>
@@ -465,21 +464,21 @@ export default function BusinessPlanResultPage({ params }: BusinessPlanResultPro
 
               <Card>
                 <CardHeader>
-                  <CardTitle>风险提示</CardTitle>
+                  <CardTitle>椋庨櫓鎻愮ず</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-3">
                     <div className="flex items-center gap-2">
                       <div className="w-2 h-2 bg-red-500 rounded-full" />
-                      <span className="text-sm">大厂进入带来的竞争压力</span>
+                      <span className="text-sm">澶у巶杩涘叆甯︽潵鐨勭珵浜夊帇鍔?/span>
                     </div>
                     <div className="flex items-center gap-2">
                       <div className="w-2 h-2 bg-yellow-500 rounded-full" />
-                      <span className="text-sm">用户隐私数据安全合规</span>
+                      <span className="text-sm">鐢ㄦ埛闅愮鏁版嵁瀹夊叏鍚堣</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <div className="w-2 h-2 bg-gray-500 rounded-full" />
-                      <span className="text-sm">技术迭代和产品升级成本</span>
+                      <span className="text-sm">鎶€鏈凯浠ｅ拰浜у搧鍗囩骇鎴愭湰</span>
                     </div>
                   </div>
                 </CardContent>
@@ -488,7 +487,7 @@ export default function BusinessPlanResultPage({ params }: BusinessPlanResultPro
 
             <Card>
               <CardHeader>
-                <CardTitle>下一步行动建议</CardTitle>
+                <CardTitle>涓嬩竴姝ヨ鍔ㄥ缓璁?/CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
@@ -497,8 +496,8 @@ export default function BusinessPlanResultPage({ params }: BusinessPlanResultPro
                       1
                     </div>
                     <div>
-                      <h4 className="font-medium">立即行动（1个月内）</h4>
-                      <p className="text-sm text-muted-foreground">组建核心团队，启动技术原型开发，申请核心专利</p>
+                      <h4 className="font-medium">绔嬪嵆琛屽姩锛?涓湀鍐咃級</h4>
+                      <p className="text-sm text-muted-foreground">缁勫缓鏍稿績鍥㈤槦锛屽惎鍔ㄦ妧鏈師鍨嬪紑鍙戯紝鐢宠鏍稿績涓撳埄</p>
                     </div>
                   </div>
                   <div className="flex items-start gap-3">
@@ -506,8 +505,8 @@ export default function BusinessPlanResultPage({ params }: BusinessPlanResultPro
                       2
                     </div>
                     <div>
-                      <h4 className="font-medium">短期目标（3个月内）</h4>
-                      <p className="text-sm text-muted-foreground">完成MVP开发，进行种子用户测试，准备A轮融资材料</p>
+                      <h4 className="font-medium">鐭湡鐩爣锛?涓湀鍐咃級</h4>
+                      <p className="text-sm text-muted-foreground">瀹屾垚MVP寮€鍙戯紝杩涜绉嶅瓙鐢ㄦ埛娴嬭瘯锛屽噯澶嘇杞瀺璧勬潗鏂?/p>
                     </div>
                   </div>
                   <div className="flex items-start gap-3">
@@ -515,8 +514,8 @@ export default function BusinessPlanResultPage({ params }: BusinessPlanResultPro
                       3
                     </div>
                     <div>
-                      <h4 className="font-medium">中期规划（6个月内）</h4>
-                      <p className="text-sm text-muted-foreground">完成A轮融资，扩大团队规模，启动正式产品开发</p>
+                      <h4 className="font-medium">涓湡瑙勫垝锛?涓湀鍐咃級</h4>
+                      <p className="text-sm text-muted-foreground">瀹屾垚A杞瀺璧勶紝鎵╁ぇ鍥㈤槦瑙勬ā锛屽惎鍔ㄦ寮忎骇鍝佸紑鍙?/p>
                     </div>
                   </div>
                 </div>
