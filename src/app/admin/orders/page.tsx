@@ -19,7 +19,6 @@ import {
   DollarSign,
   ShoppingCart,
   CreditCard,
-  FileText,
   Mail,
   ArrowUpRight,
   ArrowDownRight
