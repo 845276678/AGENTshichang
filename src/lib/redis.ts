@@ -1,119 +1,68 @@
 /**
  * Redis 客户端实例
  * 用于缓存和会话管理
+ * 使用内存缓存替代Redis以避免依赖问题
  */
 
-// 条件导入 Redis，如果包不存在则使用 Mock
-let Redis: any
-let redis: any
+console.warn('使用内存缓存替代Redis')
 
-try {
-  // 尝试导入 ioredis
-  Redis = require('ioredis')
+// Mock Redis 实现
+const memoryCache = new Map<string, { value: any; expiry?: number }>()
 
-  // Redis 连接配置
-  redis = new Redis({
-    host: process.env.REDIS_HOST || 'localhost',
-    port: parseInt(process.env.REDIS_PORT || '6379'),
-    password: process.env.REDIS_PASSWORD,
-    db: parseInt(process.env.REDIS_DB || '0'),
-    retryDelayOnFailover: 100,
-    maxRetriesPerRequest: 3,
-    lazyConnect: true,
-    // 连接池配置
-    family: 4,
-    keepAlive: 30000,
-    // 错误处理
-    retryDelayOnClusterDown: 300,
-    enableOfflineQueue: false,
-  })
+const redis = {
+  async set(key: string, value: string): Promise<string> {
+    memoryCache.set(key, { value })
+    return 'OK'
+  },
 
-  // 错误处理
-  redis.on('error', (error: any) => {
-    console.error('Redis 连接错误:', error)
-  })
+  async setex(key: string, ttl: number, value: string): Promise<string> {
+    const expiry = Date.now() + ttl * 1000
+    memoryCache.set(key, { value, expiry })
+    return 'OK'
+  },
 
-  redis.on('connect', () => {
-    console.log('Redis 连接成功')
-  })
+  async get(key: string): Promise<string | null> {
+    const item = memoryCache.get(key)
+    if (!item) return null
 
-  redis.on('ready', () => {
-    console.log('Redis 准备就绪')
-  })
-
-  // 优雅关闭处理
-  process.on('SIGINT', async () => {
-    console.log('正在关闭 Redis 连接...')
-    await redis.quit()
-    process.exit(0)
-  })
-
-  process.on('SIGTERM', async () => {
-    console.log('正在关闭 Redis 连接...')
-    await redis.quit()
-    process.exit(0)
-  })
-} catch (error) {
-  console.warn('Redis 包未找到，使用内存缓存作为 fallback')
-
-  // Mock Redis 实现
-  const memoryCache = new Map<string, { value: any; expiry?: number }>()
-
-  redis = {
-    async set(key: string, value: string): Promise<string> {
-      memoryCache.set(key, { value })
-      return 'OK'
-    },
-
-    async setex(key: string, ttl: number, value: string): Promise<string> {
-      const expiry = Date.now() + ttl * 1000
-      memoryCache.set(key, { value, expiry })
-      return 'OK'
-    },
-
-    async get(key: string): Promise<string | null> {
-      const item = memoryCache.get(key)
-      if (!item) return null
-
-      if (item.expiry && Date.now() > item.expiry) {
-        memoryCache.delete(key)
-        return null
-      }
-
-      return item.value
-    },
-
-    async del(key: string): Promise<number> {
-      const existed = memoryCache.has(key)
+    if (item.expiry && Date.now() > item.expiry) {
       memoryCache.delete(key)
-      return existed ? 1 : 0
-    },
-
-    async exists(key: string): Promise<number> {
-      const item = memoryCache.get(key)
-      if (!item) return 0
-
-      if (item.expiry && Date.now() > item.expiry) {
-        memoryCache.delete(key)
-        return 0
-      }
-
-      return 1
-    },
-
-    async expire(key: string, ttl: number): Promise<number> {
-      const item = memoryCache.get(key)
-      if (item) {
-        item.expiry = Date.now() + ttl * 1000
-        return 1
-      }
-      return 0
-    },
-
-    async quit(): Promise<string> {
-      memoryCache.clear()
-      return 'OK'
+      return null
     }
+
+    return item.value
+  },
+
+  async del(key: string): Promise<number> {
+    const existed = memoryCache.has(key)
+    memoryCache.delete(key)
+    return existed ? 1 : 0
+  },
+
+  async exists(key: string): Promise<number> {
+    const item = memoryCache.get(key)
+    if (!item) return 0
+
+    if (item.expiry && Date.now() > item.expiry) {
+      memoryCache.delete(key)
+      return 0
+    }
+
+    return 1
+  },
+
+  async expire(key: string, ttl: number): Promise<number> {
+    const item = memoryCache.get(key)
+    if (item) {
+      item.expiry = Date.now() + ttl * 1000
+      return 1
+    }
+    return 0
+  },
+
+  async quit(): Promise<string> {
+    memoryCache.clear()
+    return 'OK'
   }
 }
 

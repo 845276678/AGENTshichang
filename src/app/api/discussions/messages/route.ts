@@ -1,13 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { auth } from '@/lib/auth'
+import { getUserFromToken } from '@/lib/auth'
 
 export async function POST(req: NextRequest) {
   try {
-    const session = await auth()
-    if (!session?.user?.id) {
-      return NextResponse.json({ error: '需要登录' }, { status: 401 })
+    const authResult = await getUserFromToken(req)
+    if (!authResult.success) {
+      return NextResponse.json({ error: authResult.error }, { status: 401 })
     }
+    const user = authResult.user
 
     const { discussionId, content } = await req.json()
 
@@ -19,7 +20,7 @@ export async function POST(req: NextRequest) {
     const discussion = await prisma.ideaDiscussion.findFirst({
       where: {
         id: discussionId,
-        userId: session.user.id,
+        userId: user.id,
         status: 'ACTIVE'
       },
       include: {
@@ -48,7 +49,7 @@ export async function POST(req: NextRequest) {
         messageType: 'USER_RESPONSE',
         roundNumber: discussion.currentRound,
         senderType: 'USER',
-        senderName: session.user.username || session.user.email
+        senderName: user.username || user.email
       }
     })
 

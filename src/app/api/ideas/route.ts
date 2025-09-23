@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { verifyToken } from '@/lib/auth'
+import { getUserFromToken } from '@/lib/auth'
 
 export async function POST(req: NextRequest) {
   try {
-    const authResult = await verifyToken(req)
+    const authResult = await getUserFromToken(req)
     if (!authResult.success) {
-      return authResult // 返回错误响应
+      return NextResponse.json({ error: authResult.error }, { status: 401 })
     }
     const user = authResult.user
 

@@ -386,7 +386,7 @@ export async function sendSMSVerificationCode(request: NextRequest) {
 }
 
 // 验证JWT token中间件
-export async function verifyToken(request: NextRequest) {
+export async function verifyToken(request: NextRequest): Promise<NextResponse> {
   const token = request.headers.get('authorization')?.replace('Bearer ', '')
 
   if (!token) {
@@ -424,6 +424,60 @@ export async function verifyToken(request: NextRequest) {
       )
     }
 
+    return NextResponse.json({
+      success: true,
+      user: {
+        id: user.id,
+        username: user.username,
+        email: user.email,
+        credits: user.credits,
+        level: user.level || 1,
+        status: user.status
+      }
+    })
+
+  } catch (error) {
+    return NextResponse.json(
+      { error: 'token无效' },
+      { status: 401 }
+    )
+  }
+}
+
+// 获取用户信息的辅助函数
+export async function getUserFromToken(request: NextRequest): Promise<{
+  success: boolean
+  user?: any
+  error?: string
+}> {
+  const token = request.headers.get('authorization')?.replace('Bearer ', '')
+
+  if (!token) {
+    return { success: false, error: '未提供认证token' }
+  }
+
+  try {
+    // 验证JWT
+    const decoded = jwt.verify(token, productionConfig.security.jwtSecret) as {
+      userId: number
+      username: string
+    }
+
+    // 检查会话是否存在
+    const sessionData = await redis.get(`session:${token}`)
+    if (!sessionData) {
+      return { success: false, error: 'token已过期' }
+    }
+
+    // 获取用户信息
+    const user = await prisma.user.findUnique({
+      where: { id: decoded.userId }
+    })
+
+    if (!user || user.status !== 'ACTIVE') {
+      return { success: false, error: '用户不存在或已被禁用' }
+    }
+
     return {
       success: true,
       user: {
@@ -437,9 +491,6 @@ export async function verifyToken(request: NextRequest) {
     }
 
   } catch (error) {
-    return NextResponse.json(
-      { error: 'token无效' },
-      { status: 401 }
-    )
+    return { success: false, error: 'token无效' }
   }
 }
