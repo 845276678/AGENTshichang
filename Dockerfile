@@ -1,10 +1,13 @@
 # ==========================================
 # AI创意协作平台 - 生产级Docker配置
-# Prisma Alpine Linux 兼容性修复版本
+# FORCE REBUILD: 2025-09-23-16:55:00-CRITICAL-FIX
 # ==========================================
 
 # 基础镜像 - 使用Node.js 18 Alpine
 FROM node:18-alpine AS base
+
+# 缓存破坏 - 强制完全重新构建
+RUN echo "Cache bust: 2025-09-23-16:55:00" > /tmp/cache_bust
 
 # 安装系统依赖和时区数据
 RUN apk add --no-cache \
