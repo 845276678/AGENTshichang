@@ -19,7 +19,6 @@ import {
   Star,
   Download,
   DollarSign,
-  Calendar,
   Zap,
   TrendingUp,
   AlertTriangle
