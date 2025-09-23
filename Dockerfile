@@ -53,6 +53,9 @@ COPY . .
 
 # 生成Prisma客户端（包含多平台二进制文件）
 ENV PRISMA_CLI_QUERY_ENGINE_TYPE=binary
+ENV PRISMA_CLIENT_ENGINE_TYPE=binary
+ENV PRISMA_QUERY_ENGINE_LIBRARY=""
+ENV PRISMA_QUERY_ENGINE_BINARY=""
 RUN npx prisma generate
 
 # 构建Next.js应用
