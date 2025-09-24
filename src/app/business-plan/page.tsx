@@ -242,9 +242,12 @@ export default function ResearchGuidePage() {
     ]
 
     for (let i = 0; i < stages.length; i++) {
-      setCurrentStage(stages[i])
-      setGenerationProgress((i + 1) * 20)
-      await new Promise(resolve => setTimeout(resolve, 2000))
+      const stage = stages[i]
+      if (stage) {
+        setCurrentStage(stage)
+        setGenerationProgress((i + 1) * 20)
+        await new Promise(resolve => setTimeout(resolve, 2000))
+      }
     }
 
     setIsGenerating(false)
