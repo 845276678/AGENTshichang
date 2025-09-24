@@ -12,17 +12,8 @@ import {
   Search,
   Brain,
   Palette,
-  Target,
-  Heart,
-  BookOpen,
-  TrendingUp,
-  Star,
-  Clock,
-  Users,
   Eye,
   ArrowLeft,
-  Filter,
-  SortAsc,
   Timer
 } from 'lucide-react'
 
