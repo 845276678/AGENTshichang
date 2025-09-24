@@ -62,9 +62,9 @@ export class UserService {
           email: userData.email.toLowerCase(),
           username: userData.username.toLowerCase(),
           passwordHash,
-          firstName: userData.firstName,
-          lastName: userData.lastName,
-          phone: userData.phone,
+          firstName: userData.firstName ?? null,
+          lastName: userData.lastName ?? null,
+          phone: userData.phone ?? null,
           // 新用户默认赠送1000积分
           credits: 1000,
           // 创建注册奖励记录
@@ -261,7 +261,7 @@ export class UserService {
             amount,
             type,
             description: description || `积分${amount > 0 ? '增加' : '消费'}`,
-            relatedId,
+            relatedId: relatedId || null,
             balanceBefore,
             balanceAfter
           }
@@ -280,7 +280,7 @@ export class UserService {
     usernameExists: boolean
   }> {
     try {
-      const conditions = [
+      const conditions: Array<{ email?: string; username?: string }> = [
         { email: email.toLowerCase() }
       ]
 
