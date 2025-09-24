@@ -134,7 +134,7 @@ export function DashboardPage() {
             <ul>
               <li>Admin: {auth.hasRole(UserRole.ADMIN) ? '✅' : '❌'}</li>
               <li>Moderator: {auth.hasRole([UserRole.ADMIN, UserRole.MODERATOR]) ? '✅' : '❌'}</li>
-              <li>Developer: {auth.hasRole(UserRole.DEVELOPER) ? '✅' : '❌'}</li>
+              <li>User: {auth.hasRole(UserRole.USER) ? '✅' : '❌'}</li>
             </ul>
           </div>
           
