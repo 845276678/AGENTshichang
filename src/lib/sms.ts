@@ -28,8 +28,8 @@ interface SMSResult {
  */
 const defaultConfig: SMSConfig = {
   provider: process.env.NODE_ENV === 'production' ? 'aliyun' : 'mock',
-  accessKeyId: process.env.SMS_ACCESS_KEY_ID,
-  accessKeySecret: process.env.SMS_ACCESS_KEY_SECRET,
+  ...(process.env.SMS_ACCESS_KEY_ID && { accessKeyId: process.env.SMS_ACCESS_KEY_ID }),
+  ...(process.env.SMS_ACCESS_KEY_SECRET && { accessKeySecret: process.env.SMS_ACCESS_KEY_SECRET }),
   signName: process.env.SMS_SIGN_NAME || 'AI创意协作平台',
   templateCode: process.env.SMS_TEMPLATE_CODE || 'SMS_123456789'
 }
