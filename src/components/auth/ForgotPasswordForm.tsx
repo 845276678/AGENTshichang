@@ -160,7 +160,7 @@ export const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({
             label="邮箱地址"
             type="email"
             placeholder="请输入您注册时使用的邮箱地址"
-            error={errors.email?.message}
+            error={errors.email?.message || undefined}
             leftIcon={<Mail className="h-4 w-4" />}
             disabled={isFormLoading}
             autoComplete="email"

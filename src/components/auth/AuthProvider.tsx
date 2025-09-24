@@ -81,7 +81,8 @@ interface AuthProviderWrapperProps {
   children: ReactNode;
 }
 
-const ___AuthProviderWrapper: React.FC<AuthProviderWrapperProps> = ({ children }) => {
+// Unused component - removed for TypeScript compliance
+// const ___AuthProviderWrapper: React.FC<AuthProviderWrapperProps> = ({ children }) => {
   const auth = useAuth();
   const [showSessionWarning, setShowSessionWarning] = useState(false);
   const [sessionExpiresIn, setSessionExpiresIn] = useState(0);
@@ -167,9 +168,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
   return (
     <AuthContextProvider>
       <AuthProviderInner
-        loadingComponent={CustomLoadingComponent}
+        loadingComponent={CustomLoadingComponent || undefined}
         showSessionWarning={showSessionWarning}
-        sessionWarningComponent={CustomSessionWarningComponent}
+        sessionWarningComponent={CustomSessionWarningComponent || undefined}
       >
         {children}
       </AuthProviderInner>
@@ -225,6 +226,7 @@ const AuthProviderInner: React.FC<AuthProviderInnerProps> = ({
 
       return () => clearTimeout(timer);
     }
+    return undefined;
   }, [auth.isSessionValid, showWarning, auth]);
 
   // Handle session extension

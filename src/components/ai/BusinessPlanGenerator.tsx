@@ -79,7 +79,7 @@ const INITIAL_STAGES: GenerationStage[] = [
     id: 'concept_analysis',
     name: '创意解析与理解',
     description: '使用NLP技术深度分析创意核心价值',
-    aiProvider: AI_PROVIDERS.WENXIN,
+    aiProvider: AI_PROVIDERS.WENXIN!,
     status: 'pending',
     progress: 0,
     estimatedTime: '3-5分钟',
@@ -90,7 +90,7 @@ const INITIAL_STAGES: GenerationStage[] = [
     id: 'market_research',
     name: '市场调研与分析',
     description: '全面分析目标市场和竞争环境',
-    aiProvider: AI_PROVIDERS.SPARK,
+    aiProvider: AI_PROVIDERS.SPARK!,
     status: 'pending',
     progress: 0,
     estimatedTime: '8-12分钟',
@@ -101,7 +101,7 @@ const INITIAL_STAGES: GenerationStage[] = [
     id: 'tech_architecture',
     name: '技术架构设计',
     description: '设计可扩展的技术实现方案',
-    aiProvider: AI_PROVIDERS.QWEN,
+    aiProvider: AI_PROVIDERS.QWEN!,
     status: 'pending',
     progress: 0,
     estimatedTime: '10-15分钟',
@@ -112,7 +112,7 @@ const INITIAL_STAGES: GenerationStage[] = [
     id: 'business_model',
     name: '商业模式设计',
     description: '构建可持续的盈利模式',
-    aiProvider: AI_PROVIDERS.WENXIN,
+    aiProvider: AI_PROVIDERS.WENXIN!,
     status: 'pending',
     progress: 0,
     estimatedTime: '6-10分钟',
@@ -123,7 +123,7 @@ const INITIAL_STAGES: GenerationStage[] = [
     id: 'financial_model',
     name: '财务建模与预测',
     description: '建立详细的财务预测模型',
-    aiProvider: AI_PROVIDERS.HUNYUAN,
+    aiProvider: AI_PROVIDERS.HUNYUAN!,
     status: 'pending',
     progress: 0,
     estimatedTime: '12-18分钟',
@@ -134,7 +134,7 @@ const INITIAL_STAGES: GenerationStage[] = [
     id: 'legal_compliance',
     name: '法律合规分析',
     description: '确保项目符合相关法律法规',
-    aiProvider: AI_PROVIDERS.GLM,
+    aiProvider: AI_PROVIDERS.GLM!,
     status: 'pending',
     progress: 0,
     estimatedTime: '8-12分钟',
@@ -145,7 +145,7 @@ const INITIAL_STAGES: GenerationStage[] = [
     id: 'implementation_plan',
     name: '实施计划制定',
     description: '制定详细的项目执行路线图',
-    aiProvider: AI_PROVIDERS.QWEN,
+    aiProvider: AI_PROVIDERS.QWEN!,
     status: 'pending',
     progress: 0,
     estimatedTime: '6-10分钟',
@@ -156,7 +156,7 @@ const INITIAL_STAGES: GenerationStage[] = [
     id: 'investor_pitch',
     name: '投资推介方案',
     description: '创建专业的投资者演示材料',
-    aiProvider: AI_PROVIDERS.WENXIN,
+    aiProvider: AI_PROVIDERS.WENXIN!,
     status: 'pending',
     progress: 0,
     estimatedTime: '5-8分钟',
@@ -296,7 +296,9 @@ export const BusinessPlanGenerator: React.FC<BusinessPlanGeneratorProps> = ({
         const updatedStages = [...stages]
 
         // 开始当前阶段
-        updatedStages[stageIndex].status = 'in_progress'
+        if (updatedStages[stageIndex]) {
+          updatedStages[stageIndex]!.status = 'in_progress'
+        }
 
         // 模拟阶段内进度
         let progress = 0
@@ -305,20 +307,24 @@ export const BusinessPlanGenerator: React.FC<BusinessPlanGeneratorProps> = ({
 
           if (progress >= 100) {
             progress = 100
-            updatedStages[stageIndex].status = 'completed'
-            updatedStages[stageIndex].progress = 100
+            if (updatedStages[stageIndex]) {
+              updatedStages[stageIndex]!.status = 'completed'
+              updatedStages[stageIndex]!.progress = 100
 
-            // 添加模拟洞察
-            updatedStages[stageIndex].insights = [
-              `${updatedStages[stageIndex].aiProvider.name} 分析完成`,
-              '发现3个关键商业机会',
-              '识别核心竞争优势'
-            ]
+              // 添加模拟洞察
+              updatedStages[stageIndex]!.insights = [
+                `${updatedStages[stageIndex]!.aiProvider.name} 分析完成`,
+                '发现3个关键商业机会',
+                '识别核心竞争优势'
+              ]
+            }
 
             clearInterval(progressInterval)
             stageIndex++
           } else {
-            updatedStages[stageIndex].progress = progress
+            if (updatedStages[stageIndex]) {
+              updatedStages[stageIndex]!.progress = progress
+            }
           }
 
           setStages([...updatedStages])

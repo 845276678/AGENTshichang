@@ -130,7 +130,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
           label="邮箱地址"
           type="email"
           placeholder="请输入您的邮箱地址"
-          error={errors.email?.message}
+          error={errors.email?.message || undefined}
           leftIcon={<Mail className="h-4 w-4" />}
           disabled={isFormLoading}
           autoComplete="email"
@@ -142,7 +142,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
           label="密码"
           type="password"
           placeholder="请输入您的密码"
-          error={errors.password?.message}
+          error={errors.password?.message || undefined}
           leftIcon={<Lock className="h-4 w-4" />}
           showPasswordToggle
           isPassword
