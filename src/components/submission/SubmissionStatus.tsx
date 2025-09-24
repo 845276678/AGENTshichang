@@ -14,8 +14,7 @@ import {
   Gift,
   AlertCircle,
   TrendingUp,
-  Calendar,
-  _RefreshCw
+  Calendar
 } from 'lucide-react';
 import Link from 'next/link';
 

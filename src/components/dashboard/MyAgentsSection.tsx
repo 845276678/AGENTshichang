@@ -7,18 +7,17 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
-import { 
-  Bot, 
-  Play, 
-  Settings, 
-  Clock, 
+import {
+  Bot,
+  Play,
+  Settings,
+  Clock,
   TrendingUp,
   Search,
   Filter,
   MoreHorizontal,
   ExternalLink,
   Heart,
-  Calendar,
   Activity,
   Star
 } from 'lucide-react'

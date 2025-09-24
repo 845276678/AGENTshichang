@@ -7,16 +7,14 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
-import { 
-  TrendingUp, 
-  DollarSign, 
-  Clock, 
+import {
+  DollarSign,
+  Clock,
   Target,
   Lightbulb,
   ArrowRight,
   BarChart3,
-  PieChart,
-  Calendar
+  PieChart
 } from 'lucide-react'
 
 interface InsightItem {

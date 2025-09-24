@@ -12,16 +12,13 @@ import { Input } from '@/components/ui/input'
 import {
   Dialog,
   DialogContent,
-  _DialogDescription,
   DialogHeader,
   DialogTitle,
-  _DialogTrigger,
 } from '@/components/ui/dialog'
 import {
   CreditCard,
   Smartphone,
   QrCode,
-  _Gift,
   Zap,
   Star,
   Crown,

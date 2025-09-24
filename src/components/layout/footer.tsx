@@ -5,13 +5,12 @@ import Link from 'next/link'
 import { motion } from 'framer-motion'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
-import { 
+import {
   Github,
   Twitter,
   Linkedin,
   Mail,
   MapPin,
-  _Phone,
   Zap,
   ArrowUp,
   Heart

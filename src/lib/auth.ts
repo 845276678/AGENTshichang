@@ -347,7 +347,7 @@ export async function sendSMSVerificationCode(request: NextRequest) {
     await redis.setex(smsRateLimitKey, 60, (parseInt(smsCurrent || '0') + 1).toString())
 
     const body = await request.json()
-    const { phone, type } = body
+    const { phone } = body
 
     // 验证手机号格式
     if (!/^1[3-9]\d{9}$/.test(phone)) {

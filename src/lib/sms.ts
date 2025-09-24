@@ -59,10 +59,8 @@ class MockSMSService {
  * 阿里云 SMS 服务
  */
 class AliyunSMSService {
-  private __config: SMSConfig
-
-  constructor(config: SMSConfig) {
-    this.config = config
+  constructor(_config: SMSConfig) {
+    // Store config if needed for future use
   }
 
   async sendVerificationCode(phone: string, code: string): Promise<SMSResult> {

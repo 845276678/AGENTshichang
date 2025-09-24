@@ -41,7 +41,6 @@ interface AgentCardProps {
 
 export const AgentCard: React.FC<AgentCardProps> = ({
   agent,
-  variant = 'default',
   className,
   showPrice = true,
   showStats = true,

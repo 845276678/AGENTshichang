@@ -49,7 +49,7 @@ const mockSessions: LoginSession[] = [
 ]
 
 export function SecuritySettings() {
-  const { user } = useAuth()
+  const { } = useAuth()
   const [currentPassword, setCurrentPassword] = useState('')
   const [newPassword, setNewPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')

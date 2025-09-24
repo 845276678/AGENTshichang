@@ -8,10 +8,8 @@ interface AIDocumentGeneratorConfig {
 }
 
 class AIDocumentGenerator {
-  private __config: AIDocumentGeneratorConfig
-
-  constructor(config: AIDocumentGeneratorConfig) {
-    this.config = config
+  constructor(_config: AIDocumentGeneratorConfig) {
+    // Store config if needed for future use
   }
 
   /**

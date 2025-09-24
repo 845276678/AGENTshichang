@@ -245,15 +245,6 @@ export class AlipayService {
       .sign(privateKey, 'base64')
   }
 
-  // 验证签名
-  private __verify(content: string, sign: string): boolean {
-    const publicKey = `-----BEGIN PUBLIC KEY-----\n${this.config.publicKey}\n-----END PUBLIC KEY-----`
-
-    return crypto
-      .createVerify('RSA-SHA256')
-      .update(content, 'utf8')
-      .verify(publicKey, sign, 'base64')
-  }
 
   // 获取支付配置信息
   getConfig() {

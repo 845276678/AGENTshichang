@@ -7,15 +7,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button'
 
 
-import { 
-  Settings, 
-  Bell, 
-  _Mail, 
-  Shield, 
+import {
+  Settings,
+  Bell,
+  Shield,
   Trash2,
   Download,
-  Eye,
-  _EyeOff,
   AlertTriangle
 } from 'lucide-react'
 

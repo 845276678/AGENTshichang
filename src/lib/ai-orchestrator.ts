@@ -671,45 +671,7 @@ export class AIOrchestrator {
     return enriched
   }
 
-  // 结果后处理
-  private async __postProcessResult(result: string, format: string): Promise<any> {
-    switch (format) {
-      case 'json':
-        try {
-          return JSON.parse(result)
-        } catch {
-          return { raw: result }
-        }
 
-      case 'markdown':
-        return { content: result, type: 'markdown' }
-
-      case 'financial_model':
-        return this.parseFinancialModel(result)
-
-      case 'legal_analysis':
-        return this.parseLegalAnalysis(result)
-
-      default:
-        return { content: result, type: format }
-    }
-  }
-
-  // 生成最终报告
-  private __generateFinalReport(results: Record<string, any>): any {
-    return {
-      metadata: {
-        generatedAt: new Date().toISOString(),
-        version: '1.0',
-        aiProviders: Object.values(AI_SERVICES).map(s => s.provider),
-        totalStages: BUSINESS_PLAN_WORKFLOW.length
-      },
-      executiveSummary: this.generateExecutiveSummary(results),
-      stages: results,
-      deliverables: this.generateDeliverables(results),
-      downloadLinks: this.generateDownloadLinks(results)
-    }
-  }
 
   // 阶段错误处理
   private async handleStageError(stage: ResearchGuideStage, error: any): Promise<any> {
