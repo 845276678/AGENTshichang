@@ -60,12 +60,15 @@
                         },
     "include":  [
                     "next-env.d.ts",
-                    "**/*.ts",
-                    "**/*.tsx",
+                    "src/**/*.ts",
+                    "src/**/*.tsx",
                     ".next/types/**/*.ts",
                     "**/*.d.ts"
                 ],
     "exclude":  [
-                    "node_modules"
+                    "node_modules",
+                    "tests",
+                    "tests/**/*",
+                    "playwright.config.ts"
                 ]
 }

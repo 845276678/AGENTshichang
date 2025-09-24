@@ -1,4 +1,4 @@
-// Core application types
+﻿// Core application types
 export interface User {
   id: string
   email: string
@@ -10,6 +10,8 @@ export interface User {
 }
 
 export type UserRole = 'USER' | 'AGENT_CREATOR' | 'ADMIN' | 'SUPER_ADMIN'
+
+export type UserLevel = 'BRONZE' | 'SILVER' | 'GOLD' | 'PLATINUM' | 'DIAMOND'
 
 export interface Agent {
   id: string
@@ -741,3 +743,4 @@ export interface ProductSearchResult {
   hasNext: boolean
   filters: ProductSearchFilters
 }
+

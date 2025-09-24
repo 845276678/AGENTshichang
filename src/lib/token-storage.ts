@@ -9,10 +9,6 @@ const ACCESS_TOKEN_KEY = 'auth.access_token';
 const REFRESH_TOKEN_KEY = 'auth.refresh_token';
 const USER_KEY = 'auth.user';
 
-interface StorageData {
-  [key: string]: any;
-}
-
 /**
  * Secure token storage class with localStorage fallback
  */
@@ -134,7 +130,14 @@ class TokenStorage {
    */
   decodeToken(token: string): any | null {
     try {
-      const base64Url = token.split('.')[1];
+      const parts = token.split('.')
+      if (parts.length < 2) {
+        throw new Error('Invalid token format')
+      }
+      const base64Url = parts[1];;
+      if (!base64Url) {
+        throw new Error('Invalid token format')
+      }
       const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
       const jsonPayload = decodeURIComponent(
         atob(base64)
@@ -217,3 +220,6 @@ class TokenStorage {
 // Export singleton instance
 export const tokenStorage = new TokenStorage();
 export default tokenStorage;
+
+
+
