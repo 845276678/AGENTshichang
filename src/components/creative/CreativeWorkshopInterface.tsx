@@ -82,6 +82,11 @@ export const CreativeWorkshopInterface: React.FC<CreativeWorkshopProps> = ({
   const currentExercise = workshop.exercises[currentExerciseIndex]
   const progress = ((currentExerciseIndex + 1) / workshop.exercises.length) * 100
 
+  // 如果没有当前练习，返回 null
+  if (!currentExercise) {
+    return null
+  }
+
   useEffect(() => {
     let interval: NodeJS.Timeout
     if (isActive && timeRemaining > 0) {
