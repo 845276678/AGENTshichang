@@ -18,15 +18,9 @@ import {
   MessageCircle,
   Share2,
   Star,
-  TrendingUp,
-  Users,
   Zap,
   Timer,
-  Award,
-  Target,
-  Lightbulb,
   Rocket,
-  DollarSign,
   Activity
 } from 'lucide-react'
 
@@ -105,7 +99,7 @@ const mockAgents: AIAgent[] = [
     confidence: 85,
     status: 'bidding',
     timeLeft: '2分钟前',
-    aiType: 'artistic'
+    aiType: 'design'
   },
   {
     id: 'agent3',
@@ -127,7 +121,7 @@ const mockAgents: AIAgent[] = [
     confidence: 78,
     status: 'bidding',
     timeLeft: '1分钟前',
-    aiType: 'trend'
+    aiType: 'business'
   },
   {
     id: 'agent5',
@@ -138,7 +132,7 @@ const mockAgents: AIAgent[] = [
     confidence: 88,
     status: 'bidding',
     timeLeft: '3分钟前',
-    aiType: 'academic'
+    aiType: 'data'
   }
 ]
 
@@ -175,10 +169,9 @@ export default function IdeaDetailPage() {
   const getAgentTypeColor = (type: string) => {
     switch (type) {
       case 'business': return 'from-green-500 to-emerald-500'  // 商人老王
-      case 'artistic': return 'from-purple-500 to-pink-500'   // 文艺小琳
+      case 'design': return 'from-purple-500 to-pink-500'   // 文艺小琳
       case 'tech': return 'from-blue-500 to-cyan-500'         // 科技艾克斯
-      case 'trend': return 'from-orange-500 to-red-500'       // 趋势阿伦
-      case 'academic': return 'from-indigo-500 to-blue-500'   // 教授李博
+      case 'data': return 'from-indigo-500 to-blue-500'   // 教授李博
       default: return 'from-gray-500 to-slate-500'
     }
   }

@@ -9,19 +9,16 @@ import { useAuth } from '@/hooks/useAuth'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { 
+import {
   ArrowLeft,
   ArrowRight,
   CreditCard,
   Shield,
   Check,
   User,
-  Globe,
   Lock,
   ShoppingCart,
-  CheckCircle,
-  AlertCircle,
-  Star,
+  CheckCircle
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import Link from 'next/link'
@@ -149,10 +146,9 @@ const OrderSummary = ({ items, totalPrice }: { items: any[], totalPrice: number 
   )
 }
 
-const ReviewOrderStep = ({ items, totalPrice, onNext }: {
-  items: any[], 
-  totalPrice: number, 
-  onNext: () => void 
+const ReviewOrderStep = ({ items, onNext }: {
+  items: any[],
+  onNext: () => void
 }) => {
   return (
     <div className="space-y-6">
@@ -600,7 +596,6 @@ export default function CheckoutPage() {
     1: (
       <ReviewOrderStep
         items={items}
-        totalPrice={totalPrice}
         onNext={() => setCurrentStep(2)}
       />
     ),

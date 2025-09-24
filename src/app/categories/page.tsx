@@ -22,7 +22,6 @@ import {
   TrendingUp,
   Users,
   ArrowRight,
-  Filter,
   Grid3X3,
   List
 } from 'lucide-react'

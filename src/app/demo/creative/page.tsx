@@ -5,9 +5,7 @@ import { Layout } from '@/components/layout'
 import {
   CreativeConversation,
   AgentPersonalityCard,
-  CreativeDNAAnalysis,
-  CreativeChallengeCard,
-  CreativeWorkshopInterface
+  CreativeDNAAnalysis
 } from '@/components/ui'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'

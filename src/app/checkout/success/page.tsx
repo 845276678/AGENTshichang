@@ -7,9 +7,8 @@ import { Layout } from '@/components/layout'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { 
+import {
   CheckCircle,
-  Download,
   ExternalLink,
   Star,
   ArrowRight,

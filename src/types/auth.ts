@@ -20,6 +20,8 @@ export interface User {
   bio?: string;
   website?: string;
   location?: string;
+  // Credits/Points system
+  credits?: number;
   // Settings
   emailNotifications: boolean;
   marketingEmails: boolean;

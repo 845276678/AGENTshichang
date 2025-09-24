@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { useParams } from 'next/navigation'
 import { Layout } from '@/components/layout'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -15,24 +14,15 @@ import {
   Clock,
   CheckCircle,
   AlertCircle,
-  Code,
   FileText,
-  TrendingUp,
-  Users,
   Lightbulb,
   Rocket,
-  Target,
-  DollarSign,
   Activity,
   Cpu,
-  Database,
-  Globe,
-  Shield,
-  Zap,
   Download,
-  Eye,
   Play,
-  Pause
+  Pause,
+  TrendingUp
 } from 'lucide-react'
 
 interface AIWorkflowStep {
@@ -276,6 +266,7 @@ export default function AIWorkbenchPage() {
 
       return () => clearInterval(timer)
     }
+    return undefined
   }, [isPlaying])
 
   const getStatusColor = (status: string) => {
@@ -429,7 +420,7 @@ export default function AIWorkbenchPage() {
             </CardHeader>
             <CardContent>
               <div className="space-y-6">
-                {mockWorkflow[currentStage].steps.map((step, index) => (
+                {(mockWorkflow[currentStage]?.steps || []).map((step, index) => (
                   <motion.div
                     key={step.id}
                     initial={{ opacity: 0, y: 20 }}
