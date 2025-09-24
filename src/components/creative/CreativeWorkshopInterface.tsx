@@ -8,14 +8,13 @@ import { Progress } from '@/components/ui/progress'
 import { Textarea } from '@/components/ui/textarea'
 import {
   CreativeWorkshop,
-  _WorkshopExercise,
-  _CreativeAgent
+  WorkshopExercise,
+  CreativeAgent
 } from '@/types'
 import {
   Brain,
   Clock,
   Users,
-  Zap,
   CheckCircle,
   Play,
   Pause,
@@ -25,7 +24,7 @@ import {
   Target,
   BarChart3,
   Presentation,
-  _Timer,
+  Timer,
   Star,
   Trophy,
   BookOpen
@@ -75,8 +74,7 @@ const workshopTypeLabels = {
 export const CreativeWorkshopInterface: React.FC<CreativeWorkshopProps> = ({
   workshop,
   onSubmitExercise,
-  onCompleteWorkshop,
-  __currentUserId
+  onCompleteWorkshop
 }) => {
   const [currentExerciseIndex, setCurrentExerciseIndex] = useState(0)
   const [exerciseSubmissions, setExerciseSubmissions] = useState<Record<string, string>>({})

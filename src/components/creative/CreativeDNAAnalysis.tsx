@@ -11,12 +11,10 @@ import { Label } from '@/components/ui/label'
 import {
   UserCreativeProfile,
   CreativeDNA,
-  CreativeAgent,
-  _CollaborationHistory
+  CreativeAgent
 } from '@/types'
 import {
   Brain,
-  Lightbulb,
   Target,
   TrendingUp,
   Users,
@@ -34,7 +32,6 @@ import {
   RefreshCw,
   Sparkles,
   Trophy,
-  Clock,
 } from 'lucide-react'
 
 interface CreativeDNAAnalysisProps {
@@ -224,6 +221,11 @@ export const CreativeDNAAnalysis: React.FC<CreativeDNAAnalysisProps> = ({
 
   const currentQuestion = assessmentQuestions[currentQuestionIndex]
   const progress = ((currentQuestionIndex + 1) / assessmentQuestions.length) * 100
+
+  // Early return if no current question
+  if (!currentQuestion) {
+    return null
+  }
 
   useEffect(() => {
     if (isCompleted && generatedDNA) {

@@ -25,7 +25,6 @@ import {
   AlertCircle,
   Timer,
   Brain,
-  Shield,
   Flame,
   Crown,
   Gift

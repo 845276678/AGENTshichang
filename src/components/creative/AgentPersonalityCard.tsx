@@ -7,10 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui'
 import { Progress } from '@/components/ui/progress'
 import {
-  CreativeAgent,
-  CognitionStyle,
-  AgentMood,
-  BiddingStrategy
+  CreativeAgent
 } from '@/types'
 import {
   Brain,
