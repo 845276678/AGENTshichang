@@ -411,10 +411,10 @@ export default function AIWorkbenchPage() {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                {React.createElement(mockWorkflow[currentStage].icon, { className: 'w-5 h-5' })}
-                {mockWorkflow[currentStage].name}
+                {mockWorkflow[currentStage] && React.createElement(mockWorkflow[currentStage].icon, { className: 'w-5 h-5' })}
+                {mockWorkflow[currentStage]?.name}
                 <Badge variant="outline" className="ml-auto">
-                  {mockWorkflow[currentStage].timeSpent} / {mockWorkflow[currentStage].estimatedTime}
+                  {mockWorkflow[currentStage]?.timeSpent} / {mockWorkflow[currentStage]?.estimatedTime}
                 </Badge>
               </CardTitle>
             </CardHeader>
