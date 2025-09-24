@@ -6,9 +6,9 @@ import { Eye, EyeOff, AlertCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export interface FormFieldProps extends React.InputHTMLAttributes<HTMLInputElement> {
-  label?: string;
-  error?: string;
-  hint?: string;
+  label?: string | undefined;
+  error?: string | undefined;
+  hint?: string | undefined;
   leftIcon?: React.ReactNode;
   rightIcon?: React.ReactNode;
   showPasswordToggle?: boolean;

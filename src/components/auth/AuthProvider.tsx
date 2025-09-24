@@ -76,66 +76,7 @@ const SessionWarningModal: React.FC<{
   );
 };
 
-// Main AuthProvider wrapper component
-interface AuthProviderWrapperProps {
-  children: ReactNode;
-}
-
-// Unused component - removed for TypeScript compliance
-// const ___AuthProviderWrapper: React.FC<AuthProviderWrapperProps> = ({ children }) => {
-  const auth = useAuth();
-  const [showSessionWarning, setShowSessionWarning] = useState(false);
-  const [sessionExpiresIn, setSessionExpiresIn] = useState(0);
-
-  // Handle session warning
-  useEffect(() => {
-    const handleSessionWarning = (event: CustomEvent) => {
-      setSessionExpiresIn(event.detail.expiresIn);
-      setShowSessionWarning(true);
-    };
-
-    window.addEventListener('auth:session-warning' as any, handleSessionWarning);
-
-    return () => {
-      window.removeEventListener('auth:session-warning' as any, handleSessionWarning);
-    };
-  }, []);
-
-  // Handle session extension
-  const handleExtendSession = async () => {
-    try {
-      await auth.refreshToken();
-      setShowSessionWarning(false);
-    } catch (error) {
-      console.error('Failed to extend session:', error);
-      // Force logout on extension failure
-      await auth.logoutWithRedirect('/auth/login');
-    }
-  };
-
-  // Handle forced logout
-  const handleLogout = async () => {
-    setShowSessionWarning(false);
-    await auth.logoutWithRedirect('/auth/login');
-  };
-
-  // Show loading screen while initializing
-  if (!auth.isInitialized) {
-    return <AuthLoading />;
-  }
-
-  return (
-    <>
-      {children}
-      <SessionWarningModal
-        isOpen={showSessionWarning}
-        onExtend={handleExtendSession}
-        onLogout={handleLogout}
-        expiresIn={sessionExpiresIn}
-      />
-    </>
-  );
-};
+// Removed unused AuthProviderWrapper component for TypeScript compliance
 
 // Root AuthProvider component
 export interface AuthProviderProps {
@@ -181,14 +122,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
 // Inner provider component to access auth context
 interface AuthProviderInnerProps {
   children: ReactNode;
-  loadingComponent?: React.ComponentType;
+  loadingComponent?: React.ComponentType | undefined;
   showSessionWarning: boolean;
   sessionWarningComponent?: React.ComponentType<{
     isOpen: boolean;
     onExtend: () => void;
     onLogout: () => void;
     expiresIn: number;
-  }>;
+  }> | undefined;
 }
 
 const AuthProviderInner: React.FC<AuthProviderInnerProps> = ({

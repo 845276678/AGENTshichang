@@ -263,8 +263,8 @@ export const BusinessPlanGenerator: React.FC<BusinessPlanGeneratorProps> = ({
     // 标记已完成的阶段
     for (let i = 0; i < progressData.completedStages; i++) {
       if (updatedStages[i]) {
-        updatedStages[i].status = 'completed'
-        updatedStages[i].progress = 100
+        updatedStages[i]!.status = 'completed'
+        updatedStages[i]!.progress = 100
       }
     }
 
