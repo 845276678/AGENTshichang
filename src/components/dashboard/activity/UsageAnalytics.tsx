@@ -63,7 +63,7 @@ const mockAnalytics = {
   ]
 }
 
-export function UsageAnalytics({ activityFilter, searchQuery, dateRange }: UsageAnalyticsProps) {
+export function UsageAnalytics({ activityFilter: _activityFilter, searchQuery: _searchQuery, dateRange: _dateRange }: UsageAnalyticsProps) {
   const StatCard = ({ title, value, subtitle, icon: Icon, color = 'primary' }: {
     title: string
     value: string | number
@@ -249,7 +249,7 @@ export function UsageAnalytics({ activityFilter, searchQuery, dateRange }: Usage
         <CardContent>
           <div className="space-y-4">
             {mockAnalytics.topAgents.map((agent, index) => {
-              const maxUsage = mockAnalytics.topAgents[0].usage
+              const maxUsage = mockAnalytics.topAgents[0]?.usage || 1
               const percentage = (agent.usage / maxUsage) * 100
               
               return (
