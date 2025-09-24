@@ -39,7 +39,6 @@ export default function SubmitIdeaPage() {
   const { user, isAuthenticated } = useAuth()
   const {
     canSubmitIdea,
-    __recordSubmission,
     hasFreeSlotsAvailable,
     nextSubmissionCost,
     remainingFreeSubmissions
