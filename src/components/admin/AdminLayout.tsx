@@ -7,7 +7,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { cn } from '@/lib/utils'
 import { useAuth } from '@/hooks/useAuth'
 import { Button } from '@/components/ui/button'
-import { 
+import {
   BarChart3,
   Users,
   Zap,
@@ -21,10 +21,7 @@ import {
   Home,
   ChevronDown,
   User,
-  Shield,
-  Activity,
-  FileText,
-  DollarSign
+  Shield
 } from 'lucide-react'
 
 interface AdminLayoutProps {
