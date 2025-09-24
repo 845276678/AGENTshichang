@@ -7,9 +7,7 @@ import { Badge } from '@/components/ui'
 import { Progress } from '@/components/ui/progress'
 import { Textarea } from '@/components/ui/textarea'
 import {
-  CreativeWorkshop,
-  WorkshopExercise,
-  CreativeAgent
+  CreativeWorkshop
 } from '@/types'
 import {
   Brain,
@@ -24,7 +22,6 @@ import {
   Target,
   BarChart3,
   Presentation,
-  Timer,
   Star,
   Trophy,
   BookOpen
