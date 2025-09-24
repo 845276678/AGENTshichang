@@ -1,6 +1,7 @@
 // 创意数据库操作服务
 import { prisma, handlePrismaError, ideaSelectFields, PaginationResult, buildPaginationResult, calculatePaginationOffset } from '../database'
 import { Idea, IdeaCategory, IdeaStatus, IdeaVisibility } from '@/generated/prisma'
+import type { Prisma } from '@/generated/prisma'
 
 // 创意创建数据类型
 export interface CreateIdeaData {
@@ -340,10 +341,10 @@ export class IdeaService {
     limit: number = 20
   ): Promise<PaginationResult<Idea>> {
     try {
-      const where = {
+      const where = ({
         AND: [
-          { status: 'APPROVED' },
-          { visibility: 'PUBLIC' },
+          { status: IdeaStatus.APPROVED },
+          { visibility: IdeaVisibility.PUBLIC },
           {
             OR: [
               { title: { contains: query, mode: 'insensitive' as const } },
@@ -352,19 +353,21 @@ export class IdeaService {
             ]
           }
         ]
-      }
+      }) as Prisma.IdeaWhereInput
 
       const offset = calculatePaginationOffset(page, limit)
+
+      const orderByClauses: Prisma.IdeaOrderByWithRelationInput[] = [
+        { likeCount: 'desc' as Prisma.SortOrder },
+        { viewCount: 'desc' as Prisma.SortOrder },
+        { createdAt: 'desc' as Prisma.SortOrder }
+      ]
 
       const [ideas, total] = await Promise.all([
         prisma.idea.findMany({
           where,
           select: ideaSelectFields,
-          orderBy: [
-            { likeCount: 'desc' },
-            { viewCount: 'desc' },
-            { createdAt: 'desc' }
-          ],
+          orderBy: orderByClauses,
           skip: offset,
           take: limit
         }),
@@ -460,3 +463,4 @@ export class IdeaService {
 }
 
 export default IdeaService
+
