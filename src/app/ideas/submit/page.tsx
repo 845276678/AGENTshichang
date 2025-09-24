@@ -32,7 +32,6 @@ import {
   TreePine,
   Puzzle,
   Coins,
-  AlertCircle,
   CheckCircle
 } from 'lucide-react'
 
