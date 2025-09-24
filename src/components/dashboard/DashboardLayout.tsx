@@ -114,7 +114,7 @@ const Sidebar = ({ isOpen, onClose }: { isOpen?: boolean; onClose?: () => void }
               <Link
                 key={item.href}
                 href={item.href}
-                onClick={onClose}
+                onClick={onClose || undefined}
                 className={cn(
                   "flex items-center gap-3 rounded-lg px-3 py-3 text-sm transition-all hover:bg-accent",
                   isActive 
@@ -155,7 +155,7 @@ const Sidebar = ({ isOpen, onClose }: { isOpen?: boolean; onClose?: () => void }
                 <Link
                   key={action.href}
                   href={action.href}
-                  onClick={onClose}
+                  onClick={onClose || undefined}
                   className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-muted-foreground transition-all hover:bg-accent hover:text-foreground"
                 >
                   <Icon className="h-4 w-4 shrink-0" />
@@ -176,7 +176,7 @@ const Sidebar = ({ isOpen, onClose }: { isOpen?: boolean; onClose?: () => void }
       <div className="p-4 border-t">
         <Link
           href="/settings"
-          onClick={onClose}
+          onClick={onClose || undefined}
           className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-muted-foreground transition-all hover:bg-accent hover:text-foreground"
         >
           <Settings className="h-4 w-4" />
