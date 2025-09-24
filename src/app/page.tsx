@@ -9,26 +9,15 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge'
 import { AnimatedSection } from '@/components/ui'
 import { useAuth } from '@/hooks/useAuth'
-import { 
-  ArrowRight, 
-  Sparkles, 
+import {
+  ArrowRight,
+  Sparkles,
   Zap,
   Brain,
-  Code,
-  Palette,
-  BarChart3,
-  MessageCircle,
-  BookOpen,
   Briefcase,
   Star,
-  Users,
-  Shield,
-  Rocket,
   TrendingUp,
-  PlayCircle,
-  Github,
-  Twitter,
-  Linkedin
+  PlayCircle
 } from 'lucide-react'
 
 // Featured AI Agents from the product document

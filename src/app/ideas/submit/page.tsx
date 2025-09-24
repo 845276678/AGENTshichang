@@ -32,7 +32,8 @@ import {
   TreePine,
   Puzzle,
   Coins,
-  CheckCircle
+  CheckCircle,
+  MessageCircle
 } from 'lucide-react'
 
 export default function SubmitIdeaPage() {

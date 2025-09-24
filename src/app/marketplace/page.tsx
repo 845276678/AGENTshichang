@@ -10,11 +10,8 @@ import Link from 'next/link'
 import {
   TrendingUp,
   Clock,
-  Users,
-  Zap,
   Star,
   Brain,
-  Sparkles,
   ShoppingCart,
   Eye,
   Timer,

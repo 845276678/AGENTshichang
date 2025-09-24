@@ -18,7 +18,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import {
-  _Coins,
+  Coins,
   CreditCard,
   History,
   Gift,

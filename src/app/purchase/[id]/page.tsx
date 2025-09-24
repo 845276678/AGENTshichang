@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react'
 import { motion } from 'framer-motion'
-import { useParams, useRouter } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import { Layout } from '@/components/layout'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -15,18 +15,12 @@ import {
   Wallet,
   Shield,
   CheckCircle,
-  AlertCircle,
   Download,
   Star,
   Clock,
   Users,
-  Eye,
-  Heart,
   Brain,
-  Zap,
   FileText,
-  Award,
-  Target,
   TrendingUp
 } from 'lucide-react'
 
