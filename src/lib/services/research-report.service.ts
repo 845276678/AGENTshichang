@@ -1,6 +1,7 @@
 // 调研报告数据库操作服务
 import { prisma, handlePrismaError, PaginationResult, buildPaginationResult, calculatePaginationOffset } from '../database'
 import { ResearchReport, ReportStatus } from '@/generated/prisma'
+import type { Prisma } from '@/generated/prisma'
 import UserService from './user.service'
 
 // 调研报告创建数据类型
@@ -108,9 +109,12 @@ export class ResearchReportService {
   // 根据ID获取调研报告
   static async findById(id: string, includeRelations: boolean = true): Promise<ResearchReport | null> {
     try {
-      return await prisma.researchReport.findUnique({
-        where: { id },
-        include: includeRelations ? {
+      const query: Prisma.ResearchReportFindUniqueArgs = {
+        where: { id }
+      }
+
+      if (includeRelations) {
+        query.include = {
           idea: {
             select: {
               id: true,
@@ -128,8 +132,10 @@ export class ResearchReportService {
               avatar: true
             }
           }
-        } : undefined
-      })
+        }
+      }
+
+      return await prisma.researchReport.findUnique(query)
     } catch (error) {
       handlePrismaError(error)
     }
@@ -546,3 +552,4 @@ export class ResearchReportService {
 }
 
 export default ResearchReportService
+
