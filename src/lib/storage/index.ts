@@ -84,7 +84,7 @@ export class FileStorageManager {
         filename: originalName,
         public: isPublic,
         maxSize,
-        allowedTypes
+        ...(allowedTypes && { allowedTypes })
       })
 
       // 保存文件记录到数据库
@@ -146,8 +146,8 @@ export class FileStorageManager {
       const uploadResult = await this.ossService.uploadImage(file, {
         folder: storageFolder,
         filename: originalName,
-        width,
-        height,
+        ...(width && { width }),
+        ...(height && { height }),
         quality,
         format
       })
