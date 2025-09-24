@@ -151,7 +151,6 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   loadingComponent: CustomLoadingComponent,
   unauthorizedComponent: CustomUnauthorizedComponent,
   emailVerificationComponent: CustomEmailVerificationComponent,
-  __fallback,
   hasPermission,
 }) => {
   const router = useRouter();
@@ -261,8 +260,10 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     let message = 'Your account is not active.';
     if (auth.user.status === 'SUSPENDED') {
       message = 'Your account has been suspended. Please contact support.';
-    } else if (auth.user.status === 'PENDING_VERIFICATION') {
-      message = 'Your account is pending verification.';
+    } else if (auth.user.status === 'BANNED') {
+      message = 'Your account has been banned. Please contact support.';
+    } else if (auth.user.status === 'INACTIVE') {
+      message = 'Your account is inactive. Please contact support to activate.';
     }
     
     return <UnauthorizedComponent message={message} />;
@@ -289,10 +290,10 @@ export const ModeratorRoute: React.FC<Omit<ProtectedRouteProps, 'roles'>> = (pro
 );
 
 /**
- * DeveloperRoute - Requires DEVELOPER role
+ * DeveloperRoute - Requires ADMIN role (developer access)
  */
 export const DeveloperRoute: React.FC<Omit<ProtectedRouteProps, 'roles'>> = (props) => (
-  <ProtectedRoute {...props} roles={UserRole.DEVELOPER} />
+  <ProtectedRoute {...props} roles={UserRole.ADMIN} />
 );
 
 /**

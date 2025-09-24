@@ -10,7 +10,6 @@ import { Textarea } from '@/components/ui/textarea'
 import {
   CreativeConversation as CreativeConversationType,
   CreativeMessage,
-  CreativeAgent,
   CreativePhase,
   CreativeMessageType,
   CreativeMessageMetadata
@@ -24,7 +23,6 @@ import {
   CheckCircle,
   Send,
   TrendingUp,
-  MessageCircle,
   Sparkles,
   ArrowRight,
   ThumbsUp,
@@ -82,7 +80,6 @@ const messageTypeLabels = {
 export const CreativeConversation: React.FC<CreativeConversationProps> = ({
   conversation,
   onSendMessage,
-  __onPhaseTransition,
   isLoading = false
 }) => {
   const [newMessage, setNewMessage] = useState('')

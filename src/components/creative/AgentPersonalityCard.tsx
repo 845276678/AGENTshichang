@@ -8,7 +8,6 @@ import { Badge } from '@/components/ui'
 import { Progress } from '@/components/ui/progress'
 import {
   CreativeAgent,
-  AgentPersonality,
   CognitionStyle,
   AgentMood,
   BiddingStrategy

@@ -10,8 +10,7 @@ import { Textarea } from '@/components/ui/textarea'
 import {
   CreativeChallenge,
   ChallengeSubmission,
-  ChallengeReward,
-  CreativeAgent
+  ChallengeReward
 } from '@/types'
 import {
   Trophy,
