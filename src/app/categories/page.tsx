@@ -21,7 +21,6 @@ import {
   Puzzle,
   TrendingUp,
   Users,
-  Star,
   ArrowRight,
   Filter,
   Grid3X3,
