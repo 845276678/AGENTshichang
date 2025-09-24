@@ -114,7 +114,7 @@ export default function ProfilePage() {
                       </h1>
                       <Badge variant="secondary" className="flex items-center gap-1">
                         <Star className="h-3 w-3" />
-                        {user.role === 'ADMIN' ? '管理员' : user.role === 'PREMIUM' ? '高级会员' : '普通用户'}
+                        {user.role === 'ADMIN' ? '管理员' : user.role === 'MODERATOR' ? '版主' : '普通用户'}
                       </Badge>
                     </div>
                     <p className="text-muted-foreground mb-3">
@@ -131,7 +131,7 @@ export default function ProfilePage() {
                       </div>
                       <div className="flex items-center gap-1">
                         <Target className="h-4 w-4" />
-                        已分享创意: {user.submittedIdeas || 0}
+                        已分享创意: 0
                       </div>
                     </div>
                   </div>

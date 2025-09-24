@@ -602,7 +602,7 @@ export default function SubmitIdeaPage() {
                         )}
 
                         <Button
-                          onClick={() => window.location.href = `/ideas/${submissionResult.ideaId}/discussion`}
+                          onClick={() => submissionResult && (window.location.href = `/ideas/${submissionResult.ideaId}/discussion`)}
                           className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
                         >
                           <MessageCircle className="w-4 h-4 mr-2" />
@@ -712,21 +712,21 @@ export default function SubmitIdeaPage() {
                         <motion.div
                           className="text-3xl"
                           animate={{
-                            scale: agentReactions[activeAgent].mood === 'excited' ? [1, 1.2, 1] : 1,
-                            rotate: agentReactions[activeAgent].mood === 'thinking' ? [0, 5, -5, 0] : 0
+                            scale: agentReactions[activeAgent]?.mood === 'excited' ? [1, 1.2, 1] : 1,
+                            rotate: agentReactions[activeAgent]?.mood === 'thinking' ? [0, 5, -5, 0] : 0
                           }}
                           transition={{ duration: 1, repeat: Infinity }}
                         >
-                          {agentReactions[activeAgent].avatar}
+                          {agentReactions[activeAgent]?.avatar}
                         </motion.div>
                         <div>
-                          <div className="font-medium">{agentReactions[activeAgent].name}</div>
+                          <div className="font-medium">{agentReactions[activeAgent]?.name}</div>
                           <Badge
-                            variant={agentReactions[activeAgent].mood === 'excited' ? 'success' : 'outline'}
+                            variant={agentReactions[activeAgent]?.mood === 'excited' ? 'success' : 'outline'}
                             className="text-xs"
                           >
-                            {agentReactions[activeAgent].mood === 'excited' ? '兴奋' :
-                             agentReactions[activeAgent].mood === 'thinking' ? '思考中' : '等待'}
+                            {agentReactions[activeAgent]?.mood === 'excited' ? '兴奋' :
+                             agentReactions[activeAgent]?.mood === 'thinking' ? '思考中' : '等待'}
                           </Badge>
                         </div>
                       </div>
@@ -736,7 +736,7 @@ export default function SubmitIdeaPage() {
                         animate={{ opacity: 1 }}
                         transition={{ delay: 0.2 }}
                       >
-                        "{agentReactions[activeAgent].reaction}"
+                        "{agentReactions[activeAgent]?.reaction}"
                       </motion.div>
                     </motion.div>
                   </AnimatePresence>
