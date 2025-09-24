@@ -45,7 +45,7 @@ export class AliyunOSSService {
       accessKeyId: process.env.ALIYUN_OSS_ACCESS_KEY_ID || '',
       accessKeySecret: process.env.ALIYUN_OSS_ACCESS_KEY_SECRET || '',
       bucket: process.env.ALIYUN_OSS_BUCKET || '',
-      endpoint: process.env.ALIYUN_OSS_ENDPOINT
+      ...(process.env.ALIYUN_OSS_ENDPOINT && { endpoint: process.env.ALIYUN_OSS_ENDPOINT })
     }
 
     if (!this.config.accessKeyId || !this.config.accessKeySecret || !this.config.bucket) {
@@ -58,7 +58,7 @@ export class AliyunOSSService {
       accessKeyId: this.config.accessKeyId,
       accessKeySecret: this.config.accessKeySecret,
       bucket: this.config.bucket,
-      endpoint: this.config.endpoint
+      ...(this.config.endpoint && { endpoint: this.config.endpoint })
     })
 
     // 构建基础URL
@@ -166,8 +166,8 @@ export class AliyunOSSService {
       let finalUrl = this.getPublicUrl(key)
       if (width || height || quality < 100) {
         const processParams = this.buildImageProcessParams({
-          width,
-          height,
+          ...(width && { width }),
+          ...(height && { height }),
           quality,
           format
         })
@@ -192,13 +192,14 @@ export class AliyunOSSService {
     options: UploadOptions = {}
   ): Promise<UploadResult[]> {
     try {
-      const uploadPromises = files.map(({ file, filename, folder }) =>
-        this.uploadFile(file, {
+      const uploadPromises = files.map(({ file, filename, folder }) => {
+        const finalFolder = folder || options.folder
+        return this.uploadFile(file, {
           ...options,
-          filename,
-          folder: folder || options.folder
+          ...(filename && { filename }),
+          ...(finalFolder && { folder: finalFolder })
         })
-      )
+      })
 
       return await Promise.all(uploadPromises)
     } catch (error) {
@@ -280,8 +281,8 @@ export class AliyunOSSService {
       const signedUrl = this.client.signatureUrl(key, {
         expires,
         method,
-        'Content-Type': contentType,
-        'Content-MD5': contentMd5
+        ...(contentType && { 'Content-Type': contentType }),
+        ...(contentMd5 && { 'Content-MD5': contentMd5 })
       })
 
       return signedUrl
@@ -370,7 +371,7 @@ export class AliyunOSSService {
 
       return {
         files,
-        nextMarker: result.nextMarker,
+        ...(result.nextMarker && { nextMarker: result.nextMarker }),
         isTruncated: result.isTruncated
       }
     } catch (error) {
