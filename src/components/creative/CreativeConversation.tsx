@@ -10,7 +10,7 @@ import { Textarea } from '@/components/ui/textarea'
 import {
   CreativeConversation as CreativeConversationType,
   CreativeMessage,
-  _CreativeAgent,
+  CreativeAgent,
   CreativePhase,
   CreativeMessageType,
   CreativeMessageMetadata
@@ -21,10 +21,8 @@ import {
   Lightbulb,
   HelpCircle,
   Target,
-  Zap,
   CheckCircle,
   Send,
-  Clock,
   TrendingUp,
   MessageCircle,
   Sparkles,

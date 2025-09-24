@@ -11,11 +11,10 @@ import {
   CreativeChallenge,
   ChallengeSubmission,
   ChallengeReward,
-  _CreativeAgent
+  CreativeAgent
 } from '@/types'
 import {
   Trophy,
-  Clock,
   Target,
   Users,
   Star,
@@ -27,8 +26,6 @@ import {
   AlertCircle,
   Timer,
   Brain,
-  Lightbulb,
-  TrendingUp,
   Shield,
   Flame,
   Crown,

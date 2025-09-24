@@ -12,7 +12,6 @@ import {
   Coins,
   Star,
   CheckCircle,
-  Clock,
   TrendingUp,
   Flame
 } from 'lucide-react';
@@ -32,7 +31,7 @@ interface CheckInStats {
 }
 
 export function DailyCheckIn() {
-  const { user, isAuthenticated } = useAuth();
+  const { isAuthenticated } = useAuth();
   const [rewards, setRewards] = useState<DailyReward[]>([]);
   const [stats, setStats] = useState<CheckInStats>({
     currentStreak: 0,
