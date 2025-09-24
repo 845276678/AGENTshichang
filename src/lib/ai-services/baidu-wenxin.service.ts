@@ -115,7 +115,7 @@ export class BaiduWenxinService {
         temperature: options.temperature || 0.7,
         top_p: options.topP || 0.8,
         penalty_score: 1.0,
-        user_id: options.userId
+        ...(options.userId ? { user_id: options.userId } : {})
       }
 
       const response: AxiosResponse<BaiduChatResponse> = await axios.post(
@@ -152,9 +152,8 @@ export class BaiduWenxinService {
           this.tokenExpiresAt = 0
 
           if (!error.config?.headers?.['X-Retry']) {
-            error.config = error.config || {}
-            error.config.headers = error.config.headers || {}
-            error.config.headers['X-Retry'] = 'true'
+            const retryConfig = { ...error.config } as any
+            retryConfig.headers = { ...(retryConfig.headers || {}), 'X-Retry': 'true' }
             return this.chat(prompt, options)
           }
         }

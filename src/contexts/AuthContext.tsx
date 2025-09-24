@@ -9,9 +9,6 @@ import {
   TokenPair,
   LoginRequest,
   RegisterRequest,
-  AuthResponse,
-  LoginResponse,
-  RegisterResponse,
   ApiError
 } from '@/types/auth';
 import { apiClient } from '@/lib/api-client';

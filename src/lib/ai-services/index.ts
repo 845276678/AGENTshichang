@@ -167,7 +167,7 @@ export class AIServiceFactory {
     const randomIndex = Math.floor(Math.random() * healthyProviders.length)
     const selectedProvider = healthyProviders[randomIndex]
 
-    return this.getService(selectedProvider)
+    return this.getService(selectedProvider as AIProvider)
   }
 }
 

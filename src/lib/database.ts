@@ -41,7 +41,7 @@ export async function executeTransaction<T>(
   callback: (prisma: PrismaClient) => Promise<T>
 ): Promise<T> {
   return await prisma.$transaction(async (tx) => {
-    return await callback(tx)
+    return await callback(tx as PrismaClient)
   })
 }
 

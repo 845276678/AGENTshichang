@@ -133,7 +133,7 @@ export class AliTongyiService {
       if (data.output.text) {
         content = data.output.text
       } else if (data.output.choices && data.output.choices.length > 0) {
-        content = data.output.choices[0].message.content
+        content = data.output.choices[0]?.message.content || ''
       } else {
         throw new Error('通义千问API响应格式错误')
       }
@@ -343,7 +343,7 @@ export class AliTongyiService {
       let content = ''
 
       if (data.output.choices && data.output.choices.length > 0) {
-        content = data.output.choices[0].message.content
+        content = data.output.choices[0]?.message.content || ''
       } else if (data.output.text) {
         content = data.output.text
       } else {

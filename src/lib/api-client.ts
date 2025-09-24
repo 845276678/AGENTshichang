@@ -115,9 +115,11 @@ class ApiClient {
         limit: parseInt(limit),
         remaining: parseInt(remaining),
         reset: parseInt(reset),
-        retryAfter: retryAfter ? parseInt(retryAfter) : undefined,
-      };
+        ...(retryAfter ? { retryAfter: parseInt(retryAfter) } : {})
+      } as RateLimitInfo;
     }
+
+    return undefined;
   }
 
   /**
@@ -140,8 +142,7 @@ class ApiClient {
         data.message || `HTTP ${response.status}`,
         data.code || this.getErrorCodeFromStatus(response.status),
         response.status,
-        data.details || data,
-        rateLimit
+        data.details || data
       );
       throw error;
     }
@@ -311,7 +312,7 @@ class ApiClient {
     return this.request<T>(endpoint, {
       ...config,
       method: 'POST',
-      body: data ? JSON.stringify(data) : undefined,
+      ...(data ? { body: JSON.stringify(data) } : {})
     });
   }
 
@@ -326,7 +327,7 @@ class ApiClient {
     return this.request<T>(endpoint, {
       ...config,
       method: 'PUT',
-      body: data ? JSON.stringify(data) : undefined,
+      ...(data ? { body: JSON.stringify(data) } : {})
     });
   }
 
@@ -348,7 +349,7 @@ class ApiClient {
     return this.request<T>(endpoint, {
       ...config,
       method: 'PATCH',
-      body: data ? JSON.stringify(data) : undefined,
+      ...(data ? { body: JSON.stringify(data) } : {})
     });
   }
 

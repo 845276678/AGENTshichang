@@ -18,6 +18,14 @@ export interface ResearchGuideStage {
   dependencies?: string[]
 }
 
+export interface BusinessPlanStage {
+  stage: string
+  aiService: AIService
+  prompt: string
+  outputFormat: string
+  dependencies?: string[]
+}
+
 // 中国本地AI服务配置
 export const AI_SERVICES: Record<string, AIService> = {
   // 百度文心
@@ -70,14 +78,14 @@ export const AI_SERVICES: Record<string, AIService> = {
 export const RESEARCH_GUIDE_WORKFLOW: ResearchGuideStage[] = [
   {
     stage: '基本盘分析师',
-    aiService: AI_SERVICES.WENXIN,
+    aiService: AI_SERVICES.WENXIN as AIService,
     prompt: AI_RESEARCH_PROMPTS.WENXIN_BASIC_MARKET_ANALYSIS,
     outputFormat: 'research_guide'
   },
 
   {
     stage: '调研方法专家',
-    aiService: AI_SERVICES.SPARK,
+    aiService: AI_SERVICES.SPARK as AIService,
     prompt: AI_RESEARCH_PROMPTS.SPARK_RESEARCH_GUIDE,
     outputFormat: 'research_methods',
     dependencies: ['基本盘分析师']
@@ -85,7 +93,7 @@ export const RESEARCH_GUIDE_WORKFLOW: ResearchGuideStage[] = [
 
   {
     stage: '数据源指南',
-    aiService: AI_SERVICES.QWEN,
+    aiService: AI_SERVICES.QWEN as AIService,
     prompt: AI_RESEARCH_PROMPTS.QWEN_DATA_SOURCES,
     outputFormat: 'data_sources',
     dependencies: ['调研方法专家']
@@ -93,7 +101,7 @@ export const RESEARCH_GUIDE_WORKFLOW: ResearchGuideStage[] = [
 
   {
     stage: 'MVP验证专家',
-    aiService: AI_SERVICES.HUNYUAN,
+    aiService: AI_SERVICES.HUNYUAN as AIService,
     prompt: AI_RESEARCH_PROMPTS.HUNYUAN_MVP_GUIDE,
     outputFormat: 'mvp_guide',
     dependencies: ['数据源指南']
@@ -101,7 +109,7 @@ export const RESEARCH_GUIDE_WORKFLOW: ResearchGuideStage[] = [
 
   {
     stage: '商业模式导师',
-    aiService: AI_SERVICES.GLM,
+    aiService: AI_SERVICES.GLM as AIService,
     prompt: AI_RESEARCH_PROMPTS.GLM_BUSINESS_MODEL,
     outputFormat: 'business_model_guide',
     dependencies: ['MVP验证专家']
@@ -112,7 +120,7 @@ export const RESEARCH_GUIDE_WORKFLOW: ResearchGuideStage[] = [
 export const BUSINESS_PLAN_WORKFLOW: BusinessPlanStage[] = [
   {
     stage: '创意解析与理解',
-    aiService: AI_SERVICES.WENXIN,
+    aiService: AI_SERVICES.WENXIN as AIService,
     prompt: `
       请分析以下创意想法，提取核心概念和商业价值：
 
@@ -134,7 +142,7 @@ export const BUSINESS_PLAN_WORKFLOW: BusinessPlanStage[] = [
 
   {
     stage: '市场调研与分析',
-    aiService: AI_SERVICES.SPARK,
+    aiService: AI_SERVICES.SPARK as AIService,
     prompt: `
       基于以下创意概念，进行深度市场调研：
 
@@ -156,7 +164,7 @@ export const BUSINESS_PLAN_WORKFLOW: BusinessPlanStage[] = [
 
   {
     stage: '技术架构设计',
-    aiService: AI_SERVICES.QWEN,
+    aiService: AI_SERVICES.QWEN as AIService,
     prompt: `
       为以下项目设计完整技术方案：
 
@@ -181,7 +189,7 @@ export const BUSINESS_PLAN_WORKFLOW: BusinessPlanStage[] = [
 
   {
     stage: '商业模式设计',
-    aiService: AI_SERVICES.WENXIN,
+    aiService: AI_SERVICES.WENXIN as AIService,
     prompt: `
       基于前期分析，设计可持续的商业模式：
 
@@ -206,7 +214,7 @@ export const BUSINESS_PLAN_WORKFLOW: BusinessPlanStage[] = [
 
   {
     stage: '财务建模与预测',
-    aiService: AI_SERVICES.HUNYUAN,
+    aiService: AI_SERVICES.HUNYUAN as AIService,
     prompt: `
       为项目建立详细财务模型：
 
@@ -232,7 +240,7 @@ export const BUSINESS_PLAN_WORKFLOW: BusinessPlanStage[] = [
 
   {
     stage: '法律合规与知识产权',
-    aiService: AI_SERVICES.GLM,
+    aiService: AI_SERVICES.GLM as AIService,
     prompt: `
       为项目提供法律合规建议：
 
@@ -257,7 +265,7 @@ export const BUSINESS_PLAN_WORKFLOW: BusinessPlanStage[] = [
 
   {
     stage: '项目实施计划',
-    aiService: AI_SERVICES.QWEN,
+    aiService: AI_SERVICES.QWEN as AIService,
     prompt: `
       制定详细的项目执行计划：
 
@@ -283,7 +291,7 @@ export const BUSINESS_PLAN_WORKFLOW: BusinessPlanStage[] = [
 
   {
     stage: '投资推介方案',
-    aiService: AI_SERVICES.WENXIN,
+    aiService: AI_SERVICES.WENXIN as AIService,
     prompt: `
       创建专业的投资者推介材料：
 
@@ -481,7 +489,7 @@ export class AIOrchestrator {
   private extractSection(text: string, sectionName: string): string {
     const regex = new RegExp(`${sectionName}[：:]([\\s\\S]*?)(?=\\n\\n|\\n#|$)`, 'i')
     const match = text.match(regex)
-    return match ? match[1].trim() : ''
+    return match?.[1]?.trim() || ''
   }
 
   // 提取列表项

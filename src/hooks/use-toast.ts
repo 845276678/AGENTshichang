@@ -21,9 +21,9 @@ export const useToast = () => {
     const newToast: Toast = {
       id,
       title,
-      description,
       variant,
-      createdAt: Date.now()
+      createdAt: Date.now(),
+      ...(description ? { description } : {})
     }
 
     setToasts(prev => [...prev, newToast])
