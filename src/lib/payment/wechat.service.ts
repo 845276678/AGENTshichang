@@ -36,12 +36,6 @@ interface WechatPayRequest {
   attach?: string
 }
 
-interface WechatPayResponse {
-  prepay_id?: string
-  code_url?: string
-  h5_url?: string
-}
-
 export class WechatPayService {
   private config: WechatPayConfig
   private baseUrl: string
@@ -93,7 +87,7 @@ export class WechatPayService {
             wap_url: process.env.NEXTAUTH_URL || '',
             wap_name: 'AI创意交易平台'
           }
-        },
+        } as any,
         attach: JSON.stringify({
           userId: params.userId,
           credits: params.credits,
@@ -232,7 +226,7 @@ export class WechatPayService {
       return {
         status: response.trade_state,
         transactionId: response.transaction_id,
-        amount: response.amount?.total ? response.amount.total / 100 : undefined,
+        ...(response.amount?.total && { amount: response.amount.total / 100 }),
         payTime: response.success_time
       }
     } catch (error) {
@@ -270,7 +264,7 @@ export class WechatPayService {
       return {
         success: response.status === 'SUCCESS' || response.status === 'PROCESSING',
         refundId: response.refund_id,
-        refundAmount: response.amount?.refund ? response.amount.refund / 100 : undefined
+        ...(response.amount?.refund && { refundAmount: response.amount.refund / 100 })
       }
     } catch (error) {
       throw new Error(`微信支付退款失败: ${error instanceof Error ? error.message : '未知错误'}`)
@@ -303,7 +297,7 @@ export class WechatPayService {
   // 解密回调内容
   decryptNotify(ciphertext: string, associatedData: string, _nonce: string): any {
     try {
-      const decipher = crypto.createDecipherGCM('aes-256-gcm')
+      const decipher = crypto.createDecipheriv('aes-256-gcm', Buffer.from(this.config.apiV3Key), Buffer.from(_nonce))
       decipher.setAuthTag(Buffer.from(ciphertext.slice(-32), 'hex'))
       decipher.setAAD(Buffer.from(associatedData))
 
@@ -336,7 +330,7 @@ export class WechatPayService {
 
       const authorization = this.buildAuthorization(timestamp, nonceStr, signature)
 
-      const config = {
+      const config: any = {
         method,
         url: `${this.baseUrl}${fullUrl}`,
         headers: {
@@ -344,7 +338,8 @@ export class WechatPayService {
           'Accept': 'application/json',
           'Authorization': authorization,
           'User-Agent': 'AI-Creative-Platform/1.0'
-        }
+        },
+        data: undefined
       }
 
       if (data && method === 'POST') {

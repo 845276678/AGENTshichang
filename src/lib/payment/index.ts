@@ -45,8 +45,8 @@ export interface CreatePaymentParams {
 }
 
 export class PaymentManager {
-  private alipayService: AlipayService
-  private wechatService: WechatPayService
+  private alipayService?: AlipayService
+  private wechatService?: WechatPayService
 
   constructor() {
     try {

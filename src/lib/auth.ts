@@ -1,6 +1,6 @@
 // 生产级用户认证API
 import bcrypt from 'bcryptjs'
-import jwt from 'jsonwebtoken'
+import jwt, { SignOptions } from 'jsonwebtoken'
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { productionConfig } from '@/config/production'
@@ -9,6 +9,7 @@ import { redis } from '@/lib/redis'
 import { sendVerificationCode } from '@/lib/sms'
 import { NextAuthOptions } from 'next-auth'
 import CredentialsProvider from 'next-auth/providers/credentials'
+import { UserRole } from '@/generated/prisma'
 
 // NextAuth configuration
 export const authOptions: NextAuthOptions = {
@@ -81,14 +82,13 @@ export const authOptions: NextAuthOptions = {
     async session({ session, token }) {
       if (token) {
         session.user.id = token.sub!
-        session.user.role = token.role as string
+        session.user.role = token.role as UserRole
       }
       return session
     }
   },
   pages: {
-    signIn: '/auth/login',
-    signUp: '/auth/register'
+    signIn: '/auth/login'
   },
   secret: process.env.NEXTAUTH_SECRET || 'your-secret-key'
 }
@@ -180,7 +180,7 @@ export async function registerUser(request: NextRequest) {
     const token = jwt.sign(
       { userId, username: validatedData.username },
       productionConfig.security.jwtSecret,
-      { expiresIn: productionConfig.security.jwtExpiresIn }
+      { expiresIn: productionConfig.security.jwtExpiresIn } as SignOptions
     )
 
     // 创建用户会话 (使用Redis存储)
@@ -284,7 +284,7 @@ export async function loginUser(request: NextRequest) {
     const token = jwt.sign(
       { userId: userData.id, username: userData.username },
       productionConfig.security.jwtSecret,
-      { expiresIn }
+      { expiresIn } as SignOptions
     )
 
     // 创建用户会话 (使用Redis存储)
@@ -414,7 +414,7 @@ export async function verifyToken(request: NextRequest): Promise<NextResponse> {
 
     // 获取用户信息
     const user = await prisma.user.findUnique({
-      where: { id: decoded.userId }
+      where: { id: String(decoded.userId) }
     })
 
     if (!user || user.status !== 'ACTIVE') {
@@ -471,7 +471,7 @@ export async function getUserFromToken(request: NextRequest): Promise<{
 
     // 获取用户信息
     const user = await prisma.user.findUnique({
-      where: { id: decoded.userId }
+      where: { id: String(decoded.userId) }
     })
 
     if (!user || user.status !== 'ACTIVE') {

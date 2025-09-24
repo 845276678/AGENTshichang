@@ -104,7 +104,7 @@ function getClientIdentifier(request: NextRequest): string {
   
   if (forwarded) {
     // x-forwarded-for may contain multiple IPs, get the first one
-    ip = forwarded.split(',')[0].trim();
+    ip = forwarded.split(',')[0]?.trim() || 'unknown';
   } else if (realIp) {
     ip = realIp;
   } else if (cfConnectingIp) {
@@ -255,7 +255,7 @@ export function getRateLimitStatus(
     limit: config.maxRequests,
     remaining,
     reset,
-    retryAfter: remaining === 0 ? Math.ceil((current.resetTime - Date.now()) / 1000) : undefined
+    ...(remaining === 0 && { retryAfter: Math.ceil((current.resetTime - Date.now()) / 1000) })
   };
 }
 

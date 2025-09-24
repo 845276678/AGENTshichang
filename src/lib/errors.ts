@@ -7,7 +7,7 @@ import { ZodError } from 'zod';
  */
 export class AppError extends Error {
   constructor(
-    public message: string,
+    public override message: string,
     public statusCode: number,
     public code: string,
     public details?: any
@@ -96,7 +96,7 @@ export function createSuccessResponse<T>(
   const response: AuthResponse<T> = {
     success: true,
     data,
-    message
+    ...(message && { message })
   };
 
   return NextResponse.json(response, {

@@ -165,7 +165,7 @@ export class TencentHunyuanService {
       }
 
       return {
-        content: choices[0].Message.Content,
+        content: choices[0]?.Message?.Content || '',
         usage: {
           promptTokens: response.data.Response.Usage.PromptTokens,
           completionTokens: response.data.Response.Usage.CompletionTokens,
@@ -381,7 +381,7 @@ export class TencentHunyuanService {
       }
 
       return {
-        content: choices[0].Message.Content,
+        content: choices[0]?.Message?.Content || '',
         usage: {
           promptTokens: response.data.Response.Usage.PromptTokens,
           completionTokens: response.data.Response.Usage.CompletionTokens,

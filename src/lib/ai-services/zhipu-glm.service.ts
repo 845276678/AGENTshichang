@@ -80,7 +80,7 @@ export class ZhipuGLMService {
         header: {
           alg: 'HS256',
           sign_type: 'SIGN'
-        }
+        } as any
       })
     } catch (error) {
       throw new Error(`生成智谱JWT失败: ${error instanceof Error ? error.message : '未知错误'}`)
@@ -169,7 +169,7 @@ export class ZhipuGLMService {
       }
 
       return {
-        content: data.choices[0].message.content,
+        content: data.choices[0]?.message?.content || '',
         usage: {
           promptTokens: data.usage.prompt_tokens,
           completionTokens: data.usage.completion_tokens,
@@ -372,7 +372,7 @@ export class ZhipuGLMService {
       }
 
       return {
-        content: data.choices[0].message.content,
+        content: data.choices[0]?.message?.content || '',
         usage: {
           promptTokens: data.usage.prompt_tokens,
           completionTokens: data.usage.completion_tokens,

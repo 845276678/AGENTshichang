@@ -48,7 +48,7 @@ export class IdeaService {
         data: {
           ...data,
           userId,
-          tags: data.tags || [],
+          tags: Array.isArray(data.tags) ? data.tags.join(',') : (data.tags || ''),
           isAnonymous: data.isAnonymous || false,
           visibility: data.visibility || 'PUBLIC'
         },
@@ -93,10 +93,15 @@ export class IdeaService {
         throw new Error('无权限修改此创意')
       }
 
+      const updateData = { ...data } as any
+      if (data.tags && Array.isArray(data.tags)) {
+        updateData.tags = data.tags.join(',')
+      }
+
       return await prisma.idea.update({
         where: { id },
         data: {
-          ...data,
+          ...updateData,
           updatedAt: new Date()
         },
         select: ideaSelectFields
@@ -314,7 +319,7 @@ export class IdeaService {
             {
               OR: [
                 { category: idea.category },
-                { tags: { hasSome: idea.tags } }
+                { tags: { contains: idea.tags } }
               ]
             }
           ]

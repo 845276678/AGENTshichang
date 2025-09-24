@@ -178,7 +178,7 @@ class OSSService {
 
       return result.objects.map(obj => ({
         filename: obj.name || '',
-        url: `https://${this.client.options.bucket}.${this.client.options.region}.aliyuncs.com/${obj.name}`,
+        url: `https://${this.client.options?.bucket}.${this.client.options?.region}.aliyuncs.com/${obj.name}`,
         lastModified: new Date(obj.lastModified || ''),
         size: obj.size || 0
       }))

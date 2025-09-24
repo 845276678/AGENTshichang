@@ -117,7 +117,7 @@ export class AliyunOSSService {
         key,
         size: fileSize,
         contentType,
-        etag: result.etag
+        etag: result.res?.headers?.etag || ''
       }
     } catch (error) {
       throw new Error(`文件上传失败: ${error instanceof Error ? error.message : '未知错误'}`)
@@ -179,7 +179,7 @@ export class AliyunOSSService {
         key,
         size: file.length,
         contentType: `image/${format}`,
-        etag: result.etag
+        etag: result.res?.headers?.etag || ''
       }
     } catch (error) {
       throw new Error(`图片上传失败: ${error instanceof Error ? error.message : '未知错误'}`)

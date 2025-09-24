@@ -24,14 +24,6 @@ interface AlipayTradeCreateRequest {
   passbackParams?: string
 }
 
-interface AlipayTradeCreateResponse {
-  code: string
-  msg: string
-  tradeNo?: string
-  outTradeNo?: string
-  qrCode?: string
-}
-
 export class AlipayService {
   private config: AlipayConfig
 

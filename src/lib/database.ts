@@ -65,8 +65,6 @@ export type {
   CreditTransaction,
   CreditTransactionType,
   Payment,
-  PaymentProvider,
-  PaymentStatus,
   UserSession,
   RefreshToken,
   SystemConfig,
