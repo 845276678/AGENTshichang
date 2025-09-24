@@ -120,7 +120,7 @@ export default function SubmitIdeaPage() {
       { delay: 3500, step: 4, message: '生成评估报告...' }
     ]
 
-    for (const { delay, step, message } of steps) {
+    for (const { delay, step } of steps) {
       setTimeout(() => setCurrentStep(step), delay)
     }
 
