@@ -22,38 +22,40 @@ export default function LoginPage() {
   const handleLogin = async (data: any) => {
     setIsLoading(true);
     try {
-      // TODO: For now, simulate successful login by setting auth state
-      // In production, this would call the actual API via AuthContext
-      console.log('Login data:', data);
+      // 调用真实登录API
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          identifier: data.email, // API使用identifier而不是email
+          password: data.password,
+          rememberMe: data.rememberMe || false
+        })
+      });
 
-      // Simulate API call delay
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      const result = await response.json();
 
-      // Create mock user data and simulate authentication
-      const mockUser = {
-        id: '1',
-        email: data.email,
-        name: data.email.split('@')[0],
-        username: data.email.split('@')[0],
-        role: 'USER',
-        isEmailVerified: true,
-        status: 'ACTIVE',
-        createdAt: new Date().toISOString(),
-        lastLoginAt: new Date().toISOString(),
-        credits: 100,
-        submittedIdeas: 0
-      };
+      if (!response.ok) {
+        throw new Error(result.message || result.error || '登录失败');
+      }
 
-      // Store mock tokens and user in localStorage to simulate authentication
-      localStorage.setItem('auth.access_token', 'mock-access-token');
-      localStorage.setItem('auth.refresh_token', 'mock-refresh-token');
-      localStorage.setItem('auth.user', JSON.stringify(mockUser));
+      if (!result.success) {
+        throw new Error(result.message || '登录失败');
+      }
 
-      // Force page reload to update auth state
+      // 保存认证信息
+      const { user, tokens } = result.data;
+      localStorage.setItem('auth.access_token', tokens.accessToken);
+      localStorage.setItem('auth.refresh_token', tokens.refreshToken);
+      localStorage.setItem('auth.user', JSON.stringify(user));
+
+      // 跳转到目标页面
       window.location.href = redirectTo;
     } catch (error) {
       console.error('Login error:', error);
-      throw new Error('登录失败，请检查您的邮箱和密码');
+      throw new Error(error instanceof Error ? error.message : '登录失败，请检查您的邮箱和密码');
     } finally {
       setIsLoading(false);
     }
