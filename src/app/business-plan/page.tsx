@@ -623,15 +623,15 @@ export default function ResearchGuidePage() {
                         <div>
                           <label className="text-sm font-medium mb-2 block">选择分类</label>
                           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                            {categories.map((category) => (
+                            {categories.map((categoryItem) => (
                               <Button
-                                key={category.id}
-                                variant={selectedCategory === category.id ? "default" : "outline"}
+                                key={categoryItem.id}
+                                variant={selectedCategory === categoryItem.id ? "default" : "outline"}
                                 className="h-16 flex flex-col items-center justify-center"
-                                onClick={() => setSelectedCategory(category.id)}
+                                onClick={() => setSelectedCategory(categoryItem.id)}
                               >
-                                <span className="text-2xl mb-1">{category.icon}</span>
-                                <span className="text-xs">{category.name}</span>
+                                <span className="text-2xl mb-1">{categoryItem.icon}</span>
+                                <span className="text-xs">{categoryItem.name}</span>
                               </Button>
                             ))}
                           </div>
