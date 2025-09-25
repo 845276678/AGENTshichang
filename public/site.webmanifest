@@ -1,0 +1,19 @@
+{
+  "name": "AI创意协作平台",
+  "short_name": "AI创意平台",
+  "description": "AI驱动的创意协作和商业计划生成平台",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#000000",
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "any",
+      "type": "image/x-icon"
+    }
+  ],
+  "categories": ["productivity", "business", "ai"],
+  "lang": "zh-CN",
+  "orientation": "portrait-primary"
+}

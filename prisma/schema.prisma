@@ -55,6 +55,8 @@ model User {
   refreshTokens   RefreshToken[]
   files           File[]
   discussions     IdeaDiscussion[]
+  orders          Order[]
+  cartItems       CartItem[]
 
   @@map("users")
 }
@@ -450,4 +452,93 @@ enum MessageType {
 enum SenderType {
   USER     // 用户
   AI_AGENT // AI专家
+}
+
+// 订单表
+model Order {
+  id            String      @id @default(cuid())
+  userId        String      @map("user_id")
+  
+  // 订单信息
+  amount        Float       // 订单金额
+  currency      String      @default("CNY")
+  description   String      // 订单描述
+  status        OrderStatus @default(PENDING)
+  
+  // 支付信息
+  paymentMethod String?     @map("payment_method") // 支付方式
+  paymentId     String?     @map("payment_id")    // 关联支付ID
+  
+  // 时间戳
+  createdAt     DateTime    @default(now()) @map("created_at")
+  updatedAt     DateTime    @updatedAt @map("updated_at")
+  paidAt        DateTime?   @map("paid_at")
+  
+  // 关联关系
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@map("orders")
+}
+
+// 订单状态枚举
+enum OrderStatus {
+  PENDING
+  PAID
+  CANCELLED
+  REFUNDED
+}
+
+// 购物车表
+model CartItem {
+  id        String   @id @default(cuid())
+  userId    String   @map("user_id")
+  agentId   String   @map("agent_id") // 关联的AI Agent ID
+  
+  // 商品信息
+  price     Float?   // 价格
+  quantity  Int      @default(1)
+  
+  // 时间戳
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  
+  // 关联关系
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@map("cart_items")
+}
+
+// AI Agent表
+model Agent {
+  id          String      @id @default(cuid())
+  name        String      // Agent名称
+  description String      // Agent描述
+  type        AgentType   // Agent类型
+  status      AgentStatus @default(ACTIVE)
+  
+  // 定价信息
+  price       Float?      // 价格
+  credits     Int?        // 所需积分
+  
+  // 时间戳
+  createdAt   DateTime    @default(now()) @map("created_at")
+  updatedAt   DateTime    @updatedAt @map("updated_at")
+  
+  @@map("agents")
+}
+
+// Agent类型枚举
+enum AgentType {
+  CREATIVE
+  ANALYTICAL
+  TECHNICAL
+  BUSINESS
+  MARKETING
+}
+
+// Agent状态枚举
+enum AgentStatus {
+  ACTIVE
+  INACTIVE
+  MAINTENANCE
 }

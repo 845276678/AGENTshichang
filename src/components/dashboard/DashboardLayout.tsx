@@ -182,17 +182,20 @@ const Sidebar = ({ isOpen, onClose }: { isOpen?: boolean; onClose?: () => void }
   // Mobile sidebar
   if (isOpen !== undefined) {
     return (
-      <AnimatePresence>
+      <AnimatePresence mode="wait">
         {isOpen && (
           <>
             <motion.div
+              key="sidebar-overlay"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
               className="fixed inset-0 bg-black/20 z-40 lg:hidden"
               onClick={onClose}
             />
             <motion.div
+              key="sidebar-content"
               initial={{ x: '-100%' }}
               animate={{ x: 0 }}
               exit={{ x: '-100%' }}

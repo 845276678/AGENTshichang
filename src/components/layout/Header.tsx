@@ -65,12 +65,14 @@ const SearchBar = ({ className }: { className?: string }) => {
       </form>
       
       {/* Quick search suggestions */}
-      <AnimatePresence>
+      <AnimatePresence mode="wait">
         {isFocused && (
           <motion.div
+            key="search-suggestions"
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.2 }}
             className="absolute top-full mt-1 w-full rounded-lg border bg-background/95 backdrop-blur-sm shadow-lg z-50"
           >
             <div className="p-2">
