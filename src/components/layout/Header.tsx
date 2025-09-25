@@ -209,7 +209,7 @@ const UserMenu = () => {
                 onClick={() => setIsOpen(false)}
               >
                 <PlusCircle className="h-4 w-4" />
-                分享创意
+                创意竞价
               </Link>
               <Link
                 href="/settings"
@@ -272,25 +272,11 @@ const MobileMenu = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void 
               
               <nav className="space-y-2">
                 <Link
-                  href="/marketplace"
-                  className="block rounded-sm px-3 py-2 text-sm hover:bg-accent transition-colors"
-                  onClick={onClose}
-                >
-                  创意市场
-                </Link>
-                <Link
                   href="/ideas/submit"
                   className="block rounded-sm px-3 py-2 text-sm hover:bg-accent transition-colors"
                   onClick={onClose}
                 >
-                  分享创意
-                </Link>
-                <Link
-                  href="/categories"
-                  className="block rounded-sm px-3 py-2 text-sm hover:bg-accent transition-colors"
-                  onClick={onClose}
-                >
-                  创意分类
+                  创意竞价
                 </Link>
                 <Link
                   href="/business-plan"
@@ -298,6 +284,20 @@ const MobileMenu = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void 
                   onClick={onClose}
                 >
                   商业计划生成
+                </Link>
+                <Link
+                  href="/marketplace"
+                  className="block rounded-sm px-3 py-2 text-sm hover:bg-accent transition-colors"
+                  onClick={onClose}
+                >
+                  创意市场
+                </Link>
+                <Link
+                  href="/categories"
+                  className="block rounded-sm px-3 py-2 text-sm hover:bg-accent transition-colors"
+                  onClick={onClose}
+                >
+                  创意分类
                 </Link>
                 <Link
                   href="/agents"
@@ -368,7 +368,7 @@ const MobileMenu = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void 
                     className="block rounded-sm px-3 py-2 text-sm hover:bg-accent transition-colors"
                     onClick={onClose}
                   >
-                    分享创意
+                    创意竞价
                   </Link>
                 </div>
               ) : (
@@ -420,28 +420,28 @@ export function Header({ className }: HeaderProps) {
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-6">
             <Link
-              href="/marketplace"
-              className="text-sm font-medium transition-colors hover:text-primary"
-            >
-              创意市场
-            </Link>
-            <Link
               href="/ideas/submit"
               className="text-sm font-medium transition-colors hover:text-primary"
             >
-              分享创意
-            </Link>
-            <Link
-              href="/categories"
-              className="text-sm font-medium transition-colors hover:text-primary"
-            >
-              创意分类
+              创意竞价
             </Link>
             <Link
               href="/business-plan"
               className="text-sm font-medium transition-colors hover:text-primary"
             >
               商业计划生成
+            </Link>
+            <Link
+              href="/marketplace"
+              className="text-sm font-medium transition-colors hover:text-primary"
+            >
+              创意市场
+            </Link>
+            <Link
+              href="/categories"
+              className="text-sm font-medium transition-colors hover:text-primary"
+            >
+              创意分类
             </Link>
             <Link
               href="/agents"

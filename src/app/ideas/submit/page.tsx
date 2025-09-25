@@ -48,7 +48,6 @@ export default function SubmitIdeaPage() {
   // 基础表单状态
   const [idea, setIdea] = useState('')
   const [title, setTitle] = useState('')
-  const [category, setCategory] = useState('')
   const [ideaScore, setIdeaScore] = useState(0)
 
   // 竞价系统状态
@@ -84,12 +83,12 @@ export default function SubmitIdeaPage() {
       if (title.length > 5) {score += 20}
       if (idea.length > 100) {score += 30}
       if (idea.length > 300) {score += 20}
-      if (category) {score += 20}
+      if (idea.length > 500) {score += 20} // 替代分类加分
       if (idea.includes('创新') || idea.includes('独特')) {score += 10}
       return Math.min(score, 100)
     }
     setIdeaScore(calculateScore())
-  }, [title, idea, category])
+  }, [title, idea])
 
   // AI投资者轮换 - 只在输入阶段使用
   useEffect(() => {
@@ -113,8 +112,8 @@ export default function SubmitIdeaPage() {
 
   // 启动竞价流程
   const startBidding = () => {
-    if (!title || !idea || !category) {
-      alert('请完整填写创意信息后再启动竞价')
+    if (!title || !idea || idea.length < 50) {
+      alert('请完整填写创意标题和详细描述（至少50字）后再启动竞价')
       return
     }
 
@@ -174,12 +173,14 @@ export default function SubmitIdeaPage() {
   // 计算Agent出价
   const calculateAgentBid = (agent: any, score: number, round: number) => {
     const baseScore = score
+
+    // 根据创意内容分析专业领域匹配度
     const specialtyMultipliers = {
-      business: category.includes('商业') ? 1.3 : 1.0,
-      artistic: category.includes('文艺') || category.includes('创作') ? 1.3 : 1.0,
-      tech: category.includes('科技') || category.includes('创新') ? 1.3 : 1.0,
-      trend: category.includes('娱乐') || category.includes('营销') ? 1.3 : 1.0,
-      academic: category.includes('教育') || category.includes('研究') ? 1.3 : 1.0,
+      business: idea.includes('商业') || idea.includes('盈利') || idea.includes('市场') ? 1.3 : 1.0,
+      artistic: idea.includes('艺术') || idea.includes('创作') || idea.includes('设计') ? 1.3 : 1.0,
+      tech: idea.includes('技术') || idea.includes('科技') || idea.includes('AI') || idea.includes('软件') ? 1.3 : 1.0,
+      trend: idea.includes('社交') || idea.includes('流行') || idea.includes('网红') || idea.includes('营销') ? 1.3 : 1.0,
+      academic: idea.includes('研究') || idea.includes('教育') || idea.includes('学术') || idea.includes('理论') ? 1.3 : 1.0,
     }
 
     const specialtyBonus = specialtyMultipliers[agent.specialty] || 1.0
