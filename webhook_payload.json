@@ -1,0 +1,10 @@
+{
+  "repository": {
+    "clone_url": "https://github.com/845276678/AGENTshichang.git",
+    "name": "AGENTshichang"
+  },
+  "ref": "refs/heads/master",
+  "commits": [{"message": "Deploy AI创意竞价平台"}],
+  "action": "deploy",
+  "project": "project-68d4f29defadf4d878ac0583"
+}
