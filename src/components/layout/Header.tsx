@@ -162,12 +162,14 @@ const UserMenu = () => {
         <ChevronDown className="h-4 w-4 text-muted-foreground" />
       </button>
 
-      <AnimatePresence>
+      <AnimatePresence mode="wait">
         {isOpen && (
           <motion.div
+            key="user-menu"
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.95 }}
+            transition={{ duration: 0.2 }}
             className="absolute right-0 mt-2 w-48 rounded-md border bg-background/95 backdrop-blur-sm shadow-lg z-50"
           >
             <div className="p-1">
@@ -242,17 +244,20 @@ const MobileMenu = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void 
   const { totalItems } = useCart()
 
   return (
-    <AnimatePresence>
+    <AnimatePresence mode="wait">
       {isOpen && (
         <>
           <motion.div
+            key="mobile-overlay"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
             className="fixed inset-0 bg-black/20 z-40"
             onClick={onClose}
           />
           <motion.div
+            key="mobile-menu"
             initial={{ x: '100%' }}
             animate={{ x: 0 }}
             exit={{ x: '100%' }}
