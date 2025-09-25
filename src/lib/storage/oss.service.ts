@@ -1,4 +1,4 @@
-import OSS from 'ali-oss'
+﻿import OSS from 'ali-oss'
 import { v4 as uuidv4 } from 'uuid'
 
 interface FileUploadResult {
@@ -17,15 +17,33 @@ interface FileMetadata {
 }
 
 class OSSService {
-  private client: OSS
+  private client: OSS | null = null
+  private bucket: string
+  private region: string
 
   constructor() {
-    this.client = new OSS({
-      region: process.env.OSS_REGION || 'oss-cn-hangzhou',
-      accessKeyId: process.env.OSS_ACCESS_KEY_ID || '',
-      accessKeySecret: process.env.OSS_ACCESS_KEY_SECRET || '',
-      bucket: process.env.OSS_BUCKET || 'ai-agent-marketplace'
-    })
+    this.region = process.env.OSS_REGION || 'oss-cn-hangzhou'
+    this.bucket = process.env.OSS_BUCKET || 'ai-agent-marketplace'
+  }
+
+  private ensureClient(): OSS {
+    if (!this.client) {
+      const accessKeyId = process.env.OSS_ACCESS_KEY_ID
+      const accessKeySecret = process.env.OSS_ACCESS_KEY_SECRET
+
+      if (!accessKeyId || !accessKeySecret) {
+        throw new Error('OSS client is not configured. Please set OSS_ACCESS_KEY_ID and OSS_ACCESS_KEY_SECRET.')
+      }
+
+      this.client = new OSS({
+        region: this.region,
+        accessKeyId,
+        accessKeySecret,
+        bucket: this.bucket
+      })
+    }
+
+    return this.client
   }
 
   private generateFileName(originalName: string, category: string, userId: string): string {
@@ -46,15 +64,15 @@ class OSSService {
         metadata.userId
       )
 
-      // 验证文件大小
-      if (metadata.size > 10 * 1024 * 1024) { // 10MB 限制
+      // 楠岃瘉鏂囦欢澶у皬
+      if (metadata.size > 10 * 1024 * 1024) { // 10MB 闄愬埗
         return {
           success: false,
-          error: '文件大小不能超过10MB'
+          error: '鏂囦欢澶у皬涓嶈兘瓒呰繃10MB'
         }
       }
 
-      // 验证文件类型
+      // 楠岃瘉鏂囦欢绫诲瀷
       const allowedTypes = [
         'image/jpeg', 'image/png', 'image/gif', 'image/webp',
         'application/pdf', 'text/plain', 'application/json',
@@ -64,12 +82,13 @@ class OSSService {
       if (!allowedTypes.includes(metadata.mimeType)) {
         return {
           success: false,
-          error: '不支持的文件类型'
+          error: '涓嶆敮鎸佺殑鏂囦欢绫诲瀷'
         }
       }
 
-      // 上传文件
-      const result = await this.client.put(filename, buffer, {
+      // 涓婁紶鏂囦欢
+      const client = this.ensureClient()
+      const result = await client.put(filename, buffer, {
         headers: {
           'Content-Type': metadata.mimeType,
           'x-oss-meta-original-name': metadata.originalName,
@@ -84,32 +103,34 @@ class OSSService {
         filename: filename
       }
     } catch (error) {
-      console.error('OSS上传失败:', error)
+      console.error('OSS涓婁紶澶辫触:', error)
       return {
         success: false,
-        error: error instanceof Error ? error.message : '上传失败'
+        error: error instanceof Error ? error.message : '涓婁紶澶辫触'
       }
     }
   }
 
   async deleteFile(filename: string): Promise<boolean> {
     try {
-      await this.client.delete(filename)
+      const client = this.ensureClient()
+      await client.delete(filename)
       return true
     } catch (error) {
-      console.error('OSS删除失败:', error)
+      console.error('OSS鍒犻櫎澶辫触:', error)
       return false
     }
   }
 
   async getSignedUrl(filename: string, expireTime: number = 3600): Promise<string | null> {
     try {
-      const url = this.client.signatureUrl(filename, {
+      const client = this.ensureClient()
+      const url = client.signatureUrl(filename, {
         expires: expireTime
       })
       return url
     } catch (error) {
-      console.error('生成签名URL失败:', error)
+      console.error('鐢熸垚绛惧悕URL澶辫触:', error)
       return null
     }
   }
@@ -169,21 +190,35 @@ class OSSService {
   }>> {
     try {
       const prefix = category ? `${category}/${userId}/` : `${userId}/`
-      const result = await this.client.list({
+      const client = this.ensureClient()
+      const result = await client.list({
         prefix,
         'max-keys': 100
       })
 
       if (!result.objects) return []
 
-      return result.objects.map(obj => ({
-        filename: obj.name || '',
-        url: `https://${this.client.options?.bucket}.${this.client.options?.region}.aliyuncs.com/${obj.name}`,
-        lastModified: new Date(obj.lastModified || ''),
-        size: obj.size || 0
-      }))
+      const endpointHost = `${this.bucket}.${this.region}.aliyuncs.com`
+
+      return result.objects.reduce<Array<{ filename: string; url: string; lastModified: Date; size: number }>>((files, obj) => {
+        if (!obj.name) {
+          return files
+        }
+
+        const size = typeof obj.size === 'number' ? obj.size : Number(obj.size || 0)
+        const lastModified = obj.lastModified ? new Date(obj.lastModified) : new Date(0)
+
+        files.push({
+          filename: obj.name,
+          url: `https://${endpointHost}/${obj.name}`,
+          lastModified,
+          size
+        })
+
+        return files
+      }, [])
     } catch (error) {
-      console.error('获取用户文件列表失败:', error)
+      console.error('鑾峰彇鐢ㄦ埛鏂囦欢鍒楄〃澶辫触:', error)
       return []
     }
   }
@@ -195,18 +230,25 @@ class OSSService {
     metadata?: Record<string, string>
   }> {
     try {
-      const result = await this.client.head(filename)
+      const client = this.ensureClient()
+      const result = await client.head(filename)
+      const metadata = result.meta
+        ? Object.fromEntries(
+            Object.entries(result.meta).map(([key, value]) => [key, String(value ?? '')])
+          )
+        : undefined
+
       return {
         exists: true,
         size: parseInt(result.res.headers['content-length'] || '0'),
         lastModified: new Date(result.res.headers['last-modified'] || ''),
-        metadata: result.meta
+        ...(metadata ? { metadata } : {})
       }
     } catch (error: any) {
       if (error.code === 'NoSuchKey') {
         return { exists: false }
       }
-      console.error('获取文件信息失败:', error)
+      console.error('鑾峰彇鏂囦欢淇℃伅澶辫触:', error)
       return { exists: false }
     }
   }
@@ -214,3 +256,6 @@ class OSSService {
 
 export const ossService = new OSSService()
 export default OSSService
+
+
+

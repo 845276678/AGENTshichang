@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "prebuild": "npm run db:generate",
     "dev": "next dev --port 4000",
     "dev:3000": "next dev --port 3000",
     "build": "next build",
@@ -76,7 +77,6 @@
     "next-auth": "^4.24.11",
     "nodemailer": "^6.9.15",
     "postcss": "^8.4.39",
-    "prisma": "^6.16.2",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-hook-form": "^7.52.1",
@@ -112,6 +112,7 @@
     "msw": "^2.11.2",
     "prettier": "^3.3.2",
     "prettier-plugin-tailwindcss": "^0.6.5",
+    "prisma": "^6.16.2",
     "supertest": "^7.1.4",
     "ts-jest": "^29.4.3"
   },
