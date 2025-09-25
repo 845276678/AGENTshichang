@@ -48,6 +48,7 @@ export default function SubmitIdeaPage() {
   // 基础表单状态
   const [idea, setIdea] = useState('')
   const [title, setTitle] = useState('')
+  const [category, setCategory] = useState('')
   const [ideaScore, setIdeaScore] = useState(0)
 
   // 竞价系统状态
