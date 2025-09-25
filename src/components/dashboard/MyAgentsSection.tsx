@@ -318,18 +318,18 @@ export function MyAgentsSection() {
               {/* Category Filter */}
               <div className="flex-1">
                 <div className="flex flex-wrap gap-2">
-                  {categories.map((category) => (
+                  {categories.map((categoryName) => (
                     <Button
-                      key={category}
-                      variant={selectedCategory === category ? "default" : "outline"}
+                      key={categoryName}
+                      variant={selectedCategory === categoryName ? "default" : "outline"}
                       size="sm"
-                      onClick={() => setSelectedCategory(category)}
+                      onClick={() => setSelectedCategory(categoryName)}
                       className="h-8"
                     >
-                      {category}
-                      {category !== 'All' && (
+                      {categoryName}
+                      {categoryName !== 'All' && (
                         <Badge variant="secondary" className="ml-2 h-4 px-1.5 text-xs">
-                          {agents.filter(a => a.category === category).length}
+                          {agents.filter(a => a.category === categoryName).length}
                         </Badge>
                       )}
                     </Button>
