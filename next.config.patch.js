@@ -100,6 +100,7 @@ const nextConfig = {
 
     // 禁用所有文件系统缓存
     config.cache = false;
+    config.snapshot = false;
 
     // 重写文件系统模块
     const originalReadFileSync = require('fs').readFileSync;
