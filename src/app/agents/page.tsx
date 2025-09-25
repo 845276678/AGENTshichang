@@ -346,17 +346,17 @@ const AgentsBrowsePage = () => {
                     <div>
                       <h3 className="font-semibold mb-3">Categories</h3>
                       <div className="space-y-2">
-                        {categories.map(category => (
-                          <label key={category.id} className="flex items-center gap-2 cursor-pointer">
+                        {categories.map(categoryItem => (
+                          <label key={categoryItem.id} className="flex items-center gap-2 cursor-pointer">
                             <input
                               type="checkbox"
-                              checked={filters.categories.includes(category.id)}
-                              onChange={() => toggleCategory(category.id)}
+                              checked={filters.categories.includes(categoryItem.id)}
+                              onChange={() => toggleCategory(categoryItem.id)}
                               className="rounded border-border"
                             />
-                            <span className="text-sm">{category.name}</span>
+                            <span className="text-sm">{categoryItem.name}</span>
                             <span className="text-xs text-muted-foreground ml-auto">
-                              {category.count}
+                              {categoryItem.count}
                             </span>
                           </label>
                         ))}

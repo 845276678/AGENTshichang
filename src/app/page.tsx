@@ -291,22 +291,22 @@ const CategoriesSection = () => {
         </AnimatedSection>
         
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-          {categories.map((category, index) => (
-            <AnimatedSection key={category.name} delay={0.1 + index * 0.05}>
-              <Link href={`/categories/${category.name.toLowerCase()}`}>
+          {categories.map((categoryItem, index) => (
+            <AnimatedSection key={categoryItem.name} delay={0.1 + index * 0.05}>
+              <Link href={`/categories/${categoryItem.name.toLowerCase()}`}>
                 <Card className="h-full group cursor-pointer hover:shadow-xl transition-all duration-300 border-0 bg-background/50 backdrop-blur">
                   <CardContent className="p-6 text-center">
                     <motion.div 
-                      className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${category.gradient} flex items-center justify-center mb-4 mx-auto group-hover:scale-110 transition-transform duration-300`}
+                      className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${categoryItem.gradient} flex items-center justify-center mb-4 mx-auto group-hover:scale-110 transition-transform duration-300`}
                       whileHover={{ rotate: 5 }}
                     >
-                      <category.icon className="w-8 h-8 text-white" />
+                      <categoryItem.icon className="w-8 h-8 text-white" />
                     </motion.div>
                     <h3 className="font-semibold text-lg mb-2 group-hover:text-primary transition-colors">
-                      {category.name}
+                      {categoryItem.name}
                     </h3>
                     <p className="text-sm text-muted-foreground">
-                      {category.count}
+                      {categoryItem.count}
                     </p>
                   </CardContent>
                 </Card>
