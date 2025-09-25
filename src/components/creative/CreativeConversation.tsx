@@ -247,7 +247,7 @@ export const CreativeConversation: React.FC<CreativeConversationProps> = ({
 
       {/* 消息列表 */}
       <div className="flex-1 overflow-y-auto space-y-4 p-4 bg-secondary/5 rounded-lg">
-        <AnimatePresence>
+        <AnimatePresence mode="popLayout">
           {conversation.messages.map((message, index) => renderMessage(message, index))}
         </AnimatePresence>
         <div ref={messagesEndRef} />

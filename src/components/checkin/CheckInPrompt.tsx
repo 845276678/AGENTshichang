@@ -60,11 +60,13 @@ export function CheckInPrompt() {
   }
 
   return (
-    <AnimatePresence>
+    <AnimatePresence mode="wait">
       <motion.div
+        key="checkin-prompt"
         initial={{ opacity: 0, y: -100 }}
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: -100 }}
+        transition={{ duration: 0.3 }}
         className="fixed top-20 right-4 z-40 max-w-sm"
       >
         <div className="bg-gradient-to-r from-primary to-agent-500 text-white rounded-lg shadow-lg overflow-hidden">

@@ -341,9 +341,10 @@ export const CreativeChallengeCard: React.FC<CreativeChallengeCardProps> = ({
         )}
 
         {/* 展开详细信息 */}
-        <AnimatePresence>
+        <AnimatePresence mode="wait">
           {isExpanded && (
             <motion.div
+              key="challenge-details"
               initial={{ height: 0, opacity: 0 }}
               animate={{ height: 'auto', opacity: 1 }}
               exit={{ height: 0, opacity: 0 }}

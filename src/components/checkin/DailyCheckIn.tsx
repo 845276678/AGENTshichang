@@ -256,12 +256,14 @@ export function DailyCheckIn() {
       </Card>
 
       {/* 奖励领取动画 */}
-      <AnimatePresence>
+      <AnimatePresence mode="wait">
         {showRewardAnimation && (
           <motion.div
+            key="reward-animation"
             initial={{ opacity: 0, scale: 0 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0 }}
+            transition={{ duration: 0.3 }}
             className="fixed inset-0 flex items-center justify-center z-50 bg-black/20 backdrop-blur-sm"
           >
             <motion.div
