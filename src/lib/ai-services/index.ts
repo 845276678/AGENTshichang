@@ -1,10 +1,6 @@
 // AI服务统一导出
-export { BaiduWenxinService } from './baidu-wenxin.service'
-export { XunfeiXinghuoService } from './xunfei-xinghuo.service'
 export { AliTongyiService } from './ali-tongyi.service'
-export { TencentHunyuanService } from './tencent-hunyuan.service'
 export { ZhipuGLMService } from './zhipu-glm.service'
-export { default as OpenAIService } from './openai.service'
 export { default as DeepSeekService } from './deepseek.service'
 
 // AI服务类型定义
@@ -38,22 +34,14 @@ export interface AIService {
 
 // AI服务提供商枚举
 export enum AIProvider {
-  BAIDU = 'baidu',
-  XUNFEI = 'xunfei',
   ALI = 'ali',
-  TENCENT = 'tencent',
   ZHIPU = 'zhipu',
-  OPENAI = 'openai',
   DEEPSEEK = 'deepseek'
 }
 
 // AI服务工厂
-import BaiduWenxinService from './baidu-wenxin.service'
-import XunfeiXinghuoService from './xunfei-xinghuo.service'
 import AliTongyiService from './ali-tongyi.service'
-import TencentHunyuanService from './tencent-hunyuan.service'
 import ZhipuGLMService from './zhipu-glm.service'
-import OpenAIService from './openai.service'
 import DeepSeekService from './deepseek.service'
 
 export class AIServiceFactory {
@@ -64,23 +52,11 @@ export class AIServiceFactory {
       let service: AIService
 
       switch (provider) {
-        case AIProvider.BAIDU:
-          service = new BaiduWenxinService()
-          break
-        case AIProvider.XUNFEI:
-          service = new XunfeiXinghuoService()
-          break
         case AIProvider.ALI:
           service = new AliTongyiService()
           break
-        case AIProvider.TENCENT:
-          service = new TencentHunyuanService()
-          break
         case AIProvider.ZHIPU:
           service = new ZhipuGLMService()
-          break
-        case AIProvider.OPENAI:
-          service = new OpenAIService()
           break
         case AIProvider.DEEPSEEK:
           service = new DeepSeekService()
@@ -147,13 +123,9 @@ export class AIServiceFactory {
 
     // 服务优先级排序（稳定性和质量优先）
     const priorityOrder: AIProvider[] = [
-      AIProvider.OPENAI,      // 最稳定，质量最高
-      AIProvider.DEEPSEEK,    // 国产优秀，性价比高
-      AIProvider.ZHIPU,       // 智谱GLM，中文好
-      AIProvider.ALI,         // 阿里通义
-      AIProvider.TENCENT,     // 腾讯混元
-      AIProvider.XUNFEI,      // 科大讯飞
-      AIProvider.BAIDU        // 百度千帆（降级到最低优先级）
+      AIProvider.DEEPSEEK,    // DeepSeek性价比最高，优先使用
+      AIProvider.ZHIPU,       // 智谱GLM，中文理解好
+      AIProvider.ALI          // 阿里通义千问
     ]
 
     // 按优先级选择可用服务

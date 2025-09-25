@@ -256,6 +256,3 @@ class OSSService {
 
 export const ossService = new OSSService()
 export default OSSService
-
-
-

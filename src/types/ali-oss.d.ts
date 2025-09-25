@@ -1,4 +1,4 @@
-declare module 'ali-oss' {
+﻿declare module 'ali-oss' {
   interface OSSOptions {
     region: string
     accessKeyId: string
@@ -54,7 +54,7 @@ declare module 'ali-oss' {
     [key: string]: any
   }
 
-  class OSS {
+  class OSS {\n    options: OSSOptions
     constructor(options: OSSOptions)
 
     put(key: string, file: Buffer | string, options?: any): Promise<PutResult>

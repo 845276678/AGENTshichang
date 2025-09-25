@@ -8,13 +8,12 @@ import { cn } from '@/lib/utils'
 import { useAuth } from '@/hooks/useAuth'
 import { Button } from '@/components/ui/button'
 import { Header } from '@/components/layout/Header'
-import { 
-  LayoutDashboard, 
-  User, 
-  Bot, 
-  Activity, 
-  Settings, 
-  CreditCard,
+import {
+  LayoutDashboard,
+  User,
+  Bot,
+  Activity,
+  Settings,
   Menu,
   X,
   ChevronRight,
@@ -50,12 +49,6 @@ const sidebarItems = [
     icon: User,
     label: 'Profile',
     description: 'Profile and account settings'
-  },
-  {
-    href: '/dashboard/billing',
-    icon: CreditCard,
-    label: 'Billing',
-    description: 'Subscription and payments'
   }
 ]
 
