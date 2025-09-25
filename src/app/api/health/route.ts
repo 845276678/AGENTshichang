@@ -2,7 +2,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/database'
 import AIServiceFactory from '@/lib/ai-services'
-import PaymentManager from '@/lib/payment'
+// import PaymentManager from '@/lib/payment' // 已移除支付服务
 import FileStorageManager from '@/lib/storage'
 
 interface HealthStatus {
@@ -13,7 +13,6 @@ interface HealthStatus {
   services: {
     database: ServiceHealth
     ai: ServiceHealth
-    payment: ServiceHealth
     storage: ServiceHealth
   }
   metrics: {
@@ -59,7 +58,6 @@ export async function GET(_request: NextRequest): Promise<NextResponse> {
     services: {
       database: await checkDatabaseHealth(),
       ai: await checkAIServicesHealth(),
-      payment: await checkPaymentHealth(),
       storage: await checkStorageHealth()
     },
     metrics: {
@@ -173,35 +171,8 @@ async function checkAIServicesHealth(): Promise<ServiceHealth> {
   }
 }
 
-// 检查支付服务健康状态
-async function checkPaymentHealth(): Promise<ServiceHealth> {
-  const startTime = Date.now()
-  try {
-    const paymentManager = new PaymentManager()
-
-    // 获取支付统计（最近24小时）
-    const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000)
-    const stats = await paymentManager.getPaymentStats(yesterday)
-
-    return {
-      status: 'healthy',
-      responseTime: Date.now() - startTime,
-      details: {
-        last24Hours: {
-          totalOrders: stats.totalOrders,
-          successOrders: stats.successOrders,
-          successRate: stats.successRate
-        }
-      }
-    }
-  } catch (error) {
-    return {
-      status: 'degraded',
-      error: error instanceof Error ? error.message : '支付服务检查失败',
-      responseTime: Date.now() - startTime
-    }
-  }
-}
+// 检查支付服务健康状态 - 已移除支付服务
+// async function checkPaymentHealth(): Promise<ServiceHealth> { ... }
 
 // 检查存储服务健康状态
 async function checkStorageHealth(): Promise<ServiceHealth> {
