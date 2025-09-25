@@ -45,13 +45,30 @@ export default function SubmitIdeaPage() {
     remainingFreeSubmissions
   } = useSubmissionLimit()
 
+  // 基础表单状态
   const [idea, setIdea] = useState('')
   const [title, setTitle] = useState('')
   const [category, setCategory] = useState('')
+  const [ideaScore, setIdeaScore] = useState(0)
+
+  // 竞价系统状态
+  const [currentPhase, setCurrentPhase] = useState<'input' | 'bidding' | 'discussion' | 'completed'>('input')
+  const [biddingActive, setBiddingActive] = useState(false)
+  const [activeAgent, setActiveAgent] = useState(0)
+  const [agents, setAgents] = useState([])
+  const [highestBid, setHighestBid] = useState(0)
+  const [leadingAgent, setLeadingAgent] = useState<string | null>(null)
+
+  // 讨论系统状态
+  const [discussionRound, setDiscussionRound] = useState(0)
+  const [maxDiscussionRounds] = useState(3)
+  const [discussionMessages, setDiscussionMessages] = useState<any[]>([])
+  const [userMessage, setUserMessage] = useState('')
+  const [isDiscussing, setIsDiscussing] = useState(false)
+
+  // 提交状态
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [showSuccess, setShowSuccess] = useState(false)
-  const [ideaScore, setIdeaScore] = useState(0)
-  const [activeAgent, setActiveAgent] = useState(0)
   const [currentStep, setCurrentStep] = useState(0)
   const [submissionResult, setSubmissionResult] = useState<{
     cost: number;
@@ -74,13 +91,201 @@ export default function SubmitIdeaPage() {
     setIdeaScore(calculateScore())
   }, [title, idea, category])
 
-  // AI投资者轮换
+  // AI投资者轮换 - 只在输入阶段使用
   useEffect(() => {
+    if (currentPhase !== 'input') return
+
     const interval = setInterval(() => {
       setActiveAgent((prev) => (prev + 1) % agentReactions.length)
     }, 3000)
     return () => clearInterval(interval)
-  }, [])
+  }, [currentPhase])
+
+  // 初始化Agents状态
+  useEffect(() => {
+    const initializedAgents = agentReactions.map(agent => ({
+      ...agent,
+      currentBid: 0,
+      confidence: Math.min(ideaScore * (Math.random() * 0.2 + 0.8), 95)
+    }))
+    setAgents(initializedAgents)
+  }, [ideaScore])
+
+  // 启动竞价流程
+  const startBidding = () => {
+    if (!title || !idea || !category) {
+      alert('请完整填写创意信息后再启动竞价')
+      return
+    }
+
+    setCurrentPhase('bidding')
+    setBiddingActive(true)
+
+    // 模拟实时竞价过程
+    simulateRealTimeBidding()
+  }
+
+  // 模拟实时竞价
+  const simulateRealTimeBidding = async () => {
+    const biddingRounds = 8 // 8轮竞价
+    const baseDelay = 800
+
+    for (let round = 0; round < biddingRounds; round++) {
+      await new Promise(resolve => setTimeout(resolve, baseDelay + Math.random() * 400))
+
+      // 每轮随机选择几个Agent出价
+      const activeAgentsCount = Math.floor(Math.random() * 3) + 2 // 2-4个Agent参与
+      const participatingAgents = [...agentReactions]
+        .sort(() => 0.5 - Math.random())
+        .slice(0, activeAgentsCount)
+
+      const newAgents = [...agents]
+      let roundHighestBid = highestBid
+      let roundLeadingAgent = leadingAgent
+
+      participatingAgents.forEach(agent => {
+        const agentIndex = agentReactions.findIndex(a => a.id === agent.id)
+        const currentBid = calculateAgentBid(agent, ideaScore, round)
+
+        newAgents[agentIndex] = {
+          ...newAgents[agentIndex],
+          currentBid,
+          confidence: Math.min(currentBid / 10, 95)
+        }
+
+        if (currentBid > roundHighestBid) {
+          roundHighestBid = currentBid
+          roundLeadingAgent = agent.id
+        }
+      })
+
+      setAgents(newAgents)
+      setHighestBid(roundHighestBid)
+      setLeadingAgent(roundLeadingAgent)
+    }
+
+    // 竞价结束
+    setTimeout(() => {
+      setBiddingActive(false)
+      setCurrentPhase('discussion')
+    }, 1500)
+  }
+
+  // 计算Agent出价
+  const calculateAgentBid = (agent: any, score: number, round: number) => {
+    const baseScore = score
+    const specialtyMultipliers = {
+      business: category.includes('商业') ? 1.3 : 1.0,
+      artistic: category.includes('文艺') || category.includes('创作') ? 1.3 : 1.0,
+      tech: category.includes('科技') || category.includes('创新') ? 1.3 : 1.0,
+      trend: category.includes('娱乐') || category.includes('营销') ? 1.3 : 1.0,
+      academic: category.includes('教育') || category.includes('研究') ? 1.3 : 1.0,
+    }
+
+    const specialtyBonus = specialtyMultipliers[agent.specialty] || 1.0
+    const roundMultiplier = 1 + (round * 0.05) // 每轮递增5%
+    const randomFactor = 0.8 + Math.random() * 0.4 // 0.8-1.2的随机因子
+
+    return Math.round(baseScore * specialtyBonus * roundMultiplier * randomFactor * 8) // 转换为积分
+  }
+
+  // 开始讨论
+  const startDiscussion = async (message: string) => {
+    if (!message.trim()) return
+
+    setIsDiscussing(true)
+    const newRound = discussionRound + 1
+
+    // 添加用户消息
+    const userMsg = {
+      id: `user-${Date.now()}`,
+      sender: 'user',
+      content: message.trim(),
+      round: newRound,
+      timestamp: new Date()
+    }
+
+    setDiscussionMessages(prev => [...prev, userMsg])
+    setUserMessage('')
+
+    try {
+      // 调用AI进行讨论回复
+      const leadingAgentData = agentReactions.find(a => a.id === leadingAgent)
+      const response = await generateAIResponse(message, leadingAgentData, newRound)
+
+      const aiMsg = {
+        id: `ai-${Date.now()}`,
+        sender: 'ai',
+        agentId: leadingAgent,
+        agentName: leadingAgentData?.name,
+        content: response.content,
+        suggestions: response.suggestions,
+        round: newRound,
+        timestamp: new Date()
+      }
+
+      setDiscussionMessages(prev => [...prev, aiMsg])
+      setDiscussionRound(newRound)
+
+      // 检查是否完成讨论
+      if (newRound >= maxDiscussionRounds) {
+        setTimeout(() => {
+          setCurrentPhase('completed')
+        }, 1000)
+      }
+    } catch (error) {
+      console.error('Discussion failed:', error)
+      alert('讨论失败，请重试')
+    } finally {
+      setIsDiscussing(false)
+    }
+  }
+
+  // 生成AI回复
+  const generateAIResponse = async (userMessage: string, agent: any, round: number) => {
+    // 这里应该调用真实的AI服务
+    // 现在先返回模拟回复
+    const responses = {
+      wang: [
+        "从商业角度看，这个创意的盈利模式需要进一步明确。建议考虑订阅制或者freemium模式。",
+        "市场定位很重要，我们需要找到明确的目标用户群体。你觉得主要面向B端还是C端？",
+        "不错的想法！我建议做个简单的MVP来验证市场需求，这样可以降低初期投资风险。"
+      ],
+      lin: [
+        "这个创意很有想象力！我觉得可以在视觉设计上加入更多情感元素，让用户产生共鸣。",
+        "从美学角度来说，界面的配色和布局可以更加注重用户的情感体验。",
+        "很棒的创意！建议加入一些互动性的元素，让用户在使用过程中感受到乐趣。"
+      ],
+      alex: [
+        "技术实现上这个想法是可行的。我建议使用云原生架构来确保可扩展性。",
+        "从技术角度看，我们可以考虑使用AI来优化用户体验，比如智能推荐算法。",
+        "不错的技术思路！建议在架构设计时考虑微服务模式，这样便于后期维护和扩展。"
+      ],
+      allen: [
+        "这个创意很有传播潜力！建议在社交媒体上制造话题，可能会成为爆款。",
+        "从营销角度看，我们需要找到这个创意的独特卖点，让它在众多产品中脱颖而出。",
+        "很有市场前景！建议结合当前的热点趋势，比如短视频、直播等形式来推广。"
+      ],
+      li: [
+        "从学术角度分析，这个创意的理论基础需要更加扎实。建议参考相关的研究文献。",
+        "理论框架很重要，我建议构建一个完整的概念模型来支撑这个创意。",
+        "不错的想法！但需要更严谨的逻辑论证，建议从第一性原理开始推导。"
+      ]
+    }
+
+    const agentResponses = responses[agent?.id] || responses.alex
+    const randomResponse = agentResponses[Math.floor(Math.random() * agentResponses.length)]
+
+    return {
+      content: randomResponse,
+      suggestions: [
+        "进一步细化实现方案",
+        "考虑用户反馈机制",
+        "评估技术可行性",
+        "制定推广策略"
+      ].slice(0, 2) // 随机返回2个建议
+    }
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -170,22 +375,64 @@ export default function SubmitIdeaPage() {
 
   const agentReactions = [
     {
-      name: '科技先锋艾克斯',
-      avatar: '🤖',
-      reaction: ideaScore > 70 ? '这个想法很有前景！' : ideaScore > 40 ? '需要更多技术细节' : '继续完善吧',
-      mood: ideaScore > 70 ? 'excited' : ideaScore > 40 ? 'thinking' : 'waiting'
-    },
-    {
-      name: '文艺少女小琳',
-      avatar: '🎨',
-      reaction: ideaScore > 60 ? '充满创意的想法！' : ideaScore > 30 ? '可以更有创意些' : '需要更多灵感',
-      mood: ideaScore > 60 ? 'love' : ideaScore > 30 ? 'curious' : 'waiting'
-    },
-    {
-      name: '商人老李',
+      id: 'wang',
+      name: '商人老王',
       avatar: '💼',
-      reaction: ideaScore > 80 ? '商业价值很高！' : ideaScore > 50 ? '市场潜力不错' : '商业模式待完善',
-      mood: ideaScore > 80 ? 'money' : ideaScore > 50 ? 'interested' : 'skeptical'
+      specialty: 'business',
+      description: '商业价值专家',
+      expertise: ['ROI分析', '盈利模式', '风险控制'],
+      reaction: ideaScore > 80 ? '商业价值极高！' : ideaScore > 50 ? '市场潜力不错' : '商业模式待完善',
+      mood: ideaScore > 80 ? 'money' : ideaScore > 50 ? 'interested' : 'skeptical',
+      currentBid: 0,
+      confidence: Math.min(ideaScore * 0.9, 95) // 商业敏感度95%
+    },
+    {
+      id: 'lin',
+      name: '文艺小琳',
+      avatar: '🎨',
+      specialty: 'artistic',
+      description: '情感创意专家',
+      expertise: ['美感设计', '情感共鸣', '故事创作'],
+      reaction: ideaScore > 60 ? '充满创意的想法！' : ideaScore > 30 ? '可以更有创意些' : '需要更多灵感',
+      mood: ideaScore > 60 ? 'love' : ideaScore > 30 ? 'curious' : 'waiting',
+      currentBid: 0,
+      confidence: Math.min(ideaScore * 0.95, 95) // 艺术审美力95%
+    },
+    {
+      id: 'alex',
+      name: '科技艾克斯',
+      avatar: '🤖',
+      specialty: 'tech',
+      description: '技术创新专家',
+      expertise: ['技术架构', '创新设计', '性能优化'],
+      reaction: ideaScore > 70 ? '技术实现很有前景！' : ideaScore > 40 ? '需要更多技术细节' : '继续完善技术方案',
+      mood: ideaScore > 70 ? 'excited' : ideaScore > 40 ? 'thinking' : 'waiting',
+      currentBid: 0,
+      confidence: Math.min(ideaScore * 0.95, 95) // 技术理解力95%
+    },
+    {
+      id: 'allen',
+      name: '趋势阿伦',
+      avatar: '📈',
+      specialty: 'trend',
+      description: '市场敏感专家',
+      expertise: ['趋势预测', '营销策划', '传播设计'],
+      reaction: ideaScore > 75 ? '这会是下一个爆款！' : ideaScore > 45 ? '有传播潜力' : '需要更多市场亮点',
+      mood: ideaScore > 75 ? 'trending' : ideaScore > 45 ? 'analyzing' : 'waiting',
+      currentBid: 0,
+      confidence: Math.min(ideaScore * 0.95, 95) // 市场敏感度95%
+    },
+    {
+      id: 'li',
+      name: '教授李博',
+      avatar: '🎓',
+      specialty: 'academic',
+      description: '学术理论专家',
+      expertise: ['理论建构', '学术研究', '体系完善'],
+      reaction: ideaScore > 65 ? '理论基础很扎实！' : ideaScore > 35 ? '需要更严谨的论证' : '理论深度不够',
+      mood: ideaScore > 65 ? 'scholarly' : ideaScore > 35 ? 'pondering' : 'waiting',
+      currentBid: 0,
+      confidence: Math.min(ideaScore * 0.95, 95) // 理论深度95%
     }
   ]
 
@@ -474,7 +721,7 @@ export default function SubmitIdeaPage() {
                           </motion.div>
                         </motion.div>
 
-                        {/* 提交按钮 */}
+                        {/* 提交按钮 - 根据阶段显示不同按钮 */}
                         <motion.div
                           initial={{ opacity: 0, y: 20 }}
                           animate={{ opacity: 1, y: 0 }}
@@ -484,21 +731,35 @@ export default function SubmitIdeaPage() {
                             whileHover={{ scale: 1.02 }}
                             whileTap={{ scale: 0.98 }}
                           >
-                            <Button
-                              type="submit"
-                              size="lg"
-                              className="w-full h-14 text-lg bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
-                              disabled={
-                                isSubmitting ||
-                                !title ||
-                                !category ||
-                                idea.length < 50 ||
-                                !isAuthenticated ||
-                                !canSubmitIdea(user?.credits || 0).canSubmit
-                              }
-                              loading={isSubmitting}
-                            >
-                              {isSubmitting ? (
+                            {currentPhase === 'input' && (
+                              <Button
+                                type="button"
+                                size="lg"
+                                onClick={startBidding}
+                                className="w-full h-14 text-lg bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
+                                disabled={
+                                  !title ||
+                                  !category ||
+                                  idea.length < 50 ||
+                                  !isAuthenticated ||
+                                  !canSubmitIdea(user?.credits || 0).canSubmit
+                                }
+                              >
+                                <div className="flex items-center gap-3">
+                                  <Rocket className="w-5 h-5" />
+                                  <span>启动AI竞价</span>
+                                  <ArrowRight className="w-5 h-5" />
+                                </div>
+                              </Button>
+                            )}
+
+                            {currentPhase === 'bidding' && (
+                              <Button
+                                type="button"
+                                size="lg"
+                                disabled
+                                className="w-full h-14 text-lg bg-gradient-to-r from-orange-600 to-red-600 rounded-xl shadow-lg"
+                              >
                                 <div className="flex items-center gap-3">
                                   <motion.div
                                     animate={{ rotate: 360 }}
@@ -506,25 +767,52 @@ export default function SubmitIdeaPage() {
                                   >
                                     <Brain className="w-5 h-5" />
                                   </motion.div>
-                                  <span>AI正在分析你的创意...</span>
+                                  <span>AI竞价进行中...</span>
                                 </div>
-                              ) : (
+                              </Button>
+                            )}
+
+                            {currentPhase === 'discussion' && discussionRound < maxDiscussionRounds && (
+                              <Button
+                                type="button"
+                                size="lg"
+                                className="w-full h-14 text-lg bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
+                              >
                                 <div className="flex items-center gap-3">
-                                  <Rocket className="w-5 h-5" />
-                                  <span>
-                                    {hasFreeSlotsAvailable
-                                      ? `发射创意火箭 (免费 ${remainingFreeSubmissions}/${3})`
-                                      : `发射创意火箭 (${nextSubmissionCost} 积分)`
-                                    }
-                                  </span>
-                                  {hasFreeSlotsAvailable ? (
-                                    <ArrowRight className="w-5 h-5" />
+                                  <MessageCircle className="w-5 h-5" />
+                                  <span>与AI专家讨论 ({discussionRound}/{maxDiscussionRounds})</span>
+                                </div>
+                              </Button>
+                            )}
+
+                            {(currentPhase === 'completed' || discussionRound >= maxDiscussionRounds) && (
+                              <Button
+                                type="submit"
+                                size="lg"
+                                className="w-full h-14 text-lg bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
+                                disabled={isSubmitting}
+                              >
+                                <div className="flex items-center gap-3">
+                                  {isSubmitting ? (
+                                    <>
+                                      <motion.div
+                                        animate={{ rotate: 360 }}
+                                        transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                                      >
+                                        <Brain className="w-5 h-5" />
+                                      </motion.div>
+                                      <span>提交中...</span>
+                                    </>
                                   ) : (
-                                    <Coins className="w-5 h-5" />
+                                    <>
+                                      <CheckCircle className="w-5 h-5" />
+                                      <span>确认提交创意</span>
+                                      <Coins className="w-5 h-5" />
+                                    </>
                                   )}
                                 </div>
-                              )}
-                            </Button>
+                              </Button>
+                            )}
                           </motion.div>
                         </motion.div>
                       </motion.form>

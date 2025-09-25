@@ -37,12 +37,12 @@ const categories = [
   { id: 'retail', name: '零售电商', icon: '🛒' }
 ]
 
-// AI调研导师团队
+// AI调研导师团队 - 修正为实际使用的AI服务
 const researchExperts = [
   {
     name: '基本盘分析师',
     role: '从身边开始',
-    ai: '百度文心一言',
+    ai: 'DeepSeek',
     icon: '🎯',
     specialty: '帮你找到最容易验证的圈子和用户',
     color: 'bg-blue-500'
@@ -50,7 +50,7 @@ const researchExperts = [
   {
     name: '调研方法专家',
     role: '教你怎么调研',
-    ai: '讯飞星火',
+    ai: '智谱GLM',
     icon: '🔍',
     specialty: '提供具体的调研方法和操作步骤',
     color: 'bg-green-500'
@@ -66,7 +66,7 @@ const researchExperts = [
   {
     name: 'MVP验证专家',
     role: '教你快速验证',
-    ai: '腾讯混元',
+    ai: 'DeepSeek',
     icon: '⚡',
     specialty: '低成本快速验证核心假设',
     color: 'bg-orange-500'
@@ -114,6 +114,296 @@ export default function ResearchGuidePage() {
   const [generationProgress, setGenerationProgress] = useState(0)
   const [currentStage, setCurrentStage] = useState('')
   const [showResults, setShowResults] = useState(false)
+  const [reportId, setReportId] = useState<string | null>(null)
+
+  // 连接真实API生成调研指导
+  const handleGenerate = async () => {
+    if (!ideaTitle.trim() || !ideaDescription.trim() || !selectedCategory) {
+      alert('请填写完整的创意信息')
+      return
+    }
+
+    setIsGenerating(true)
+    setGenerationProgress(0)
+
+    try {
+      const token = localStorage.getItem('auth.access_token')
+      if (!token) {
+        alert('请先登录')
+        return
+      }
+
+      // 调用真实的业务计划生成API
+      const response = await fetch('/api/generate-business-plan', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          ideaData: {
+            title: ideaTitle,
+            description: ideaDescription,
+            category: selectedCategory
+          }
+        })
+      })
+
+      const result = await response.json()
+
+      if (!response.ok || !result.success) {
+        throw new Error(result.error || '生成调研指导失败')
+      }
+
+      setReportId(result.data.reportId)
+
+      // 轮询检查生成进度
+      pollReportProgress(result.data.reportId)
+
+    } catch (error) {
+      console.error('Generate research guide failed:', error)
+      alert(error instanceof Error ? error.message : '生成调研指导失败')
+      setIsGenerating(false)
+    }
+  }
+
+  // 轮询检查报告生成进度
+  const pollReportProgress = async (reportId: string) => {
+    const maxAttempts = 30 // 最多轮询5分钟
+    let attempts = 0
+
+    const checkProgress = async () => {
+      try {
+        const token = localStorage.getItem('auth.access_token')
+        const response = await fetch(`/api/generate-business-plan?reportId=${reportId}`, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        })
+
+        const result = await response.json()
+
+        if (result.success) {
+          setGenerationProgress(result.data.progress)
+
+          // 模拟阶段名称
+          const stages = [
+            '基本盘分析师正在分析目标圈子...',
+            '调研方法专家正在制定调研计划...',
+            '数据源指南正在整理数据渠道...',
+            'MVP验证专家正在设计验证方案...',
+            '商业模式导师正在探索盈利模式...'
+          ]
+
+          const stageIndex = Math.floor((result.data.progress / 100) * stages.length)
+          if (stages[stageIndex]) {
+            setCurrentStage(stages[stageIndex])
+          }
+
+          if (result.data.status === 'COMPLETED') {
+            setIsGenerating(false)
+            setShowResults(true)
+            return
+          }
+
+          if (result.data.status === 'FAILED') {
+            throw new Error('调研指导生成失败')
+          }
+        }
+
+        attempts++
+        if (attempts < maxAttempts) {
+          setTimeout(checkProgress, 2000) // 每2秒检查一次
+        } else {
+          throw new Error('生成超时，请稍后重试')
+        }
+
+      } catch (error) {
+        console.error('Progress check failed:', error)
+        setIsGenerating(false)
+        alert(error instanceof Error ? error.message : '检查进度失败')
+      }
+    }
+
+    checkProgress()
+  }
+
+  // 下载调研指导文档
+  const downloadResearchGuide = async () => {
+    if (!reportId) {
+      alert('没有可下载的报告')
+      return
+    }
+
+    try {
+      const token = localStorage.getItem('auth.access_token')
+      const response = await fetch(`/api/generate-business-plan?reportId=${reportId}&download=true`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      })
+
+      if (!response.ok) {
+        throw new Error('下载失败')
+      }
+
+      const result = await response.json()
+
+      if (result.success && result.data.reportData) {
+        // 生成PDF格式的调研指导文档
+        generatePDFReport(result.data)
+      } else {
+        throw new Error('报告数据不完整')
+      }
+
+    } catch (error) {
+      console.error('Download failed:', error)
+      alert(error instanceof Error ? error.message : '下载失败')
+    }
+  }
+
+  // 生成PDF报告
+  const generatePDFReport = (reportData: any) => {
+    // 创建HTML内容
+    const htmlContent = `
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>${ideaTitle} - AI调研指导报告</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; line-height: 1.6; }
+        .header { text-align: center; margin-bottom: 40px; border-bottom: 2px solid #3B82F6; padding-bottom: 20px; }
+        .section { margin-bottom: 30px; }
+        .section h2 { color: #3B82F6; border-left: 4px solid #3B82F6; padding-left: 10px; }
+        .insight-list { list-style: none; padding: 0; }
+        .insight-list li { margin: 10px 0; padding: 10px; background: #F3F4F6; border-radius: 5px; }
+        .week-plan { background: #EFF6FF; padding: 15px; border-radius: 8px; margin: 10px 0; }
+        .cost-item { display: flex; justify-content: space-between; padding: 8px; border-bottom: 1px solid #E5E7EB; }
+        .total-cost { font-weight: bold; background: #3B82F6; color: white; padding: 10px; border-radius: 5px; }
+        .badge { background: #10B981; color: white; padding: 2px 8px; border-radius: 12px; font-size: 12px; }
+        .expert-card { background: #F9FAFB; border: 1px solid #E5E7EB; padding: 15px; margin: 10px 0; border-radius: 8px; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>${ideaTitle}</h1>
+        <p><strong>AI调研指导报告</strong></p>
+        <p>生成时间: ${new Date().toLocaleString('zh-CN')}</p>
+    </div>
+
+    <div class="section">
+        <h2>🎯 基本盘分析</h2>
+        <div class="expert-card">
+            <h3>目标圈子: ${mockResearchGuide.basicAnalysis.targetCircle}</h3>
+            <p><span class="badge">${mockResearchGuide.basicAnalysis.needType}</span> | 可信度: ${mockResearchGuide.basicAnalysis.confidence}</p>
+
+            <h4>关键洞察:</h4>
+            <ul class="insight-list">
+                ${mockResearchGuide.basicAnalysis.keyInsights.map(insight => `<li>✓ ${insight}</li>`).join('')}
+            </ul>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>📅 4周调研行动计划</h2>
+        ${Object.entries(mockResearchGuide.actionPlan).map(([week, actions], index) => `
+            <div class="week-plan">
+                <h3>第${index + 1}周行动计划</h3>
+                <ol>
+                    ${(actions as string[]).map(action => `<li>${action}</li>`).join('')}
+                </ol>
+            </div>
+        `).join('')}
+    </div>
+
+    <div class="section">
+        <h2>🔍 调研方法指导</h2>
+        ${mockResearchGuide.researchMethods.map(method => `
+            <div class="expert-card">
+                <h3>${method.method} <span class="badge">${method.cost}</span></h3>
+                <p><strong>对象:</strong> ${method.target}</p>
+                <p><strong>时间:</strong> ${method.timeline}</p>
+                ${method.questions ? `
+                    <p><strong>关键问题:</strong></p>
+                    <ul>${method.questions.map(q => `<li>${q}</li>`).join('')}</ul>
+                ` : ''}
+            </div>
+        `).join('')}
+    </div>
+
+    <div class="section">
+        <h2>📊 数据源推荐</h2>
+        ${mockResearchGuide.dataSources.map(source => `
+            <div class="expert-card">
+                <h3>${source.name} <span class="badge">${source.type}</span></h3>
+                <p>${source.description}</p>
+                <p><strong>成本:</strong> ${source.cost}</p>
+                <p><strong>网站:</strong> ${source.url}</p>
+            </div>
+        `).join('')}
+    </div>
+
+    <div class="section">
+        <h2>💰 商业模式探索</h2>
+        <div class="expert-card">
+            <h3>推荐盈利模式:</h3>
+            <ul>
+                ${mockResearchGuide.businessModel.revenueModels.map(model => `<li>${model}</li>`).join('')}
+            </ul>
+
+            <h3>定价策略建议:</h3>
+            <p><strong>${mockResearchGuide.businessModel.pricingStrategy}</strong></p>
+
+            <h3>测试实验:</h3>
+            <ul>
+                ${mockResearchGuide.businessModel.experiments.map(exp => `<li>${exp}</li>`).join('')}
+            </ul>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>💵 调研成本预估</h2>
+        <div class="cost-item">
+            <span>用户访谈</span>
+            <span>200元</span>
+        </div>
+        <div class="cost-item">
+            <span>竞品试用</span>
+            <span>300元</span>
+        </div>
+        <div class="cost-item">
+            <span>MVP开发</span>
+            <span>1000元</span>
+        </div>
+        <div class="total-cost">
+            <span>总计预算: 1500元</span>
+        </div>
+    </div>
+
+    <div class="section">
+        <p style="text-align: center; color: #6B7280; font-style: italic;">
+            本报告由AI创意竞价平台生成 | www.aijiayuan.top<br>
+            AI专家团队: DeepSeek + 智谱GLM + 阿里通义千问
+        </p>
+    </div>
+</body>
+</html>
+    `
+
+    // 创建下载链接
+    const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8' })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = `${ideaTitle}_AI调研指导报告_${new Date().toISOString().split('T')[0]}.html`
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    URL.revokeObjectURL(url)
+
+    alert('调研指导文档已下载！您可以在浏览器中打开查看，或打印成PDF保存。')
+  }
 
   // 模拟调研指导结果
   const mockResearchGuide = {
@@ -221,37 +511,6 @@ export default function ResearchGuidePage() {
     setIdeaTitle(idea.title)
     setIdeaDescription(idea.description)
     setSelectedCategory(idea.category)
-  }
-
-  const handleGenerate = async () => {
-    if (!ideaTitle.trim() || !ideaDescription.trim() || !selectedCategory) {
-      alert('请填写完整的创意信息')
-      return
-    }
-
-    setIsGenerating(true)
-    setGenerationProgress(0)
-
-    // 模拟5个AI专家依次分析
-    const stages = [
-      '基本盘分析师正在分析目标圈子...',
-      '调研方法专家正在制定调研计划...',
-      '数据源指南正在整理数据渠道...',
-      'MVP验证专家正在设计验证方案...',
-      '商业模式导师正在探索盈利模式...'
-    ]
-
-    for (let i = 0; i < stages.length; i++) {
-      const stage = stages[i]
-      if (stage) {
-        setCurrentStage(stage)
-        setGenerationProgress((i + 1) * 20)
-        await new Promise(resolve => setTimeout(resolve, 2000))
-      }
-    }
-
-    setIsGenerating(false)
-    setShowResults(true)
   }
 
   return (
@@ -794,7 +1053,11 @@ export default function ResearchGuidePage() {
                       你的调研指导方案已生成！立即开始第1周的用户访谈，验证核心假设。
                     </p>
                     <div className="space-y-2">
-                      <Button className="w-full bg-blue-600 hover:bg-blue-700">
+                      <Button
+                        className="w-full bg-blue-600 hover:bg-blue-700"
+                        onClick={downloadResearchGuide}
+                        disabled={!reportId}
+                      >
                         下载完整调研指导文档
                       </Button>
                       <Button variant="outline" className="w-full">
