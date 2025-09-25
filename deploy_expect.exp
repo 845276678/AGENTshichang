@@ -1,0 +1,39 @@
+#!/usr/bin/expect -f
+
+set timeout 120
+set password "{y%OwD63Bi[7V?jEX"
+set server "ubuntu@139.155.232.19"
+
+# Connect to server
+spawn ssh -o StrictHostKeyChecking=no $server
+
+expect {
+    "*password*" {
+        send "$password\r"
+        exp_continue
+    }
+    "*$*" {
+        send "whoami && pwd && ls -la\r"
+        expect "*$*"
+
+        # Check if project directory exists
+        send "if \[ -d 'project-68d4f29defadf4d878ac0583' \]; then echo 'Project exists'; else echo 'Project not found'; fi\r"
+        expect "*$*"
+
+        # Clone or update project
+        send "if \[ -d 'project-68d4f29defadf4d878ac0583' \]; then cd project-68d4f29defadf4d878ac0583 && git pull origin master; else git clone https://github.com/845276678/AGENTshichang.git project-68d4f29defadf4d878ac0583 && cd project-68d4f29defadf4d878ac0583; fi\r"
+        expect "*$*"
+
+        # Run deployment script
+        send "chmod +x quick_deploy.sh && ./quick_deploy.sh\r"
+        expect "*$*"
+
+        send "exit\r"
+    }
+    timeout {
+        puts "Connection timeout"
+        exit 1
+    }
+}
+
+expect eof

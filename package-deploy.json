@@ -1,0 +1,10 @@
+{
+  "name": "ssh-deployment",
+  "version": "1.0.0",
+  "description": "SSH deployment script for AI Agent Marketplace",
+  "main": "deploy-ssh.js",
+  "dependencies": {
+    "node-ssh": "^13.1.0",
+    "chalk": "^4.1.2"
+  }
+}
