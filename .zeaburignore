@@ -1,0 +1,12 @@
+﻿# Exclude non-essential assets from Zeabur upload
+node_modules
+.git
+deliverables/
+docs/
+tests/
+docker/
+security/
+systemd/
+coverage/
+.husky/
+
