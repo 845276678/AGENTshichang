@@ -26,35 +26,35 @@ const footerSections = [
     links: [
       { label: 'Browse Agents', href: '/agents' },
       { label: 'Categories', href: '/categories' },
-      { label: 'Pricing', href: '/pricing' },
-      { label: 'API Documentation', href: '/docs/api' },
+      { label: 'Marketplace', href: '/marketplace' },
+      { label: 'Business Plan', href: '/business-plan' },
     ]
   },
   {
-    title: 'Developers',
+    title: 'Features',
     links: [
-      { label: 'Create Agent', href: '/agents/create' },
-      { label: 'Developer Docs', href: '/docs' },
-      { label: 'SDK & Tools', href: '/docs/sdk' },
-      { label: 'Community', href: '/community' },
+      { label: 'AI Bidding', href: '/marketplace' },
+      { label: 'Idea Submit', href: '/ideas/submit' },
+      { label: 'Daily Check-in', href: '/checkin' },
+      { label: 'User Dashboard', href: '/' },
     ]
   },
   {
     title: 'Company',
     links: [
       { label: 'About Us', href: '/about' },
-      { label: 'Blog', href: '/blog' },
-      { label: 'Careers', href: '/careers' },
-      { label: 'Contact', href: '/contact' },
+      { label: 'Help Center', href: '/' },
+      { label: 'Support', href: '/' },
+      { label: 'Contact', href: '/' },
     ]
   },
   {
     title: 'Legal',
     links: [
       { label: 'Privacy Policy', href: '/privacy' },
-      { label: 'Terms of Service', href: '/terms' },
-      { label: 'Cookie Policy', href: '/cookies' },
-      { label: 'Security', href: '/security' },
+      { label: 'Terms of Service', href: '/' },
+      { label: 'User Agreement', href: '/' },
+      { label: 'Help', href: '/' },
     ]
   }
 ]

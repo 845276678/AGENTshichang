@@ -16,134 +16,187 @@ import {
   Flame
 } from 'lucide-react';
 
-interface DailyReward {
-  day: number;
-  credits: number;
-  bonus?: string;
-  claimed: boolean;
-}
-
 interface CheckInStats {
   currentStreak: number;
   totalCheckIns: number;
   lastCheckIn: string | null;
   nextRewardMultiplier: number;
+  todayCredits: number;
+  canCheckInToday: boolean;
+}
+
+interface CheckInResult {
+  creditsEarned: number;
+  newBalance: number;
+  currentStreak: number;
+  totalCheckIns: number;
 }
 
 export function DailyCheckIn() {
-  const { isAuthenticated } = useAuth();
-  const [rewards, setRewards] = useState<DailyReward[]>([]);
+  const { isAuthenticated, user } = useAuth();
   const [stats, setStats] = useState<CheckInStats>({
     currentStreak: 0,
     totalCheckIns: 0,
     lastCheckIn: null,
-    nextRewardMultiplier: 1
+    nextRewardMultiplier: 1,
+    todayCredits: 10,
+    canCheckInToday: true
   });
-  const [canClaimToday, setCanClaimToday] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [isClaimingReward, setIsClaimingReward] = useState(false);
   const [showRewardAnimation, setShowRewardAnimation] = useState(false);
   const [claimedCredits, setClaimedCredits] = useState(0);
 
-  // 初始化每日奖励数据
-  useEffect(() => {
-    const initializeRewards = () => {
-      const baseRewards = [
-        { day: 1, credits: 10, claimed: false },
-        { day: 2, credits: 15, claimed: false },
-        { day: 3, credits: 20, claimed: false },
-        { day: 4, credits: 25, claimed: false },
-        { day: 5, credits: 30, claimed: false },
-        { day: 6, credits: 40, claimed: false },
-        { day: 7, credits: 100, bonus: '周奖励', claimed: false }
-      ];
+  // 获取签到状态
+  const fetchCheckInStats = async () => {
+    if (!isAuthenticated) return;
 
-      // 从localStorage获取签到数据
-      const savedData = localStorage.getItem('dailyCheckIn');
-      if (savedData) {
-        const parsed = JSON.parse(savedData);
-        setStats(parsed.stats);
-        setRewards(parsed.rewards || baseRewards);
+    try {
+      const token = localStorage.getItem('auth.access_token');
+      if (!token) return;
 
-        // 检查是否可以签到
-        const lastCheckIn = parsed.stats.lastCheckIn;
-        const today = new Date().toDateString();
-        setCanClaimToday(!lastCheckIn || lastCheckIn !== today);
+      const response = await fetch('/api/checkin', {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        setStats(result.data);
       } else {
-        setRewards(baseRewards);
-        setCanClaimToday(true);
+        console.error('获取签到状态失败:', result.message);
+        // 使用默认状态
+        setStats({
+          currentStreak: 0,
+          totalCheckIns: 0,
+          lastCheckIn: null,
+          nextRewardMultiplier: 1,
+          todayCredits: 10,
+          canCheckInToday: true
+        });
       }
-    };
-
-    if (isAuthenticated) {
-      initializeRewards();
+    } catch (error) {
+      console.error('获取签到状态失败:', error);
+      // 网络错误时使用默认状态
+      setStats({
+        currentStreak: 0,
+        totalCheckIns: 0,
+        lastCheckIn: null,
+        nextRewardMultiplier: 1,
+        todayCredits: 10,
+        canCheckInToday: true
+      });
+    } finally {
+      setIsLoading(false);
     }
-  }, [isAuthenticated]);
+  };
 
-  // 领取今日奖励
-  const claimTodayReward = async () => {
-    if (!canClaimToday || isClaimingReward) return;
+  // 执行签到
+  const performCheckIn = async () => {
+    if (!isAuthenticated || !stats.canCheckInToday || isClaimingReward) return;
 
     setIsClaimingReward(true);
 
     try {
-      // 模拟API调用延迟
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const token = localStorage.getItem('auth.access_token');
+      if (!token) {
+        throw new Error('未找到认证令牌');
+      }
 
-      const today = new Date().toDateString();
-      const currentDay = (stats.currentStreak % 7) + 1;
-      const todayReward = rewards.find(r => r.day === currentDay);
+      const response = await fetch('/api/checkin', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
 
-      if (todayReward) {
-        const creditsToAdd = Math.floor(todayReward.credits * stats.nextRewardMultiplier);
+      const result = await response.json();
 
-        // 更新奖励状态
-        const updatedRewards = rewards.map(r =>
-          r.day === currentDay ? { ...r, claimed: true } : r
-        );
+      if (result.success) {
+        const checkInResult: CheckInResult = result.data;
 
-        // 更新统计数据
-        const newStats = {
-          currentStreak: stats.currentStreak + 1,
-          totalCheckIns: stats.totalCheckIns + 1,
-          lastCheckIn: today,
-          nextRewardMultiplier: stats.currentStreak >= 6 ? 1.5 : 1
-        };
-
-        // 保存到localStorage
-        localStorage.setItem('dailyCheckIn', JSON.stringify({
-          stats: newStats,
-          rewards: updatedRewards
+        // 更新签到状态
+        setStats(prevStats => ({
+          ...prevStats,
+          currentStreak: checkInResult.currentStreak,
+          totalCheckIns: checkInResult.totalCheckIns,
+          lastCheckIn: new Date().toISOString(),
+          canCheckInToday: false
         }));
 
-        // 更新用户积分（模拟）
+        // 更新用户积分（如果可能）
         const currentUser = JSON.parse(localStorage.getItem('auth.user') || '{}');
-        currentUser.credits = (currentUser.credits || 0) + creditsToAdd;
+        currentUser.credits = checkInResult.newBalance;
         localStorage.setItem('auth.user', JSON.stringify(currentUser));
 
-        setStats(newStats);
-        setRewards(updatedRewards);
-        setCanClaimToday(false);
-        setClaimedCredits(creditsToAdd);
+        // 显示奖励动画
+        setClaimedCredits(checkInResult.creditsEarned);
         setShowRewardAnimation(true);
 
         // 3秒后隐藏动画
         setTimeout(() => {
           setShowRewardAnimation(false);
         }, 3000);
+      } else {
+        throw new Error(result.message || '签到失败');
       }
     } catch (error) {
-      console.error('领取奖励失败:', error);
+      console.error('签到失败:', error);
+      alert(error instanceof Error ? error.message : '签到失败，请稍后重试');
     } finally {
       setIsClaimingReward(false);
     }
+  };
+
+  // 初始化
+  useEffect(() => {
+    if (isAuthenticated) {
+      fetchCheckInStats();
+    }
+  }, [isAuthenticated]);
+
+  // 生成每周奖励预览
+  const generateWeeklyRewards = () => {
+    const rewards = [];
+    for (let day = 1; day <= 7; day++) {
+      const baseCredits = day * 10;
+      const multiplier = stats.currentStreak >= 6 ? 1.5 : 1;
+      const credits = Math.floor(baseCredits * multiplier);
+      const claimed = day <= (stats.currentStreak % 7);
+
+      rewards.push({
+        day,
+        credits,
+        bonus: day === 7 ? '周奖励' : undefined,
+        claimed
+      });
+    }
+    return rewards;
   };
 
   if (!isAuthenticated) {
     return null;
   }
 
+  if (isLoading) {
+    return (
+      <Card className="relative overflow-hidden">
+        <CardContent className="p-6 text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4" />
+          <p className="text-muted-foreground">加载签到数据中...</p>
+        </CardContent>
+      </Card>
+    );
+  }
+
   const currentDay = (stats.currentStreak % 7) + 1;
-  const todayReward = rewards.find(r => r.day === currentDay);
+  const weeklyRewards = generateWeeklyRewards();
+  const todayReward = weeklyRewards.find(r => r.day === currentDay);
 
   return (
     <>
@@ -168,7 +221,7 @@ export function DailyCheckIn() {
             <div className="flex items-center justify-center gap-2 mb-4">
               <Coins className="h-6 w-6 text-amber-500" />
               <span className="text-3xl font-bold text-primary">
-                {todayReward ? Math.floor(todayReward.credits * stats.nextRewardMultiplier) : 10}
+                {stats.todayCredits}
               </span>
               <span className="text-lg text-muted-foreground">积分</span>
             </div>
@@ -181,17 +234,17 @@ export function DailyCheckIn() {
             )}
 
             <Button
-              onClick={claimTodayReward}
-              disabled={!canClaimToday || isClaimingReward}
+              onClick={performCheckIn}
+              disabled={!stats.canCheckInToday || isClaimingReward}
               size="lg"
               className="w-full"
             >
               {isClaimingReward ? (
                 <>
                   <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" />
-                  领取中...
+                  签到中...
                 </>
-              ) : !canClaimToday ? (
+              ) : !stats.canCheckInToday ? (
                 <>
                   <CheckCircle className="h-4 w-4 mr-2" />
                   今日已签到
@@ -199,7 +252,7 @@ export function DailyCheckIn() {
               ) : (
                 <>
                   <Gift className="h-4 w-4 mr-2" />
-                  领取积分
+                  立即签到
                 </>
               )}
             </Button>
@@ -212,7 +265,7 @@ export function DailyCheckIn() {
               本周奖励
             </div>
             <div className="grid grid-cols-7 gap-2">
-              {rewards.map((reward) => (
+              {weeklyRewards.map((reward) => (
                 <div
                   key={reward.day}
                   className={`
