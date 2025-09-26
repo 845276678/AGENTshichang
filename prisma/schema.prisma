@@ -239,7 +239,7 @@ model BiddingSession {
   // 关联关系
   idea         Idea @relation(fields: [ideaId], references: [id])
   user         User? @relation(fields: [userId], references: [id])
-  discussion   IdeaDiscussion? @relation(fields: [discussionId], references: [id])
+  discussion   IdeaDiscussion? @relation("IdeaDiscussionSessions", fields: [discussionId], references: [id])
   bids         Bid[]
   priceGuesses PriceGuess[]
   interactions AIInteraction[]
@@ -704,6 +704,7 @@ model IdeaDiscussion {
   // 关联关系
   idea     Idea @relation(fields: [ideaId], references: [id], onDelete: Cascade)
   user     User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  sessions  BiddingSession[] @relation("IdeaDiscussionSessions")
   messages DiscussionMessage[]
 
   @@map("idea_discussions")

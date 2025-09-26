@@ -138,6 +138,14 @@ exports.Prisma.UserScalarFieldEnum = {
   level: 'level',
   totalSpent: 'totalSpent',
   totalEarned: 'totalEarned',
+  totalGuesses: 'totalGuesses',
+  guessAccuracy: 'guessAccuracy',
+  guessEarnings: 'guessEarnings',
+  guessLevel: 'guessLevel',
+  levelProgress: 'levelProgress',
+  consecutiveGuesses: 'consecutiveGuesses',
+  bestStreak: 'bestStreak',
+  favoriteAgent: 'favoriteAgent',
   emailNotifications: 'emailNotifications',
   marketingEmails: 'marketingEmails',
   createdAt: 'createdAt',
@@ -178,6 +186,143 @@ exports.Prisma.IdeaScalarFieldEnum = {
   likeCount: 'likeCount',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
+};
+
+exports.Prisma.BiddingSessionScalarFieldEnum = {
+  id: 'id',
+  ideaId: 'ideaId',
+  userId: 'userId',
+  startPrice: 'startPrice',
+  currentHigh: 'currentHigh',
+  winnerAgent: 'winnerAgent',
+  winnerAgentType: 'winnerAgentType',
+  finalPrice: 'finalPrice',
+  status: 'status',
+  phase: 'phase',
+  enhancedByDiscussion: 'enhancedByDiscussion',
+  discussionId: 'discussionId',
+  enhancementScore: 'enhancementScore',
+  participantCount: 'participantCount',
+  viewerCount: 'viewerCount',
+  maxViewerCount: 'maxViewerCount',
+  totalInteractions: 'totalInteractions',
+  durationSeconds: 'durationSeconds',
+  discussionDuration: 'discussionDuration',
+  biddingDuration: 'biddingDuration',
+  startedAt: 'startedAt',
+  endedAt: 'endedAt',
+  discussionStartedAt: 'discussionStartedAt',
+  biddingStartedAt: 'biddingStartedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  avgResponseTime: 'avgResponseTime',
+  aiServiceCost: 'aiServiceCost',
+  userEngagementScore: 'userEngagementScore',
+  contentQualityScore: 'contentQualityScore'
+};
+
+exports.Prisma.BidScalarFieldEnum = {
+  id: 'id',
+  sessionId: 'sessionId',
+  agentName: 'agentName',
+  agentType: 'agentType',
+  amount: 'amount',
+  comment: 'comment',
+  confidence: 'confidence',
+  analysisData: 'analysisData',
+  reasoning: 'reasoning',
+  emotionalState: 'emotionalState',
+  isScripted: 'isScripted',
+  aiServiceUsed: 'aiServiceUsed',
+  generationCost: 'generationCost',
+  responseTimeMs: 'responseTimeMs',
+  qualityScore: 'qualityScore',
+  understandingDepth: 'understandingDepth',
+  contextRichness: 'contextRichness',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.PriceGuessScalarFieldEnum = {
+  id: 'id',
+  sessionId: 'sessionId',
+  userId: 'userId',
+  guessedPrice: 'guessedPrice',
+  confidence: 'confidence',
+  stakeAmount: 'stakeAmount',
+  actualPrice: 'actualPrice',
+  accuracy: 'accuracy',
+  reward: 'reward',
+  basedOnDiscussion: 'basedOnDiscussion',
+  predictionConfidenceBonus: 'predictionConfidenceBonus',
+  timeSpentMs: 'timeSpentMs',
+  adjustmentCount: 'adjustmentCount',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.AIInteractionScalarFieldEnum = {
+  id: 'id',
+  sessionId: 'sessionId',
+  agentName: 'agentName',
+  agentType: 'agentType',
+  interactionType: 'interactionType',
+  phase: 'phase',
+  content: 'content',
+  emotion: 'emotion',
+  animation: 'animation',
+  isScripted: 'isScripted',
+  aiServiceUsed: 'aiServiceUsed',
+  generationCost: 'generationCost',
+  responseTimeMs: 'responseTimeMs',
+  qualityScore: 'qualityScore',
+  userReactions: 'userReactions',
+  engagementScore: 'engagementScore',
+  isRandomEvent: 'isRandomEvent',
+  eventType: 'eventType',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.UserBiddingBehaviorScalarFieldEnum = {
+  id: 'id',
+  sessionId: 'sessionId',
+  userId: 'userId',
+  actionType: 'actionType',
+  actionData: 'actionData',
+  timestamp: 'timestamp',
+  phase: 'phase',
+  agentName: 'agentName'
+};
+
+exports.Prisma.AIServiceUsageScalarFieldEnum = {
+  id: 'id',
+  sessionId: 'sessionId',
+  agentName: 'agentName',
+  serviceName: 'serviceName',
+  modelName: 'modelName',
+  promptTokens: 'promptTokens',
+  completionTokens: 'completionTokens',
+  totalTokens: 'totalTokens',
+  requestCount: 'requestCount',
+  totalCost: 'totalCost',
+  responseTimeMs: 'responseTimeMs',
+  qualityRating: 'qualityRating',
+  userSatisfaction: 'userSatisfaction',
+  errorCount: 'errorCount',
+  retryCount: 'retryCount',
+  createdAt: 'createdAt',
+  date: 'date'
+};
+
+exports.Prisma.UserAchievementScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  achievementId: 'achievementId',
+  achievementName: 'achievementName',
+  description: 'description',
+  category: 'category',
+  bonusPoints: 'bonusPoints',
+  earnedAt: 'earnedAt',
+  progressData: 'progressData',
+  isRare: 'isRare'
 };
 
 exports.Prisma.ResearchReportScalarFieldEnum = {
@@ -309,17 +454,53 @@ exports.Prisma.DiscussionMessageScalarFieldEnum = {
   createdAt: 'createdAt'
 };
 
+exports.Prisma.OrderScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  amount: 'amount',
+  currency: 'currency',
+  description: 'description',
+  status: 'status',
+  paymentMethod: 'paymentMethod',
+  paymentId: 'paymentId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  paidAt: 'paidAt'
+};
+
+exports.Prisma.CartItemScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  agentId: 'agentId',
+  price: 'price',
+  quantity: 'quantity',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.AgentScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  description: 'description',
+  type: 'type',
+  status: 'status',
+  price: 'price',
+  credits: 'credits',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
 };
 
-exports.Prisma.JsonNullValueInput = {
+exports.Prisma.NullableJsonNullValueInput = {
+  DbNull: Prisma.DbNull,
   JsonNull: Prisma.JsonNull
 };
 
-exports.Prisma.NullableJsonNullValueInput = {
-  DbNull: Prisma.DbNull,
+exports.Prisma.JsonNullValueInput = {
   JsonNull: Prisma.JsonNull
 };
 
@@ -384,6 +565,44 @@ exports.IdeaVisibility = exports.$Enums.IdeaVisibility = {
   UNLISTED: 'UNLISTED'
 };
 
+exports.BiddingStatus = exports.$Enums.BiddingStatus = {
+  PENDING: 'PENDING',
+  ACTIVE: 'ACTIVE',
+  ENDED: 'ENDED',
+  CANCELLED: 'CANCELLED',
+  FAILED: 'FAILED'
+};
+
+exports.BiddingPhase = exports.$Enums.BiddingPhase = {
+  DISCUSSION: 'DISCUSSION',
+  BIDDING: 'BIDDING',
+  RESULTS: 'RESULTS'
+};
+
+exports.AIInteractionType = exports.$Enums.AIInteractionType = {
+  opening: 'opening',
+  bid_reaction: 'bid_reaction',
+  psychology: 'psychology',
+  result: 'result',
+  glitch: 'glitch',
+  mimicry: 'mimicry',
+  conflict: 'conflict',
+  alliance: 'alliance',
+  breakdown: 'breakdown',
+  user_response: 'user_response'
+};
+
+exports.UserBiddingAction = exports.$Enums.UserBiddingAction = {
+  enter_session: 'enter_session',
+  leave_session: 'leave_session',
+  support_agent: 'support_agent',
+  react_to_dialogue: 'react_to_dialogue',
+  submit_guess: 'submit_guess',
+  adjust_guess: 'adjust_guess',
+  share_session: 'share_session',
+  report_issue: 'report_issue'
+};
+
 exports.ReportStatus = exports.$Enums.ReportStatus = {
   GENERATING: 'GENERATING',
   COMPLETED: 'COMPLETED',
@@ -420,11 +639,39 @@ exports.SenderType = exports.$Enums.SenderType = {
   AI_AGENT: 'AI_AGENT'
 };
 
+exports.OrderStatus = exports.$Enums.OrderStatus = {
+  PENDING: 'PENDING',
+  PAID: 'PAID',
+  CANCELLED: 'CANCELLED',
+  REFUNDED: 'REFUNDED'
+};
+
+exports.AgentType = exports.$Enums.AgentType = {
+  CREATIVE: 'CREATIVE',
+  ANALYTICAL: 'ANALYTICAL',
+  TECHNICAL: 'TECHNICAL',
+  BUSINESS: 'BUSINESS',
+  MARKETING: 'MARKETING'
+};
+
+exports.AgentStatus = exports.$Enums.AgentStatus = {
+  ACTIVE: 'ACTIVE',
+  INACTIVE: 'INACTIVE',
+  MAINTENANCE: 'MAINTENANCE'
+};
+
 exports.Prisma.ModelName = {
   User: 'User',
   UserSession: 'UserSession',
   RefreshToken: 'RefreshToken',
   Idea: 'Idea',
+  BiddingSession: 'BiddingSession',
+  Bid: 'Bid',
+  PriceGuess: 'PriceGuess',
+  AIInteraction: 'AIInteraction',
+  UserBiddingBehavior: 'UserBiddingBehavior',
+  AIServiceUsage: 'AIServiceUsage',
+  UserAchievement: 'UserAchievement',
   ResearchReport: 'ResearchReport',
   CreditTransaction: 'CreditTransaction',
   Payment: 'Payment',
@@ -433,7 +680,10 @@ exports.Prisma.ModelName = {
   SystemConfig: 'SystemConfig',
   AIUsageStats: 'AIUsageStats',
   IdeaDiscussion: 'IdeaDiscussion',
-  DiscussionMessage: 'DiscussionMessage'
+  DiscussionMessage: 'DiscussionMessage',
+  Order: 'Order',
+  CartItem: 'CartItem',
+  Agent: 'Agent'
 };
 
 /**
