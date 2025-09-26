@@ -134,7 +134,7 @@ export default function BusinessPlanGenerationPage() {
   useEffect(() => {
     if (ideaFromParams) {
       setIdeaData(ideaFromParams)
-      setCurrentPhase('requirements') // 直接跳到需求收集阶段
+      // 不需要再次设置currentPhase，因为已经在useState中初始化了
       setIdeaInput({
         title: ideaFromParams.title,
         description: ideaFromParams.description,
@@ -143,7 +143,10 @@ export default function BusinessPlanGenerationPage() {
     }
   }, [ideaFromParams, setIdeaData])
 
-  const [currentPhase, setCurrentPhase] = useState<'input' | 'requirements' | 'generation' | 'result'>('input')
+  // 如果有来自竞价的创意，直接跳到需求收集阶段，否则显示输入阶段
+  const [currentPhase, setCurrentPhase] = useState<'input' | 'requirements' | 'generation' | 'result'>(
+    ideaFromParams ? 'requirements' : 'input'
+  )
   const [showModernView, setShowModernView] = useState(false)
 
   // 处理创意输入提交
@@ -315,7 +318,10 @@ export default function BusinessPlanGenerationPage() {
                 { key: 'result', label: '查看结果', icon: FileText }
               ].map((step, index) => {
                 const isActive = currentPhase === step.key
-                const isCompleted = ['input', 'requirements', 'generation', 'result'].indexOf(currentPhase) > index
+                // 如果来自竞价的创意，创意输入步骤应该标记为已完成
+                const isCompleted = ideaFromParams && step.key === 'input'
+                  ? true
+                  : ['input', 'requirements', 'generation', 'result'].indexOf(currentPhase) > index
                 const StepIcon = step.icon
 
                 return (
