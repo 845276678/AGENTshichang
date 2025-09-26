@@ -56,12 +56,11 @@ export function useBiddingWebSocket({
   autoConnect = true,
   reconnectAttempts = 5,
   heartbeatInterval = 30000,
-  enableMockMode = true // 默认启用模拟模式
+  enableMockMode = false // 生产环境关闭模拟模式
 }: UseBiddingWebSocketOptions): BiddingWebSocketData & BiddingWebSocketActions {
   // 连接相关状态
-  const [connectionStatus, setConnectionStatus] = useState<'connecting' | 'connected' | 'disconnected' | 'error' | 'mock'>('disconnected');
+  const [connectionStatus, setConnectionStatus] = useState<'connecting' | 'connected' | 'disconnected' | 'error'>('disconnected');
   const [reconnectCount, setReconnectCount] = useState(0);
-  const [isMockMode, setIsMockMode] = useState(false);
 
   // WebSocket引用和定时器
   const wsRef = useRef<WebSocket | null>(null);
@@ -315,16 +314,8 @@ export function useBiddingWebSocket({
   // 连接WebSocket
   const connect = useCallback(() => {
     if (wsRef.current?.readyState === WebSocket.OPEN) return;
-    if (isMockMode) return;
 
     setConnectionStatus('connecting');
-
-    // 首先尝试WebSocket连接，失败后启用模拟模式
-    if (enableMockMode) {
-      console.log('Starting in mock mode for development');
-      setTimeout(startMockMode, 1000);
-      return;
-    }
 
     try {
       const ws = new WebSocket(getWebSocketUrl());
@@ -367,6 +358,10 @@ export function useBiddingWebSocket({
           reconnectTimeoutRef.current = setTimeout(() => {
             connect();
           }, Math.min(1000 * Math.pow(2, reconnectCount), 30000)); // 指数退避，最大30秒
+        } else {
+          // 连接失败，设置错误状态
+          setConnectionStatus('error');
+          console.error('WebSocket连接失败，请检查服务器状态');
         }
       };
 
@@ -492,7 +487,7 @@ export function useBiddingWebSocket({
 
   return {
     // 数据状态
-    isConnected: connectionStatus === 'connected' || connectionStatus === 'mock',
+    isConnected: connectionStatus === 'connected',
     connectionStatus,
     currentPhase,
     timeRemaining,
