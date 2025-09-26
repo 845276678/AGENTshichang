@@ -1,5 +1,13 @@
-// 文件存储管理模块
+﻿// 鏂囦欢瀛樺偍绠＄悊妯″潡
 import { prisma } from './database'
+
+export enum FileType {
+  IMAGE = 'image',
+  DOCUMENT = 'document',
+  AVATAR = 'avatar',
+  REPORT = 'report',
+  OTHER = 'other'
+}
 
 export interface StorageStats {
   totalFiles: number
@@ -19,11 +27,11 @@ export default class FileStorageManager {
   private quotaLimit: number
 
   constructor() {
-    // 设置存储配额限制（字节）
+    // 璁剧疆瀛樺偍閰嶉闄愬埗锛堝瓧鑺傦級
     this.quotaLimit = parseInt(process.env.STORAGE_QUOTA_LIMIT || '1073741824') // 1GB
   }
 
-  // 上传文件
+  // 涓婁紶鏂囦欢
   async uploadFile(params: {
     userId: string
     fileName: string
@@ -33,24 +41,24 @@ export default class FileStorageManager {
     folder?: string
   }): Promise<FileUploadResult> {
     try {
-      // 检查存储配额
+      // 妫€鏌ュ瓨鍌ㄩ厤棰?
       const currentUsage = await this.getUserStorageUsage(params.userId)
       if (currentUsage + params.fileSize > this.quotaLimit) {
         return {
           success: false,
-          error: '存储配额不足'
+          error: '瀛樺偍閰嶉涓嶈冻'
         }
       }
 
-      // 生成唯一文件名
+      // 鐢熸垚鍞竴鏂囦欢鍚?
       const fileId = this.generateFileId()
       const filePath = this.generateFilePath(params.folder, fileId, params.fileName)
 
-      // 这里应该将文件保存到实际的存储服务（如阿里云OSS、AWS S3等）
-      // 现在只是模拟保存
+      // 杩欓噷搴旇灏嗘枃浠朵繚瀛樺埌瀹為檯鐨勫瓨鍌ㄦ湇鍔★紙濡傞樋閲屼簯OSS銆丄WS S3绛夛級
+      // 鐜板湪鍙槸妯℃嫙淇濆瓨
       const fileUrl = await this.saveFileToStorage(filePath, params.buffer)
 
-      // 保存文件记录到数据库
+      // 淇濆瓨鏂囦欢璁板綍鍒版暟鎹簱
       const fileRecord = await prisma.file.create({
         data: {
           id: fileId,
@@ -71,15 +79,15 @@ export default class FileStorageManager {
         url: fileRecord.fileUrl
       }
     } catch (error) {
-      console.error('文件上传失败:', error)
+      console.error('鏂囦欢涓婁紶澶辫触:', error)
       return {
         success: false,
-        error: '文件上传失败'
+        error: '鏂囦欢涓婁紶澶辫触'
       }
     }
   }
 
-  // 删除文件
+  // 鍒犻櫎鏂囦欢
   async deleteFile(fileId: string, userId: string): Promise<boolean> {
     try {
       const file = await prisma.file.findFirst({
@@ -90,10 +98,10 @@ export default class FileStorageManager {
         return false
       }
 
-      // 从存储服务删除文件
+      // 浠庡瓨鍌ㄦ湇鍔″垹闄ゆ枃浠?
       await this.deleteFileFromStorage(file.filePath)
 
-      // 更新数据库记录
+      // 鏇存柊鏁版嵁搴撹褰?
       await prisma.file.update({
         where: { id: fileId },
         data: { status: 'DELETED' }
@@ -101,12 +109,12 @@ export default class FileStorageManager {
 
       return true
     } catch (error) {
-      console.error('文件删除失败:', error)
+      console.error('鏂囦欢鍒犻櫎澶辫触:', error)
       return false
     }
   }
 
-  // 获取用户文件列表
+  // 鑾峰彇鐢ㄦ埛鏂囦欢鍒楄〃
   async getUserFiles(userId: string, folder?: string) {
     try {
       const where: any = { userId, status: 'ACTIVE' }
@@ -119,12 +127,12 @@ export default class FileStorageManager {
         orderBy: { createdAt: 'desc' }
       })
     } catch (error) {
-      console.error('获取文件列表失败:', error)
+      console.error('鑾峰彇鏂囦欢鍒楄〃澶辫触:', error)
       return []
     }
   }
 
-  // 获取存储统计
+  // 鑾峰彇瀛樺偍缁熻
   async getStorageStats(): Promise<StorageStats> {
     try {
       const [totalFiles, files] = await Promise.all([
@@ -144,7 +152,7 @@ export default class FileStorageManager {
         quotaLimit: this.quotaLimit
       }
     } catch (error) {
-      console.error('获取存储统计失败:', error)
+      console.error('鑾峰彇瀛樺偍缁熻澶辫触:', error)
       return {
         totalFiles: 0,
         totalSize: 0,
@@ -154,7 +162,7 @@ export default class FileStorageManager {
     }
   }
 
-  // 获取用户存储使用量
+  // 鑾峰彇鐢ㄦ埛瀛樺偍浣跨敤閲?
   async getUserStorageUsage(userId: string): Promise<number> {
     try {
       const files = await prisma.file.findMany({
@@ -164,46 +172,46 @@ export default class FileStorageManager {
 
       return files.reduce((sum, file) => sum + file.fileSize, 0)
     } catch (error) {
-      console.error('获取用户存储使用量失败:', error)
+      console.error('鑾峰彇鐢ㄦ埛瀛樺偍浣跨敤閲忓け璐?', error)
       return 0
     }
   }
 
-  // 健康检查
+  // 鍋ュ悍妫€鏌?
   async healthCheck(): Promise<boolean> {
     try {
-      // 检查数据库连接
+      // 妫€鏌ユ暟鎹簱杩炴帴
       await prisma.file.count()
       return true
     } catch (error) {
-      console.error('存储服务健康检查失败:', error)
+      console.error('瀛樺偍鏈嶅姟鍋ュ悍妫€鏌ュけ璐?', error)
       return false
     }
   }
 
-  // 生成文件ID
+  // 鐢熸垚鏂囦欢ID
   private generateFileId(): string {
     return `file_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
   }
 
-  // 生成文件路径
+  // 鐢熸垚鏂囦欢璺緞
   private generateFilePath(folder: string | undefined, fileId: string, fileName: string): string {
     const timestamp = new Date().toISOString().split('T')[0] // YYYY-MM-DD
     const folderPath = folder || 'default'
     return `${folderPath}/${timestamp}/${fileId}_${fileName}`
   }
 
-  // 保存文件到存储服务（模拟）
+  // 淇濆瓨鏂囦欢鍒板瓨鍌ㄦ湇鍔★紙妯℃嫙锛?
   private async saveFileToStorage(filePath: string, buffer: Buffer): Promise<string> {
-    // 这里应该调用实际的存储服务API
-    // 现在返回一个模拟的URL
+    // 杩欓噷搴旇璋冪敤瀹為檯鐨勫瓨鍌ㄦ湇鍔PI
+    // 鐜板湪杩斿洖涓€涓ā鎷熺殑URL
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
     return `${baseUrl}/files/${filePath}`
   }
 
-  // 从存储服务删除文件（模拟）
+  // 浠庡瓨鍌ㄦ湇鍔″垹闄ゆ枃浠讹紙妯℃嫙锛?
   private async deleteFileFromStorage(filePath: string): Promise<void> {
-    // 这里应该调用实际的存储服务API删除文件
-    console.log(`删除文件: ${filePath}`)
+    // 杩欓噷搴旇璋冪敤瀹為檯鐨勫瓨鍌ㄦ湇鍔PI鍒犻櫎鏂囦欢
+    console.log(`鍒犻櫎鏂囦欢: ${filePath}`)
   }
 }
