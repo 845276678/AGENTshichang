@@ -3,75 +3,74 @@ import type { BusinessPlanStageConfig } from '@/types/business-plan'
 export const BUSINESS_PLAN_STAGES: BusinessPlanStageConfig[] = [
   {
     id: 'scenario_grounding',
-    name: '³¡¾°¶´²ìÓëÂäµØĞ£Ñé',
+    name: 'åœºæ™¯åˆ†æä¸å®šä½',
     aiProvider: 'DEEPSEEK',
-    estimatedTime: '6-8·ÖÖÓ',
-    deliverables: ['³¡¾°ÕªÒª', '½ÇÉ«Á´Â·', 'ÂäµØĞÔÆÀ·Ö', '³ÎÇåÎÊÌâÁĞ±í'],
+    estimatedTime: '6-8åˆ†é’Ÿ',
+    deliverables: ['é¡¹ç›®æ‘˜è¦', 'æ ¸å¿ƒæ€è·¯', 'å…³é”®å‡è®¾æ¡ä»¶', 'æ ¸å¿ƒä»·å€¼ä¸»å¼ åˆ—è¡¨'],
     dependencies: []
   },
   {
     id: 'concept_analysis',
-    name: '´´Òâ¸ÅÄî½âÎö',
+    name: 'æ¦‚å¿µæ·±åŒ–åˆ†æ',
     aiProvider: 'DEEPSEEK',
-    estimatedTime: '3-5·ÖÖÓ',
-    deliverables: ['¸ÅÄîÌáÈ¡±¨¸æ', 'ºËĞÄ¼ÛÖµ·ÖÎö', 'ÎÊÌâ³ÂÊö'],
+    estimatedTime: '3-5åˆ†é’Ÿ',
+    deliverables: ['æ¦‚å¿µæ ¸å¿ƒç†å¿µ', 'è§£å†³çš„æ ¸å¿ƒä»·å€¼é—®é¢˜', 'åˆ›æ–°ç‚¹åˆ†æ'],
     dependencies: ['scenario_grounding']
   },
   {
     id: 'market_research',
-    name: 'ÊĞ³¡µ÷ÑĞ·ÖÎö',
+    name: 'å¸‚åœºè°ƒç ”åˆ†æ',
     aiProvider: 'ALI',
-    estimatedTime: '8-12·ÖÖÓ',
-    deliverables: ['ÊĞ³¡¹æÄ£', '¾ºÆ··ÖÎö', 'Ä¿±êÓÃ»§»­Ïñ'],
+    estimatedTime: '8-12åˆ†é’Ÿ',
+    deliverables: ['å¸‚åœºè§„æ¨¡', 'ç«å“åˆ†æ', 'ç›®æ ‡ç”¨æˆ·ç”»åƒ'],
     dependencies: ['scenario_grounding']
   },
   {
     id: 'tech_architecture',
-    name: '¼¼Êõ¼Ü¹¹Éè¼Æ',
+    name: 'æŠ€æœ¯æ¶æ„è®¾è®¡',
     aiProvider: 'ZHIPU',
-    estimatedTime: '10-15·ÖÖÓ',
-    deliverables: ['ÏµÍ³¼Ü¹¹', 'APIÉè¼Æ', '¼¼ÊõÕ»ÍÆ¼ö'],
+    estimatedTime: '10-15åˆ†é’Ÿ',
+    deliverables: ['ç³»ç»Ÿæ¶æ„', 'APIè®¾è®¡', 'æŠ€æœ¯æ ˆæ¨è'],
     dependencies: ['scenario_grounding']
   },
   {
     id: 'business_model',
-    name: 'ÉÌÒµÄ£Ê½¹¹½¨',
+    name: 'å•†ä¸šæ¨¡å¼è®¾è®¡',
     aiProvider: 'DEEPSEEK',
-    estimatedTime: '6-10·ÖÖÓ',
-    deliverables: ['ÉÌÒµÄ£Ê½»­²¼', 'ÊÕÈëÁ÷Éè¼Æ', '³É±¾½á¹¹'],
+    estimatedTime: '6-10åˆ†é’Ÿ',
+    deliverables: ['å•†ä¸šæ¨¡å¼ç”»å¸ƒ', 'ç›ˆåˆ©æ¨¡å¼åˆ†æ', 'æˆæœ¬ç»“æ„'],
     dependencies: ['market_research']
   },
   {
     id: 'financial_model',
-    name: '²ÆÎñ½¨Ä£Ô¤²â',
+    name: 'è´¢åŠ¡æ¨¡å‹é¢„æµ‹',
     aiProvider: 'ALI',
-    estimatedTime: '12-18·ÖÖÓ',
-    deliverables: ['²ÆÎñÔ¤²â', 'Í¶×Ê»Ø±¨·ÖÎö', '¹ÀÖµ½¨Òé'],
+    estimatedTime: '12-18åˆ†é’Ÿ',
+    deliverables: ['è´¢åŠ¡é¢„æµ‹', 'æŠ•èµ„å›æŠ¥åˆ†æ', 'ä¼°å€¼æ¨¡å‹'],
     dependencies: ['business_model']
   },
   {
     id: 'legal_compliance',
-    name: 'ºÏ¹æ·çÏÕÆÀ¹À',
+    name: 'åˆè§„æ³•å¾‹å»ºè®®',
     aiProvider: 'ZHIPU',
-    estimatedTime: '8-12·ÖÖÓ',
-    deliverables: ['ºÏ¹æÇåµ¥', '·¨ÂÉ·çÏÕ', 'ÖªÊ¶²úÈ¨²ßÂÔ'],
+    estimatedTime: '8-12åˆ†é’Ÿ',
+    deliverables: ['åˆè§„æ£€æŸ¥å•', 'æ³•å¾‹é£é™©', 'çŸ¥è¯†äº§æƒç­–ç•¥'],
     dependencies: ['scenario_grounding']
   },
   {
     id: 'implementation_plan',
-    name: 'ÊµÊ©Â·Ïß¹æ»®',
+    name: 'å®æ–½è·¯å¾„è§„åˆ’',
     aiProvider: 'ZHIPU',
-    estimatedTime: '6-10·ÖÖÓ',
-    deliverables: ['ÏîÄ¿Ê±¼ä±í', 'ÍÅ¶ÓÅäÖÃ', '¹Ø¼üÀï³Ì±®'],
+    estimatedTime: '6-10åˆ†é’Ÿ',
+    deliverables: ['é¡¹ç›®æ—¶é—´çº¿', 'å›¢é˜Ÿé…ç½®', 'å…³é”®é‡Œç¨‹ç¢‘'],
     dependencies: ['tech_architecture']
   },
   {
     id: 'investor_pitch',
-    name: 'Í¶×ÊÍÆ½é²ÄÁÏ',
+    name: 'æŠ•èµ„è€…æ²Ÿé€šææ–™',
     aiProvider: 'DEEPSEEK',
-    estimatedTime: '5-8·ÖÖÓ',
-    deliverables: ['Pitch Deck', 'Í¶×ÊÁÁµã', 'ÈÚ×Ê²ßÂÔ'],
+    estimatedTime: '5-8åˆ†é’Ÿ',
+    deliverables: ['Pitch Deck', 'æŠ•èµ„å»ºè®®ä¹¦', 'å¸¸è§é—®ç­”'],
     dependencies: ['concept_analysis', 'market_research', 'business_model', 'financial_model']
   }
 ]
-
