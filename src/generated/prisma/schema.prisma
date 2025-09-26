@@ -1,4 +1,4 @@
-// AI创意调研平台数据库模式 - 生产级增强版
+// AI创意调研平台数据库模�?- 生产级增强版
 // 支持用户管理、创意提交、调研指导、竞价系统、积分系统等核心功能
 
 generator client {
@@ -13,7 +13,7 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// 用户表
+// 用户�?
 model User {
   id           String  @id @default(cuid())
   email        String  @unique
@@ -25,14 +25,14 @@ model User {
   avatar       String?
   bio          String?
 
-  // 用户状态
+  // 用户状�?
   status          UserStatus @default(ACTIVE)
   role            UserRole   @default(USER)
   isEmailVerified Boolean    @default(false) @map("is_email_verified")
   isPhoneVerified Boolean    @default(false) @map("is_phone_verified")
 
-  // 积分和等级
-  credits     Int       @default(1000) // 注册赠送1000积分
+  // 积分和等�?
+  credits     Int       @default(1000) // 注册赠�?000积分
   level       UserLevel @default(BRONZE)
   totalSpent  Int       @default(0) @map("total_spent")
   totalEarned Int       @default(0) @map("total_earned")
@@ -51,7 +51,7 @@ model User {
   emailNotifications Boolean @default(true) @map("email_notifications")
   marketingEmails    Boolean @default(false) @map("marketing_emails")
 
-  // 时间戳
+  // 时间�?
   createdAt   DateTime  @default(now()) @map("created_at")
   updatedAt   DateTime  @updatedAt @map("updated_at")
   lastLoginAt DateTime? @map("last_login_at")
@@ -75,7 +75,7 @@ model User {
   @@map("users")
 }
 
-// 用户状态枚举
+// 用户状态枚�?
 enum UserStatus {
   ACTIVE
   INACTIVE
@@ -99,7 +99,7 @@ enum UserLevel {
   DIAMOND
 }
 
-// 用户会话表
+// 用户会话�?
 model UserSession {
   id        String   @id @default(cuid())
   userId    String   @map("user_id")
@@ -114,7 +114,7 @@ model UserSession {
   @@map("user_sessions")
 }
 
-// 刷新令牌表
+// 刷新令牌�?
 model RefreshToken {
   id        String   @id @default(cuid())
   userId    String   @map("user_id")
@@ -128,7 +128,7 @@ model RefreshToken {
   @@map("refresh_tokens")
 }
 
-// 创意表
+// 创意�?
 model Idea {
   id          String       @id @default(cuid())
   title       String
@@ -136,11 +136,11 @@ model Idea {
   category    IdeaCategory
   tags        String       @default("") // 标签，用逗号分隔
 
-  // 提交者信息
+  // 提交者信�?
   userId      String  @map("user_id")
   isAnonymous Boolean @default(false) @map("is_anonymous")
 
-  // 状态管理
+  // 状态管�?
   status     IdeaStatus     @default(PENDING)
   visibility IdeaVisibility @default(PUBLIC)
 
@@ -148,7 +148,7 @@ model Idea {
   viewCount Int @default(0) @map("view_count")
   likeCount Int @default(0) @map("like_count")
 
-  // 时间戳
+  // 时间�?
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
@@ -174,7 +174,7 @@ enum IdeaCategory {
   OTHER
 }
 
-// 创意状态枚举
+// 创意状态枚�?
 enum IdeaStatus {
   PENDING
   APPROVED
@@ -182,20 +182,20 @@ enum IdeaStatus {
   ARCHIVED
 }
 
-// 创意可见性枚举
+// 创意可见性枚�?
 enum IdeaVisibility {
   PUBLIC
   PRIVATE
   UNLISTED
 }
 
-// ==================== 竞价系统核心表 ====================
+// ==================== 竞价系统核心�?====================
 
-// 竞价会话表 - 生产级增强版
+// 竞价会话�?- 生产级增强版
 model BiddingSession {
   id              String  @id @default(cuid())
   ideaId          String  @map("idea_id")
-  userId          String? @map("user_id") // 会话发起者
+  userId          String? @map("user_id") // 会话发起�?
   startPrice      Int     @default(50) @map("start_price")
   currentHigh     Int     @default(50) @map("current_high")
   winnerAgent     String? @map("winner_agent")
@@ -222,7 +222,7 @@ model BiddingSession {
   discussionDuration Int @default(600) @map("discussion_duration") // 10分钟
   biddingDuration    Int @default(900) @map("bidding_duration") // 15分钟
 
-  // 时间戳
+  // 时间�?
   startedAt           DateTime? @map("started_at")
   endedAt             DateTime? @map("ended_at")
   discussionStartedAt DateTime? @map("discussion_started_at")
@@ -230,7 +230,7 @@ model BiddingSession {
   createdAt           DateTime  @default(now()) @map("created_at")
   updatedAt           DateTime  @updatedAt @map("updated_at")
 
-  // 性能和质量指标
+  // 性能和质量指�?
   avgResponseTime     Float @default(0) @map("avg_response_time")
   aiServiceCost       Float @default(0) @map("ai_service_cost")
   userEngagementScore Float @default(0) @map("user_engagement_score")
@@ -239,7 +239,7 @@ model BiddingSession {
   // 关联关系
   idea         Idea                  @relation(fields: [ideaId], references: [id])
   user         User?                 @relation(fields: [userId], references: [id])
-  discussion   IdeaDiscussion?       @relation("IdeaDiscussionSessions", fields: [discussionId], references: [id])
+  discussion   IdeaDiscussion?       @relation("IdeaDiscussionBidding", fields: [discussionId], references: [id])
   bids         Bid[]
   priceGuesses PriceGuess[]
   interactions AIInteraction[]
@@ -251,12 +251,12 @@ model BiddingSession {
   @@map("bidding_sessions")
 }
 
-// 竞价状态枚举
+// 竞价状态枚�?
 enum BiddingStatus {
-  PENDING // 等待开始
-  ACTIVE // 进行中
-  ENDED // 已结束
-  CANCELLED // 已取消
+  PENDING // 等待开�?
+  ACTIVE // 进行�?
+  ENDED // 已结�?
+  CANCELLED // 已取�?
   FAILED // 失败
 }
 
@@ -267,7 +267,7 @@ enum BiddingPhase {
   RESULTS // 结果阶段
 }
 
-// AI出价记录表 - 生产级增强版
+// AI出价记录�?- 生产级增强版
 model Bid {
   id         String  @id @default(cuid())
   sessionId  String  @map("session_id")
@@ -302,7 +302,7 @@ model Bid {
   @@map("bids")
 }
 
-// 用户价格竞猜表 - 生产级增强版
+// 用户价格竞猜�?- 生产级增强版
 model PriceGuess {
   id           String @id @default(cuid())
   sessionId    String @map("session_id")
@@ -311,10 +311,10 @@ model PriceGuess {
   confidence   Float
   stakeAmount  Int    @default(10) @map("stake_amount")
 
-  // 结果和奖励
+  // 结果和奖�?
   actualPrice Int?   @map("actual_price")
   accuracy    Float? // 准确度百分比
-  reward      Int? // 获得的奖励积分
+  reward      Int? // 获得的奖励积�?
 
   // 增强信息
   basedOnDiscussion         Boolean @default(false) @map("based_on_discussion")
@@ -334,7 +334,7 @@ model PriceGuess {
   @@map("price_guesses")
 }
 
-// AI交流记录表 - 生产级增强版
+// AI交流记录�?- 生产级增强版
 model AIInteraction {
   id        String @id @default(cuid())
   sessionId String @map("session_id")
@@ -343,14 +343,14 @@ model AIInteraction {
 
   // 交互分类
   interactionType AIInteractionType @map("interaction_type")
-  phase           String // 所属阶段
+  phase           String // 所属阶�?
 
-  // 内容和表现
+  // 内容和表�?
   content   String
   emotion   String @default("neutral")
   animation String @default("none")
 
-  // 生成和质量控制
+  // 生成和质量控�?
   isScripted     Boolean @default(true) @map("is_scripted")
   aiServiceUsed  String? @map("ai_service_used")
   generationCost Float   @default(0) @map("generation_cost")
@@ -376,9 +376,9 @@ model AIInteraction {
 
 // AI交互类型枚举
 enum AIInteractionType {
-  opening // 开场分析
+  opening // 开场分�?
   bid_reaction // 出价反应
-  psychology // 心理战
+  psychology // 心理�?
   result // 结果点评
   glitch // 故障事件
   mimicry // 模仿游戏
@@ -388,7 +388,7 @@ enum AIInteractionType {
   user_response // 用户互动回应
 }
 
-// 用户竞价行为追踪表 - 新增
+// 用户竞价行为追踪�?- 新增
 model UserBiddingBehavior {
   id         String            @id @default(cuid())
   sessionId  String            @map("session_id")
@@ -397,8 +397,8 @@ model UserBiddingBehavior {
   actionData Json?             @map("action_data")
   timestamp  DateTime          @default(now())
 
-  // 行为上下文
-  phase     String? // 发生在哪个阶段
+  // 行为上下�?
+  phase     String? // 发生在哪个阶�?
   agentName String? @map("agent_name") // 相关的AI
 
   session BiddingSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
@@ -414,14 +414,14 @@ enum UserBiddingAction {
   enter_session // 进入会话
   leave_session // 离开会话
   support_agent // 支持某个AI
-  react_to_dialogue // 对对话做出反应
+  react_to_dialogue // 对对话做出反�?
   submit_guess // 提交价格预测
   adjust_guess // 调整预测
   share_session // 分享会话
   report_issue // 报告问题
 }
 
-// AI服务使用统计表 - 新增
+// AI服务使用统计�?- 新增
 model AIServiceUsage {
   id          String  @id @default(cuid())
   sessionId   String? @map("session_id")
@@ -429,7 +429,7 @@ model AIServiceUsage {
   serviceName String  @map("service_name") // deepseek, zhipu, etc.
   modelName   String? @map("model_name")
 
-  // 使用量统计
+  // 使用量统�?
   promptTokens     Int @map("prompt_tokens")
   completionTokens Int @map("completion_tokens")
   totalTokens      Int @map("total_tokens")
@@ -443,7 +443,7 @@ model AIServiceUsage {
   qualityRating    Float? @map("quality_rating")
   userSatisfaction Float? @map("user_satisfaction")
 
-  // 错误和重试
+  // 错误和重�?
   errorCount Int @default(0) @map("error_count")
   retryCount Int @default(0) @map("retry_count")
 
@@ -455,7 +455,7 @@ model AIServiceUsage {
   @@map("ai_service_usage")
 }
 
-// 用户成就表 - 新增
+// 用户成就�?- 新增
 model UserAchievement {
   id              String   @id @default(cuid())
   userId          String   @map("user_id")
@@ -477,33 +477,33 @@ model UserAchievement {
   @@map("user_achievements")
 }
 
-// ==================== 原有业务表继续保持 ====================
+// ==================== 原有业务表继续保�?====================
 
-// 调研报告表
+// 调研报告�?
 model ResearchReport {
   id     String @id @default(cuid())
   ideaId String @map("idea_id")
   userId String @map("user_id")
 
   // 报告内容
-  reportData Json    @map("report_data") // 存储完整的调研指导结果
+  reportData Json    @map("report_data") // 存储完整的调研指导结�?
   summary    String? // 报告摘要
 
   // AI专家分析结果
-  basicAnalysis   Json? @map("basic_analysis") // 基本盘分析结果
+  basicAnalysis   Json? @map("basic_analysis") // 基本盘分析结�?
   researchMethods Json? @map("research_methods") // 调研方法指导
-  dataSources     Json? @map("data_sources") // 数据源推荐
+  dataSources     Json? @map("data_sources") // 数据源推�?
   mvpGuidance     Json? @map("mvp_guidance") // MVP验证指导
   businessModel   Json? @map("business_model") // 商业模式指导
 
-  // 生成状态
+  // 生成状�?
   status   ReportStatus @default(GENERATING)
   progress Int          @default(0) // 生成进度 0-100
 
   // 成本信息
   creditsCost Int @map("credits_cost") // 消耗的积分
 
-  // 时间戳
+  // 时间�?
   createdAt   DateTime  @default(now()) @map("created_at")
   updatedAt   DateTime  @updatedAt @map("updated_at")
   completedAt DateTime? @map("completed_at")
@@ -515,7 +515,7 @@ model ResearchReport {
   @@map("research_reports")
 }
 
-// 报告状态枚举
+// 报告状态枚�?
 enum ReportStatus {
   GENERATING
   COMPLETED
@@ -523,11 +523,11 @@ enum ReportStatus {
   CANCELLED
 }
 
-// 积分交易表
+// 积分交易�?
 model CreditTransaction {
   id     String                @id @default(cuid())
   userId String                @map("user_id")
-  amount Int // 正数为收入，负数为支出
+  amount Int // 正数为收入，负数为支�?
   type   CreditTransactionType
 
   // 交易详情
@@ -538,7 +538,7 @@ model CreditTransaction {
   balanceBefore Int @map("balance_before")
   balanceAfter  Int @map("balance_after")
 
-  // 时间戳
+  // 时间�?
   createdAt DateTime @default(now()) @map("created_at")
 
   // 关联关系
@@ -552,35 +552,35 @@ enum CreditTransactionType {
   REGISTER_BONUS // 注册奖励
   PURCHASE // 购买积分
   RESEARCH_COST // 调研指导消费
-  REFUND // 退款
-  ADMIN_ADJUSTMENT // 管理员调整
+  REFUND // 退�?
+  ADMIN_ADJUSTMENT // 管理员调�?
   WITHDRAW // 提现
 }
 
-// 支付表
+// 支付�?
 model Payment {
   id     String @id @default(cuid())
   userId String @map("user_id")
 
   // 支付信息
-  outTradeNo  String @unique @map("out_trade_no") // 商户订单号
-  amount      Float // 支付金额（元）
+  outTradeNo  String @unique @map("out_trade_no") // 商户订单�?
+  amount      Float // 支付金额（元�?
   credits     Int // 对应积分数量
   description String // 支付描述
   currency    String @default("CNY")
 
   // 支付渠道
-  provider        String // 支付提供商（ALIPAY/WECHAT）
+  provider        String // 支付提供商（ALIPAY/WECHAT�?
   providerOrderId String? @map("provider_order_id") // 第三方订单号
 
   // 支付URL和二维码
   payUrl    String? @map("pay_url")
   qrCodeUrl String? @map("qr_code_url")
 
-  // 支付状态
+  // 支付状�?
   status String @default("PENDING") // PENDING/SUCCESS/FAILED/CANCELLED/REFUNDED
 
-  // 时间戳
+  // 时间�?
   createdAt DateTime  @default(now()) @map("created_at")
   updatedAt DateTime  @updatedAt @map("updated_at")
   paidAt    DateTime? @map("paid_at")
@@ -598,19 +598,19 @@ model Refund {
   id        String @id @default(cuid())
   paymentId String @map("payment_id")
 
-  // 退款信息
-  outRefundNo  String @unique @map("out_refund_no") // 商户退款单号
-  refundAmount Float  @map("refund_amount") // 退款金额
-  reason       String // 退款原因
+  // 退款信�?
+  outRefundNo  String @unique @map("out_refund_no") // 商户退款单�?
+  refundAmount Float  @map("refund_amount") // 退款金�?
+  reason       String // 退款原�?
 
-  // 退款状态
+  // 退款状�?
   status           String  @default("PROCESSING") // PROCESSING/SUCCESS/FAILED
-  providerRefundId String? @map("provider_refund_id") // 第三方退款单号
+  providerRefundId String? @map("provider_refund_id") // 第三方退款单�?
 
   // 操作信息
   operatorId String @map("operator_id") // 操作员ID
 
-  // 时间戳
+  // 时间�?
   createdAt  DateTime  @default(now()) @map("created_at")
   updatedAt  DateTime  @updatedAt @map("updated_at")
   refundedAt DateTime? @map("refunded_at")
@@ -621,14 +621,14 @@ model Refund {
   @@map("refunds")
 }
 
-// 文件表
+// 文件�?
 model File {
   id     String @id @default(cuid())
   userId String @map("user_id")
 
   // 文件信息
   filename     String // 存储的文件名
-  originalName String @map("original_name") // 原始文件名
+  originalName String @map("original_name") // 原始文件�?
   key          String @unique // OSS存储key
   url          String // 访问URL
   size         Int // 文件大小（字节）
@@ -638,10 +638,10 @@ model File {
   type   String @default("OTHER") // IMAGE/DOCUMENT/AVATAR/REPORT/OTHER
   status String @default("UPLOADED") // UPLOADING/UPLOADED/FAILED/DELETED
 
-  // 元数据
-  metadata Json? // 存储额外信息（如图片尺寸、处理参数等）
+  // 元数�?
+  metadata Json? // 存储额外信息（如图片尺寸、处理参数等�?
 
-  // 时间戳
+  // 时间�?
   createdAt DateTime  @default(now()) @map("created_at")
   updatedAt DateTime  @updatedAt @map("updated_at")
   deletedAt DateTime? @map("deleted_at")
@@ -652,7 +652,7 @@ model File {
   @@map("files")
 }
 
-// 系统配置表
+// 系统配置�?
 model SystemConfig {
   id          String   @id @default(cuid())
   key         String   @unique
@@ -664,10 +664,10 @@ model SystemConfig {
   @@map("system_configs")
 }
 
-// AI服务使用统计表
+// AI服务使用统计�?
 model AIUsageStats {
   id           String   @id @default(cuid())
-  provider     String // AI服务提供商（百度、阿里、讯飞等）
+  provider     String // AI服务提供商（百度、阿里、讯飞等�?
   model        String // 模型名称
   requestCount Int      @default(0) @map("request_count")
   totalTokens  Int      @default(0) @map("total_tokens")
@@ -681,44 +681,44 @@ model AIUsageStats {
   @@map("ai_usage_stats")
 }
 
-// 创意讨论会话表
+// 创意讨论会话�?
 model IdeaDiscussion {
   id     String @id @default(cuid())
   ideaId String @map("idea_id")
   userId String @map("user_id")
 
-  // 讨论状态
+  // 讨论状�?
   status       DiscussionStatus @default(ACTIVE)
   currentRound Int              @default(1) @map("current_round") // 当前轮数 1-3
-  totalRounds  Int              @default(3) @map("total_rounds") // 总轮数限制
+  totalRounds  Int              @default(3) @map("total_rounds") // 总轮数限�?
 
   // AI Agent信息
   aiAgentType String @map("ai_agent_type") // 分配的AI专家类型
   aiAgentName String @map("ai_agent_name") // AI专家名称
 
-  // 时间戳
+  // 时间�?
   createdAt   DateTime  @default(now()) @map("created_at")
   updatedAt   DateTime  @updatedAt @map("updated_at")
   completedAt DateTime? @map("completed_at")
 
   // 关联关系
-  idea     Idea                @relation(fields: [ideaId], references: [id], onDelete: Cascade)
-  user     User                @relation(fields: [userId], references: [id], onDelete: Cascade)
-  sessions BiddingSession[]    @relation("IdeaDiscussionSessions")
-  messages DiscussionMessage[]
+  idea            Idea                @relation(fields: [ideaId], references: [id], onDelete: Cascade)
+  user            User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  messages        DiscussionMessage[]
+  biddingSessions BiddingSession[]    @relation("IdeaDiscussionBidding")
 
   @@map("idea_discussions")
 }
 
-// 讨论状态枚举
+// 讨论状态枚�?
 enum DiscussionStatus {
-  ACTIVE // 进行中
-  COMPLETED // 已完成
-  EXPIRED // 已过期
-  CANCELLED // 已取消
+  ACTIVE // 进行�?
+  COMPLETED // 已完�?
+  EXPIRED // 已过�?
+  CANCELLED // 已取�?
 }
 
-// 讨论消息表
+// 讨论消息�?
 model DiscussionMessage {
   id           String @id @default(cuid())
   discussionId String @map("discussion_id")
@@ -726,17 +726,17 @@ model DiscussionMessage {
   // 消息内容
   content     String // 消息内容
   messageType MessageType @map("message_type") // 消息类型
-  roundNumber Int         @map("round_number") // 所属轮数
+  roundNumber Int         @map("round_number") // 所属轮�?
 
-  // 发送者信息
-  senderType SenderType @map("sender_type") // 发送者类型
-  senderName String?    @map("sender_name") // 发送者名称
+  // 发送者信�?
+  senderType SenderType @map("sender_type") // 发送者类�?
+  senderName String?    @map("sender_name") // 发送者名�?
 
   // AI分析结果（仅AI消息有）
   analysisData Json? @map("analysis_data") // AI分析数据
   suggestions  Json? // AI建议
 
-  // 时间戳
+  // 时间�?
   createdAt DateTime @default(now()) @map("created_at")
 
   // 关联关系
@@ -751,16 +751,16 @@ enum MessageType {
   CLARIFICATION_REQUEST // 澄清问题
   USER_RESPONSE // 用户回应
   IMPROVEMENT_SUGGESTION // 改进建议
-  FINAL_ASSESSMENT // 最终评估
+  FINAL_ASSESSMENT // 最终评�?
 }
 
-// 发送者类型枚举
+// 发送者类型枚�?
 enum SenderType {
   USER // 用户
   AI_AGENT // AI专家
 }
 
-// 订单表
+// 订单�?
 model Order {
   id     String @id @default(cuid())
   userId String @map("user_id")
@@ -775,7 +775,7 @@ model Order {
   paymentMethod String? @map("payment_method") // 支付方式
   paymentId     String? @map("payment_id") // 关联支付ID
 
-  // 时间戳
+  // 时间�?
   createdAt DateTime  @default(now()) @map("created_at")
   updatedAt DateTime  @updatedAt @map("updated_at")
   paidAt    DateTime? @map("paid_at")
@@ -786,7 +786,7 @@ model Order {
   @@map("orders")
 }
 
-// 订单状态枚举
+// 订单状态枚�?
 enum OrderStatus {
   PENDING
   PAID
@@ -804,7 +804,7 @@ model CartItem {
   price    Float? // 价格
   quantity Int    @default(1)
 
-  // 时间戳
+  // 时间�?
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
@@ -814,7 +814,7 @@ model CartItem {
   @@map("cart_items")
 }
 
-// AI Agent表
+// AI Agent�?
 model Agent {
   id          String      @id @default(cuid())
   name        String // Agent名称
@@ -826,7 +826,7 @@ model Agent {
   price   Float? // 价格
   credits Int? // 所需积分
 
-  // 时间戳
+  // 时间�?
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
@@ -842,7 +842,7 @@ enum AgentType {
   MARKETING
 }
 
-// Agent状态枚举
+// Agent状态枚�?
 enum AgentStatus {
   ACTIVE
   INACTIVE

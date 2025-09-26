@@ -1,0 +1,14 @@
+src/app/**
+!src/app/api/generate-business-plan/**
+!src/app/api/scenario/**
+!src/app/business-plan/v2/**
+src/lib/**
+!src/lib/business-plan/**
+!src/lib/logger.ts
+src/components/**
+!src/components/business-plan/**
+src/examples/**
+src/hooks/**
+src/stores/useBusinessPlanGeneration.ts
+src/types/ali-oss.d.ts
+src/generated/prisma

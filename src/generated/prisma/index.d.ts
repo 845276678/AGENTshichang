@@ -3416,13 +3416,13 @@ export namespace Prisma {
    */
 
   export type IdeaDiscussionCountOutputType = {
-    sessions: number
     messages: number
+    biddingSessions: number
   }
 
   export type IdeaDiscussionCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    sessions?: boolean | IdeaDiscussionCountOutputTypeCountSessionsArgs
     messages?: boolean | IdeaDiscussionCountOutputTypeCountMessagesArgs
+    biddingSessions?: boolean | IdeaDiscussionCountOutputTypeCountBiddingSessionsArgs
   }
 
   // Custom InputTypes
@@ -3439,15 +3439,15 @@ export namespace Prisma {
   /**
    * IdeaDiscussionCountOutputType without action
    */
-  export type IdeaDiscussionCountOutputTypeCountSessionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: BiddingSessionWhereInput
+  export type IdeaDiscussionCountOutputTypeCountMessagesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: DiscussionMessageWhereInput
   }
 
   /**
    * IdeaDiscussionCountOutputType without action
    */
-  export type IdeaDiscussionCountOutputTypeCountMessagesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: DiscussionMessageWhereInput
+  export type IdeaDiscussionCountOutputTypeCountBiddingSessionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: BiddingSessionWhereInput
   }
 
 
@@ -26021,8 +26021,8 @@ export namespace Prisma {
     completedAt?: boolean
     idea?: boolean | IdeaDefaultArgs<ExtArgs>
     user?: boolean | UserDefaultArgs<ExtArgs>
-    sessions?: boolean | IdeaDiscussion$sessionsArgs<ExtArgs>
     messages?: boolean | IdeaDiscussion$messagesArgs<ExtArgs>
+    biddingSessions?: boolean | IdeaDiscussion$biddingSessionsArgs<ExtArgs>
     _count?: boolean | IdeaDiscussionCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["ideaDiscussion"]>
 
@@ -26076,8 +26076,8 @@ export namespace Prisma {
   export type IdeaDiscussionInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     idea?: boolean | IdeaDefaultArgs<ExtArgs>
     user?: boolean | UserDefaultArgs<ExtArgs>
-    sessions?: boolean | IdeaDiscussion$sessionsArgs<ExtArgs>
     messages?: boolean | IdeaDiscussion$messagesArgs<ExtArgs>
+    biddingSessions?: boolean | IdeaDiscussion$biddingSessionsArgs<ExtArgs>
     _count?: boolean | IdeaDiscussionCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type IdeaDiscussionIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -26094,8 +26094,8 @@ export namespace Prisma {
     objects: {
       idea: Prisma.$IdeaPayload<ExtArgs>
       user: Prisma.$UserPayload<ExtArgs>
-      sessions: Prisma.$BiddingSessionPayload<ExtArgs>[]
       messages: Prisma.$DiscussionMessagePayload<ExtArgs>[]
+      biddingSessions: Prisma.$BiddingSessionPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -26505,8 +26505,8 @@ export namespace Prisma {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     idea<T extends IdeaDefaultArgs<ExtArgs> = {}>(args?: Subset<T, IdeaDefaultArgs<ExtArgs>>): Prisma__IdeaClient<$Result.GetResult<Prisma.$IdeaPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     user<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-    sessions<T extends IdeaDiscussion$sessionsArgs<ExtArgs> = {}>(args?: Subset<T, IdeaDiscussion$sessionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$BiddingSessionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     messages<T extends IdeaDiscussion$messagesArgs<ExtArgs> = {}>(args?: Subset<T, IdeaDiscussion$messagesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DiscussionMessagePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    biddingSessions<T extends IdeaDiscussion$biddingSessionsArgs<ExtArgs> = {}>(args?: Subset<T, IdeaDiscussion$biddingSessionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$BiddingSessionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -26943,30 +26943,6 @@ export namespace Prisma {
   }
 
   /**
-   * IdeaDiscussion.sessions
-   */
-  export type IdeaDiscussion$sessionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the BiddingSession
-     */
-    select?: BiddingSessionSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the BiddingSession
-     */
-    omit?: BiddingSessionOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: BiddingSessionInclude<ExtArgs> | null
-    where?: BiddingSessionWhereInput
-    orderBy?: BiddingSessionOrderByWithRelationInput | BiddingSessionOrderByWithRelationInput[]
-    cursor?: BiddingSessionWhereUniqueInput
-    take?: number
-    skip?: number
-    distinct?: BiddingSessionScalarFieldEnum | BiddingSessionScalarFieldEnum[]
-  }
-
-  /**
    * IdeaDiscussion.messages
    */
   export type IdeaDiscussion$messagesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -26988,6 +26964,30 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: DiscussionMessageScalarFieldEnum | DiscussionMessageScalarFieldEnum[]
+  }
+
+  /**
+   * IdeaDiscussion.biddingSessions
+   */
+  export type IdeaDiscussion$biddingSessionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BiddingSession
+     */
+    select?: BiddingSessionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BiddingSession
+     */
+    omit?: BiddingSessionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BiddingSessionInclude<ExtArgs> | null
+    where?: BiddingSessionWhereInput
+    orderBy?: BiddingSessionOrderByWithRelationInput | BiddingSessionOrderByWithRelationInput[]
+    cursor?: BiddingSessionWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: BiddingSessionScalarFieldEnum | BiddingSessionScalarFieldEnum[]
   }
 
   /**
@@ -34295,8 +34295,8 @@ export namespace Prisma {
     completedAt?: DateTimeNullableFilter<"IdeaDiscussion"> | Date | string | null
     idea?: XOR<IdeaScalarRelationFilter, IdeaWhereInput>
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
-    sessions?: BiddingSessionListRelationFilter
     messages?: DiscussionMessageListRelationFilter
+    biddingSessions?: BiddingSessionListRelationFilter
   }
 
   export type IdeaDiscussionOrderByWithRelationInput = {
@@ -34313,8 +34313,8 @@ export namespace Prisma {
     completedAt?: SortOrderInput | SortOrder
     idea?: IdeaOrderByWithRelationInput
     user?: UserOrderByWithRelationInput
-    sessions?: BiddingSessionOrderByRelationAggregateInput
     messages?: DiscussionMessageOrderByRelationAggregateInput
+    biddingSessions?: BiddingSessionOrderByRelationAggregateInput
   }
 
   export type IdeaDiscussionWhereUniqueInput = Prisma.AtLeast<{
@@ -34334,8 +34334,8 @@ export namespace Prisma {
     completedAt?: DateTimeNullableFilter<"IdeaDiscussion"> | Date | string | null
     idea?: XOR<IdeaScalarRelationFilter, IdeaWhereInput>
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
-    sessions?: BiddingSessionListRelationFilter
     messages?: DiscussionMessageListRelationFilter
+    biddingSessions?: BiddingSessionListRelationFilter
   }, "id">
 
   export type IdeaDiscussionOrderByWithAggregationInput = {
@@ -35255,7 +35255,7 @@ export namespace Prisma {
     contentQualityScore?: number
     idea: IdeaCreateNestedOneWithoutBiddingSessionsInput
     user?: UserCreateNestedOneWithoutBiddingSessionsInput
-    discussion?: IdeaDiscussionCreateNestedOneWithoutSessionsInput
+    discussion?: IdeaDiscussionCreateNestedOneWithoutBiddingSessionsInput
     bids?: BidCreateNestedManyWithoutSessionInput
     priceGuesses?: PriceGuessCreateNestedManyWithoutSessionInput
     interactions?: AIInteractionCreateNestedManyWithoutSessionInput
@@ -35329,7 +35329,7 @@ export namespace Prisma {
     contentQualityScore?: FloatFieldUpdateOperationsInput | number
     idea?: IdeaUpdateOneRequiredWithoutBiddingSessionsNestedInput
     user?: UserUpdateOneWithoutBiddingSessionsNestedInput
-    discussion?: IdeaDiscussionUpdateOneWithoutSessionsNestedInput
+    discussion?: IdeaDiscussionUpdateOneWithoutBiddingSessionsNestedInput
     bids?: BidUpdateManyWithoutSessionNestedInput
     priceGuesses?: PriceGuessUpdateManyWithoutSessionNestedInput
     interactions?: AIInteractionUpdateManyWithoutSessionNestedInput
@@ -36914,8 +36914,8 @@ export namespace Prisma {
     completedAt?: Date | string | null
     idea: IdeaCreateNestedOneWithoutDiscussionsInput
     user: UserCreateNestedOneWithoutDiscussionsInput
-    sessions?: BiddingSessionCreateNestedManyWithoutDiscussionInput
     messages?: DiscussionMessageCreateNestedManyWithoutDiscussionInput
+    biddingSessions?: BiddingSessionCreateNestedManyWithoutDiscussionInput
   }
 
   export type IdeaDiscussionUncheckedCreateInput = {
@@ -36930,8 +36930,8 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     completedAt?: Date | string | null
-    sessions?: BiddingSessionUncheckedCreateNestedManyWithoutDiscussionInput
     messages?: DiscussionMessageUncheckedCreateNestedManyWithoutDiscussionInput
+    biddingSessions?: BiddingSessionUncheckedCreateNestedManyWithoutDiscussionInput
   }
 
   export type IdeaDiscussionUpdateInput = {
@@ -36946,8 +36946,8 @@ export namespace Prisma {
     completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     idea?: IdeaUpdateOneRequiredWithoutDiscussionsNestedInput
     user?: UserUpdateOneRequiredWithoutDiscussionsNestedInput
-    sessions?: BiddingSessionUpdateManyWithoutDiscussionNestedInput
     messages?: DiscussionMessageUpdateManyWithoutDiscussionNestedInput
+    biddingSessions?: BiddingSessionUpdateManyWithoutDiscussionNestedInput
   }
 
   export type IdeaDiscussionUncheckedUpdateInput = {
@@ -36962,8 +36962,8 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    sessions?: BiddingSessionUncheckedUpdateManyWithoutDiscussionNestedInput
     messages?: DiscussionMessageUncheckedUpdateManyWithoutDiscussionNestedInput
+    biddingSessions?: BiddingSessionUncheckedUpdateManyWithoutDiscussionNestedInput
   }
 
   export type IdeaDiscussionCreateManyInput = {
@@ -40405,9 +40405,9 @@ export namespace Prisma {
     connect?: UserWhereUniqueInput
   }
 
-  export type IdeaDiscussionCreateNestedOneWithoutSessionsInput = {
-    create?: XOR<IdeaDiscussionCreateWithoutSessionsInput, IdeaDiscussionUncheckedCreateWithoutSessionsInput>
-    connectOrCreate?: IdeaDiscussionCreateOrConnectWithoutSessionsInput
+  export type IdeaDiscussionCreateNestedOneWithoutBiddingSessionsInput = {
+    create?: XOR<IdeaDiscussionCreateWithoutBiddingSessionsInput, IdeaDiscussionUncheckedCreateWithoutBiddingSessionsInput>
+    connectOrCreate?: IdeaDiscussionCreateOrConnectWithoutBiddingSessionsInput
     connect?: IdeaDiscussionWhereUniqueInput
   }
 
@@ -40501,14 +40501,14 @@ export namespace Prisma {
     update?: XOR<XOR<UserUpdateToOneWithWhereWithoutBiddingSessionsInput, UserUpdateWithoutBiddingSessionsInput>, UserUncheckedUpdateWithoutBiddingSessionsInput>
   }
 
-  export type IdeaDiscussionUpdateOneWithoutSessionsNestedInput = {
-    create?: XOR<IdeaDiscussionCreateWithoutSessionsInput, IdeaDiscussionUncheckedCreateWithoutSessionsInput>
-    connectOrCreate?: IdeaDiscussionCreateOrConnectWithoutSessionsInput
-    upsert?: IdeaDiscussionUpsertWithoutSessionsInput
+  export type IdeaDiscussionUpdateOneWithoutBiddingSessionsNestedInput = {
+    create?: XOR<IdeaDiscussionCreateWithoutBiddingSessionsInput, IdeaDiscussionUncheckedCreateWithoutBiddingSessionsInput>
+    connectOrCreate?: IdeaDiscussionCreateOrConnectWithoutBiddingSessionsInput
+    upsert?: IdeaDiscussionUpsertWithoutBiddingSessionsInput
     disconnect?: IdeaDiscussionWhereInput | boolean
     delete?: IdeaDiscussionWhereInput | boolean
     connect?: IdeaDiscussionWhereUniqueInput
-    update?: XOR<XOR<IdeaDiscussionUpdateToOneWithWhereWithoutSessionsInput, IdeaDiscussionUpdateWithoutSessionsInput>, IdeaDiscussionUncheckedUpdateWithoutSessionsInput>
+    update?: XOR<XOR<IdeaDiscussionUpdateToOneWithWhereWithoutBiddingSessionsInput, IdeaDiscussionUpdateWithoutBiddingSessionsInput>, IdeaDiscussionUncheckedUpdateWithoutBiddingSessionsInput>
   }
 
   export type BidUpdateManyWithoutSessionNestedInput = {
@@ -40883,13 +40883,6 @@ export namespace Prisma {
     connect?: UserWhereUniqueInput
   }
 
-  export type BiddingSessionCreateNestedManyWithoutDiscussionInput = {
-    create?: XOR<BiddingSessionCreateWithoutDiscussionInput, BiddingSessionUncheckedCreateWithoutDiscussionInput> | BiddingSessionCreateWithoutDiscussionInput[] | BiddingSessionUncheckedCreateWithoutDiscussionInput[]
-    connectOrCreate?: BiddingSessionCreateOrConnectWithoutDiscussionInput | BiddingSessionCreateOrConnectWithoutDiscussionInput[]
-    createMany?: BiddingSessionCreateManyDiscussionInputEnvelope
-    connect?: BiddingSessionWhereUniqueInput | BiddingSessionWhereUniqueInput[]
-  }
-
   export type DiscussionMessageCreateNestedManyWithoutDiscussionInput = {
     create?: XOR<DiscussionMessageCreateWithoutDiscussionInput, DiscussionMessageUncheckedCreateWithoutDiscussionInput> | DiscussionMessageCreateWithoutDiscussionInput[] | DiscussionMessageUncheckedCreateWithoutDiscussionInput[]
     connectOrCreate?: DiscussionMessageCreateOrConnectWithoutDiscussionInput | DiscussionMessageCreateOrConnectWithoutDiscussionInput[]
@@ -40897,7 +40890,7 @@ export namespace Prisma {
     connect?: DiscussionMessageWhereUniqueInput | DiscussionMessageWhereUniqueInput[]
   }
 
-  export type BiddingSessionUncheckedCreateNestedManyWithoutDiscussionInput = {
+  export type BiddingSessionCreateNestedManyWithoutDiscussionInput = {
     create?: XOR<BiddingSessionCreateWithoutDiscussionInput, BiddingSessionUncheckedCreateWithoutDiscussionInput> | BiddingSessionCreateWithoutDiscussionInput[] | BiddingSessionUncheckedCreateWithoutDiscussionInput[]
     connectOrCreate?: BiddingSessionCreateOrConnectWithoutDiscussionInput | BiddingSessionCreateOrConnectWithoutDiscussionInput[]
     createMany?: BiddingSessionCreateManyDiscussionInputEnvelope
@@ -40909,6 +40902,13 @@ export namespace Prisma {
     connectOrCreate?: DiscussionMessageCreateOrConnectWithoutDiscussionInput | DiscussionMessageCreateOrConnectWithoutDiscussionInput[]
     createMany?: DiscussionMessageCreateManyDiscussionInputEnvelope
     connect?: DiscussionMessageWhereUniqueInput | DiscussionMessageWhereUniqueInput[]
+  }
+
+  export type BiddingSessionUncheckedCreateNestedManyWithoutDiscussionInput = {
+    create?: XOR<BiddingSessionCreateWithoutDiscussionInput, BiddingSessionUncheckedCreateWithoutDiscussionInput> | BiddingSessionCreateWithoutDiscussionInput[] | BiddingSessionUncheckedCreateWithoutDiscussionInput[]
+    connectOrCreate?: BiddingSessionCreateOrConnectWithoutDiscussionInput | BiddingSessionCreateOrConnectWithoutDiscussionInput[]
+    createMany?: BiddingSessionCreateManyDiscussionInputEnvelope
+    connect?: BiddingSessionWhereUniqueInput | BiddingSessionWhereUniqueInput[]
   }
 
   export type EnumDiscussionStatusFieldUpdateOperationsInput = {
@@ -40931,20 +40931,6 @@ export namespace Prisma {
     update?: XOR<XOR<UserUpdateToOneWithWhereWithoutDiscussionsInput, UserUpdateWithoutDiscussionsInput>, UserUncheckedUpdateWithoutDiscussionsInput>
   }
 
-  export type BiddingSessionUpdateManyWithoutDiscussionNestedInput = {
-    create?: XOR<BiddingSessionCreateWithoutDiscussionInput, BiddingSessionUncheckedCreateWithoutDiscussionInput> | BiddingSessionCreateWithoutDiscussionInput[] | BiddingSessionUncheckedCreateWithoutDiscussionInput[]
-    connectOrCreate?: BiddingSessionCreateOrConnectWithoutDiscussionInput | BiddingSessionCreateOrConnectWithoutDiscussionInput[]
-    upsert?: BiddingSessionUpsertWithWhereUniqueWithoutDiscussionInput | BiddingSessionUpsertWithWhereUniqueWithoutDiscussionInput[]
-    createMany?: BiddingSessionCreateManyDiscussionInputEnvelope
-    set?: BiddingSessionWhereUniqueInput | BiddingSessionWhereUniqueInput[]
-    disconnect?: BiddingSessionWhereUniqueInput | BiddingSessionWhereUniqueInput[]
-    delete?: BiddingSessionWhereUniqueInput | BiddingSessionWhereUniqueInput[]
-    connect?: BiddingSessionWhereUniqueInput | BiddingSessionWhereUniqueInput[]
-    update?: BiddingSessionUpdateWithWhereUniqueWithoutDiscussionInput | BiddingSessionUpdateWithWhereUniqueWithoutDiscussionInput[]
-    updateMany?: BiddingSessionUpdateManyWithWhereWithoutDiscussionInput | BiddingSessionUpdateManyWithWhereWithoutDiscussionInput[]
-    deleteMany?: BiddingSessionScalarWhereInput | BiddingSessionScalarWhereInput[]
-  }
-
   export type DiscussionMessageUpdateManyWithoutDiscussionNestedInput = {
     create?: XOR<DiscussionMessageCreateWithoutDiscussionInput, DiscussionMessageUncheckedCreateWithoutDiscussionInput> | DiscussionMessageCreateWithoutDiscussionInput[] | DiscussionMessageUncheckedCreateWithoutDiscussionInput[]
     connectOrCreate?: DiscussionMessageCreateOrConnectWithoutDiscussionInput | DiscussionMessageCreateOrConnectWithoutDiscussionInput[]
@@ -40959,7 +40945,7 @@ export namespace Prisma {
     deleteMany?: DiscussionMessageScalarWhereInput | DiscussionMessageScalarWhereInput[]
   }
 
-  export type BiddingSessionUncheckedUpdateManyWithoutDiscussionNestedInput = {
+  export type BiddingSessionUpdateManyWithoutDiscussionNestedInput = {
     create?: XOR<BiddingSessionCreateWithoutDiscussionInput, BiddingSessionUncheckedCreateWithoutDiscussionInput> | BiddingSessionCreateWithoutDiscussionInput[] | BiddingSessionUncheckedCreateWithoutDiscussionInput[]
     connectOrCreate?: BiddingSessionCreateOrConnectWithoutDiscussionInput | BiddingSessionCreateOrConnectWithoutDiscussionInput[]
     upsert?: BiddingSessionUpsertWithWhereUniqueWithoutDiscussionInput | BiddingSessionUpsertWithWhereUniqueWithoutDiscussionInput[]
@@ -40985,6 +40971,20 @@ export namespace Prisma {
     update?: DiscussionMessageUpdateWithWhereUniqueWithoutDiscussionInput | DiscussionMessageUpdateWithWhereUniqueWithoutDiscussionInput[]
     updateMany?: DiscussionMessageUpdateManyWithWhereWithoutDiscussionInput | DiscussionMessageUpdateManyWithWhereWithoutDiscussionInput[]
     deleteMany?: DiscussionMessageScalarWhereInput | DiscussionMessageScalarWhereInput[]
+  }
+
+  export type BiddingSessionUncheckedUpdateManyWithoutDiscussionNestedInput = {
+    create?: XOR<BiddingSessionCreateWithoutDiscussionInput, BiddingSessionUncheckedCreateWithoutDiscussionInput> | BiddingSessionCreateWithoutDiscussionInput[] | BiddingSessionUncheckedCreateWithoutDiscussionInput[]
+    connectOrCreate?: BiddingSessionCreateOrConnectWithoutDiscussionInput | BiddingSessionCreateOrConnectWithoutDiscussionInput[]
+    upsert?: BiddingSessionUpsertWithWhereUniqueWithoutDiscussionInput | BiddingSessionUpsertWithWhereUniqueWithoutDiscussionInput[]
+    createMany?: BiddingSessionCreateManyDiscussionInputEnvelope
+    set?: BiddingSessionWhereUniqueInput | BiddingSessionWhereUniqueInput[]
+    disconnect?: BiddingSessionWhereUniqueInput | BiddingSessionWhereUniqueInput[]
+    delete?: BiddingSessionWhereUniqueInput | BiddingSessionWhereUniqueInput[]
+    connect?: BiddingSessionWhereUniqueInput | BiddingSessionWhereUniqueInput[]
+    update?: BiddingSessionUpdateWithWhereUniqueWithoutDiscussionInput | BiddingSessionUpdateWithWhereUniqueWithoutDiscussionInput[]
+    updateMany?: BiddingSessionUpdateManyWithWhereWithoutDiscussionInput | BiddingSessionUpdateManyWithWhereWithoutDiscussionInput[]
+    deleteMany?: BiddingSessionScalarWhereInput | BiddingSessionScalarWhereInput[]
   }
 
   export type IdeaDiscussionCreateNestedOneWithoutMessagesInput = {
@@ -41913,8 +41913,8 @@ export namespace Prisma {
     updatedAt?: Date | string
     completedAt?: Date | string | null
     idea: IdeaCreateNestedOneWithoutDiscussionsInput
-    sessions?: BiddingSessionCreateNestedManyWithoutDiscussionInput
     messages?: DiscussionMessageCreateNestedManyWithoutDiscussionInput
+    biddingSessions?: BiddingSessionCreateNestedManyWithoutDiscussionInput
   }
 
   export type IdeaDiscussionUncheckedCreateWithoutUserInput = {
@@ -41928,8 +41928,8 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     completedAt?: Date | string | null
-    sessions?: BiddingSessionUncheckedCreateNestedManyWithoutDiscussionInput
     messages?: DiscussionMessageUncheckedCreateNestedManyWithoutDiscussionInput
+    biddingSessions?: BiddingSessionUncheckedCreateNestedManyWithoutDiscussionInput
   }
 
   export type IdeaDiscussionCreateOrConnectWithoutUserInput = {
@@ -42035,7 +42035,7 @@ export namespace Prisma {
     userEngagementScore?: number
     contentQualityScore?: number
     idea: IdeaCreateNestedOneWithoutBiddingSessionsInput
-    discussion?: IdeaDiscussionCreateNestedOneWithoutSessionsInput
+    discussion?: IdeaDiscussionCreateNestedOneWithoutBiddingSessionsInput
     bids?: BidCreateNestedManyWithoutSessionInput
     priceGuesses?: PriceGuessCreateNestedManyWithoutSessionInput
     interactions?: AIInteractionCreateNestedManyWithoutSessionInput
@@ -43228,8 +43228,8 @@ export namespace Prisma {
     updatedAt?: Date | string
     completedAt?: Date | string | null
     user: UserCreateNestedOneWithoutDiscussionsInput
-    sessions?: BiddingSessionCreateNestedManyWithoutDiscussionInput
     messages?: DiscussionMessageCreateNestedManyWithoutDiscussionInput
+    biddingSessions?: BiddingSessionCreateNestedManyWithoutDiscussionInput
   }
 
   export type IdeaDiscussionUncheckedCreateWithoutIdeaInput = {
@@ -43243,8 +43243,8 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     completedAt?: Date | string | null
-    sessions?: BiddingSessionUncheckedCreateNestedManyWithoutDiscussionInput
     messages?: DiscussionMessageUncheckedCreateNestedManyWithoutDiscussionInput
+    biddingSessions?: BiddingSessionUncheckedCreateNestedManyWithoutDiscussionInput
   }
 
   export type IdeaDiscussionCreateOrConnectWithoutIdeaInput = {
@@ -43286,7 +43286,7 @@ export namespace Prisma {
     userEngagementScore?: number
     contentQualityScore?: number
     user?: UserCreateNestedOneWithoutBiddingSessionsInput
-    discussion?: IdeaDiscussionCreateNestedOneWithoutSessionsInput
+    discussion?: IdeaDiscussionCreateNestedOneWithoutBiddingSessionsInput
     bids?: BidCreateNestedManyWithoutSessionInput
     priceGuesses?: PriceGuessCreateNestedManyWithoutSessionInput
     interactions?: AIInteractionCreateNestedManyWithoutSessionInput
@@ -43628,7 +43628,7 @@ export namespace Prisma {
     create: XOR<UserCreateWithoutBiddingSessionsInput, UserUncheckedCreateWithoutBiddingSessionsInput>
   }
 
-  export type IdeaDiscussionCreateWithoutSessionsInput = {
+  export type IdeaDiscussionCreateWithoutBiddingSessionsInput = {
     id?: string
     status?: $Enums.DiscussionStatus
     currentRound?: number
@@ -43643,7 +43643,7 @@ export namespace Prisma {
     messages?: DiscussionMessageCreateNestedManyWithoutDiscussionInput
   }
 
-  export type IdeaDiscussionUncheckedCreateWithoutSessionsInput = {
+  export type IdeaDiscussionUncheckedCreateWithoutBiddingSessionsInput = {
     id?: string
     ideaId: string
     userId: string
@@ -43658,9 +43658,9 @@ export namespace Prisma {
     messages?: DiscussionMessageUncheckedCreateNestedManyWithoutDiscussionInput
   }
 
-  export type IdeaDiscussionCreateOrConnectWithoutSessionsInput = {
+  export type IdeaDiscussionCreateOrConnectWithoutBiddingSessionsInput = {
     where: IdeaDiscussionWhereUniqueInput
-    create: XOR<IdeaDiscussionCreateWithoutSessionsInput, IdeaDiscussionUncheckedCreateWithoutSessionsInput>
+    create: XOR<IdeaDiscussionCreateWithoutBiddingSessionsInput, IdeaDiscussionUncheckedCreateWithoutBiddingSessionsInput>
   }
 
   export type BidCreateWithoutSessionInput = {
@@ -43987,18 +43987,18 @@ export namespace Prisma {
     achievements?: UserAchievementUncheckedUpdateManyWithoutUserNestedInput
   }
 
-  export type IdeaDiscussionUpsertWithoutSessionsInput = {
-    update: XOR<IdeaDiscussionUpdateWithoutSessionsInput, IdeaDiscussionUncheckedUpdateWithoutSessionsInput>
-    create: XOR<IdeaDiscussionCreateWithoutSessionsInput, IdeaDiscussionUncheckedCreateWithoutSessionsInput>
+  export type IdeaDiscussionUpsertWithoutBiddingSessionsInput = {
+    update: XOR<IdeaDiscussionUpdateWithoutBiddingSessionsInput, IdeaDiscussionUncheckedUpdateWithoutBiddingSessionsInput>
+    create: XOR<IdeaDiscussionCreateWithoutBiddingSessionsInput, IdeaDiscussionUncheckedCreateWithoutBiddingSessionsInput>
     where?: IdeaDiscussionWhereInput
   }
 
-  export type IdeaDiscussionUpdateToOneWithWhereWithoutSessionsInput = {
+  export type IdeaDiscussionUpdateToOneWithWhereWithoutBiddingSessionsInput = {
     where?: IdeaDiscussionWhereInput
-    data: XOR<IdeaDiscussionUpdateWithoutSessionsInput, IdeaDiscussionUncheckedUpdateWithoutSessionsInput>
+    data: XOR<IdeaDiscussionUpdateWithoutBiddingSessionsInput, IdeaDiscussionUncheckedUpdateWithoutBiddingSessionsInput>
   }
 
-  export type IdeaDiscussionUpdateWithoutSessionsInput = {
+  export type IdeaDiscussionUpdateWithoutBiddingSessionsInput = {
     id?: StringFieldUpdateOperationsInput | string
     status?: EnumDiscussionStatusFieldUpdateOperationsInput | $Enums.DiscussionStatus
     currentRound?: IntFieldUpdateOperationsInput | number
@@ -44013,7 +44013,7 @@ export namespace Prisma {
     messages?: DiscussionMessageUpdateManyWithoutDiscussionNestedInput
   }
 
-  export type IdeaDiscussionUncheckedUpdateWithoutSessionsInput = {
+  export type IdeaDiscussionUncheckedUpdateWithoutBiddingSessionsInput = {
     id?: StringFieldUpdateOperationsInput | string
     ideaId?: StringFieldUpdateOperationsInput | string
     userId?: StringFieldUpdateOperationsInput | string
@@ -44171,7 +44171,7 @@ export namespace Prisma {
     contentQualityScore?: number
     idea: IdeaCreateNestedOneWithoutBiddingSessionsInput
     user?: UserCreateNestedOneWithoutBiddingSessionsInput
-    discussion?: IdeaDiscussionCreateNestedOneWithoutSessionsInput
+    discussion?: IdeaDiscussionCreateNestedOneWithoutBiddingSessionsInput
     priceGuesses?: PriceGuessCreateNestedManyWithoutSessionInput
     interactions?: AIInteractionCreateNestedManyWithoutSessionInput
     behaviors?: UserBiddingBehaviorCreateNestedManyWithoutSessionInput
@@ -44259,7 +44259,7 @@ export namespace Prisma {
     contentQualityScore?: FloatFieldUpdateOperationsInput | number
     idea?: IdeaUpdateOneRequiredWithoutBiddingSessionsNestedInput
     user?: UserUpdateOneWithoutBiddingSessionsNestedInput
-    discussion?: IdeaDiscussionUpdateOneWithoutSessionsNestedInput
+    discussion?: IdeaDiscussionUpdateOneWithoutBiddingSessionsNestedInput
     priceGuesses?: PriceGuessUpdateManyWithoutSessionNestedInput
     interactions?: AIInteractionUpdateManyWithoutSessionNestedInput
     behaviors?: UserBiddingBehaviorUpdateManyWithoutSessionNestedInput
@@ -44331,7 +44331,7 @@ export namespace Prisma {
     contentQualityScore?: number
     idea: IdeaCreateNestedOneWithoutBiddingSessionsInput
     user?: UserCreateNestedOneWithoutBiddingSessionsInput
-    discussion?: IdeaDiscussionCreateNestedOneWithoutSessionsInput
+    discussion?: IdeaDiscussionCreateNestedOneWithoutBiddingSessionsInput
     bids?: BidCreateNestedManyWithoutSessionInput
     interactions?: AIInteractionCreateNestedManyWithoutSessionInput
     behaviors?: UserBiddingBehaviorCreateNestedManyWithoutSessionInput
@@ -44516,7 +44516,7 @@ export namespace Prisma {
     contentQualityScore?: FloatFieldUpdateOperationsInput | number
     idea?: IdeaUpdateOneRequiredWithoutBiddingSessionsNestedInput
     user?: UserUpdateOneWithoutBiddingSessionsNestedInput
-    discussion?: IdeaDiscussionUpdateOneWithoutSessionsNestedInput
+    discussion?: IdeaDiscussionUpdateOneWithoutBiddingSessionsNestedInput
     bids?: BidUpdateManyWithoutSessionNestedInput
     interactions?: AIInteractionUpdateManyWithoutSessionNestedInput
     behaviors?: UserBiddingBehaviorUpdateManyWithoutSessionNestedInput
@@ -44691,7 +44691,7 @@ export namespace Prisma {
     contentQualityScore?: number
     idea: IdeaCreateNestedOneWithoutBiddingSessionsInput
     user?: UserCreateNestedOneWithoutBiddingSessionsInput
-    discussion?: IdeaDiscussionCreateNestedOneWithoutSessionsInput
+    discussion?: IdeaDiscussionCreateNestedOneWithoutBiddingSessionsInput
     bids?: BidCreateNestedManyWithoutSessionInput
     priceGuesses?: PriceGuessCreateNestedManyWithoutSessionInput
     behaviors?: UserBiddingBehaviorCreateNestedManyWithoutSessionInput
@@ -44779,7 +44779,7 @@ export namespace Prisma {
     contentQualityScore?: FloatFieldUpdateOperationsInput | number
     idea?: IdeaUpdateOneRequiredWithoutBiddingSessionsNestedInput
     user?: UserUpdateOneWithoutBiddingSessionsNestedInput
-    discussion?: IdeaDiscussionUpdateOneWithoutSessionsNestedInput
+    discussion?: IdeaDiscussionUpdateOneWithoutBiddingSessionsNestedInput
     bids?: BidUpdateManyWithoutSessionNestedInput
     priceGuesses?: PriceGuessUpdateManyWithoutSessionNestedInput
     behaviors?: UserBiddingBehaviorUpdateManyWithoutSessionNestedInput
@@ -44851,7 +44851,7 @@ export namespace Prisma {
     contentQualityScore?: number
     idea: IdeaCreateNestedOneWithoutBiddingSessionsInput
     user?: UserCreateNestedOneWithoutBiddingSessionsInput
-    discussion?: IdeaDiscussionCreateNestedOneWithoutSessionsInput
+    discussion?: IdeaDiscussionCreateNestedOneWithoutBiddingSessionsInput
     bids?: BidCreateNestedManyWithoutSessionInput
     priceGuesses?: PriceGuessCreateNestedManyWithoutSessionInput
     interactions?: AIInteractionCreateNestedManyWithoutSessionInput
@@ -45036,7 +45036,7 @@ export namespace Prisma {
     contentQualityScore?: FloatFieldUpdateOperationsInput | number
     idea?: IdeaUpdateOneRequiredWithoutBiddingSessionsNestedInput
     user?: UserUpdateOneWithoutBiddingSessionsNestedInput
-    discussion?: IdeaDiscussionUpdateOneWithoutSessionsNestedInput
+    discussion?: IdeaDiscussionUpdateOneWithoutBiddingSessionsNestedInput
     bids?: BidUpdateManyWithoutSessionNestedInput
     priceGuesses?: PriceGuessUpdateManyWithoutSessionNestedInput
     interactions?: AIInteractionUpdateManyWithoutSessionNestedInput
@@ -46568,6 +46568,40 @@ export namespace Prisma {
     create: XOR<UserCreateWithoutDiscussionsInput, UserUncheckedCreateWithoutDiscussionsInput>
   }
 
+  export type DiscussionMessageCreateWithoutDiscussionInput = {
+    id?: string
+    content: string
+    messageType: $Enums.MessageType
+    roundNumber: number
+    senderType: $Enums.SenderType
+    senderName?: string | null
+    analysisData?: NullableJsonNullValueInput | InputJsonValue
+    suggestions?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+  }
+
+  export type DiscussionMessageUncheckedCreateWithoutDiscussionInput = {
+    id?: string
+    content: string
+    messageType: $Enums.MessageType
+    roundNumber: number
+    senderType: $Enums.SenderType
+    senderName?: string | null
+    analysisData?: NullableJsonNullValueInput | InputJsonValue
+    suggestions?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+  }
+
+  export type DiscussionMessageCreateOrConnectWithoutDiscussionInput = {
+    where: DiscussionMessageWhereUniqueInput
+    create: XOR<DiscussionMessageCreateWithoutDiscussionInput, DiscussionMessageUncheckedCreateWithoutDiscussionInput>
+  }
+
+  export type DiscussionMessageCreateManyDiscussionInputEnvelope = {
+    data: DiscussionMessageCreateManyDiscussionInput | DiscussionMessageCreateManyDiscussionInput[]
+    skipDuplicates?: boolean
+  }
+
   export type BiddingSessionCreateWithoutDiscussionInput = {
     id?: string
     startPrice?: number
@@ -46647,40 +46681,6 @@ export namespace Prisma {
 
   export type BiddingSessionCreateManyDiscussionInputEnvelope = {
     data: BiddingSessionCreateManyDiscussionInput | BiddingSessionCreateManyDiscussionInput[]
-    skipDuplicates?: boolean
-  }
-
-  export type DiscussionMessageCreateWithoutDiscussionInput = {
-    id?: string
-    content: string
-    messageType: $Enums.MessageType
-    roundNumber: number
-    senderType: $Enums.SenderType
-    senderName?: string | null
-    analysisData?: NullableJsonNullValueInput | InputJsonValue
-    suggestions?: NullableJsonNullValueInput | InputJsonValue
-    createdAt?: Date | string
-  }
-
-  export type DiscussionMessageUncheckedCreateWithoutDiscussionInput = {
-    id?: string
-    content: string
-    messageType: $Enums.MessageType
-    roundNumber: number
-    senderType: $Enums.SenderType
-    senderName?: string | null
-    analysisData?: NullableJsonNullValueInput | InputJsonValue
-    suggestions?: NullableJsonNullValueInput | InputJsonValue
-    createdAt?: Date | string
-  }
-
-  export type DiscussionMessageCreateOrConnectWithoutDiscussionInput = {
-    where: DiscussionMessageWhereUniqueInput
-    create: XOR<DiscussionMessageCreateWithoutDiscussionInput, DiscussionMessageUncheckedCreateWithoutDiscussionInput>
-  }
-
-  export type DiscussionMessageCreateManyDiscussionInputEnvelope = {
-    data: DiscussionMessageCreateManyDiscussionInput | DiscussionMessageCreateManyDiscussionInput[]
     skipDuplicates?: boolean
   }
 
@@ -46834,22 +46834,6 @@ export namespace Prisma {
     achievements?: UserAchievementUncheckedUpdateManyWithoutUserNestedInput
   }
 
-  export type BiddingSessionUpsertWithWhereUniqueWithoutDiscussionInput = {
-    where: BiddingSessionWhereUniqueInput
-    update: XOR<BiddingSessionUpdateWithoutDiscussionInput, BiddingSessionUncheckedUpdateWithoutDiscussionInput>
-    create: XOR<BiddingSessionCreateWithoutDiscussionInput, BiddingSessionUncheckedCreateWithoutDiscussionInput>
-  }
-
-  export type BiddingSessionUpdateWithWhereUniqueWithoutDiscussionInput = {
-    where: BiddingSessionWhereUniqueInput
-    data: XOR<BiddingSessionUpdateWithoutDiscussionInput, BiddingSessionUncheckedUpdateWithoutDiscussionInput>
-  }
-
-  export type BiddingSessionUpdateManyWithWhereWithoutDiscussionInput = {
-    where: BiddingSessionScalarWhereInput
-    data: XOR<BiddingSessionUpdateManyMutationInput, BiddingSessionUncheckedUpdateManyWithoutDiscussionInput>
-  }
-
   export type DiscussionMessageUpsertWithWhereUniqueWithoutDiscussionInput = {
     where: DiscussionMessageWhereUniqueInput
     update: XOR<DiscussionMessageUpdateWithoutDiscussionInput, DiscussionMessageUncheckedUpdateWithoutDiscussionInput>
@@ -46882,6 +46866,22 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"DiscussionMessage"> | Date | string
   }
 
+  export type BiddingSessionUpsertWithWhereUniqueWithoutDiscussionInput = {
+    where: BiddingSessionWhereUniqueInput
+    update: XOR<BiddingSessionUpdateWithoutDiscussionInput, BiddingSessionUncheckedUpdateWithoutDiscussionInput>
+    create: XOR<BiddingSessionCreateWithoutDiscussionInput, BiddingSessionUncheckedCreateWithoutDiscussionInput>
+  }
+
+  export type BiddingSessionUpdateWithWhereUniqueWithoutDiscussionInput = {
+    where: BiddingSessionWhereUniqueInput
+    data: XOR<BiddingSessionUpdateWithoutDiscussionInput, BiddingSessionUncheckedUpdateWithoutDiscussionInput>
+  }
+
+  export type BiddingSessionUpdateManyWithWhereWithoutDiscussionInput = {
+    where: BiddingSessionScalarWhereInput
+    data: XOR<BiddingSessionUpdateManyMutationInput, BiddingSessionUncheckedUpdateManyWithoutDiscussionInput>
+  }
+
   export type IdeaDiscussionCreateWithoutMessagesInput = {
     id?: string
     status?: $Enums.DiscussionStatus
@@ -46894,7 +46894,7 @@ export namespace Prisma {
     completedAt?: Date | string | null
     idea: IdeaCreateNestedOneWithoutDiscussionsInput
     user: UserCreateNestedOneWithoutDiscussionsInput
-    sessions?: BiddingSessionCreateNestedManyWithoutDiscussionInput
+    biddingSessions?: BiddingSessionCreateNestedManyWithoutDiscussionInput
   }
 
   export type IdeaDiscussionUncheckedCreateWithoutMessagesInput = {
@@ -46909,7 +46909,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     completedAt?: Date | string | null
-    sessions?: BiddingSessionUncheckedCreateNestedManyWithoutDiscussionInput
+    biddingSessions?: BiddingSessionUncheckedCreateNestedManyWithoutDiscussionInput
   }
 
   export type IdeaDiscussionCreateOrConnectWithoutMessagesInput = {
@@ -46940,7 +46940,7 @@ export namespace Prisma {
     completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     idea?: IdeaUpdateOneRequiredWithoutDiscussionsNestedInput
     user?: UserUpdateOneRequiredWithoutDiscussionsNestedInput
-    sessions?: BiddingSessionUpdateManyWithoutDiscussionNestedInput
+    biddingSessions?: BiddingSessionUpdateManyWithoutDiscussionNestedInput
   }
 
   export type IdeaDiscussionUncheckedUpdateWithoutMessagesInput = {
@@ -46955,7 +46955,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    sessions?: BiddingSessionUncheckedUpdateManyWithoutDiscussionNestedInput
+    biddingSessions?: BiddingSessionUncheckedUpdateManyWithoutDiscussionNestedInput
   }
 
   export type UserCreateWithoutOrdersInput = {
@@ -47862,8 +47862,8 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     idea?: IdeaUpdateOneRequiredWithoutDiscussionsNestedInput
-    sessions?: BiddingSessionUpdateManyWithoutDiscussionNestedInput
     messages?: DiscussionMessageUpdateManyWithoutDiscussionNestedInput
+    biddingSessions?: BiddingSessionUpdateManyWithoutDiscussionNestedInput
   }
 
   export type IdeaDiscussionUncheckedUpdateWithoutUserInput = {
@@ -47877,8 +47877,8 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    sessions?: BiddingSessionUncheckedUpdateManyWithoutDiscussionNestedInput
     messages?: DiscussionMessageUncheckedUpdateManyWithoutDiscussionNestedInput
+    biddingSessions?: BiddingSessionUncheckedUpdateManyWithoutDiscussionNestedInput
   }
 
   export type IdeaDiscussionUncheckedUpdateManyWithoutUserInput = {
@@ -47989,7 +47989,7 @@ export namespace Prisma {
     userEngagementScore?: FloatFieldUpdateOperationsInput | number
     contentQualityScore?: FloatFieldUpdateOperationsInput | number
     idea?: IdeaUpdateOneRequiredWithoutBiddingSessionsNestedInput
-    discussion?: IdeaDiscussionUpdateOneWithoutSessionsNestedInput
+    discussion?: IdeaDiscussionUpdateOneWithoutBiddingSessionsNestedInput
     bids?: BidUpdateManyWithoutSessionNestedInput
     priceGuesses?: PriceGuessUpdateManyWithoutSessionNestedInput
     interactions?: AIInteractionUpdateManyWithoutSessionNestedInput
@@ -48306,8 +48306,8 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     user?: UserUpdateOneRequiredWithoutDiscussionsNestedInput
-    sessions?: BiddingSessionUpdateManyWithoutDiscussionNestedInput
     messages?: DiscussionMessageUpdateManyWithoutDiscussionNestedInput
+    biddingSessions?: BiddingSessionUpdateManyWithoutDiscussionNestedInput
   }
 
   export type IdeaDiscussionUncheckedUpdateWithoutIdeaInput = {
@@ -48321,8 +48321,8 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    sessions?: BiddingSessionUncheckedUpdateManyWithoutDiscussionNestedInput
     messages?: DiscussionMessageUncheckedUpdateManyWithoutDiscussionNestedInput
+    biddingSessions?: BiddingSessionUncheckedUpdateManyWithoutDiscussionNestedInput
   }
 
   export type IdeaDiscussionUncheckedUpdateManyWithoutIdeaInput = {
@@ -48367,7 +48367,7 @@ export namespace Prisma {
     userEngagementScore?: FloatFieldUpdateOperationsInput | number
     contentQualityScore?: FloatFieldUpdateOperationsInput | number
     user?: UserUpdateOneWithoutBiddingSessionsNestedInput
-    discussion?: IdeaDiscussionUpdateOneWithoutSessionsNestedInput
+    discussion?: IdeaDiscussionUpdateOneWithoutBiddingSessionsNestedInput
     bids?: BidUpdateManyWithoutSessionNestedInput
     priceGuesses?: PriceGuessUpdateManyWithoutSessionNestedInput
     interactions?: AIInteractionUpdateManyWithoutSessionNestedInput
@@ -48762,6 +48762,18 @@ export namespace Prisma {
     refundedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
+  export type DiscussionMessageCreateManyDiscussionInput = {
+    id?: string
+    content: string
+    messageType: $Enums.MessageType
+    roundNumber: number
+    senderType: $Enums.SenderType
+    senderName?: string | null
+    analysisData?: NullableJsonNullValueInput | InputJsonValue
+    suggestions?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+  }
+
   export type BiddingSessionCreateManyDiscussionInput = {
     id?: string
     ideaId: string
@@ -48794,16 +48806,40 @@ export namespace Prisma {
     contentQualityScore?: number
   }
 
-  export type DiscussionMessageCreateManyDiscussionInput = {
-    id?: string
-    content: string
-    messageType: $Enums.MessageType
-    roundNumber: number
-    senderType: $Enums.SenderType
-    senderName?: string | null
+  export type DiscussionMessageUpdateWithoutDiscussionInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    content?: StringFieldUpdateOperationsInput | string
+    messageType?: EnumMessageTypeFieldUpdateOperationsInput | $Enums.MessageType
+    roundNumber?: IntFieldUpdateOperationsInput | number
+    senderType?: EnumSenderTypeFieldUpdateOperationsInput | $Enums.SenderType
+    senderName?: NullableStringFieldUpdateOperationsInput | string | null
     analysisData?: NullableJsonNullValueInput | InputJsonValue
     suggestions?: NullableJsonNullValueInput | InputJsonValue
-    createdAt?: Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type DiscussionMessageUncheckedUpdateWithoutDiscussionInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    content?: StringFieldUpdateOperationsInput | string
+    messageType?: EnumMessageTypeFieldUpdateOperationsInput | $Enums.MessageType
+    roundNumber?: IntFieldUpdateOperationsInput | number
+    senderType?: EnumSenderTypeFieldUpdateOperationsInput | $Enums.SenderType
+    senderName?: NullableStringFieldUpdateOperationsInput | string | null
+    analysisData?: NullableJsonNullValueInput | InputJsonValue
+    suggestions?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type DiscussionMessageUncheckedUpdateManyWithoutDiscussionInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    content?: StringFieldUpdateOperationsInput | string
+    messageType?: EnumMessageTypeFieldUpdateOperationsInput | $Enums.MessageType
+    roundNumber?: IntFieldUpdateOperationsInput | number
+    senderType?: EnumSenderTypeFieldUpdateOperationsInput | $Enums.SenderType
+    senderName?: NullableStringFieldUpdateOperationsInput | string | null
+    analysisData?: NullableJsonNullValueInput | InputJsonValue
+    suggestions?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type BiddingSessionUpdateWithoutDiscussionInput = {
@@ -48908,42 +48944,6 @@ export namespace Prisma {
     aiServiceCost?: FloatFieldUpdateOperationsInput | number
     userEngagementScore?: FloatFieldUpdateOperationsInput | number
     contentQualityScore?: FloatFieldUpdateOperationsInput | number
-  }
-
-  export type DiscussionMessageUpdateWithoutDiscussionInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    content?: StringFieldUpdateOperationsInput | string
-    messageType?: EnumMessageTypeFieldUpdateOperationsInput | $Enums.MessageType
-    roundNumber?: IntFieldUpdateOperationsInput | number
-    senderType?: EnumSenderTypeFieldUpdateOperationsInput | $Enums.SenderType
-    senderName?: NullableStringFieldUpdateOperationsInput | string | null
-    analysisData?: NullableJsonNullValueInput | InputJsonValue
-    suggestions?: NullableJsonNullValueInput | InputJsonValue
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type DiscussionMessageUncheckedUpdateWithoutDiscussionInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    content?: StringFieldUpdateOperationsInput | string
-    messageType?: EnumMessageTypeFieldUpdateOperationsInput | $Enums.MessageType
-    roundNumber?: IntFieldUpdateOperationsInput | number
-    senderType?: EnumSenderTypeFieldUpdateOperationsInput | $Enums.SenderType
-    senderName?: NullableStringFieldUpdateOperationsInput | string | null
-    analysisData?: NullableJsonNullValueInput | InputJsonValue
-    suggestions?: NullableJsonNullValueInput | InputJsonValue
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type DiscussionMessageUncheckedUpdateManyWithoutDiscussionInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    content?: StringFieldUpdateOperationsInput | string
-    messageType?: EnumMessageTypeFieldUpdateOperationsInput | $Enums.MessageType
-    roundNumber?: IntFieldUpdateOperationsInput | number
-    senderType?: EnumSenderTypeFieldUpdateOperationsInput | $Enums.SenderType
-    senderName?: NullableStringFieldUpdateOperationsInput | string | null
-    analysisData?: NullableJsonNullValueInput | InputJsonValue
-    suggestions?: NullableJsonNullValueInput | InputJsonValue
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
 

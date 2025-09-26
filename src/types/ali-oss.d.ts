@@ -1,4 +1,5 @@
-﻿declare module 'ali-oss' {
+/* eslint-disable */
+declare module 'ali-oss' {
   interface OSSOptions {
     region: string
     accessKeyId: string

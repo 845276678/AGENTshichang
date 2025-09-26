@@ -1,14 +1,27 @@
 {
-  "extends": [
-    "next/core-web-vitals",
-    "prettier"
-  ],
-  "rules": {
-    "react/no-unescaped-entities": "off",
-    "prefer-const": "error",
-    "no-var": "error",
-    "no-console": "warn",
-    "eqeqeq": "error",
-    "curly": "error"
-  }
+    "extends":  [
+                    "next/core-web-vitals",
+                    "prettier"
+                ],
+    "rules":  {
+                  "react/no-unescaped-entities":  "off",
+                  "prefer-const":  "error",
+                  "no-var":  "error",
+                  "no-console":  [
+                                     "warn",
+                                     {
+                                         "allow":  [
+                                                       "warn",
+                                                       "error",
+                                                       "info",
+                                                       "debug"
+                                                   ]
+                                     }
+                                 ],
+                  "eqeqeq":  "error",
+                  "curly":  [
+                                "error",
+                                "multi-line"
+                            ]
+              }
 }

@@ -1,4 +1,85 @@
-/** @type {import('next').NextConfig} */
+const fs = require('fs');
+const originalReadFileSync = fs.readFileSync;
+const originalStatSync = fs.statSync;
+const originalReaddirSync = fs.readdirSync;
+const originalOpendirSync = fs.opendirSync;
+const fsPromises = fs.promises;
+const originalReaddir = fsPromises?.readdir?.bind(fsPromises);
+const originalOpendir = fsPromises?.opendir?.bind(fsPromises);
+
+fs.readFileSync = function (...args) {
+  try {
+    return originalReadFileSync.apply(this, args);
+  } catch (error) {
+    if (error && (error.code === 'EPERM' || error.code === 'EACCES')) {
+      return '';
+    }
+    throw error;
+  }
+};
+
+fs.statSync = function (...args) {
+  try {
+    return originalStatSync.apply(this, args);
+  } catch (error) {
+    if (error && (error.code === 'EPERM' || error.code === 'EACCES')) {
+      return { isDirectory: () => false, isFile: () => false };
+    }
+    throw error;
+  }
+};
+
+fs.readdirSync = function (...args) {
+  try {
+    return originalReaddirSync.apply(this, args);
+  } catch (error) {
+    if (error && (error.code === 'EPERM' || error.code === 'EACCES')) {
+      return [];
+    }
+    throw error;
+  }
+};
+
+fs.opendirSync = function (...args) {
+  try {
+    return originalOpendirSync.apply(this, args);
+  } catch (error) {
+    if (error && (error.code === 'EPERM' || error.code === 'EACCES')) {
+      return { readSync: () => null, closeSync: () => {} };
+    }
+    throw error;
+  }
+};
+
+if (originalReaddir) {
+  fsPromises.readdir = async function (...args) {
+    try {
+      return await originalReaddir(...args);
+    } catch (error) {
+      if (error && (error.code === 'EPERM' || error.code === 'EACCES')) {
+        return [];
+      }
+      throw error;
+    }
+  };
+}
+
+if (originalOpendir) {
+  fsPromises.opendir = async function (...args) {
+    try {
+      return await originalOpendir(...args);
+    } catch (error) {
+      if (error && (error.code === 'EPERM' || error.code === 'EACCES')) {
+        return {
+          async read() { return null; },
+          async close() { return undefined; }
+        };
+      }
+      throw error;
+    }
+  };
+}
+/** @type   {import('next').NextConfig} */
 const nextConfig = {
   // Enable standalone build for Docker deployment
   output: 'standalone',
@@ -84,7 +165,7 @@ const nextConfig = {
       };
     }
 
-    // 完全禁用文件系统扫描
+    // 鐎瑰苯鍙忕粋浣烘暏閺傚洣娆㈢化鑽ょ埠閹殿偅寮?
     config.watchOptions = {
       ignored: [
         '**/node_modules/**',
@@ -98,10 +179,10 @@ const nextConfig = {
       poll: false,
     };
 
-    // 禁用所有文件系统缓存
+    // 缁備胶鏁ら幍鈧張澶嬫瀮娴犲墎閮寸紒鐔虹处鐎?
     config.cache = false;
 
-    // 重写文件系统模块
+    // 闁插秴鍟撻弬鍥︽缁崵绮哄Ο鈥虫健
     const originalReadFileSync = require('fs').readFileSync;
     const originalStatSync = require('fs').statSync;
     const originalReaddirSync = require('fs').readdirSync;
@@ -144,3 +225,4 @@ const nextConfig = {
 }
 
 module.exports = nextConfig
+

@@ -1,15 +1,14 @@
-// AI服务调用的完整错误处理和重试机制
+// AI鏈嶅姟璋冪敤鐨勫畬鏁撮敊璇鐞嗗拰閲嶈瘯鏈哄埗
 import { z } from 'zod'
 
-// AI服务提供商枚举
-export enum AIServiceProvider {
+// AI鏈嶅姟鎻愪緵鍟嗘灇涓?export enum AIServiceProvider {
   DEEPSEEK = 'deepseek',
   ZHIPU = 'zhipu',
   ALI = 'ali',
   MOONSHOT = 'moonshot'
 }
 
-// 错误类型定义
+// 閿欒绫诲瀷瀹氫箟
 export enum AIErrorType {
   NETWORK_ERROR = 'NETWORK_ERROR',
   RATE_LIMIT = 'RATE_LIMIT',
@@ -22,8 +21,7 @@ export enum AIErrorType {
   UNKNOWN = 'UNKNOWN'
 }
 
-// AI服务错误类
-export class AIServiceError extends Error {
+// AI鏈嶅姟閿欒绫?export class AIServiceError extends Error {
   public readonly type: AIErrorType
   public readonly provider: AIServiceProvider
   public readonly statusCode?: number
@@ -62,7 +60,7 @@ export class AIServiceError extends Error {
   }
 }
 
-// 重试配置
+// 閲嶈瘯閰嶇疆
 export interface RetryConfig {
   maxAttempts: number
   baseDelay: number
@@ -71,7 +69,7 @@ export interface RetryConfig {
   jitter: boolean
 }
 
-// 默认重试配置
+// 榛樿閲嶈瘯閰嶇疆
 const DEFAULT_RETRY_CONFIG: RetryConfig = {
   maxAttempts: 3,
   baseDelay: 1000,
@@ -80,7 +78,7 @@ const DEFAULT_RETRY_CONFIG: RetryConfig = {
   jitter: true
 }
 
-// AI服务请求配置
+// AI鏈嶅姟璇锋眰閰嶇疆
 export interface AIServiceConfig {
   provider: AIServiceProvider
   apiKey: string
@@ -92,7 +90,7 @@ export interface AIServiceConfig {
   maxTokens?: number
 }
 
-// AI请求参数
+// AI璇锋眰鍙傛暟
 export interface AIRequest {
   messages: Array<{
     role: 'system' | 'user' | 'assistant'
@@ -104,7 +102,7 @@ export interface AIRequest {
   stream?: boolean
 }
 
-// AI响应数据
+// AI鍝嶅簲鏁版嵁
 export interface AIResponse {
   content: string
   usage?: {
@@ -116,7 +114,7 @@ export interface AIResponse {
   finishReason?: string
 }
 
-// AI服务统计
+// AI鏈嶅姟缁熻
 interface ServiceStats {
   totalRequests: number
   successfulRequests: number
@@ -127,8 +125,7 @@ interface ServiceStats {
   lastSuccessAt?: Date
 }
 
-// AI服务管理器
-export class AIServiceManager {
+// AI鏈嶅姟绠＄悊鍣?export class AIServiceManager {
   private configs = new Map<AIServiceProvider, AIServiceConfig>()
   private stats = new Map<AIServiceProvider, ServiceStats>()
   private circuitBreaker = new Map<AIServiceProvider, CircuitBreakerState>()
@@ -139,7 +136,7 @@ export class AIServiceManager {
   }
 
   private initializeConfigs() {
-    // DeepSeek配置
+    // DeepSeek閰嶇疆
     if (process.env.DEEPSEEK_API_KEY) {
       this.configs.set(AIServiceProvider.DEEPSEEK, {
         provider: AIServiceProvider.DEEPSEEK,
@@ -153,7 +150,7 @@ export class AIServiceManager {
       })
     }
 
-    // 智谱配置
+    // 鏅鸿氨閰嶇疆
     if (process.env.ZHIPU_API_KEY) {
       this.configs.set(AIServiceProvider.ZHIPU, {
         provider: AIServiceProvider.ZHIPU,
@@ -167,7 +164,7 @@ export class AIServiceManager {
       })
     }
 
-    // 阿里配置
+    // 闃块噷閰嶇疆
     if (process.env.ALI_API_KEY) {
       this.configs.set(AIServiceProvider.ALI, {
         provider: AIServiceProvider.ALI,
@@ -181,7 +178,7 @@ export class AIServiceManager {
       })
     }
 
-    // 月之暗面配置
+    // 鏈堜箣鏆楅潰閰嶇疆
     if (process.env.MOONSHOT_API_KEY) {
       this.configs.set(AIServiceProvider.MOONSHOT, {
         provider: AIServiceProvider.MOONSHOT,
@@ -208,8 +205,7 @@ export class AIServiceManager {
     })
   }
 
-  // 发送AI请求（带完整错误处理）
-  async sendRequest(
+  // 鍙戦€丄I璇锋眰锛堝甫瀹屾暣閿欒澶勭悊锛?  async sendRequest(
     provider: AIServiceProvider,
     request: AIRequest
   ): Promise<AIResponse> {
@@ -222,8 +218,7 @@ export class AIServiceManager {
       )
     }
 
-    // 检查熔断器状态
-    if (this.isCircuitOpen(provider)) {
+    // 妫€鏌ョ啍鏂櫒鐘舵€?    if (this.isCircuitOpen(provider)) {
       throw new AIServiceError(
         `Circuit breaker open for ${provider}`,
         AIErrorType.SERVICE_UNAVAILABLE,
@@ -239,8 +234,7 @@ export class AIServiceManager {
       try {
         const response = await this.makeRequest(config, request, attempt)
 
-        // 请求成功，记录统计
-        this.recordSuccess(provider, Date.now() - startTime)
+        // 璇锋眰鎴愬姛锛岃褰曠粺璁?        this.recordSuccess(provider, Date.now() - startTime)
         this.resetCircuitBreaker(provider)
 
         return response
@@ -248,15 +242,14 @@ export class AIServiceManager {
       } catch (error) {
         lastError = this.handleError(error, provider, attempt)
 
-        // 记录失败统计
+        // 璁板綍澶辫触缁熻
         this.recordFailure(provider, lastError)
 
-        // 检查是否应该重试
-        if (!lastError.retryable || attempt === config.retryConfig.maxAttempts) {
+        // 妫€鏌ユ槸鍚﹀簲璇ラ噸璇?        if (!lastError.retryable || attempt === config.retryConfig.maxAttempts) {
           break
         }
 
-        // 计算重试延迟
+        // 璁＄畻閲嶈瘯寤惰繜
         const delay = this.calculateRetryDelay(config.retryConfig, attempt, lastError.retryAfter)
         console.log(`Retrying ${provider} request (attempt ${attempt + 1}/${config.retryConfig.maxAttempts}) after ${delay}ms`)
 
@@ -267,7 +260,7 @@ export class AIServiceManager {
     throw lastError!
   }
 
-  // 智能路由：选择最佳AI服务
+  // 鏅鸿兘璺敱锛氶€夋嫨鏈€浣矨I鏈嶅姟
   async sendRequestWithFallback(
     request: AIRequest,
     preferredProvider?: AIServiceProvider
@@ -292,12 +285,12 @@ export class AIServiceManager {
         console.warn(`Provider ${provider} failed:`, error.message)
         lastError = error as AIServiceError
 
-        // 如果是不可重试的错误，尝试下一个提供商
+        // 濡傛灉鏄笉鍙噸璇曠殑閿欒锛屽皾璇曚笅涓€涓彁渚涘晢
         if (!lastError.retryable) {
           continue
         }
 
-        // 如果是配额超出或认证错误，跳过这个提供商
+        // 濡傛灉鏄厤棰濊秴鍑烘垨璁よ瘉閿欒锛岃烦杩囪繖涓彁渚涘晢
         if ([AIErrorType.QUOTA_EXCEEDED, AIErrorType.AUTH_ERROR].includes(lastError.type)) {
           continue
         }
@@ -307,7 +300,7 @@ export class AIServiceManager {
     throw lastError!
   }
 
-  // 发起HTTP请求
+  // 鍙戣捣HTTP璇锋眰
   private async makeRequest(
     config: AIServiceConfig,
     request: AIRequest,
@@ -362,8 +355,7 @@ export class AIServiceManager {
     }
   }
 
-  // 构建请求体
-  private buildRequestBody(config: AIServiceConfig, request: AIRequest) {
+  // 鏋勫缓璇锋眰浣?  private buildRequestBody(config: AIServiceConfig, request: AIRequest) {
     const body: any = {
       model: request.model || config.model,
       messages: request.messages,
@@ -372,29 +364,26 @@ export class AIServiceManager {
       stream: false
     }
 
-    // 不同服务商的特殊处理
+    // 涓嶅悓鏈嶅姟鍟嗙殑鐗规畩澶勭悊
     switch (config.provider) {
       case AIServiceProvider.ZHIPU:
-        // 智谱的特殊参数
-        body.top_p = 0.95
+        // 鏅鸿氨鐨勭壒娈婂弬鏁?        body.top_p = 0.95
         break
       case AIServiceProvider.ALI:
-        // 阿里的特殊参数
-        body.top_p = 0.8
+        // 闃块噷鐨勭壒娈婂弬鏁?        body.top_p = 0.8
         break
     }
 
     return body
   }
 
-  // 构建请求头
-  private buildHeaders(config: AIServiceConfig) {
+  // 鏋勫缓璇锋眰澶?  private buildHeaders(config: AIServiceConfig) {
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
       'User-Agent': 'AI-Agent-Platform/1.0'
     }
 
-    // 不同服务商的认证方式
+    // 涓嶅悓鏈嶅姟鍟嗙殑璁よ瘉鏂瑰紡
     switch (config.provider) {
       case AIServiceProvider.DEEPSEEK:
       case AIServiceProvider.MOONSHOT:
@@ -412,7 +401,7 @@ export class AIServiceManager {
     return headers
   }
 
-  // 解析响应
+  // 瑙ｆ瀽鍝嶅簲
   private parseResponse(data: any, provider: AIServiceProvider): AIResponse {
     try {
       const choice = data.choices?.[0]
@@ -440,7 +429,7 @@ export class AIServiceManager {
     }
   }
 
-  // 从HTTP响应创建错误
+  // 浠嶩TTP鍝嶅簲鍒涘缓閿欒
   private async createErrorFromResponse(response: Response, provider: AIServiceProvider): Promise<AIServiceError> {
     const statusCode = response.status
     let errorData: any = {}
@@ -448,12 +437,11 @@ export class AIServiceManager {
     try {
       errorData = await response.json()
     } catch {
-      // JSON解析失败，使用状态文本
-    }
+      // JSON瑙ｆ瀽澶辫触锛屼娇鐢ㄧ姸鎬佹枃鏈?    }
 
     const message = errorData.error?.message || errorData.message || response.statusText
 
-    // 根据状态码确定错误类型
+    // 鏍规嵁鐘舵€佺爜纭畾閿欒绫诲瀷
     let errorType: AIErrorType
     let retryable = true
     let retryAfter: number | undefined
@@ -490,7 +478,7 @@ export class AIServiceManager {
     })
   }
 
-  // 处理错误
+  // 澶勭悊閿欒
   private handleError(error: any, provider: AIServiceProvider, attempt: number): AIServiceError {
     if (error instanceof AIServiceError) {
       return error
@@ -508,7 +496,7 @@ export class AIServiceManager {
     )
   }
 
-  // 计算重试延迟
+  // 璁＄畻閲嶈瘯寤惰繜
   private calculateRetryDelay(config: RetryConfig, attempt: number, retryAfter?: number): number {
     if (retryAfter) {
       return Math.min(retryAfter * 1000, config.maxDelay)
@@ -527,17 +515,16 @@ export class AIServiceManager {
     return Math.min(delay, config.maxDelay)
   }
 
-  // 获取可用的服务提供商（按优先级排序）
+  // 鑾峰彇鍙敤鐨勬湇鍔℃彁渚涘晢锛堟寜浼樺厛绾ф帓搴忥級
   private getAvailableProviders(preferredProvider?: AIServiceProvider): AIServiceProvider[] {
     const allProviders = Array.from(this.configs.keys())
     const available = allProviders.filter(provider => !this.isCircuitOpen(provider))
 
     if (available.length === 0) {
-      return allProviders // 如果所有服务都熔断，返回所有配置的服务
+      return allProviders // 濡傛灉鎵€鏈夋湇鍔￠兘鐔旀柇锛岃繑鍥炴墍鏈夐厤缃殑鏈嶅姟
     }
 
-    // 按成功率和响应时间排序
-    available.sort((a, b) => {
+    // 鎸夋垚鍔熺巼鍜屽搷搴旀椂闂存帓搴?    available.sort((a, b) => {
       const statsA = this.stats.get(a)!
       const statsB = this.stats.get(b)!
 
@@ -545,14 +532,12 @@ export class AIServiceManager {
       const successRateB = statsB.totalRequests > 0 ? statsB.successfulRequests / statsB.totalRequests : 0
 
       if (successRateA !== successRateB) {
-        return successRateB - successRateA // 成功率高的优先
-      }
+        return successRateB - successRateA // 鎴愬姛鐜囬珮鐨勪紭鍏?      }
 
-      return statsA.averageResponseTime - statsB.averageResponseTime // 响应时间短的优先
+      return statsA.averageResponseTime - statsB.averageResponseTime // 鍝嶅簲鏃堕棿鐭殑浼樺厛
     })
 
-    // 如果指定了优先提供商，放到前面
-    if (preferredProvider && available.includes(preferredProvider)) {
+    // 濡傛灉鎸囧畾浜嗕紭鍏堟彁渚涘晢锛屾斁鍒板墠闈?    if (preferredProvider && available.includes(preferredProvider)) {
       const filtered = available.filter(p => p !== preferredProvider)
       return [preferredProvider, ...filtered]
     }
@@ -560,10 +545,9 @@ export class AIServiceManager {
     return available
   }
 
-  // 熔断器相关方法
-  private isCircuitOpen(provider: AIServiceProvider): boolean {
+  // 鐔旀柇鍣ㄧ浉鍏虫柟娉?  private isCircuitOpen(provider: AIServiceProvider): boolean {
     const state = this.circuitBreaker.get(provider)
-    if (!state) return false
+    if (!state) {\n      return false\n    }
 
     if (state.state === 'OPEN') {
       if (Date.now() > state.nextRetryTime) {
@@ -584,7 +568,7 @@ export class AIServiceManager {
     })
   }
 
-  // 记录成功统计
+  // 璁板綍鎴愬姛缁熻
   private recordSuccess(provider: AIServiceProvider, responseTime: number) {
     const stats = this.stats.get(provider)!
     stats.totalRequests++
@@ -593,15 +577,14 @@ export class AIServiceManager {
     stats.lastSuccessAt = new Date()
   }
 
-  // 记录失败统计
+  // 璁板綍澶辫触缁熻
   private recordFailure(provider: AIServiceProvider, error: AIServiceError) {
     const stats = this.stats.get(provider)!
     stats.totalRequests++
     stats.failedRequests++
     stats.lastError = error
 
-    // 更新熔断器状态
-    let state = this.circuitBreaker.get(provider) || {
+    // 鏇存柊鐔旀柇鍣ㄧ姸鎬?    const state = this.circuitBreaker.get(provider) ?? {
       state: 'CLOSED' as const,
       failureCount: 0,
       nextRetryTime: 0
@@ -609,28 +592,28 @@ export class AIServiceManager {
 
     state.failureCount++
 
-    // 连续5次失败则开启熔断器
+    // 杩炵画5娆″け璐ュ垯寮€鍚啍鏂櫒
     if (state.failureCount >= 5) {
       state.state = 'OPEN'
-      state.nextRetryTime = Date.now() + 60000 // 1分钟后尝试半开
+      state.nextRetryTime = Date.now() + 60000 // 1鍒嗛挓鍚庡皾璇曞崐寮€
     }
 
     this.circuitBreaker.set(provider, state)
   }
 
-  // 解析重试时间
+  // 瑙ｆ瀽閲嶈瘯鏃堕棿
   private parseRetryAfter(retryAfterHeader: string | null): number | undefined {
-    if (!retryAfterHeader) return undefined
+    if (!retryAfterHeader) {\n      return undefined\n    }
     const seconds = parseInt(retryAfterHeader)
     return isNaN(seconds) ? undefined : seconds
   }
 
-  // 睡眠函数
+  // 鐫＄湢鍑芥暟
   private sleep(ms: number): Promise<void> {
     return new Promise(resolve => setTimeout(resolve, ms))
   }
 
-  // 获取服务统计
+  // 鑾峰彇鏈嶅姟缁熻
   getStats(): Record<string, ServiceStats> {
     const result: Record<string, ServiceStats> = {}
     this.stats.forEach((stats, provider) => {
@@ -639,8 +622,7 @@ export class AIServiceManager {
     return result
   }
 
-  // 获取熔断器状态
-  getCircuitBreakerStates(): Record<string, any> {
+  // 鑾峰彇鐔旀柇鍣ㄧ姸鎬?  getCircuitBreakerStates(): Record<string, any> {
     const result: Record<string, any> = {}
     this.circuitBreaker.forEach((state, provider) => {
       result[provider] = { ...state }
@@ -649,17 +631,15 @@ export class AIServiceManager {
   }
 }
 
-// 熔断器状态
-interface CircuitBreakerState {
+// 鐔旀柇鍣ㄧ姸鎬?interface CircuitBreakerState {
   state: 'CLOSED' | 'OPEN' | 'HALF_OPEN'
   failureCount: number
   nextRetryTime: number
 }
 
-// 创建全局AI服务管理器实例
-export const aiServiceManager = new AIServiceManager()
+// 鍒涘缓鍏ㄥ眬AI鏈嶅姟绠＄悊鍣ㄥ疄渚?export const aiServiceManager = new AIServiceManager()
 
-// 便捷方法
+// 渚挎嵎鏂规硶
 export async function callAI(
   messages: Array<{ role: 'system' | 'user' | 'assistant'; content: string }>,
   options: {
@@ -677,5 +657,10 @@ export async function callAI(
   }, options.provider)
 }
 
-// 导出类型
+// 瀵煎嚭绫诲瀷
 export type { AIRequest, AIResponse, AIServiceConfig, RetryConfig }
+
+
+
+
+
