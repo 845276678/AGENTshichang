@@ -1,5 +1,9 @@
-// 首先加载文件系统补丁
-require('./scripts/fs-patch');
+// Load filesystem patches for Docker build compatibility
+try {
+  require('./scripts/fs-patch');
+} catch (error) {
+  console.warn('Warning: Could not load fs-patch, build may fail in Docker:', error.message);
+}
 
 /** @type   {import('next').NextConfig} */
 const nextConfig = {

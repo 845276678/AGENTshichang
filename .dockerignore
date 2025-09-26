@@ -75,4 +75,4 @@ README.md
 docs
 
 # 脚本
-scripts
+# scripts - needed for fs-patch.js during Docker build
