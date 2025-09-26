@@ -1,5 +1,5 @@
-// AI创意调研平台数据库模式
-// 支持用户管理、创意提交、调研指导、积分系统等核心功能
+// AI创意调研平台数据库模式 - 生产级增强版
+// 支持用户管理、创意提交、调研指导、竞价系统、积分系统等核心功能
 
 generator client {
   provider      = "prisma-client-js"
@@ -37,6 +37,16 @@ model User {
   totalSpent      Int        @default(0) @map("total_spent")
   totalEarned     Int        @default(0) @map("total_earned")
 
+  // 竞价相关统计 - 新增
+  totalGuesses        Int     @default(0) @map("total_guesses")
+  guessAccuracy       Float   @default(0) @map("guess_accuracy")
+  guessEarnings       Int     @default(0) @map("guess_earnings")
+  guessLevel          Int     @default(1) @map("guess_level")
+  levelProgress       Float   @default(0) @map("level_progress")
+  consecutiveGuesses  Int     @default(0) @map("consecutive_guesses")
+  bestStreak          Int     @default(0) @map("best_streak")
+  favoriteAgent      String? @map("favorite_agent")
+
   // 通知设置
   emailNotifications Boolean @default(true) @map("email_notifications")
   marketingEmails    Boolean @default(false) @map("marketing_emails")
@@ -57,6 +67,10 @@ model User {
   discussions     IdeaDiscussion[]
   orders          Order[]
   cartItems       CartItem[]
+  biddingSessions BiddingSession[] // 新增
+  priceGuesses    PriceGuess[]     // 新增
+  biddingBehaviors UserBiddingBehavior[] // 新增
+  achievements    UserAchievement[] // 新增
 
   @@map("users")
 }
@@ -142,6 +156,7 @@ model Idea {
   user            User @relation(fields: [userId], references: [id], onDelete: Cascade)
   researchReports ResearchReport[]
   discussions     IdeaDiscussion[]
+  biddingSessions BiddingSession[] // 新增
 
   @@map("ideas")
 }
@@ -173,6 +188,296 @@ enum IdeaVisibility {
   PRIVATE
   UNLISTED
 }
+
+// ==================== 竞价系统核心表 ====================
+
+// 竞价会话表 - 生产级增强版
+model BiddingSession {
+  id                    String   @id @default(cuid())
+  ideaId                String   @map("idea_id")
+  userId                String?  @map("user_id") // 会话发起者
+  startPrice            Int      @default(50) @map("start_price")
+  currentHigh           Int      @default(50) @map("current_high")
+  winnerAgent           String?  @map("winner_agent")
+  winnerAgentType       String?  @map("winner_agent_type")
+  finalPrice            Int?     @map("final_price")
+
+  // 会话状态和阶段
+  status                BiddingStatus @default(PENDING)
+  phase                 BiddingPhase @default(DISCUSSION)
+
+  // 讨论增强相关
+  enhancedByDiscussion  Boolean @default(false) @map("enhanced_by_discussion")
+  discussionId          String?  @map("discussion_id")
+  enhancementScore      Float   @default(0.0) @map("enhancement_score")
+
+  // 参与统计
+  participantCount      Int      @default(0) @map("participant_count")
+  viewerCount           Int      @default(0) @map("viewer_count")
+  maxViewerCount        Int      @default(0) @map("max_viewer_count")
+  totalInteractions     Int      @default(0) @map("total_interactions")
+
+  // 时间控制
+  durationSeconds       Int      @default(900) @map("duration_seconds") // 15分钟
+  discussionDuration    Int      @default(600) @map("discussion_duration") // 10分钟
+  biddingDuration       Int      @default(900) @map("bidding_duration") // 15分钟
+
+  // 时间戳
+  startedAt             DateTime? @map("started_at")
+  endedAt               DateTime? @map("ended_at")
+  discussionStartedAt   DateTime? @map("discussion_started_at")
+  biddingStartedAt      DateTime? @map("bidding_started_at")
+  createdAt             DateTime @default(now()) @map("created_at")
+  updatedAt             DateTime @updatedAt @map("updated_at")
+
+  // 性能和质量指标
+  avgResponseTime       Float   @default(0) @map("avg_response_time")
+  aiServiceCost         Float   @default(0) @map("ai_service_cost")
+  userEngagementScore   Float   @default(0) @map("user_engagement_score")
+  contentQualityScore   Float   @default(0) @map("content_quality_score")
+
+  // 关联关系
+  idea         Idea @relation(fields: [ideaId], references: [id])
+  user         User? @relation(fields: [userId], references: [id])
+  discussion   IdeaDiscussion? @relation(fields: [discussionId], references: [id])
+  bids         Bid[]
+  priceGuesses PriceGuess[]
+  interactions AIInteraction[]
+  behaviors    UserBiddingBehavior[]
+
+  @@index([status, createdAt])
+  @@index([ideaId, status])
+  @@index([userId, status])
+  @@map("bidding_sessions")
+}
+
+// 竞价状态枚举
+enum BiddingStatus {
+  PENDING     // 等待开始
+  ACTIVE      // 进行中
+  ENDED       // 已结束
+  CANCELLED   // 已取消
+  FAILED      // 失败
+}
+
+// 竞价阶段枚举
+enum BiddingPhase {
+  DISCUSSION  // 讨论阶段
+  BIDDING     // 竞价阶段
+  RESULTS     // 结果阶段
+}
+
+// AI出价记录表 - 生产级增强版
+model Bid {
+  id                 String   @id @default(cuid())
+  sessionId          String   @map("session_id")
+  agentName          String   @map("agent_name")
+  agentType          String   @map("agent_type")
+  amount             Int
+  comment            String?
+  confidence         Float?
+
+  // AI决策数据
+  analysisData       Json?    @map("analysis_data")
+  reasoning          String?  // 出价理由
+  emotionalState     String   @default("neutral") @map("emotional_state")
+
+  // 生成相关
+  isScripted         Boolean  @default(true) @map("is_scripted")
+  aiServiceUsed      String?  @map("ai_service_used")
+  generationCost     Float    @default(0) @map("generation_cost")
+  responseTimeMs     Int      @default(0) @map("response_time_ms")
+  qualityScore       Float    @default(0) @map("quality_score")
+
+  // 理解深度（讨论增强相关）
+  understandingDepth Float    @default(0.5) @map("understanding_depth")
+  contextRichness    Float    @default(0.5) @map("context_richness")
+
+  createdAt          DateTime @default(now()) @map("created_at")
+
+  session BiddingSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@index([sessionId, createdAt])
+  @@index([agentName, createdAt])
+  @@map("bids")
+}
+
+// 用户价格竞猜表 - 生产级增强版
+model PriceGuess {
+  id                     String   @id @default(cuid())
+  sessionId              String   @map("session_id")
+  userId                 String   @map("user_id")
+  guessedPrice           Int      @map("guessed_price")
+  confidence             Float
+  stakeAmount            Int      @default(10) @map("stake_amount")
+
+  // 结果和奖励
+  actualPrice            Int?     @map("actual_price")
+  accuracy               Float?   // 准确度百分比
+  reward                 Int?     // 获得的奖励积分
+
+  // 增强信息
+  basedOnDiscussion      Boolean  @default(false) @map("based_on_discussion")
+  predictionConfidenceBonus Float @default(0.0) @map("prediction_confidence_bonus")
+
+  // 用户行为数据
+  timeSpentMs            Int?     @map("time_spent_ms")
+  adjustmentCount        Int      @default(0) @map("adjustment_count")
+
+  createdAt              DateTime @default(now()) @map("created_at")
+
+  session BiddingSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  user    User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([sessionId, userId])
+  @@index([userId, createdAt])
+  @@map("price_guesses")
+}
+
+// AI交流记录表 - 生产级增强版
+model AIInteraction {
+  id               String   @id @default(cuid())
+  sessionId        String   @map("session_id")
+  agentName        String   @map("agent_name")
+  agentType        String   @map("agent_type")
+
+  // 交互分类
+  interactionType  AIInteractionType @map("interaction_type")
+  phase            String   // 所属阶段
+
+  // 内容和表现
+  content          String
+  emotion          String   @default("neutral")
+  animation        String   @default("none")
+
+  // 生成和质量控制
+  isScripted       Boolean  @default(true) @map("is_scripted")
+  aiServiceUsed    String?  @map("ai_service_used")
+  generationCost   Float    @default(0) @map("generation_cost")
+  responseTimeMs   Int      @default(0) @map("response_time_ms")
+  qualityScore     Float    @default(0) @map("quality_score")
+
+  // 用户反应统计
+  userReactions    Json     @default("{}") @map("user_reactions")
+  engagementScore  Float    @default(0) @map("engagement_score")
+
+  // 特殊事件
+  isRandomEvent    Boolean  @default(false) @map("is_random_event")
+  eventType        String?  @map("event_type")
+
+  createdAt        DateTime @default(now()) @map("created_at")
+
+  session BiddingSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@index([sessionId, createdAt])
+  @@index([agentName, createdAt])
+  @@map("ai_interactions")
+}
+
+// AI交互类型枚举
+enum AIInteractionType {
+  opening           // 开场分析
+  bid_reaction      // 出价反应
+  psychology        // 心理战
+  result           // 结果点评
+  glitch           // 故障事件
+  mimicry          // 模仿游戏
+  conflict         // 冲突对话
+  alliance         // 联盟形成
+  breakdown        // 人设崩坏
+  user_response    // 用户互动回应
+}
+
+// 用户竞价行为追踪表 - 新增
+model UserBiddingBehavior {
+  id         String   @id @default(cuid())
+  sessionId  String   @map("session_id")
+  userId     String   @map("user_id")
+  actionType UserBiddingAction @map("action_type")
+  actionData Json?    @map("action_data")
+  timestamp  DateTime @default(now())
+
+  // 行为上下文
+  phase      String?  // 发生在哪个阶段
+  agentName  String?  @map("agent_name") // 相关的AI
+
+  session BiddingSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  user    User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([sessionId, timestamp])
+  @@index([userId, timestamp])
+  @@map("user_bidding_behaviors")
+}
+
+// 用户竞价行为枚举
+enum UserBiddingAction {
+  enter_session      // 进入会话
+  leave_session      // 离开会话
+  support_agent      // 支持某个AI
+  react_to_dialogue  // 对对话做出反应
+  submit_guess       // 提交价格预测
+  adjust_guess       // 调整预测
+  share_session      // 分享会话
+  report_issue       // 报告问题
+}
+
+// AI服务使用统计表 - 新增
+model AIServiceUsage {
+  id               String   @id @default(cuid())
+  sessionId        String?  @map("session_id")
+  agentName        String?  @map("agent_name")
+  serviceName      String   @map("service_name") // deepseek, zhipu, etc.
+  modelName        String?  @map("model_name")
+
+  // 使用量统计
+  promptTokens     Int      @map("prompt_tokens")
+  completionTokens Int      @map("completion_tokens")
+  totalTokens      Int      @map("total_tokens")
+  requestCount     Int      @default(1) @map("request_count")
+
+  // 成本和性能
+  totalCost        Float    @map("total_cost")
+  responseTimeMs   Int      @map("response_time_ms")
+
+  // 质量评估
+  qualityRating    Float?   @map("quality_rating")
+  userSatisfaction Float?   @map("user_satisfaction")
+
+  // 错误和重试
+  errorCount       Int      @default(0) @map("error_count")
+  retryCount       Int      @default(0) @map("retry_count")
+
+  createdAt        DateTime @default(now()) @map("created_at")
+  date             DateTime @default(now()) // 按天统计
+
+  @@index([serviceName, date])
+  @@index([sessionId, createdAt])
+  @@map("ai_service_usage")
+}
+
+// 用户成就表 - 新增
+model UserAchievement {
+  id            String   @id @default(cuid())
+  userId        String   @map("user_id")
+  achievementId String   @map("achievement_id")
+  achievementName String @map("achievement_name")
+  description   String
+  category      String
+  bonusPoints   Int      @map("bonus_points")
+  earnedAt      DateTime @default(now()) @map("earned_at")
+
+  // 成就数据
+  progressData  Json?    @map("progress_data")
+  isRare        Boolean  @default(false) @map("is_rare")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, achievementId])
+  @@index([userId, earnedAt])
+  @@map("user_achievements")
+}
+
+// ==================== 原有业务表继续保持 ====================
 
 // 调研报告表
 model ResearchReport {
