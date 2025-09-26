@@ -14,6 +14,9 @@ import {
 import { apiClient } from '@/lib/api-client';
 import { tokenStorage } from '@/lib/token-storage';
 
+const AUTH_CHECK_TIMEOUT_MS = Number(process.env.NEXT_PUBLIC_AUTH_CHECK_TIMEOUT ?? '5000');
+const AUTH_CHECK_MODE = process.env.NEXT_PUBLIC_AUTH_CHECK_MODE ?? 'auto';
+
 // Auth State Interface
 export interface AuthState {
   // User and authentication status
@@ -228,7 +231,11 @@ export function AuthProvider({ children }: AuthProviderProps): JSX.Element {
     dispatch({ type: 'SET_LOADING', payload: true });
 
     try {
-      // Check if we have valid tokens
+      if (AUTH_CHECK_MODE === 'skip') {
+        dispatch({ type: 'SET_INITIALIZED', payload: true });
+        return;
+      }
+
       const tokens = tokenStorage.getTokens();
       const storedUser = tokenStorage.getUser();
 
@@ -237,7 +244,6 @@ export function AuthProvider({ children }: AuthProviderProps): JSX.Element {
         return;
       }
 
-      // For demo purposes, if we have mock tokens, use the stored user data
       if (tokens.accessToken === 'mock-access-token') {
         dispatch({
           type: 'SET_AUTHENTICATION',
@@ -247,16 +253,20 @@ export function AuthProvider({ children }: AuthProviderProps): JSX.Element {
         return;
       }
 
-      // Check if refresh token is expired (for real tokens)
       if (tokenStorage.isRefreshTokenExpired()) {
         tokenStorage.clearTokens();
         dispatch({ type: 'SET_INITIALIZED', payload: true });
         return;
       }
 
-      // Verify token with backend and get fresh user data (for real tokens)
       try {
-        const response = await apiClient.getMe();
+        const response = await Promise.race([
+          apiClient.getMe(),
+          new Promise<never>((_, reject) =>
+            setTimeout(() => reject(new Error('Auth check timeout')), AUTH_CHECK_TIMEOUT_MS)
+          ),
+        ]);
+
         if (response.success && response.data) {
           dispatch({
             type: 'SET_AUTHENTICATION',
@@ -267,7 +277,9 @@ export function AuthProvider({ children }: AuthProviderProps): JSX.Element {
           tokenStorage.clearTokens();
         }
       } catch (error) {
-        // If token validation fails, clear tokens
+        if (error instanceof Error && error.message === 'Auth check timeout') {
+          console.warn('Auth check timed out, continuing without session');
+        }
         tokenStorage.clearTokens();
       }
     } catch (error) {
@@ -276,6 +288,7 @@ export function AuthProvider({ children }: AuthProviderProps): JSX.Element {
       dispatch({ type: 'SET_INITIALIZED', payload: true });
     }
   };
+
 
   // Login function
   const login = async (credentials: LoginRequest): Promise<void> => {
