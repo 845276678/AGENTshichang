@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Layout } from '@/components/layout'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -29,7 +30,8 @@ import {
   FileText,
   Download,
   Eye,
-  Settings
+  Settings,
+  Trophy
 } from 'lucide-react'
 
 import { UserRequirementsCollector } from '@/components/business-plan/UserRequirementsCollector'
@@ -82,6 +84,28 @@ const categories = [
 ]
 
 export default function BusinessPlanGenerationPage() {
+  const router = useRouter()
+  const searchParams = useSearchParams()
+
+  // 从URL参数获取创意信息
+  const ideaFromParams = React.useMemo(() => {
+    const ideaId = searchParams.get('ideaId')
+    const title = searchParams.get('title')
+    const description = searchParams.get('description')
+    const category = searchParams.get('category')
+
+    if (ideaId && title && description && category) {
+      return {
+        id: ideaId,
+        title: decodeURIComponent(title),
+        description: decodeURIComponent(description),
+        category: decodeURIComponent(category),
+        tags: [],
+        submittedBy: 'bidding_session'
+      }
+    }
+    return null
+  }, [searchParams])
   // 状态管理
   const {
     ideaData,
@@ -105,6 +129,19 @@ export default function BusinessPlanGenerationPage() {
     description: '',
     category: ''
   })
+
+  // 如果有来自竞价的创意，预填充数据
+  useEffect(() => {
+    if (ideaFromParams) {
+      setIdeaData(ideaFromParams)
+      setCurrentPhase('requirements') // 直接跳到需求收集阶段
+      setIdeaInput({
+        title: ideaFromParams.title,
+        description: ideaFromParams.description,
+        category: ideaFromParams.category
+      })
+    }
+  }, [ideaFromParams, setIdeaData])
 
   const [currentPhase, setCurrentPhase] = useState<'input' | 'requirements' | 'generation' | 'result'>('input')
   const [showModernView, setShowModernView] = useState(false)
@@ -243,11 +280,31 @@ export default function BusinessPlanGenerationPage() {
             className="text-center mb-12"
           >
             <h1 className="text-5xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-4">
-              AI 商业计划书生成器
+              {ideaFromParams ? `基于竞价结果生成商业计划书` : 'AI 商业计划书生成器'}
             </h1>
             <p className="text-xl text-muted-foreground max-w-3xl mx-auto mb-6">
-              基于多个 AI 大模型协同工作，为您的创意生成专业的商业计划书
+              {ideaFromParams
+                ? `为您的获胜创意「${ideaFromParams.title}」生成专业的商业计划书`
+                : '基于多个 AI 大模型协同工作，为您的创意生成专业的商业计划书'
+              }
             </p>
+
+            {ideaFromParams && (
+              <div className="mb-6 p-4 bg-white/80 backdrop-blur-sm rounded-lg shadow-sm max-w-3xl mx-auto">
+                <div className="flex items-center gap-2 mb-2">
+                  <Badge variant="outline" className="bg-green-100 text-green-700 border-green-200">
+                    <Trophy className="w-3 h-3 mr-1" />
+                    来自竞价会话
+                  </Badge>
+                  <Badge variant="outline" className="bg-blue-100 text-blue-700 border-blue-200">
+                    {ideaFromParams.category}
+                  </Badge>
+                </div>
+                <p className="text-gray-700 text-left">
+                  {ideaFromParams.description}
+                </p>
+              </div>
+            )}
 
             {/* 进度指示器 */}
             <div className="flex justify-center items-center space-x-4 mb-8">

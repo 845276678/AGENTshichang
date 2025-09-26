@@ -17,7 +17,8 @@ import {
   Target,
   Zap,
   TrendingDown,
-  Users
+  Users,
+  FileText
 } from 'lucide-react'
 
 // MVP版本的创意竞价页面
@@ -36,6 +37,21 @@ export default function MVPBiddingPage({ ideaId }) {
   const [idea, setIdea] = useState(null)
   const [sessionId, setSessionId] = useState(null)
   const [userGuess, setUserGuess] = useState(null)
+  const [sessionStatus, setSessionStatus] = useState('PENDING')
+
+  // 导航到商业计划生成页面
+  const handleNavigateToBusinessPlan = () => {
+    if (idea) {
+      // 使用URL参数传递创意信息，跳转到商业计划生成页面
+      const params = new URLSearchParams({
+        ideaId: idea.id,
+        title: idea.title,
+        description: idea.description,
+        category: idea.category
+      })
+      window.location.href = `/business-plan?${params.toString()}`
+    }
+  }
 
   // 获取创意和竞价会话信息
   useEffect(() => {
@@ -208,6 +224,16 @@ export default function MVPBiddingPage({ ideaId }) {
                   <Target className="w-4 h-4 mr-2" />
                   查看历史竞价
                 </Button>
+                {/* 竞价结束后显示商业计划生成按钮 */}
+                {sessionStatus === 'ENDED' && (
+                  <Button
+                    className="w-full bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 text-white"
+                    onClick={() => handleNavigateToBusinessPlan()}
+                  >
+                    <FileText className="w-4 h-4 mr-2" />
+                    生成商业计划书
+                  </Button>
+                )}
               </CardContent>
             </Card>
           </div>
