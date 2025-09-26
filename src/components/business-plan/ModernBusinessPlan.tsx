@@ -3,7 +3,7 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion'
 import {
-  FileText, Download, Share2, Clock, Pages, BarChart,
+  FileText, Download, Share2, Clock, FileText as Pages, BarChart,
   Sparkles, TrendingUp, Target, Zap, Star, ArrowRight,
   Eye, Bookmark, Filter, Grid, List, Moon, Sun
 } from 'lucide-react'

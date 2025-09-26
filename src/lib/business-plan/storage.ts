@@ -28,11 +28,11 @@ const KEY_PREFIX = "bp:generation:"
 const TTL_SECONDS = 60 * 60 * 24
 
 export async function saveGenerationState(state: BusinessPlanGenerationState): Promise<void> {
-  await redis.setex(${KEY_PREFIX}, TTL_SECONDS, JSON.stringify(state))
+  await redis.setex(`${KEY_PREFIX}${state.ideaId}`, TTL_SECONDS, JSON.stringify(state))
 }
 
 export async function getGenerationState(ideaId: string): Promise<BusinessPlanGenerationState | null> {
-  const raw = await redis.get(${KEY_PREFIX})
+  const raw = await redis.get(`${KEY_PREFIX}${ideaId}`)
   if (!raw) {
     return null
   }

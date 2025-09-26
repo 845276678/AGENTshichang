@@ -29,7 +29,7 @@ export default function LoginPage() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          identifier: data.email, // API使用identifier而不是email
+          email: data.email, // 修正：使用email而不是identifier
           password: data.password,
           rememberMe: data.rememberMe || false
         })
