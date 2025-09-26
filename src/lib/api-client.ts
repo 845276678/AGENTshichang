@@ -44,7 +44,7 @@ export class ApiErrorClass extends Error implements ApiError {
 }
 
 // API Configuration
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || '';
 const API_TIMEOUT = 8000; // 8 seconds default to avoid blocking UI
 
 interface RequestConfig extends RequestInit {
