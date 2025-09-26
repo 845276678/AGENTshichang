@@ -40,14 +40,15 @@ import { useBusinessPlanGeneration } from '@/stores/useBusinessPlanGeneration'
 
 // 商业计划书生成阶段图标映射
 const STAGE_ICONS = {
-  concept_analysis: Target,
-  market_research: TrendingUp,
-  tech_architecture: Building,
-  business_model: Building,
-  financial_model: DollarSign,
-  legal_compliance: Shield,
-  implementation_plan: Calendar,
-  investor_pitch: Presentation
+  scenario_grounding: Target,
+  market_reality_check: TrendingUp,
+  product_definition: Building,
+  business_model_design: DollarSign,
+  operational_plan: Users,
+  financial_planning: DollarSign,
+  implementation_roadmap: Calendar,
+  risk_assessment: Shield,
+  investor_materials: Presentation
 }
 
 // AI 服务提供商信息
@@ -55,19 +56,19 @@ const AI_PROVIDERS = [
   {
     name: 'DeepSeek',
     icon: '🧠',
-    specialty: '概念分析与商业模式设计',
+    specialty: '场景分析与商业模式设计',
     color: 'bg-blue-500'
   },
   {
     name: '智谱GLM',
     icon: '⚡',
-    specialty: '技术架构与实施规划',
+    specialty: 'MVP产品定义与实施规划',
     color: 'bg-purple-500'
   },
   {
     name: '阿里通义',
     icon: '📊',
-    specialty: '市场调研与财务建模',
+    specialty: '市场验证与财务规划',
     color: 'bg-green-500'
   }
 ]
@@ -283,12 +284,12 @@ export default function BusinessPlanGenerationPage() {
             className="text-center mb-12"
           >
             <h1 className="text-5xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-4">
-              {ideaFromParams ? `基于竞价结果生成商业计划书` : 'AI 商业计划书生成器'}
+              {ideaFromParams ? `创意商业化落地方案生成` : 'AI 创意落地商业计划书'}
             </h1>
             <p className="text-xl text-muted-foreground max-w-3xl mx-auto mb-6">
               {ideaFromParams
-                ? `为您的获胜创意「${ideaFromParams.title}」生成专业的商业计划书`
-                : '基于多个 AI 大模型协同工作，为您的创意生成专业的商业计划书'
+                ? `为您的获胜创意「${ideaFromParams.title}」制定切实可行的商业化落地方案`
+                : '从抽象创意到具体实施，AI 帮您制定详实的商业落地计划'
               }
             </p>
 
@@ -357,7 +358,7 @@ export default function BusinessPlanGenerationPage() {
                   AI 专家团队
                 </CardTitle>
                 <CardDescription className="text-center">
-                  三大 AI 模型协同工作，从不同角度分析您的创意
+                  三大 AI 模型协同工作，从创意到落地全程护航您的商业化进程
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -399,7 +400,7 @@ export default function BusinessPlanGenerationPage() {
                       请输入您的创意信息
                     </CardTitle>
                     <CardDescription>
-                      详细描述您的创意，AI 将基于这些信息生成专业的商业计划书
+                      描述您的创意想法，AI将为您制定具体的商业化落地方案和实施路径
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-6">
@@ -483,9 +484,9 @@ export default function BusinessPlanGenerationPage() {
               >
                 <Card>
                   <CardHeader className="text-center">
-                    <CardTitle className="text-2xl mb-2">AI 正在生成您的商业计划书</CardTitle>
+                    <CardTitle className="text-2xl mb-2">AI 正在制定您的创意落地方案</CardTitle>
                     <CardDescription>
-                      多个 AI 模型正在协同工作，请稍候...
+                      多个 AI 模型正在协同分析，为您的创意制定具体可行的商业化路径...
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-6">
@@ -585,10 +586,10 @@ export default function BusinessPlanGenerationPage() {
                   <CardHeader className="text-center">
                     <CardTitle className="text-2xl text-green-600 mb-2 flex items-center justify-center gap-2">
                       <CheckCircle className="w-7 h-7" />
-                      商业计划书生成完成！
+                      创意落地方案制定完成！
                     </CardTitle>
                     <CardDescription>
-                      您的 {ideaData?.title} 商业计划书已成功生成
+                      您的「{ideaData?.title}」商业化落地方案已成功制定
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-6">

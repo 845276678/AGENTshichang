@@ -1,151 +1,151 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { loginSchema, validateInput } from '@/lib/validations';
-import UserService from '@/lib/services/user.service';
-import { generateTokenPair } from '@/lib/jwt';
-import { emailService } from '@/lib/email';
-import { withRateLimit, loginRateLimit } from '@/lib/rate-limit';
-import {
-  createSuccessResponse,
-  createErrorResponse,
-  handleApiError,
-  AuthErrors
-} from '@/lib/errors';
-import {
-  handleCorsPreflightRequest,
-  validateContentType,
-  addSecurityHeaders
-} from '@/lib/auth-middleware';
 import { prisma } from '@/lib/database';
+import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
 
-function getClientInfo(request: NextRequest) {
-  const userAgent = request.headers.get('user-agent') || 'Unknown';
-  const forwarded = request.headers.get('x-forwarded-for');
-  const realIp = request.headers.get('x-real-ip');
-  const cfConnectingIp = request.headers.get('cf-connecting-ip');
-
-  let ipAddress = 'unknown';
-
-  if (forwarded) {
-    ipAddress = forwarded.split(',')[0]?.trim() || 'unknown';
-  } else if (realIp) {
-    ipAddress = realIp;
-  } else if (cfConnectingIp) {
-    ipAddress = cfConnectingIp;
-  }
-
-  if (process.env.NODE_ENV === 'development' && ipAddress === 'unknown') {
-    ipAddress = '127.0.0.1';
-  }
-
-  return { userAgent, ipAddress };
-}
-
-async function loginHandler(request: NextRequest): Promise<NextResponse> {
+export async function POST(request: NextRequest) {
   try {
-    // Handle CORS preflight
-    if (request.method === 'OPTIONS') {
-      return handleCorsPreflightRequest(request);
-    }
+    console.log('🔍 登录API开始处理...');
 
-    // Only allow POST method
-    if (request.method !== 'POST') {
-      return createErrorResponse('Method not allowed', 405);
-    }
-
-    // Validate content type
-    if (!validateContentType(request)) {
-      return createErrorResponse('Invalid content type. Expected application/json', 400);
-    }
-
-    // Parse request body
+    // 解析请求体
     const body = await request.json();
+    console.log('✅ 请求体解析成功:', { email: body.email });
 
-    // Validate input data
-    const validation = validateInput(loginSchema, body);
-    if (!validation.success) {
+    const { email, password, rememberMe = false } = body;
+
+    // 基本验证
+    if (!email || !password) {
       return NextResponse.json({
         success: false,
-        message: 'Validation failed',
-        errors: validation.errors
+        message: '邮箱和密码不能为空'
       }, { status: 400 });
     }
 
-    const { email, password, rememberMe } = validation.data;
-
-    // Find user by identifier (email/username/phone)
-    const user = await UserService.findByIdentifier(email);
-    if (!user) {
-      throw AuthErrors.invalidCredentials();
-    }
-
-    // Check if account is suspended
-    if (user.status === 'SUSPENDED' || user.status === 'BANNED') {
-      throw AuthErrors.accountSuspended();
-    }
-
-    // Verify password
-    const isValidPassword = await UserService.verifyPassword(user, password);
-    if (!isValidPassword) {
-      throw AuthErrors.invalidCredentials();
-    }
-
-    // Check if email is verified (optional - you can skip this check if needed)
-    if (!user.isEmailVerified && user.status === 'INACTIVE') {
-      throw AuthErrors.accountNotVerified('Please verify your email before logging in');
-    }
-
-    // Generate tokens
-    const tokens = generateTokenPair(user.id, user.email, user.role);
-
-    // Store refresh token and session in database
-    const { userAgent, ipAddress } = getClientInfo(request);
-    const refreshTokenExpiresAt = new Date();
-    refreshTokenExpiresAt.setDate(refreshTokenExpiresAt.getDate() + (rememberMe ? 30 : 7)); // 30 days or 7 days
-
-    // Create refresh token
-    await prisma.refreshToken.create({
-      data: {
-        token: tokens.refreshToken,
-        userId: user.id,
-        expiresAt: refreshTokenExpiresAt,
-        isRevoked: false
+    // 查找用户
+    console.log('🔍 查找用户...');
+    const user = await prisma.user.findFirst({
+      where: {
+        OR: [
+          { email: email.toLowerCase() },
+          { username: email.toLowerCase() }
+        ]
+      },
+      select: {
+        id: true,
+        email: true,
+        username: true,
+        passwordHash: true,
+        firstName: true,
+        lastName: true,
+        credits: true,
+        level: true,
+        isEmailVerified: true,
+        avatar: true,
+        role: true,
+        status: true
       }
     });
 
-    // Create user session
+    console.log('✅ 用户查询完成:', user ? '找到用户' : '未找到用户');
+
+    if (!user) {
+      return NextResponse.json({
+        success: false,
+        message: '邮箱或密码错误'
+      }, { status: 401 });
+    }
+
+    // 检查用户状态
+    if (user.status === 'SUSPENDED' || user.status === 'BANNED') {
+      return NextResponse.json({
+        success: false,
+        message: '账户已被暂停，请联系管理员'
+      }, { status: 401 });
+    }
+
+    // 验证密码
+    console.log('🔍 验证密码...');
+    const isValidPassword = await bcrypt.compare(password, user.passwordHash);
+    console.log('✅ 密码验证:', isValidPassword ? '成功' : '失败');
+
+    if (!isValidPassword) {
+      return NextResponse.json({
+        success: false,
+        message: '邮箱或密码错误'
+      }, { status: 401 });
+    }
+
+    // 生成JWT令牌
+    console.log('🔍 生成JWT...');
+    const accessToken = jwt.sign(
+      {
+        userId: user.id,
+        email: user.email,
+        role: user.role
+      },
+      process.env.JWT_SECRET || 'fallback-secret',
+      { expiresIn: '24h' }
+    );
+
+    const refreshToken = jwt.sign(
+      {
+        userId: user.id,
+        type: 'refresh'
+      },
+      process.env.JWT_REFRESH_SECRET || 'fallback-refresh-secret',
+      { expiresIn: rememberMe ? '30d' : '7d' }
+    );
+
+    console.log('✅ JWT生成成功');
+
+    // 创建用户会话
+    console.log('🔍 创建用户会话...');
+    const userAgent = request.headers.get('user-agent') || 'Unknown';
+    const forwarded = request.headers.get('x-forwarded-for');
+    const realIp = request.headers.get('x-real-ip');
+    const ipAddress = forwarded?.split(',')[0]?.trim() || realIp || '127.0.0.1';
+
     const sessionExpiresAt = new Date();
     sessionExpiresAt.setDate(sessionExpiresAt.getDate() + (rememberMe ? 30 : 7));
 
     await prisma.userSession.create({
       data: {
-        token: tokens.accessToken,
         userId: user.id,
+        token: accessToken,
         ipAddress,
         userAgent,
         expiresAt: sessionExpiresAt
       }
     });
 
-    // Update last login time
-    await UserService.updateLastLogin(user.id);
+    console.log('✅ 用户会话创建成功');
 
-    // Send security notification email for new device/location
-    try {
-      await emailService.sendSecurityNotification(
-        user.email,
-        user.username,
-        'Account login',
-        ipAddress,
-        userAgent
-      );
-    } catch (error) {
-      // Don't fail login if email fails
-      console.error('Failed to send security notification:', error);
-    }
+    // 存储刷新令牌
+    const refreshTokenExpiresAt = new Date();
+    refreshTokenExpiresAt.setDate(refreshTokenExpiresAt.getDate() + (rememberMe ? 30 : 7));
 
-    // Return success response
-    const response = createSuccessResponse(
-      {
+    await prisma.refreshToken.create({
+      data: {
+        token: refreshToken,
+        userId: user.id,
+        expiresAt: refreshTokenExpiresAt,
+        isRevoked: false
+      }
+    });
+
+    // 更新最后登录时间
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { lastLoginAt: new Date() }
+    });
+
+    console.log('✅ 登录成功完成');
+
+    // 构建响应
+    const response = NextResponse.json({
+      success: true,
+      message: '登录成功',
+      data: {
         user: {
           id: user.id,
           email: user.email,
@@ -159,15 +159,21 @@ async function loginHandler(request: NextRequest): Promise<NextResponse> {
           role: user.role,
           status: user.status
         },
-        tokens,
-        message: 'Login successful'
-      },
-      'Login successful'
-    );
+        tokens: {
+          accessToken,
+          refreshToken
+        }
+      }
+    });
 
-    // Set refresh token in httpOnly cookie if rememberMe is true
+    // 设置安全头
+    response.headers.set('X-Content-Type-Options', 'nosniff');
+    response.headers.set('X-Frame-Options', 'DENY');
+    response.headers.set('X-XSS-Protection', '1; mode=block');
+
+    // 设置刷新令牌Cookie（如果选择记住我）
     if (rememberMe) {
-      response.cookies.set('refreshToken', tokens.refreshToken, {
+      response.cookies.set('refreshToken', refreshToken, {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'lax',
@@ -176,12 +182,21 @@ async function loginHandler(request: NextRequest): Promise<NextResponse> {
       });
     }
 
-    return addSecurityHeaders(response);
+    return response;
 
   } catch (error) {
-    return handleApiError(error);
+    console.error('❌ 登录API错误:', error);
+
+    // 返回通用错误响应，不暴露具体错误信息
+    return NextResponse.json({
+      success: false,
+      message: '登录失败，请稍后重试',
+      ...(process.env.NODE_ENV === 'development' && {
+        error: error instanceof Error ? error.message : 'Unknown error'
+      })
+    }, { status: 500 });
+  } finally {
+    // 确保Prisma连接正确关闭
+    await prisma.$disconnect().catch(() => {});
   }
 }
-
-// Apply rate limiting to the handler
-export const POST = withRateLimit(loginHandler, loginRateLimit);

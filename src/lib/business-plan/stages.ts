@@ -3,74 +3,74 @@ import type { BusinessPlanStageConfig } from '@/types/business-plan'
 export const BUSINESS_PLAN_STAGES: BusinessPlanStageConfig[] = [
   {
     id: 'scenario_grounding',
-    name: '场景分析与定位',
+    name: '创意落地场景分析',
     aiProvider: 'DEEPSEEK',
-    estimatedTime: '6-8分钟',
-    deliverables: ['项目摘要', '核心思路', '关键假设条件', '核心价值主张列表'],
+    estimatedTime: '8-12分钟',
+    deliverables: ['具体应用场景', '用户痛点分析', '解决方案描述', '价值主张清单', '可行性初步评估'],
     dependencies: []
   },
   {
-    id: 'concept_analysis',
-    name: '概念深化分析',
-    aiProvider: 'DEEPSEEK',
-    estimatedTime: '3-5分钟',
-    deliverables: ['概念核心理念', '解决的核心价值问题', '创新点分析'],
-    dependencies: ['scenario_grounding']
-  },
-  {
-    id: 'market_research',
-    name: '市场调研分析',
+    id: 'market_reality_check',
+    name: '市场现状与需求验证',
     aiProvider: 'ALI',
-    estimatedTime: '8-12分钟',
-    deliverables: ['市场规模', '竞品分析', '目标用户画像'],
-    dependencies: ['scenario_grounding']
-  },
-  {
-    id: 'tech_architecture',
-    name: '技术架构设计',
-    aiProvider: 'ZHIPU',
     estimatedTime: '10-15分钟',
-    deliverables: ['系统架构', 'API设计', '技术栈推荐'],
+    deliverables: ['真实市场规模', '现有解决方案分析', '用户需求验证', '市场准入门槛', '竞争格局分析'],
     dependencies: ['scenario_grounding']
   },
   {
-    id: 'business_model',
-    name: '商业模式设计',
-    aiProvider: 'DEEPSEEK',
-    estimatedTime: '6-10分钟',
-    deliverables: ['商业模式画布', '盈利模式分析', '成本结构'],
-    dependencies: ['market_research']
+    id: 'product_definition',
+    name: 'MVP产品定义与设计',
+    aiProvider: 'ZHIPU',
+    estimatedTime: '8-12分钟',
+    deliverables: ['产品核心功能', 'MVP设计方案', '用户体验流程', '技术可行性分析', '开发优先级'],
+    dependencies: ['scenario_grounding', 'market_reality_check']
   },
   {
-    id: 'financial_model',
-    name: '财务模型预测',
+    id: 'business_model_design',
+    name: '商业模式与盈利路径',
+    aiProvider: 'DEEPSEEK',
+    estimatedTime: '10-15分钟',
+    deliverables: ['商业模式画布', '收入来源分析', '成本结构设计', '定价策略', '盈利时间预估'],
+    dependencies: ['market_reality_check', 'product_definition']
+  },
+  {
+    id: 'operational_plan',
+    name: '运营策略与执行计划',
     aiProvider: 'ALI',
     estimatedTime: '12-18分钟',
-    deliverables: ['财务预测', '投资回报分析', '估值模型'],
-    dependencies: ['business_model']
+    deliverables: ['运营推广策略', '用户获取方案', '团队组建计划', '供应链设计', '风险应对措施'],
+    dependencies: ['business_model_design']
   },
   {
-    id: 'legal_compliance',
-    name: '合规法律建议',
+    id: 'financial_planning',
+    name: '财务规划与投资分析',
+    aiProvider: 'ALI',
+    estimatedTime: '15-20分钟',
+    deliverables: ['启动资金需求', '3年财务预测', '现金流分析', '投资回报预期', '融资建议'],
+    dependencies: ['business_model_design', 'operational_plan']
+  },
+  {
+    id: 'implementation_roadmap',
+    name: '实施路线图与里程碑',
     aiProvider: 'ZHIPU',
     estimatedTime: '8-12分钟',
-    deliverables: ['合规检查单', '法律风险', '知识产权策略'],
+    deliverables: ['6个月行动计划', '关键里程碑设置', '资源配置方案', '进度监控机制', '应急调整预案'],
+    dependencies: ['product_definition', 'operational_plan']
+  },
+  {
+    id: 'risk_assessment',
+    name: '风险评估与合规分析',
+    aiProvider: 'ZHIPU',
+    estimatedTime: '6-10分钟',
+    deliverables: ['核心风险识别', '法律合规要求', '知识产权保护', '监管政策分析', '风险缓解策略'],
     dependencies: ['scenario_grounding']
   },
   {
-    id: 'implementation_plan',
-    name: '实施路径规划',
-    aiProvider: 'ZHIPU',
-    estimatedTime: '6-10分钟',
-    deliverables: ['项目时间线', '团队配置', '关键里程碑'],
-    dependencies: ['tech_architecture']
-  },
-  {
-    id: 'investor_pitch',
-    name: '投资者沟通材料',
+    id: 'investor_materials',
+    name: '投资展示与融资材料',
     aiProvider: 'DEEPSEEK',
-    estimatedTime: '5-8分钟',
-    deliverables: ['Pitch Deck', '投资建议书', '常见问答'],
-    dependencies: ['concept_analysis', 'market_research', 'business_model', 'financial_model']
+    estimatedTime: '8-12分钟',
+    deliverables: ['投资者Pitch Deck', '商业计划书摘要', '关键数据指标', '投资亮点总结', 'FAQ问答'],
+    dependencies: ['business_model_design', 'financial_planning', 'implementation_roadmap']
   }
 ]
