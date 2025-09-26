@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getUserFromToken } from '@/lib/auth'
+import { getUserFromToken } from '@/lib/auth-helper'
 import { ossService } from '@/lib/storage/oss.service'
 
 export async function POST(request: NextRequest) {

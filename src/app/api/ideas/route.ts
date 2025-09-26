@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/database'
-import { getUserFromToken } from '@/lib/auth'
+import { getUserFromToken } from '@/lib/auth-helper'
 
 export async function POST(req: NextRequest) {
   try {
