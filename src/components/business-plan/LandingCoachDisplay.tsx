@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion } from 'framer-motion'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -153,16 +153,14 @@ export default function LandingCoachDisplay({
             </TabsTrigger>
           </TabsList>
 
-          <AnimatePresence mode="wait">
-            {/* 第一段：现状认知与方向确认 */}
-            <TabsContent value="situation" className="space-y-6">
-              <motion.div
-                key="situation"
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: 20 }}
-                transition={{ duration: 0.3 }}
-              >
+          {/* 第一段：现状认知与方向确认 */}
+          <TabsContent value="situation" className="space-y-6">
+            <motion.div
+              key="situation"
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.3 }}
+            >
                 <Card>
                   <CardHeader>
                     <div className="flex items-center justify-between">
@@ -324,7 +322,6 @@ export default function LandingCoachDisplay({
                 key="mvp"
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: 20 }}
                 transition={{ duration: 0.3 }}
               >
                 <Card>
@@ -511,7 +508,6 @@ export default function LandingCoachDisplay({
                 key="business"
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: 20 }}
                 transition={{ duration: 0.3 }}
               >
                 <Card>
@@ -723,7 +719,6 @@ export default function LandingCoachDisplay({
                 </Card>
               </motion.div>
             </TabsContent>
-          </AnimatePresence>
         </Tabs>
 
         {/* 总结卡片 */}
