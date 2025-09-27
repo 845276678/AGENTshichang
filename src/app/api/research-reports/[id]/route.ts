@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { ResearchReportService } from '@/lib/services/research-report.service'
-import { verifyJWTToken } from '@/lib/auth'
+import { verifyToken } from '@/lib/auth'
 
 // GET /api/research-reports/[id] - 获取指定ID的调研报告
 export async function GET(
@@ -24,7 +24,7 @@ export async function GET(
     if (authHeader) {
       try {
         const token = authHeader.replace('Bearer ', '')
-        const decoded = verifyJWTToken(token)
+        const decoded = await verifyToken(token)
         userId = decoded.userId
       } catch (error) {
         // Token无效，但不阻止访问（根据业务逻辑调整）
