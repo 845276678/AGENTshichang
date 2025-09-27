@@ -11,7 +11,7 @@ import { Slider } from '@/components/ui/slider';
 import {
   Users, Clock, Zap, Heart, Smile, Frown, ThumbsUp,
   MessageCircle, TrendingUp, Star, Trophy, Gift,
-  Eye, Flame, Target, Brain, Sparkles
+  Eye, Flame, Target, Brain, Sparkles, FileText, Loader2
 } from 'lucide-react';
 import { AI_PERSONAS, DISCUSSION_PHASES, type AIPersona, type AIMessage, type BiddingEvent } from '@/lib/ai-persona-system';
 import { useBiddingWebSocket } from '@/hooks/useBiddingWebSocket';
@@ -63,6 +63,10 @@ export default function CreativeIdeaBidding({ ideaId }: CreativeIdeaBiddingProps
     totalActions: 0
   });
 
+  // 生成商业指导书相关状态
+  const [isGeneratingGuide, setIsGeneratingGuide] = useState(false);
+  const [guideProgress, setGuideProgress] = useState(0);
+
   // 视觉效果配置
   const [effectConfig, setEffectConfig] = useState(() => getRecommendedConfig(currentPhase));
   const [showEffectControls, setShowEffectControls] = useState(false);
@@ -111,6 +115,65 @@ export default function CreativeIdeaBidding({ ideaId }: CreativeIdeaBiddingProps
       totalActions: prev.totalActions + 1
     }));
   }, [submitPrediction, userPrediction]);
+
+  // 生成商业指导书处理函数
+  const handleGenerateGuide = useCallback(async () => {
+    if (isGeneratingGuide) return;
+
+    try {
+      setIsGeneratingGuide(true);
+      setGuideProgress(0);
+
+      // 模拟进度更新
+      const progressInterval = setInterval(() => {
+        setGuideProgress(prev => {
+          if (prev >= 90) {
+            clearInterval(progressInterval);
+            return 90;
+          }
+          return prev + Math.random() * 15;
+        });
+      }, 500);
+
+      // 调用生成商业计划书API
+      const response = await fetch('/api/generate-business-plan', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          ideaTitle: idea.title,
+          ideaDescription: idea.description,
+          category: idea.category,
+          tags: idea.tags
+        })
+      });
+
+      clearInterval(progressInterval);
+      setGuideProgress(100);
+
+      if (!response.ok) {
+        throw new Error('生成商业指导书失败');
+      }
+
+      const result = await response.json();
+
+      // 跳转到商业指导书页面
+      if (result.reportId) {
+        const guideUrl = `/business-plan?reportId=${result.reportId}&ideaTitle=${encodeURIComponent(idea.title)}`;
+        window.open(guideUrl, '_blank');
+      } else {
+        throw new Error('生成成功但未返回报告ID');
+      }
+
+    } catch (error) {
+      console.error('生成商业指导书失败:', error);
+      alert('生成失败，请稍后重试');
+    } finally {
+      setIsGeneratingGuide(false);
+      setGuideProgress(0);
+    }
+  }, [isGeneratingGuide, idea]);
 
   // 格式化时间显示
   const formatTimeRemaining = (seconds: number) => {
@@ -604,6 +667,54 @@ export default function CreativeIdeaBidding({ ideaId }: CreativeIdeaBiddingProps
                   <div className="text-center p-2 bg-muted/50 rounded">
                     <div className="text-sm">活跃奖励: +{engagementStats.totalActions * 2} 积分</div>
                   </div>
+                </CardContent>
+              </Card>
+
+              {/* 商业指导书生成 */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 text-sm">
+                    <FileText className="w-4 h-4" />
+                    创意落地指南
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <div className="text-center p-3 bg-gradient-to-r from-blue-100 to-purple-100 dark:from-blue-900/20 dark:to-purple-900/20 rounded-lg">
+                    <div className="text-2xl mb-1">📋</div>
+                    <div className="text-sm font-medium mb-2">专业落地方案</div>
+                    <div className="text-xs text-muted-foreground mb-3">
+                      基于竞价结果生成详细的商业化落地指南
+                    </div>
+
+                    {isGeneratingGuide ? (
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-center gap-2 text-blue-600">
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                          <span className="text-sm">生成中...</span>
+                        </div>
+                        <Progress value={guideProgress} className="h-2" />
+                        <div className="text-xs text-muted-foreground">
+                          {Math.round(guideProgress)}% 完成
+                        </div>
+                      </div>
+                    ) : (
+                      <Button
+                        onClick={handleGenerateGuide}
+                        size="sm"
+                        className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+                        disabled={currentPhase !== 'result'}
+                      >
+                        <Brain className="w-4 h-4 mr-2" />
+                        生成落地指南
+                      </Button>
+                    )}
+                  </div>
+
+                  {currentPhase !== 'result' && (
+                    <div className="text-xs text-amber-600 bg-amber-50 p-2 rounded border border-amber-200">
+                      💡 竞价结束后可生成专业的商业化落地指南
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             </div>
