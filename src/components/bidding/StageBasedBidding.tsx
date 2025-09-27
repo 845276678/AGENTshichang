@@ -6,10 +6,10 @@ import { useRouter } from 'next/navigation'
 import { useBiddingWebSocket } from '@/hooks/useBiddingWebSocket'
 import { useAuth } from '@/hooks/useAuth'
 import EnhancedBiddingStage from './EnhancedBiddingStage'
-import { AI_PERSONAS, type AIMessage } from '@/lib/ai-persona-system'
+import { AI_PERSONAS, DISCUSSION_PHASES, type AIMessage } from '@/lib/ai-persona-system'
 import { DialogueDecisionEngine } from '@/lib/dialogue-strategy'
 import AIServiceManager from '@/lib/ai-service-manager'
-import { Clock, Users, Trophy, Play, Lightbulb, Target, Star, ThumbsUp, Heart, MessageCircle, Gift, TrendingUp, ArrowLeft, Plus, AlertCircle } from 'lucide-react'
+import { Clock, Users, Trophy, Play, Lightbulb, Target, Star, ThumbsUp, Heart, MessageCircle, Gift, TrendingUp, ArrowLeft, Plus, AlertCircle, FileText, Loader2 } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
@@ -21,7 +21,7 @@ interface CreativeIdeaBiddingProps {
   ideaId: string
 }
 
-// 创意输入表单组件
+// 创意输入表单组件 - 升级版
 const CreativeInputForm = ({
   onSubmit,
   isLoading,
@@ -49,220 +49,169 @@ const CreativeInputForm = ({
       animate={{ opacity: 1, y: 0 }}
       className="max-w-4xl mx-auto"
     >
-      <Card className="bg-gradient-to-br from-purple-50 to-blue-50 border-purple-200 shadow-xl">
+      <Card className="bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-50 border-purple-200 shadow-2xl backdrop-blur-sm">
         <CardContent className="p-8">
-          <div className="text-center mb-6">
+          <div className="text-center mb-8">
             <motion.div
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              transition={{ delay: 0.2, type: "spring" }}
-              className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-purple-500 to-blue-500 rounded-full text-white mb-4"
+              initial={{ scale: 0, rotate: -180 }}
+              animate={{ scale: 1, rotate: 0 }}
+              transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
+              className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-purple-500 via-blue-500 to-indigo-500 rounded-full text-white mb-6 shadow-lg"
             >
-              <Lightbulb className="w-8 h-8" />
+              <Lightbulb className="w-10 h-10" />
             </motion.div>
-            <h1 className="text-3xl font-bold text-gray-800 mb-2">
-              AI 创意竞价舞台
-            </h1>
-            <p className="text-gray-600 text-lg">
-              分享你的创意，让 5 位 AI 专家为你的想法竞价！
-            </p>
-            <div className="mt-4 flex items-center justify-center space-x-4">
-              <div className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-4 py-2 rounded-full text-sm font-medium">
+            <motion.h1
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4 }}
+              className="text-4xl font-bold bg-gradient-to-r from-purple-600 via-blue-600 to-indigo-600 bg-clip-text text-transparent mb-3"
+            >
+              🎭 AI 创意竞价舞台
+            </motion.h1>
+            <motion.p
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.6 }}
+              className="text-gray-600 text-xl font-medium"
+            >
+              5 位顶级 AI 专家即将为您的创意展开激烈竞价！
+            </motion.p>
+
+            {/* 积分状态显示 */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.8 }}
+              className="mt-6 flex items-center justify-center space-x-6"
+            >
+              <div className="bg-gradient-to-r from-yellow-400 via-orange-400 to-red-400 text-white px-6 py-3 rounded-full text-lg font-bold shadow-lg">
                 💰 当前积分: {userCredits}
               </div>
-              <div className={`px-4 py-2 rounded-full text-sm font-medium ${
+              <div className={`px-6 py-3 rounded-full text-lg font-bold shadow-lg transition-all duration-300 ${
                 hasEnoughCredits
-                  ? 'bg-green-100 text-green-800'
-                  : 'bg-red-100 text-red-800'
+                  ? 'bg-gradient-to-r from-green-400 to-emerald-400 text-white'
+                  : 'bg-gradient-to-r from-red-400 to-pink-400 text-white'
               }`}>
-                {hasEnoughCredits ? '✅ 积分充足' : `❌ 需要 ${REQUIRED_CREDITS} 积分参与`}
+                {hasEnoughCredits ? '✨ 准备就绪' : `⚠️ 需要 ${REQUIRED_CREDITS} 积分`}
               </div>
-            </div>
+            </motion.div>
           </div>
 
           {!hasEnoughCredits && (
-            <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mb-8 p-6 bg-gradient-to-r from-red-50 to-pink-50 border-2 border-red-200 rounded-xl"
+            >
               <div className="flex items-center">
-                <AlertCircle className="w-5 h-5 text-red-500 mr-2" />
+                <AlertCircle className="w-6 h-6 text-red-500 mr-3" />
                 <div>
-                  <p className="text-red-800 font-medium">积分不足</p>
-                  <p className="text-red-600 text-sm">
-                    参与 AI 竞价需要至少 {REQUIRED_CREDITS} 积分，请先充值或完成每日签到获取积分。
+                  <p className="text-red-800 font-bold text-lg">积分不足，无法启动竞价</p>
+                  <p className="text-red-600 mt-1">
+                    参与 AI 创意竞价需要至少 {REQUIRED_CREDITS} 积分。请完成每日签到或充值获取积分，然后重新体验这场精彩的创意竞拍！
                   </p>
                 </div>
               </div>
-            </div>
+            </motion.div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <motion.form
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 1 }}
+            onSubmit={handleSubmit}
+            className="space-y-8"
+          >
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                ✨ 描述你的创意想法
+              <label className="block text-lg font-bold text-gray-700 mb-4">
+                ✨ 描述您的创意想法
               </label>
               <Textarea
                 value={ideaContent}
                 onChange={(e) => setIdeaContent(e.target.value)}
-                placeholder="例如：一个基于AI的智能家居管理系统，可以学习用户习惯并自动调节环境..."
-                className="min-h-[120px] text-lg border-purple-200 focus:border-purple-500 focus:ring-purple-500"
+                placeholder="例如：一个基于AI的智能家居管理系统，可以学习用户习惯并自动调节环境参数，实现真正的个性化居住体验..."
+                className="min-h-[150px] text-lg border-2 border-purple-200 focus:border-purple-500 focus:ring-4 focus:ring-purple-200 rounded-xl transition-all duration-300 shadow-inner"
                 maxLength={500}
                 disabled={!hasEnoughCredits}
               />
-              <div className="flex justify-between mt-2 text-sm text-gray-500">
-                <span>详细描述有助于获得更准确的评估</span>
-                <span>{ideaContent.length}/500</span>
+              <div className="flex justify-between mt-3 text-sm">
+                <span className="text-gray-500 font-medium">
+                  💡 详细描述有助于 AI 专家更准确评估您的创意价值
+                </span>
+                <span className={`font-bold ${ideaContent.length > 400 ? 'text-red-500' : 'text-gray-500'}`}>
+                  {ideaContent.length}/500
+                </span>
               </div>
             </div>
 
             <motion.div
               whileHover={{ scale: hasEnoughCredits ? 1.02 : 1 }}
               whileTap={{ scale: hasEnoughCredits ? 0.98 : 1 }}
+              className="text-center"
             >
               <Button
                 type="submit"
                 disabled={!ideaContent.trim() || isLoading || !hasEnoughCredits}
-                className="w-full py-4 text-lg font-semibold bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 disabled:opacity-50"
+                className={`w-full py-6 text-xl font-bold rounded-xl transition-all duration-300 shadow-lg ${
+                  hasEnoughCredits
+                    ? 'bg-gradient-to-r from-purple-600 via-blue-600 to-indigo-600 hover:from-purple-700 hover:via-blue-700 hover:to-indigo-700 text-white'
+                    : 'bg-gray-400 text-gray-200 cursor-not-allowed'
+                }`}
               >
                 {isLoading ? (
                   <>
-                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2" />
-                    启动 AI 竞价...
+                    <motion.div
+                      animate={{ rotate: 360 }}
+                      transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+                      className="inline-block w-6 h-6 border-3 border-white border-t-transparent rounded-full mr-3"
+                    />
+                    正在启动 AI 竞价舞台...
                   </>
                 ) : !hasEnoughCredits ? (
                   <>
-                    <AlertCircle className="w-5 h-5 mr-2" />
-                    积分不足，无法参与
+                    <AlertCircle className="w-6 h-6 mr-3" />
+                    积分不足，无法参与竞价
                   </>
                 ) : (
                   <>
-                    <Play className="w-5 h-5 mr-2" />
-                    开始 AI 竞价表演 (-{REQUIRED_CREDITS} 积分)
+                    <Play className="w-6 h-6 mr-3" />
+                    🎬 开始 AI 创意竞价表演 (-{REQUIRED_CREDITS} 积分)
                   </>
                 )}
               </Button>
             </motion.div>
-          </form>
-        </CardContent>
-      </Card>
-    </motion.div>
-  )
-}
+          </motion.form>
 
-// AI 角色舞台组件
-const AIPersonaStage = ({
-  persona,
-  isActive,
-  currentBid,
-  messages,
-  onSupport
-}: {
-  persona: any
-  isActive: boolean
-  currentBid: number
-  messages: AIMessage[]
-  onSupport: () => void
-}) => {
-  const latestMessage = messages
-    .filter(msg => msg.personaId === persona.id)
-    .sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime())[0]
-
-  return (
-    <motion.div
-      initial={{ y: 50, opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
-      className="relative"
-    >
-      <Card className={`
-        transition-all duration-300 cursor-pointer
-        ${isActive
-          ? 'ring-4 ring-purple-400 shadow-xl scale-105 bg-gradient-to-br from-purple-50 to-blue-50'
-          : 'hover:shadow-lg hover:scale-102 bg-white'
-        }
-      `}>
-        <CardContent className="p-6 text-center">
-          {/* 角色头像 */}
+          {/* 特色说明 */}
           <motion.div
-            animate={isActive ? { scale: [1, 1.1, 1] } : { scale: 1 }}
-            transition={{ repeat: isActive ? Infinity : 0, duration: 2 }}
-            className="relative mx-auto mb-4"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 1.2 }}
+            className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4"
           >
-            <div className={`
-              w-20 h-20 rounded-full relative overflow-hidden
-              ${isActive ? 'ring-4 ring-purple-400' : ''}
-            `}>
-              <Image
-                src={persona.avatar}
-                alt={persona.name}
-                width={80}
-                height={80}
-                className="w-full h-full object-cover"
-              />
-              {isActive && (
-                <motion.div
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  className="absolute inset-0 rounded-full bg-purple-400 opacity-20"
-                />
-              )}
+            <div className="text-center p-4 bg-white/60 rounded-lg border border-purple-100">
+              <div className="text-2xl mb-2">🎯</div>
+              <h3 className="font-bold text-gray-700">专业评估</h3>
+              <p className="text-sm text-gray-600">5位AI专家多维度分析</p>
             </div>
-
-            {/* 说话指示器 */}
-            {isActive && (
-              <motion.div
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-                className="absolute -top-2 -right-2 w-6 h-6 bg-green-500 rounded-full flex items-center justify-center"
-              >
-                <MessageCircle className="w-3 h-3 text-white" />
-              </motion.div>
-            )}
+            <div className="text-center p-4 bg-white/60 rounded-lg border border-purple-100">
+              <div className="text-2xl mb-2">⚡</div>
+              <h3 className="font-bold text-gray-700">实时竞价</h3>
+              <p className="text-sm text-gray-600">动态竞价过程可视化</p>
+            </div>
+            <div className="text-center p-4 bg-white/60 rounded-lg border border-purple-100">
+              <div className="text-2xl mb-2">📊</div>
+              <h3 className="font-bold text-gray-700">商业指导</h3>
+              <p className="text-sm text-gray-600">生成专业落地方案</p>
+            </div>
           </motion.div>
-
-          {/* 角色信息 */}
-          <h3 className="font-bold text-lg text-gray-800 mb-1">{persona.name}</h3>
-          <p className="text-sm text-gray-600 mb-1">{persona.specialty}</p>
-          <div className="text-xs text-purple-600 mb-3 font-medium">
-            {persona.personality.slice(0, 2).join(' • ')}
-          </div>
-
-          {/* 当前竞价 */}
-          <div className="mb-4">
-            <div className="text-2xl font-bold text-purple-600 mb-1">
-              ¥{(currentBid * 0.01).toFixed(2)}
-            </div>
-            <Badge variant={currentBid > 100 ? "default" : "secondary"} className="text-xs">
-              {currentBid > 100 ? "高价竞争" : "保守出价"}
-            </Badge>
-          </div>
-
-          {/* 最新对话 */}
-          {latestMessage && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="bg-gray-50 rounded-lg p-3 mb-4 text-sm text-left"
-            >
-              <div className="line-clamp-3">{latestMessage.content}</div>
-              <div className="text-xs text-gray-500 mt-1">
-                {new Date(latestMessage.timestamp).toLocaleTimeString()}
-              </div>
-            </motion.div>
-          )}
-
-          {/* 支持按钮 */}
-          <Button
-            onClick={onSupport}
-            variant="outline"
-            size="sm"
-            className="w-full"
-          >
-            <Heart className="w-4 h-4 mr-1" />
-            支持
-          </Button>
         </CardContent>
       </Card>
     </motion.div>
   )
 }
+
+// 该组件已被 EnhancedAIPersonaStage 取代，提供更丰富的视觉效果
 
 // 阶段进度指示器
 const PhaseIndicator = ({
@@ -402,6 +351,10 @@ export default function CreativeIdeaBidding({ ideaId }: CreativeIdeaBiddingProps
   const [isStarting, setIsStarting] = useState(false)
   const [sessionId, setSessionId] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
+
+  // 生成商业指导书相关状态
+  const [isGeneratingGuide, setIsGeneratingGuide] = useState(false)
+  const [guideProgress, setGuideProgress] = useState(0)
 
   // 使用实际的WebSocket hook
   const {
@@ -546,6 +499,76 @@ export default function CreativeIdeaBidding({ ideaId }: CreativeIdeaBiddingProps
     }
   }
 
+  const handleGenerateGuide = async () => {
+    const GUIDE_COST = 100 // 生成落地指南的积分消耗
+
+    // 检查积分是否充足
+    if (!checkCredits(GUIDE_COST)) {
+      setError('积分不足，需要100积分生成商业落地指南')
+      return
+    }
+
+    setIsGeneratingGuide(true)
+    setGuideProgress(0)
+    setError(null)
+
+    try {
+      // 扣除积分
+      await updateCredits(-GUIDE_COST)
+
+      // 模拟进度更新
+      const progressInterval = setInterval(() => {
+        setGuideProgress((prev) => {
+          if (prev >= 90) {
+            clearInterval(progressInterval)
+            return 90
+          }
+          return prev + 10
+        })
+      }, 500)
+
+      // 调用生成落地指南API
+      const response = await fetch('/api/business-plan/generate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
+        body: JSON.stringify({
+          sessionId,
+          ideaContent: 'AI创意竞价舞台系统', // 使用当前会话的创意内容
+          biddingResults: currentBids,
+          aiDialogue: aiInteractions
+        })
+      })
+
+      clearInterval(progressInterval)
+      setGuideProgress(100)
+
+      if (!response.ok) {
+        throw new Error('生成失败')
+      }
+
+      const result = await response.json()
+
+      // 跳转到商业计划页面
+      router.push(`/business-plan?reportId=${result.reportId}&ideaTitle=${encodeURIComponent('AI创意竞价舞台系统')}`)
+
+    } catch (error) {
+      console.error('Failed to generate guide:', error)
+      setError('生成落地指南失败，积分已退还')
+      // 退还积分
+      try {
+        await updateCredits(GUIDE_COST)
+      } catch (refundError) {
+        console.error('Failed to refund credits:', refundError)
+      }
+    } finally {
+      setIsGeneratingGuide(false)
+      setGuideProgress(0)
+    }
+  }
+
   // 显示创意输入表单
   if (showForm) {
     return (
@@ -580,26 +603,43 @@ export default function CreativeIdeaBidding({ ideaId }: CreativeIdeaBiddingProps
           </div>
         )}
 
-        {/* 页面标题 */}
+        {/* 页面标题 - 升级版 */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           className="text-center mb-8"
         >
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-xl font-bold">🎭 AI 创意竞价舞台</h3>
-            <div className="flex items-center space-x-4">
-              <div className="text-sm text-gray-600">
-                观看 5 位 AI 专家为您的创意激烈竞价
+          <div className="flex items-center justify-between mb-6">
+            <motion.div
+              initial={{ opacity: 0, x: -50 }}
+              animate={{ opacity: 1, x: 0 }}
+              className="flex items-center"
+            >
+              <div className="bg-gradient-to-r from-purple-500 to-blue-500 rounded-full p-3 mr-4 shadow-lg">
+                <Trophy className="w-8 h-8 text-white" />
               </div>
-              <div className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-3 py-1 rounded-full text-sm font-medium">
-                💰 当前积分: {user.credits}
+              <div>
+                <h3 className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
+                  🎭 AI 创意竞价舞台
+                </h3>
+                <p className="text-gray-600 text-lg">
+                  观看 5 位 AI 专家为您的创意激烈竞价
+                </p>
+              </div>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, x: 50 }}
+              animate={{ opacity: 1, x: 0 }}
+              className="flex items-center space-x-4"
+            >
+              <div className="bg-gradient-to-r from-yellow-400 via-orange-400 to-red-400 text-white px-4 py-2 rounded-full text-lg font-bold shadow-lg">
+                💰 积分: {user.credits}
               </div>
               <Button
                 onClick={() => router.push('/payment')}
                 size="sm"
-                variant="outline"
-                className="border-yellow-400 text-yellow-600 hover:bg-yellow-50"
+                className="bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white shadow-lg"
               >
                 <Plus className="w-4 h-4 mr-1" />
                 充值
@@ -607,13 +647,39 @@ export default function CreativeIdeaBidding({ ideaId }: CreativeIdeaBiddingProps
               <Button
                 onClick={() => router.back()}
                 size="sm"
-                variant="ghost"
+                variant="outline"
+                className="border-gray-300 hover:border-gray-400 shadow-lg"
               >
                 <ArrowLeft className="w-4 h-4 mr-1" />
                 返回
               </Button>
-            </div>
+            </motion.div>
           </div>
+
+          {/* 实时状态指示器 */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.3 }}
+            className="bg-white/80 backdrop-blur-sm rounded-xl p-4 shadow-lg border border-purple-100"
+          >
+            <div className="flex items-center justify-center space-x-8">
+              <div className="flex items-center space-x-2">
+                <div className={`w-3 h-3 rounded-full ${isConnected ? 'bg-green-400 animate-pulse' : 'bg-red-400'}`} />
+                <span className="text-sm font-medium text-gray-700">
+                  {isConnected ? '🟢 竞价进行中' : '🔴 连接中...'}
+                </span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Users className="w-4 h-4 text-blue-500" />
+                <span className="text-sm font-medium text-gray-700">{viewerCount} 在线观众</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <TrendingUp className="w-4 h-4 text-green-500" />
+                <span className="text-sm font-medium text-gray-700">最高竞价 ¥{highestBid}</span>
+              </div>
+            </div>
+          </motion.div>
         </motion.div>
 
         {/* 使用增强的竞价舞台组件 */}
@@ -631,16 +697,181 @@ export default function CreativeIdeaBidding({ ideaId }: CreativeIdeaBiddingProps
           onSupportPersona={handleSupportPersona}
         />
 
-        {/* 连接状态指示器 */}
-        <div className="fixed bottom-4 right-4">
-          <Badge
-            variant={isConnected ? "default" : "destructive"}
-            className="flex items-center space-x-1"
-          >
-            <div className={`w-2 h-2 rounded-full ${isConnected ? 'bg-green-400' : 'bg-red-400'}`} />
-            <span>{isConnected ? '已连接' : '连接中...'}</span>
-          </Badge>
-        </div>
+        {/* 商业落地指南生成 - 升级版 */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.8 }}
+          className="mt-12"
+        >
+          <Card className="bg-gradient-to-br from-emerald-50 via-green-50 to-teal-50 border-2 border-emerald-200 shadow-2xl overflow-hidden relative">
+            {/* 背景装饰 */}
+            <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/5 to-teal-500/5" />
+            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-emerald-400 to-teal-400 rounded-full opacity-10 transform translate-x-16 -translate-y-16" />
+            <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-green-400 to-emerald-400 rounded-full opacity-10 transform -translate-x-12 translate-y-12" />
+
+            <CardContent className="p-8 relative z-10">
+              <div className="text-center">
+                <motion.div
+                  initial={{ scale: 0, rotate: -180 }}
+                  animate={{ scale: 1, rotate: 0 }}
+                  transition={{ delay: 1, type: "spring", stiffness: 200 }}
+                  className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-emerald-500 via-green-500 to-teal-500 rounded-2xl text-white mb-6 shadow-xl"
+                >
+                  <FileText className="w-8 h-8" />
+                </motion.div>
+
+                <motion.h3
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 1.2 }}
+                  className="text-3xl font-bold bg-gradient-to-r from-emerald-600 via-green-600 to-teal-600 bg-clip-text text-transparent mb-3"
+                >
+                  🎯 AI 商业落地指南
+                </motion.h3>
+
+                <motion.p
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 1.4 }}
+                  className="text-gray-600 text-xl mb-8 max-w-2xl mx-auto"
+                >
+                  基于 AI 专家竞价结果，生成专业的商业落地指导方案，助您实现创意变现
+                </motion.p>
+
+                {/* 特色功能展示 */}
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 1.6 }}
+                  className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8"
+                >
+                  <div className="bg-white/70 backdrop-blur-sm p-6 rounded-xl border border-emerald-100 shadow-lg">
+                    <div className="text-3xl mb-3">📊</div>
+                    <h4 className="font-bold text-gray-700 mb-2">市场分析</h4>
+                    <p className="text-sm text-gray-600">深度市场调研与竞争分析</p>
+                  </div>
+                  <div className="bg-white/70 backdrop-blur-sm p-6 rounded-xl border border-emerald-100 shadow-lg">
+                    <div className="text-3xl mb-3">💡</div>
+                    <h4 className="font-bold text-gray-700 mb-2">执行方案</h4>
+                    <p className="text-sm text-gray-600">详细的实施步骤与时间规划</p>
+                  </div>
+                  <div className="bg-white/70 backdrop-blur-sm p-6 rounded-xl border border-emerald-100 shadow-lg">
+                    <div className="text-3xl mb-3">💰</div>
+                    <h4 className="font-bold text-gray-700 mb-2">商业模式</h4>
+                    <p className="text-sm text-gray-600">可行的盈利模式与投资建议</p>
+                  </div>
+                </motion.div>
+
+                {!isGeneratingGuide ? (
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: 1.8 }}
+                  >
+                    <Button
+                      onClick={handleGenerateGuide}
+                      disabled={!sessionId || user.credits < 100}
+                      className={`px-10 py-4 text-xl font-bold rounded-2xl transition-all duration-300 shadow-xl ${
+                        user.credits >= 100
+                          ? 'bg-gradient-to-r from-emerald-600 via-green-600 to-teal-600 hover:from-emerald-700 hover:via-green-700 hover:to-teal-700 text-white transform hover:scale-105'
+                          : 'bg-gray-400 text-gray-200 cursor-not-allowed'
+                      }`}
+                    >
+                      <FileText className="w-6 h-6 mr-3" />
+                      🚀 生成专业落地指南 (100 积分)
+                    </Button>
+                  </motion.div>
+                ) : (
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    className="space-y-6"
+                  >
+                    <div className="flex items-center justify-center">
+                      <motion.div
+                        animate={{ rotate: 360 }}
+                        transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+                        className="w-8 h-8 border-4 border-emerald-600 border-t-transparent rounded-full mr-4"
+                      />
+                      <span className="text-emerald-700 text-xl font-bold">AI 正在分析您的创意...</span>
+                    </div>
+
+                    <div className="w-full max-w-md mx-auto">
+                      <div className="w-full bg-emerald-200 rounded-full h-4 shadow-inner">
+                        <motion.div
+                          className="bg-gradient-to-r from-emerald-500 to-teal-500 h-4 rounded-full shadow-lg"
+                          initial={{ width: 0 }}
+                          animate={{ width: `${guideProgress}%` }}
+                          transition={{ duration: 0.3 }}
+                        />
+                      </div>
+                      <div className="flex justify-between mt-2 text-sm text-emerald-600 font-medium">
+                        <span>生成进度</span>
+                        <span>{guideProgress}%</span>
+                      </div>
+                    </div>
+
+                    <p className="text-emerald-600 font-medium">
+                      正在整合 5 位 AI 专家的见解，生成您的专属商业方案...
+                    </p>
+                  </motion.div>
+                )}
+
+                {user.credits < 100 && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 2 }}
+                    className="mt-6 p-6 bg-gradient-to-r from-amber-50 to-orange-50 border-2 border-amber-200 rounded-xl"
+                  >
+                    <div className="flex items-center justify-center mb-4">
+                      <AlertCircle className="w-6 h-6 text-amber-500 mr-2" />
+                      <span className="text-amber-800 font-bold text-lg">积分不足</span>
+                    </div>
+                    <p className="text-amber-700 mb-4">
+                      生成专业落地指南需要 100 积分，当前积分不足。立即充值解锁完整的 AI 商业咨询服务！
+                    </p>
+                    <Button
+                      onClick={() => router.push('/payment')}
+                      className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white px-8 py-3 rounded-xl font-bold shadow-lg"
+                    >
+                      <Plus className="w-5 h-5 mr-2" />
+                      立即充值获取积分
+                    </Button>
+                  </motion.div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+
+        {/* 连接状态指示器 - 升级版 */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 1 }}
+          className="fixed bottom-6 right-6 z-50"
+        >
+          <div className={`
+            px-4 py-3 rounded-2xl shadow-xl backdrop-blur-sm border transition-all duration-300
+            ${isConnected
+              ? 'bg-green-50/90 border-green-200 text-green-700'
+              : 'bg-red-50/90 border-red-200 text-red-700'
+            }
+          `}>
+            <div className="flex items-center space-x-3">
+              <motion.div
+                animate={isConnected ? { scale: [1, 1.2, 1] } : { opacity: [1, 0.5, 1] }}
+                transition={{ duration: 2, repeat: Infinity }}
+                className={`w-3 h-3 rounded-full ${isConnected ? 'bg-green-500' : 'bg-red-500'}`}
+              />
+              <span className="font-medium text-sm">
+                {isConnected ? '🟢 竞价舞台连接正常' : '🔴 正在连接...'}
+              </span>
+            </div>
+          </div>
+        </motion.div>
       </div>
     </div>
   )

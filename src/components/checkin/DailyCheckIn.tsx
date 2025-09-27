@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useState, useEffect, useCallback } from 'react';
+import { motion } from 'framer-motion';
 import { useAuth } from '@/hooks/useAuth';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -48,11 +48,11 @@ export function DailyCheckIn() {
   const [claimedCredits, setClaimedCredits] = useState(0);
 
   // 获取签到状态
-  const fetchCheckInStats = async () => {
+  const fetchCheckInStats = useCallback(async () => {
     if (!isAuthenticated) return;
 
     try {
-      const token = localStorage.getItem('auth.access_token');
+      const token = localStorage.getItem('auth_token'); // 修正了token key
       if (!token) return;
 
       const response = await fetch('/api/checkin', {
@@ -93,7 +93,7 @@ export function DailyCheckIn() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [isAuthenticated]);
 
   // 执行签到
   const performCheckIn = async () => {
@@ -102,7 +102,7 @@ export function DailyCheckIn() {
     setIsClaimingReward(true);
 
     try {
-      const token = localStorage.getItem('auth.access_token');
+      const token = localStorage.getItem('auth_token'); // 修正了token key
       if (!token) {
         throw new Error('未找到认证令牌');
       }
@@ -130,9 +130,9 @@ export function DailyCheckIn() {
         }));
 
         // 更新用户积分（如果可能）
-        const currentUser = JSON.parse(localStorage.getItem('auth.user') || '{}');
+        const currentUser = JSON.parse(localStorage.getItem('user_data') || '{}'); // 修正了用户数据key
         currentUser.credits = checkInResult.newBalance;
-        localStorage.setItem('auth.user', JSON.stringify(currentUser));
+        localStorage.setItem('user_data', JSON.stringify(currentUser)); // 修正了用户数据key
 
         // 显示奖励动画
         setClaimedCredits(checkInResult.creditsEarned);
@@ -158,7 +158,7 @@ export function DailyCheckIn() {
     if (isAuthenticated) {
       fetchCheckInStats();
     }
-  }, [isAuthenticated]);
+  }, [isAuthenticated, fetchCheckInStats]);
 
   // 生成每周奖励预览
   const generateWeeklyRewards = () => {
@@ -309,48 +309,46 @@ export function DailyCheckIn() {
       </Card>
 
       {/* 奖励领取动画 */}
-      <AnimatePresence mode="wait">
-        {showRewardAnimation && (
+      {showRewardAnimation && (
+        <motion.div
+          key="reward-animation"
+          initial={{ opacity: 0, scale: 0 }}
+          animate={{ opacity: 1, scale: 1 }}
+          exit={{ opacity: 0, scale: 0 }}
+          transition={{ duration: 0.3 }}
+          className="fixed inset-0 flex items-center justify-center z-50 bg-black/20 backdrop-blur-sm"
+        >
           <motion.div
-            key="reward-animation"
-            initial={{ opacity: 0, scale: 0 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0 }}
-            transition={{ duration: 0.3 }}
-            className="fixed inset-0 flex items-center justify-center z-50 bg-black/20 backdrop-blur-sm"
+            initial={{ y: 50 }}
+            animate={{ y: 0 }}
+            className="bg-white dark:bg-gray-800 rounded-2xl p-8 text-center shadow-2xl max-w-sm mx-4"
           >
             <motion.div
-              initial={{ y: 50 }}
-              animate={{ y: 0 }}
-              className="bg-white dark:bg-gray-800 rounded-2xl p-8 text-center shadow-2xl max-w-sm mx-4"
+              animate={{ rotate: 360 }}
+              transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+              className="inline-block mb-4"
             >
-              <motion.div
-                animate={{ rotate: 360 }}
-                transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-                className="inline-block mb-4"
-              >
-                <Coins className="h-16 w-16 text-amber-500" />
-              </motion.div>
+              <Coins className="h-16 w-16 text-amber-500" />
+            </motion.div>
 
-              <h3 className="text-2xl font-bold mb-2">签到成功！</h3>
-              <p className="text-muted-foreground mb-4">
-                恭喜获得 {claimedCredits} 积分奖励
-              </p>
+            <h3 className="text-2xl font-bold mb-2">签到成功！</h3>
+            <p className="text-muted-foreground mb-4">
+              恭喜获得 {claimedCredits} 积分奖励
+            </p>
 
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 1 }}
-                className="flex items-center justify-center gap-2 text-primary"
-              >
-                <Star className="h-5 w-5" />
-                <span className="font-medium">连签 {stats.currentStreak} 天</span>
-                <Star className="h-5 w-5" />
-              </motion.div>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 1 }}
+              className="flex items-center justify-center gap-2 text-primary"
+            >
+              <Star className="h-5 w-5" />
+              <span className="font-medium">连签 {stats.currentStreak} 天</span>
+              <Star className="h-5 w-5" />
             </motion.div>
           </motion.div>
-        )}
-      </AnimatePresence>
+        </motion.div>
+      )}
     </>
   );
 }
