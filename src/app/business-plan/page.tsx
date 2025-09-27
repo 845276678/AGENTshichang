@@ -16,13 +16,11 @@ import {
   FileText,
   Brain,
   Loader2,
-  CheckCircle2,
   XCircle
 } from 'lucide-react'
 
 import LandingCoachDisplay from '@/components/business-plan/LandingCoachDisplay'
 import { transformReportToGuide, generateGuideMarkdown, validateReportForGuide } from '@/lib/utils/transformReportToGuide'
-import { ResearchReportService } from '@/lib/services/research-report.service'
 import type { LandingCoachGuide } from '@/lib/utils/transformReportToGuide'
 
 interface LoadingState {
@@ -47,7 +45,6 @@ export default function BusinessPlanPage() {
   })
   const [guide, setGuide] = useState<LandingCoachGuide | null>(null)
   const [error, setError] = useState<string | null>(null)
-  const [reportData, setReportData] = useState<any>(null)
 
   // 载入调研报告数据
   const loadReportData = async (reportId: string) => {
@@ -64,7 +61,6 @@ export default function BusinessPlanPage() {
       }
 
       const report = await response.json()
-      setReportData(report)
 
       setLoadingState({
         isLoading: true,
