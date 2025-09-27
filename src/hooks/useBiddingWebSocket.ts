@@ -1,515 +1,486 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
-import { AIMessage, BiddingEvent, type AIPersona, AI_PERSONAS, DISCUSSION_PHASES } from '@/lib/ai-persona-system';
+'use client'
 
-export interface BiddingWebSocketData {
-  // 连接状态
-  isConnected: boolean;
-  connectionStatus: 'connecting' | 'connected' | 'disconnected' | 'error' | 'mock';
+import { useEffect, useRef, useState, useCallback } from 'react'
+import { useAuth } from '@/hooks/useAuth'
 
-  // 实时数据
-  currentPhase: 'warmup' | 'discussion' | 'bidding' | 'prediction' | 'result';
-  timeRemaining: number;
-  viewerCount: number;
-
-  // AI 相关
-  aiMessages: AIMessage[];
-  activeSpeaker: string | null;
-  currentBids: Record<string, number>;
-  highestBid: number;
-  biddingEvents: BiddingEvent[];
-
-  // 用户互动
-  userReactions: Record<string, number>;
-  supportedPersona: string | null;
-  userPrediction: number | null;
-
-  // 成本控制
-  sessionCost: number;
-  costThresholdReached: boolean;
+// 简化的 toast 函数
+const toast = {
+  success: (message: string) => console.log('Success:', message),
+  error: (message: string) => console.error('Error:', message),
+  info: (message: string) => console.log('Info:', message),
+  warning: (message: string) => console.warn('Warning:', message)
 }
 
-export interface BiddingWebSocketActions {
-  // 用户操作
-  sendReaction: (messageId: string, reactionType: string) => void;
-  supportPersona: (personaId: string) => void;
-  submitPrediction: (prediction: number) => void;
-  sendMessage: (content: string) => void;
-
-  // 连接控制
-  connect: () => void;
-  disconnect: () => void;
-  reconnect: () => void;
+// WebSocket消息类型
+interface WSMessage {
+  type: string
+  [key: string]: any
 }
 
-interface UseBiddingWebSocketOptions {
-  ideaId: string;
-  userId?: string;
-  autoConnect?: boolean;
-  reconnectAttempts?: number;
-  heartbeatInterval?: number;
-  enableMockMode?: boolean; // 启用模拟模式
+// 竞价数据类型
+interface BidData {
+  id: string
+  agentName: string
+  agentType: string
+  amount: number
+  comment?: string
+  confidence?: number
+  timestamp: number
 }
 
-export function useBiddingWebSocket({
-  ideaId,
-  userId,
-  autoConnect = true,
-  reconnectAttempts = 5,
-  heartbeatInterval = 30000,
-  enableMockMode = false // 生产环境关闭模拟模式
-}: UseBiddingWebSocketOptions): BiddingWebSocketData & BiddingWebSocketActions {
-  // 连接相关状态
-  const [connectionStatus, setConnectionStatus] = useState<'connecting' | 'connected' | 'disconnected' | 'error'>('disconnected');
-  const [reconnectCount, setReconnectCount] = useState(0);
+interface AIInteraction {
+  id: string
+  agentName: string
+  interactionType: string
+  content: string
+  emotion: string
+  animation: string
+  timestamp: number
+}
 
-  // WebSocket引用和定时器
-  const wsRef = useRef<WebSocket | null>(null);
-  const heartbeatRef = useRef<NodeJS.Timeout | null>(null);
-  const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const mockTimerRef = useRef<NodeJS.Timeout | null>(null);
+interface SessionData {
+  status: 'PENDING' | 'ACTIVE' | 'ENDED' | 'CANCELLED'
+  phase: 'DISCUSSION' | 'BIDDING' | 'RESULTS'
+  currentPrice: number
+  timeRemaining: number
+  viewers: number
+  idea: {
+    id: string
+    title: string
+    description: string
+    category: string
+  }
+}
 
-  // 竞价相关状态
-  const [currentPhase, setCurrentPhase] = useState<'warmup' | 'discussion' | 'bidding' | 'prediction' | 'result'>('warmup');
-  const [timeRemaining, setTimeRemaining] = useState(120); // 2分钟默认
-  const [viewerCount, setViewerCount] = useState(1);
+// WebSocket状态
+interface WSState {
+  isConnected: boolean
+  isConnecting: boolean
+  error: string | null
+  sessionData: SessionData | null
+  currentBids: BidData[]
+  aiInteractions: AIInteraction[]
+  viewerCount: number
+  hasSubmittedGuess: boolean
+}
 
-  // AI 相关状态
-  const [aiMessages, setAiMessages] = useState<AIMessage[]>([]);
-  const [activeSpeaker, setActiveSpeaker] = useState<string | null>(null);
-  const [currentBids, setCurrentBids] = useState<Record<string, number>>({});
-  const [highestBid, setHighestBid] = useState(50);
-  const [biddingEvents, setBiddingEvents] = useState<BiddingEvent[]>([]);
+// Hook返回类型
+interface UseBiddingWebSocketReturn extends WSState {
+  joinSession: (sessionId: string) => Promise<void>
+  leaveSession: (sessionId: string) => Promise<void>
+  submitGuess: (guessedPrice: number, confidence: number) => Promise<void>
+  supportAgent: (agentName: string) => Promise<void>
+  reactToDialogue: (reaction: string, agentName?: string) => Promise<void>
+  reconnect: () => void
+}
 
-  // 用户互动状态
-  const [userReactions, setUserReactions] = useState<Record<string, number>>({});
-  const [supportedPersona, setSupportedPersona] = useState<string | null>(null);
-  const [userPrediction, setUserPrediction] = useState<number | null>(null);
+export function useBiddingWebSocket(sessionId: string | null): UseBiddingWebSocketReturn {
+  const { user, token } = useAuth()
+  const [state, setState] = useState<WSState>({
+    isConnected: false,
+    isConnecting: false,
+    error: null,
+    sessionData: null,
+    currentBids: [],
+    aiInteractions: [],
+    viewerCount: 0,
+    hasSubmittedGuess: false
+  })
 
-  // 成本控制状态
-  const [sessionCost, setSessionCost] = useState(0);
-  const [costThresholdReached, setCostThresholdReached] = useState(false);
+  const wsRef = useRef<WebSocket | null>(null)
+  const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+  const heartbeatRef = useRef<NodeJS.Timeout | null>(null)
+  const reconnectAttempts = useRef(0)
+  const maxReconnectAttempts = 5
+  const reconnectDelay = useRef(1000) // 开始1秒，指数退避
 
-  // WebSocket URL构建
+  // WebSocket URL
   const getWebSocketUrl = useCallback(() => {
-    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    const host = window.location.host;
-    const token = localStorage.getItem('auth.access_token');
-    return `${protocol}//${host}/api/bidding/${ideaId}?token=${token}&userId=${userId || 'anonymous'}`;
-  }, [ideaId, userId]);
+    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
+    const host = process.env.NODE_ENV === 'production'
+      ? window.location.host
+      : 'localhost:3000'
+    return `${protocol}//${host}/ws/bidding`
+  }, [])
 
-  // 发送消息到WebSocket
-  const sendMessage = useCallback((data: any) => {
-    if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
-      wsRef.current.send(JSON.stringify(data));
-      return true;
-    }
-    return false;
-  }, []);
-
-  // 处理WebSocket消息
-  const handleMessage = useCallback((event: MessageEvent) => {
-    try {
-      const data = JSON.parse(event.data);
-
-      switch (data.type) {
-        case 'stage.started':
-          setCurrentPhase(data.payload.phase);
-          setTimeRemaining(data.payload.duration);
-          break;
-
-        case 'persona.speech':
-          setAiMessages(prev => [...prev.slice(-19), {
-            id: data.payload.messageId,
-            personaId: data.payload.personaId,
-            phase: currentPhase,
-            round: data.payload.round || 1,
-            type: 'speech',
-            content: data.payload.content,
-            emotion: data.payload.emotion || 'neutral',
-            timestamp: new Date(data.payload.timestamp),
-            cost: data.payload.cost,
-            tokens: data.payload.tokens
-          }]);
-          setActiveSpeaker(data.payload.personaId);
-          setTimeout(() => setActiveSpeaker(null), 2000);
-          break;
-
-        case 'bid.placed':
-          setCurrentBids(prev => ({
-            ...prev,
-            [data.payload.personaId]: data.payload.bidValue
-          }));
-          setHighestBid(prev => Math.max(prev, data.payload.bidValue));
-
-          // 添加竞价消息
-          setAiMessages(prev => [...prev.slice(-19), {
-            id: data.payload.messageId,
-            personaId: data.payload.personaId,
-            phase: currentPhase,
-            round: data.payload.round || 1,
-            type: 'bid',
-            content: data.payload.content || `出价 ${data.payload.bidValue} 积分！`,
-            emotion: 'excited',
-            bidValue: data.payload.bidValue,
-            timestamp: new Date(data.payload.timestamp)
-          }]);
-          break;
-
-        case 'persona.reaction':
-          setBiddingEvents(prev => [...prev.slice(-9), {
-            id: data.payload.eventId,
-            type: data.payload.reactionType,
-            personaId: data.payload.personaId,
-            targetPersonaId: data.payload.targetPersonaId,
-            content: data.payload.content,
-            emotion: data.payload.emotion,
-            timestamp: new Date(data.payload.timestamp),
-            userReactions: data.payload.userReactions || { likes: 0, surprises: 0, supports: 0 }
-          }]);
-          break;
-
-        case 'viewer.count':
-          setViewerCount(data.payload.count);
-          break;
-
-        case 'timer.update':
-          setTimeRemaining(data.payload.remaining);
-          break;
-
-        case 'cost.update':
-          setSessionCost(data.payload.totalCost);
-          setCostThresholdReached(data.payload.thresholdReached);
-          break;
-
-        case 'stage.ended':
-          setCurrentPhase('result');
-          // 处理结果数据
-          break;
-
-        case 'system.warning':
-          console.warn('Bidding System Warning:', data.payload.message);
-          break;
-
-        case 'error':
-          console.error('Bidding WebSocket Error:', data.payload);
-          break;
-
-        default:
-          console.log('Unknown message type:', data.type);
+  // 发送消息
+  const sendMessage = useCallback((message: any) => {
+    if (wsRef.current?.readyState === WebSocket.OPEN) {
+      try {
+        wsRef.current.send(JSON.stringify(message))
+        return true
+      } catch (error) {
+        console.error('Error sending WebSocket message:', error)
+        return false
       }
-    } catch (error) {
-      console.error('Failed to parse WebSocket message:', error);
     }
-  }, [currentPhase]);
+    return false
+  }, [])
 
-  // 启动模拟模式
-  const startMockMode = useCallback(() => {
-    setIsMockMode(true);
-    setConnectionStatus('mock');
-    setViewerCount(Math.floor(Math.random() * 50) + 15);
-
-    // 启动阶段计时器
-    let phaseTime = 120; // 预热阶段2分钟
-    setTimeRemaining(phaseTime);
-
-    const phaseTimer = setInterval(() => {
-      setTimeRemaining(prev => {
-        if (prev <= 1) {
-          // 切换阶段
-          const phases: typeof currentPhase[] = ['warmup', 'discussion', 'bidding', 'prediction', 'result'];
-          const currentIndex = phases.indexOf(currentPhase);
-
-          if (currentIndex < phases.length - 1) {
-            const nextPhase = phases[currentIndex + 1];
-            setCurrentPhase(nextPhase);
-
-            // 设置下一阶段时长
-            const durations = { warmup: 120, discussion: 720, bidding: 1200, prediction: 240, result: 300 };
-            const nextDuration = durations[nextPhase];
-            setTimeRemaining(nextDuration);
-            return nextDuration;
-          } else {
-            clearInterval(phaseTimer);
-            return 0;
-          }
-        }
-        return prev - 1;
-      });
-    }, 1000);
-
-    // 启动AI对话生成器
-    const dialogueTimer = setInterval(() => {
-      if (Math.random() < 0.15) { // 15%概率生成对话
-        generateMockDialogue();
-      }
-    }, 3000);
-
-    mockTimerRef.current = dialogueTimer;
-
-    return () => {
-      clearInterval(phaseTimer);
-      clearInterval(dialogueTimer);
-    };
-  }, [currentPhase]);
-
-  // 生成模拟AI对话
-  const generateMockDialogue = useCallback(() => {
-    const persona = AI_PERSONAS[Math.floor(Math.random() * AI_PERSONAS.length)];
-
-    let content = '';
-    let type: AIMessage['type'] = 'speech';
-    let bidValue: number | undefined;
-
-    // 根据阶段生成内容
-    switch (currentPhase) {
-      case 'warmup':
-        content = `${persona.catchPhrase} 这个创意很有潜力！`;
-        break;
-      case 'discussion':
-        const questions = [
-          '技术实现的可行性如何？',
-          '目标用户群体是什么？',
-          '商业模式的核心在哪里？',
-          '市场竞争如何？'
-        ];
-        content = questions[Math.floor(Math.random() * questions.length)];
-        break;
-      case 'bidding':
-        if (Math.random() > 0.6) {
-          type = 'bid';
-          const currentBid = currentBids[persona.id] || 50;
-          bidValue = currentBid + Math.floor(Math.random() * 25) + 5;
-          setCurrentBids(prev => ({ ...prev, [persona.id]: bidValue! }));
-          setHighestBid(prev => Math.max(prev, bidValue!));
-          content = `出价 ${bidValue} 积分！我看好这个项目！`;
-        } else {
-          content = '这个价格还不够体现真正价值！';
-        }
-        break;
-      case 'prediction':
-        content = `我预测最终价格会在 ${Math.floor(Math.random() * 100) + 200} 积分左右`;
-        break;
-      case 'result':
-        content = '恭喜！这是一个公平的结果。';
-        break;
+  // 处理连接
+  const connect = useCallback(async () => {
+    if (wsRef.current?.readyState === WebSocket.OPEN) {
+      return
     }
 
-    const newMessage: AIMessage = {
-      id: Date.now().toString() + Math.random(),
-      personaId: persona.id,
-      phase: currentPhase,
-      round: Math.floor(aiMessages.length / 5) + 1,
-      type,
-      content,
-      emotion: type === 'bid' ? 'excited' : 'confident',
-      bidValue,
-      timestamp: new Date()
-    };
-
-    setAiMessages(prev => [...prev.slice(-19), newMessage]);
-    setActiveSpeaker(persona.id);
-    setTimeout(() => setActiveSpeaker(null), 2500);
-  }, [currentPhase, currentBids, aiMessages.length]);
-
-  // 连接WebSocket
-  const connect = useCallback(() => {
-    if (wsRef.current?.readyState === WebSocket.OPEN) return;
-
-    setConnectionStatus('connecting');
+    setState(prev => ({ ...prev, isConnecting: true, error: null }))
 
     try {
-      const ws = new WebSocket(getWebSocketUrl());
+      const wsUrl = getWebSocketUrl()
+      const ws = new WebSocket(wsUrl)
+      wsRef.current = ws
 
       ws.onopen = () => {
-        setConnectionStatus('connected');
-        setReconnectCount(0);
+        console.log('WebSocket connected')
+        setState(prev => ({
+          ...prev,
+          isConnected: true,
+          isConnecting: false,
+          error: null
+        }))
 
-        // 发送初始化消息
-        ws.send(JSON.stringify({
-          type: 'client.init',
-          payload: {
-            ideaId,
-            userId,
-            timestamp: Date.now()
-          }
-        }));
+        // 重置重连计数
+        reconnectAttempts.current = 0
+        reconnectDelay.current = 1000
+
+        // 自动加入会话（如果有sessionId）
+        if (sessionId) {
+          sendMessage({
+            type: 'join_session',
+            sessionId,
+            token
+          })
+        }
 
         // 启动心跳
-        if (heartbeatRef.current) clearInterval(heartbeatRef.current);
-        heartbeatRef.current = setInterval(() => {
-          if (ws.readyState === WebSocket.OPEN) {
-            ws.send(JSON.stringify({ type: 'heartbeat', timestamp: Date.now() }));
-          }
-        }, heartbeatInterval);
-      };
+        startHeartbeat()
+      }
 
-      ws.onmessage = handleMessage;
+      ws.onmessage = (event) => {
+        try {
+          const message: WSMessage = JSON.parse(event.data)
+          handleMessage(message)
+        } catch (error) {
+          console.error('Error parsing WebSocket message:', error)
+        }
+      }
 
       ws.onclose = (event) => {
-        setConnectionStatus('disconnected');
-        if (heartbeatRef.current) {
-          clearInterval(heartbeatRef.current);
-          heartbeatRef.current = null;
-        }
+        console.log('WebSocket closed:', event.code, event.reason)
+        setState(prev => ({
+          ...prev,
+          isConnected: false,
+          isConnecting: false
+        }))
 
-        // 尝试重连
-        if (reconnectCount < reconnectAttempts && !event.wasClean) {
-          setReconnectCount(prev => prev + 1);
-          reconnectTimeoutRef.current = setTimeout(() => {
-            connect();
-          }, Math.min(1000 * Math.pow(2, reconnectCount), 30000)); // 指数退避，最大30秒
-        } else {
-          // 连接失败，设置错误状态
-          setConnectionStatus('error');
-          console.error('WebSocket连接失败，请检查服务器状态');
+        stopHeartbeat()
+
+        // 自动重连（除非是正常关闭）
+        if (event.code !== 1000 && reconnectAttempts.current < maxReconnectAttempts) {
+          scheduleReconnect()
         }
-      };
+      }
 
       ws.onerror = (error) => {
-        setConnectionStatus('error');
-        console.error('WebSocket error:', error);
-      };
+        console.error('WebSocket error:', error)
+        setState(prev => ({
+          ...prev,
+          error: 'Connection error',
+          isConnecting: false
+        }))
+      }
 
-      wsRef.current = ws;
     } catch (error) {
-      setConnectionStatus('error');
-      console.error('Failed to create WebSocket connection:', error);
-    }
-  }, [getWebSocketUrl, handleMessage, reconnectCount, reconnectAttempts, heartbeatInterval, ideaId, userId]);
-
-  // 断开连接
-  const disconnect = useCallback(() => {
-    if (heartbeatRef.current) {
-      clearInterval(heartbeatRef.current);
-      heartbeatRef.current = null;
-    }
-
-    if (reconnectTimeoutRef.current) {
-      clearTimeout(reconnectTimeoutRef.current);
-      reconnectTimeoutRef.current = null;
-    }
-
-    if (wsRef.current) {
-      wsRef.current.close(1000, 'User disconnect');
-      wsRef.current = null;
-    }
-
-    setConnectionStatus('disconnected');
-  }, []);
-
-  // 重连
-  const reconnect = useCallback(() => {
-    disconnect();
-    setTimeout(connect, 1000);
-  }, [disconnect, connect]);
-
-  // 用户操作方法
-  const sendReaction = useCallback((messageId: string, reactionType: string) => {
-    const success = sendMessage({
-      type: 'user.reaction',
-      payload: {
-        messageId,
-        reactionType,
-        timestamp: Date.now()
-      }
-    });
-
-    if (success) {
-      setUserReactions(prev => ({
+      console.error('Error creating WebSocket:', error)
+      setState(prev => ({
         ...prev,
-        [messageId]: (prev[messageId] || 0) + 1
-      }));
+        error: 'Failed to connect',
+        isConnecting: false
+      }))
+    }
+  }, [sessionId, token, getWebSocketUrl, sendMessage])
+
+  // 处理消息
+  const handleMessage = useCallback((message: WSMessage) => {
+    console.log('Received WebSocket message:', message.type)
+
+    switch (message.type) {
+      case 'connected':
+        // 连接成功，无需额外处理
+        break
+
+      case 'session_joined':
+        setState(prev => ({
+          ...prev,
+          sessionData: message.sessionData
+        }))
+        toast.success('已加入竞价会话')
+        break
+
+      case 'session_left':
+        setState(prev => ({
+          ...prev,
+          sessionData: null,
+          currentBids: [],
+          aiInteractions: []
+        }))
+        break
+
+      case 'new_bid':
+        setState(prev => ({
+          ...prev,
+          currentBids: [message.bid, ...prev.currentBids.slice(0, 9)], // 保持最新10条
+          sessionData: prev.sessionData ? {
+            ...prev.sessionData,
+            currentPrice: message.bid.amount
+          } : null
+        }))
+        break
+
+      case 'ai_interaction':
+        setState(prev => ({
+          ...prev,
+          aiInteractions: [message.interaction, ...prev.aiInteractions.slice(0, 19)] // 保持最新20条
+        }))
+        break
+
+      case 'bidding_ended':
+        setState(prev => ({
+          ...prev,
+          sessionData: prev.sessionData ? {
+            ...prev.sessionData,
+            status: 'ENDED',
+            phase: 'RESULTS'
+          } : null
+        }))
+        toast.info('竞价已结束！')
+        break
+
+      case 'viewer_joined':
+      case 'viewer_left':
+        setState(prev => ({
+          ...prev,
+          viewerCount: message.viewers,
+          sessionData: prev.sessionData ? {
+            ...prev.sessionData,
+            viewers: message.viewers
+          } : null
+        }))
+        break
+
+      case 'guess_submitted':
+        setState(prev => ({ ...prev, hasSubmittedGuess: true }))
+        toast.success(`价格竞猜已提交！预测价格: ${message.guess.guessedPrice}`)
+        break
+
+      case 'new_guess_submitted':
+        // 有新的竞猜提交，可以更新统计信息
+        break
+
+      case 'agent_supported':
+        toast.success(`已支持 ${message.agentName}！`)
+        break
+
+      case 'agent_support_recorded':
+        // 支持记录已保存
+        break
+
+      case 'dialogue_reaction':
+        // 对话反应事件
+        break
+
+      case 'server_shutdown':
+        toast.warning('服务器即将维护，请稍后重新连接')
+        break
+
+      case 'error':
+        console.error('WebSocket error:', message)
+        const errorMessages: Record<string, string> = {
+          'RATE_LIMIT': '操作太频繁，请稍后再试',
+          'SESSION_NOT_FOUND': '会话不存在',
+          'SESSION_FULL': '会话人数已满',
+          'AUTH_REQUIRED': '需要登录才能参与',
+          'SESSION_INACTIVE': '会话已结束',
+          'ALREADY_GUESSED': '您已经提交过竞猜',
+          'INSUFFICIENT_CREDITS': '积分不足',
+          'INVALID_MESSAGE': '消息格式错误'
+        }
+        toast.error(errorMessages[message.code] || '发生错误')
+        setState(prev => ({ ...prev, error: message.message }))
+        break
+
+      default:
+        console.log('Unknown message type:', message.type)
+    }
+  }, [])
+
+  // 心跳机制
+  const startHeartbeat = useCallback(() => {
+    heartbeatRef.current = setInterval(() => {
+// WebSocket ping方法修复
+        if (wsRef.current?.readyState === WebSocket.OPEN) {
+          // 发送ping消息而不是调用不存在的ping方法
+          wsRef.current.send(JSON.stringify({ type: 'ping' }))
+        }
+    }, 30000) // 30秒心跳
+  }, [])
+
+  const stopHeartbeat = useCallback(() => {
+    if (heartbeatRef.current) {
+      clearInterval(heartbeatRef.current)
+      heartbeatRef.current = null
+    }
+  }, [])
+
+  // 重连机制
+  const scheduleReconnect = useCallback(() => {
+    if (reconnectTimeoutRef.current) {
+      clearTimeout(reconnectTimeoutRef.current)
     }
 
-    return success;
-  }, [sendMessage]);
+    reconnectAttempts.current++
 
-  const supportPersona = useCallback((personaId: string) => {
+    reconnectTimeoutRef.current = setTimeout(() => {
+      console.log(`Attempting to reconnect (${reconnectAttempts.current}/${maxReconnectAttempts})`)
+      connect()
+
+      // 指数退避
+      reconnectDelay.current = Math.min(reconnectDelay.current * 2, 30000)
+    }, reconnectDelay.current)
+  }, [connect])
+
+  // 手动重连
+  const reconnect = useCallback(() => {
+    if (wsRef.current) {
+      wsRef.current.close()
+    }
+    reconnectAttempts.current = 0
+    reconnectDelay.current = 1000
+    connect()
+  }, [connect])
+
+  // API方法
+  const joinSession = useCallback(async (sessionId: string) => {
     const success = sendMessage({
-      type: 'user.support',
-      payload: {
-        personaId,
-        timestamp: Date.now()
-      }
-    });
+      type: 'join_session',
+      sessionId,
+      token
+    })
 
-    if (success) {
-      setSupportedPersona(personaId);
+    if (!success) {
+      throw new Error('Failed to send join message')
     }
+  }, [sendMessage, token])
 
-    return success;
-  }, [sendMessage]);
-
-  const submitPrediction = useCallback((prediction: number) => {
+  const leaveSession = useCallback(async (sessionId: string) => {
     const success = sendMessage({
-      type: 'user.prediction',
-      payload: {
-        prediction,
-        timestamp: Date.now()
-      }
-    });
+      type: 'leave_session',
+      sessionId
+    })
 
-    if (success) {
-      setUserPrediction(prediction);
+    if (!success) {
+      throw new Error('Failed to send leave message')
+    }
+  }, [sendMessage])
+
+  const submitGuess = useCallback(async (guessedPrice: number, confidence: number) => {
+    if (!sessionId) {
+      throw new Error('No active session')
     }
 
-    return success;
-  }, [sendMessage]);
+    const success = sendMessage({
+      type: 'submit_guess',
+      sessionId,
+      guessedPrice,
+      confidence
+    })
 
-  const sendUserMessage = useCallback((content: string) => {
-    return sendMessage({
-      type: 'user.message',
-      payload: {
-        content,
-        timestamp: Date.now()
-      }
-    });
-  }, [sendMessage]);
+    if (!success) {
+      throw new Error('Failed to send guess')
+    }
+  }, [sendMessage, sessionId])
 
-  // 自动连接
+  const supportAgent = useCallback(async (agentName: string) => {
+    if (!sessionId) {
+      throw new Error('No active session')
+    }
+
+    const success = sendMessage({
+      type: 'support_agent',
+      sessionId,
+      agentName
+    })
+
+    if (!success) {
+      throw new Error('Failed to send support')
+    }
+  }, [sendMessage, sessionId])
+
+  const reactToDialogue = useCallback(async (reaction: string, agentName?: string) => {
+    if (!sessionId) {
+      throw new Error('No active session')
+    }
+
+    const success = sendMessage({
+      type: 'react_to_dialogue',
+      sessionId,
+      reaction,
+      agentName
+    })
+
+    if (!success) {
+      throw new Error('Failed to send reaction')
+    }
+  }, [sendMessage, sessionId])
+
+  // 生命周期管理
   useEffect(() => {
-    if (autoConnect) {
-      connect();
+    if (sessionId) {
+      connect()
     }
 
     return () => {
-      disconnect();
-    };
-  }, [autoConnect]); // 不包含 connect 和 disconnect，避免重复连接
+      if (reconnectTimeoutRef.current) {
+        clearTimeout(reconnectTimeoutRef.current)
+      }
+      stopHeartbeat()
+      if (wsRef.current) {
+        wsRef.current.close(1000, 'Component unmounted')
+      }
+    }
+  }, [sessionId, connect, stopHeartbeat])
 
-  // 清理定时器
+  // 页面可见性处理
   useEffect(() => {
-    return () => {
-      if (heartbeatRef.current) clearInterval(heartbeatRef.current);
-      if (reconnectTimeoutRef.current) clearTimeout(reconnectTimeoutRef.current);
-    };
-  }, []);
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        // 页面隐藏时保持连接但减少活动
+        stopHeartbeat()
+      } else {
+        // 页面显示时恢复心跳
+        if (wsRef.current?.readyState === WebSocket.OPEN) {
+          startHeartbeat()
+        } else if (sessionId) {
+          // 如果连接断开，重新连接
+          connect()
+        }
+      }
+    }
+
+    document.addEventListener('visibilitychange', handleVisibilityChange)
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange)
+  }, [sessionId, connect, startHeartbeat, stopHeartbeat])
 
   return {
-    // 数据状态
-    isConnected: connectionStatus === 'connected',
-    connectionStatus,
-    currentPhase,
-    timeRemaining,
-    viewerCount,
-    aiMessages,
-    activeSpeaker,
-    currentBids,
-    highestBid,
-    biddingEvents,
-    userReactions,
-    supportedPersona,
-    userPrediction,
-    sessionCost,
-    costThresholdReached,
-
-    // 操作方法
-    sendReaction,
-    supportPersona,
-    submitPrediction,
-    sendMessage: sendUserMessage,
-    connect,
-    disconnect,
+    ...state,
+    joinSession,
+    leaveSession,
+    submitGuess,
+    supportAgent,
+    reactToDialogue,
     reconnect
-  };
+  }
 }
+
+// 导出类型
+export type { BidData, AIInteraction, SessionData, UseBiddingWebSocketReturn }

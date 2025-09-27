@@ -177,7 +177,7 @@ export class DialogueDecisionEngine {
 
       return {
         type: 'real_ai',
-        content: responses,
+        content: this.convertToDialogueContent(responses),
         metadata: {
           ai_services_used: aiCall.ai_services,
           cost: aiCall.cost_weight,
@@ -228,7 +228,7 @@ export class DialogueDecisionEngine {
 
     return {
       type: 'hybrid',
-      content: this.mergeContent(keyInsights, decorativeDialogue),
+      content: this.mergeContent(keyInsights, decorativeDialogue.content),
       metadata: {
         ai_insights: true,
         template_decoration: true,
@@ -236,6 +236,39 @@ export class DialogueDecisionEngine {
         timestamp: Date.now()
       }
     };
+  }
+
+  // 添加缺失的方法
+  private async generateKeyInsights(context: DialogueContext): Promise<AIDialogueContent[]> {
+    try {
+      const responses = await this.aiServiceManager.callMultipleServices(
+        ['deepseek'], // 使用一个服务获取关键洞察
+        context
+      );
+      return this.convertToDialogueContent(responses);
+    } catch (error) {
+      console.error('Failed to generate key insights:', error);
+      return [];
+    }
+  }
+
+  private mergeContent(
+    keyInsights: AIDialogueContent[],
+    decorativeContent: AIDialogueContent[]
+  ): AIDialogueContent[] {
+    return [...keyInsights, ...decorativeContent];
+  }
+
+  private convertToDialogueContent(responses: import('./ai-service-manager').AIServiceResponse[]): AIDialogueContent[] {
+    return responses.map((response, index) => ({
+      agentId: `agent-${index}`,
+      agentName: response.provider,
+      content: response.content,
+      emotion: 'neutral',
+      animation: 'speaking',
+      reasoning: response.reasoning,
+      timestamp: response.timestamp
+    }));
   }
 
   private generateFallbackDialogue(context: DialogueContext): DialogueResponse {

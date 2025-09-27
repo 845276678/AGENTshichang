@@ -1,496 +1,361 @@
-// 生产级用户认证API
-import bcrypt from 'bcryptjs'
-import jwt, { SignOptions } from 'jsonwebtoken'
+// JWT认证和中间件系统
 import { NextRequest, NextResponse } from 'next/server'
-import { z } from 'zod'
-import { productionConfig } from '@/config/production'
-import { prisma } from '@/lib/database'
-import { redis } from '@/lib/redis'
-import { sendVerificationCode } from '@/lib/sms'
-import { NextAuthOptions } from 'next-auth'
-import CredentialsProvider from 'next-auth/providers/credentials'
-import { UserRole } from '@/generated/prisma'
+import { SignJWT, jwtVerify } from 'jose'
+import bcrypt from 'bcryptjs'
+import { prisma } from '@/lib/prisma'
+import type { User } from '@/generated/prisma'
 
-// NextAuth configuration
-export const authOptions: NextAuthOptions = {
-  providers: [
-    CredentialsProvider({
-      name: 'credentials',
-      credentials: {
-        identifier: { label: 'Email/Username', type: 'text' },
-        password: { label: 'Password', type: 'password' }
-      },
-      async authorize(credentials) {
-        if (!credentials?.identifier || !credentials?.password) {
-          return null
-        }
+// JWT配置
+const JWT_SECRET = new TextEncoder().encode(
+  process.env.JWT_SECRET || 'your-super-secret-jwt-key-change-in-production'
+)
+const JWT_EXPIRES_IN = '7d'
+const REFRESH_TOKEN_EXPIRES_IN = '30d'
 
-        try {
-          // Find user by email or username
-          const user = await prisma.user.findFirst({
-            where: {
-              OR: [
-                { email: credentials.identifier },
-                { username: credentials.identifier }
-              ]
-            }
-          })
-
-          if (!user) {
-            return null
-          }
-
-          // Verify password
-          const isPasswordValid = await bcrypt.compare(
-            credentials.password,
-            user.passwordHash
-          )
-
-          if (!isPasswordValid) {
-            return null
-          }
-
-          // Check if user is active
-          if (user.status !== 'ACTIVE') {
-            return null
-          }
-
-          return {
-            id: user.id,
-            email: user.email,
-            name: user.username,
-            role: user.role
-          }
-        } catch (error) {
-          console.error('Auth error:', error)
-          return null
-        }
-      }
-    })
-  ],
-  session: {
-    strategy: 'jwt',
-    maxAge: 7 * 24 * 60 * 60, // 7 days
-  },
-  callbacks: {
-    async jwt({ token, user }) {
-      if (user) {
-        token.role = user.role
-      }
-      return token
-    },
-    async session({ session, token }) {
-      if (token) {
-        session.user.id = token.sub!
-        session.user.role = token.role as UserRole
-      }
-      return session
-    }
-  },
-  pages: {
-    signIn: '/auth/login'
-  },
-  secret: process.env.NEXTAUTH_SECRET || 'your-secret-key'
+// JWT载荷接口
+export interface JWTPayload {
+  userId: string
+  email: string
+  role: string
+  iat: number
+  exp: number
 }
 
-// 注册验证schema
-const registerSchema = z.object({
-  username: z.string().min(3).max(20).regex(/^[a-zA-Z0-9_]+$/),
-  email: z.string().email(),
-  password: z.string().min(8).max(50),
-  phone: z.string().regex(/^1[3-9]\d{9}$/),
-  smsCode: z.string().length(6),
-  inviteCode: z.string().optional()
-})
-
-// 登录验证schema
-const loginSchema = z.object({
-  identifier: z.string(), // 支持邮箱/用户名/手机号
-  password: z.string(),
-  rememberMe: z.boolean().default(false)
-})
-
-// 用户注册接口
-export async function registerUser(request: NextRequest) {
-  try {
-    // Rate limiting using Redis
-    const rateLimitKey = `rate_limit_register:${request.ip || 'unknown'}`
-    const current = await redis.get(rateLimitKey)
-    if (current && parseInt(current) > 5) {
-      return NextResponse.json(
-        { error: '注册请求过于频繁，请稍后再试' },
-        { status: 429 }
-      )
-    }
-    await redis.setex(rateLimitKey, 15 * 60, (parseInt(current || '0') + 1).toString())
-
-    const body = await request.json()
-    const validatedData = registerSchema.parse(body)
-
-    // 验证短信验证码
-    const smsCodeKey = `sms:${validatedData.phone}`
-    const storedCode = await redis.get(smsCodeKey)
-
-    if (!storedCode || storedCode !== validatedData.smsCode) {
-      return NextResponse.json(
-        { error: '验证码错误或已过期' },
-        { status: 400 }
-      )
-    }
-
-    // 检查用户是否已存在
-    const existingUser = await prisma.user.findFirst({
-      where: {
-        OR: [
-          { email: validatedData.email },
-          { username: validatedData.username },
-          { phone: validatedData.phone }
-        ]
-      }
-    })
-
-    if (existingUser) {
-      return NextResponse.json(
-        { error: '用户已存在' },
-        { status: 409 }
-      )
-    }
-
-    // 密码加密
-    const passwordHash = await bcrypt.hash(
-      validatedData.password,
-      productionConfig.security.bcryptRounds
-    )
-
-    // 创建用户
-    const newUser = await prisma.user.create({
-      data: {
-        username: validatedData.username,
-        email: validatedData.email,
-        passwordHash,
-        phone: validatedData.phone,
-        credits: 1000, // 新用户赠送1000积分
-        status: 'ACTIVE'
-      }
-    })
-
-    const userId = newUser.id
-
-    // 生成JWT token
-    const token = jwt.sign(
-      { userId, username: validatedData.username },
-      productionConfig.security.jwtSecret,
-      { expiresIn: productionConfig.security.jwtExpiresIn } as SignOptions
-    )
-
-    // 创建用户会话 (使用Redis存储)
-    await redis.setex(`session:${token}`, 7 * 24 * 60 * 60, JSON.stringify({
-      userId,
-      username: validatedData.username,
-      createdAt: new Date().toISOString(),
-      ipAddress: request.ip || '',
-      userAgent: request.headers.get('user-agent') || ''
-    }))
-
-    // 删除验证码
-    await redis.del(smsCodeKey)
-
-    return NextResponse.json({
-      success: true,
-      user: {
-        id: userId,
-        username: validatedData.username,
-        email: validatedData.email,
-        credits: 1000
-      },
-      token
-    })
-
-  } catch (error) {
-    console.error('Registration error:', error)
-
-    if (error instanceof z.ZodError) {
-      return NextResponse.json(
-        { error: '输入数据格式错误', details: error.errors },
-        { status: 400 }
-      )
-    }
-
-    return NextResponse.json(
-      { error: '注册失败，请稍后重试' },
-      { status: 500 }
-    )
-  }
-}
-
-// 用户登录接口
-export async function loginUser(request: NextRequest) {
-  try {
-    // Rate limiting using Redis
-    const rateLimitKey = `rate_limit:${request.ip || 'unknown'}`
-    const current = await redis.get(rateLimitKey)
-    if (current && parseInt(current) > 10) {
-      return NextResponse.json(
-        { error: '请求过于频繁，请稍后再试' },
-        { status: 429 }
-      )
-    }
-    await redis.setex(rateLimitKey, 15 * 60, (parseInt(current || '0') + 1).toString())
-
-    const body = await request.json()
-    const validatedData = loginSchema.parse(body)
-
-    // 查找用户（支持邮箱/用户名/手机号登录）
-    const userData = await prisma.user.findFirst({
-      where: {
-        OR: [
-          { email: validatedData.identifier },
-          { username: validatedData.identifier },
-          { phone: validatedData.identifier }
-        ]
-      }
-    })
-
-    if (!userData) {
-      return NextResponse.json(
-        { error: '用户不存在' },
-        { status: 404 }
-      )
-    }
-
-    // 检查用户状态
-    if (userData.status !== 'ACTIVE') {
-      return NextResponse.json(
-        { error: '账户已被禁用，请联系客服' },
-        { status: 403 }
-      )
-    }
-
-    // 验证密码
-    const isPasswordValid = await bcrypt.compare(
-      validatedData.password,
-      userData.passwordHash
-    )
-
-    if (!isPasswordValid) {
-      return NextResponse.json(
-        { error: '密码错误' },
-        { status: 401 }
-      )
-    }
-
-    // 生成JWT token
-    const expiresIn = validatedData.rememberMe ? '30d' : '7d'
-    const token = jwt.sign(
-      { userId: userData.id, username: userData.username },
-      productionConfig.security.jwtSecret,
-      { expiresIn } as SignOptions
-    )
-
-    // 创建用户会话 (使用Redis存储)
-    const sessionTTL = validatedData.rememberMe ? 30 * 24 * 60 * 60 : 7 * 24 * 60 * 60
-    await redis.setex(`session:${token}`, sessionTTL, JSON.stringify({
-      userId: userData.id,
-      username: userData.username,
-      createdAt: new Date().toISOString(),
-      ipAddress: request.ip || '',
-      userAgent: request.headers.get('user-agent') || ''
-    }))
-
-    // 更新最后登录时间
-    await prisma.user.update({
-      where: { id: userData.id },
-      data: { updatedAt: new Date() }
-    })
-
-    return NextResponse.json({
-      success: true,
-      user: {
-        id: userData.id,
-        username: userData.username,
-        email: userData.email,
-        credits: userData.credits,
-        level: userData.level || 1
-      },
-      token
-    })
-
-  } catch (error) {
-    console.error('Login error:', error)
-
-    if (error instanceof z.ZodError) {
-      return NextResponse.json(
-        { error: '输入数据格式错误' },
-        { status: 400 }
-      )
-    }
-
-    return NextResponse.json(
-      { error: '登录失败，请稍后重试' },
-      { status: 500 }
-    )
-  }
-}
-
-// 发送短信验证码
-export async function sendSMSVerificationCode(request: NextRequest) {
-  try {
-    // Rate limiting for SMS
-    const smsRateLimitKey = `sms_rate_limit:${request.ip || 'unknown'}`
-    const smsCurrent = await redis.get(smsRateLimitKey)
-    if (smsCurrent && parseInt(smsCurrent) > 3) {
-      return NextResponse.json(
-        { error: '短信发送过于频繁，请稍后再试' },
-        { status: 429 }
-      )
-    }
-    await redis.setex(smsRateLimitKey, 60, (parseInt(smsCurrent || '0') + 1).toString())
-
-    const body = await request.json()
-    const { phone } = body
-
-    // 验证手机号格式
-    if (!/^1[3-9]\d{9}$/.test(phone)) {
-      return NextResponse.json(
-        { error: '手机号格式不正确' },
-        { status: 400 }
-      )
-    }
-
-    // 生成6位验证码
-    const code = Math.random().toString().slice(2, 8)
-
-    // 存储验证码到Redis（5分钟过期）
-    const smsCodeKey = `sms:${phone}`
-    await redis.setex(smsCodeKey, 300, code)
-
-    // 发送短信
-    // const templateCode = type === 'register'
-    //   ? productionConfig.sms.templateCode.register
-    //   : productionConfig.sms.templateCode.login
-
-    await sendVerificationCode(phone, code)
-
-    return NextResponse.json({
-      success: true,
-      message: '验证码已发送'
-    })
-
-  } catch (error) {
-    console.error('SMS sending error:', error)
-    return NextResponse.json(
-      { error: '验证码发送失败' },
-      { status: 500 }
-    )
-  }
-}
-
-// 验证JWT token中间件
-export async function verifyToken(request: NextRequest): Promise<NextResponse> {
-  const token = request.headers.get('authorization')?.replace('Bearer ', '')
-
-  if (!token) {
-    return NextResponse.json(
-      { error: '未提供认证token' },
-      { status: 401 }
-    )
-  }
-
-  try {
-    // 验证JWT
-    const decoded = jwt.verify(token, productionConfig.security.jwtSecret) as {
-      userId: number
-      username: string
-    }
-
-    // 检查会话是否存在
-    const sessionData = await redis.get(`session:${token}`)
-    if (!sessionData) {
-      return NextResponse.json(
-        { error: 'token已过期' },
-        { status: 401 }
-      )
-    }
-
-    // 获取用户信息
-    const user = await prisma.user.findUnique({
-      where: { id: String(decoded.userId) }
-    })
-
-    if (!user || user.status !== 'ACTIVE') {
-      return NextResponse.json(
-        { error: '用户不存在或已被禁用' },
-        { status: 401 }
-      )
-    }
-
-    return NextResponse.json({
-      success: true,
-      user: {
-        id: user.id,
-        username: user.username,
-        email: user.email,
-        credits: user.credits,
-        level: user.level || 1,
-        status: user.status
-      }
-    })
-
-  } catch (error) {
-    return NextResponse.json(
-      { error: 'token无效' },
-      { status: 401 }
-    )
-  }
-}
-
-// 获取用户信息的辅助函数
-export async function getUserFromToken(request: NextRequest): Promise<{
+// API响应接口
+export interface ApiResponse<T = any> {
   success: boolean
-  user?: any
+  data?: T
   error?: string
-}> {
-  const token = request.headers.get('authorization')?.replace('Bearer ', '')
+  message?: string
+}
 
-  if (!token) {
-    return { success: false, error: '未提供认证token' }
+// 认证结果接口
+export interface AuthResult {
+  user: User
+  token: string
+  refreshToken: string
+}
+
+// 生成JWT Token
+export async function generateToken(payload: Omit<JWTPayload, 'iat' | 'exp'>): Promise<string> {
+  const jwt = await new SignJWT(payload)
+    .setProtectedHeader({ alg: 'HS256' })
+    .setIssuedAt()
+    .setExpirationTime(JWT_EXPIRES_IN)
+    .sign(JWT_SECRET)
+
+  return jwt
+}
+
+// 验证JWT Token
+export async function verifyToken(token: string): Promise<JWTPayload> {
+  try {
+    const { payload } = await jwtVerify(token, JWT_SECRET)
+    return payload as JWTPayload
+  } catch (error) {
+    throw new Error('Invalid or expired token')
+  }
+}
+
+// 生成刷新令牌
+export async function generateRefreshToken(userId: string): Promise<string> {
+  const refreshToken = await new SignJWT({ userId })
+    .setProtectedHeader({ alg: 'HS256' })
+    .setIssuedAt()
+    .setExpirationTime(REFRESH_TOKEN_EXPIRES_IN)
+    .sign(JWT_SECRET)
+
+  // 存储到数据库
+  await prisma.refreshToken.create({
+    data: {
+      userId,
+      token: refreshToken,
+      expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) // 30天
+    }
+  })
+
+  return refreshToken
+}
+
+// 密码哈希
+export async function hashPassword(password: string): Promise<string> {
+  return bcrypt.hash(password, 12)
+}
+
+// 密码验证
+export async function verifyPassword(password: string, hashedPassword: string): Promise<boolean> {
+  return bcrypt.compare(password, hashedPassword)
+}
+
+// 用户注册
+export async function registerUser(userData: {
+  email: string
+  username: string
+  password: string
+  firstName?: string
+  lastName?: string
+}): Promise<AuthResult> {
+  const { email, username, password, firstName, lastName } = userData
+
+  // 检查用户是否已存在
+  const existingUser = await prisma.user.findFirst({
+    where: {
+      OR: [
+        { email },
+        { username }
+      ]
+    }
+  })
+
+  if (existingUser) {
+    throw new Error(existingUser.email === email ? '邮箱已被注册' : '用户名已被占用')
   }
 
-  try {
-    // 验证JWT
-    const decoded = jwt.verify(token, productionConfig.security.jwtSecret) as {
-      userId: number
-      username: string
+  // 创建用户
+  const hashedPassword = await hashPassword(password)
+  const user = await prisma.user.create({
+    data: {
+      email,
+      username,
+      passwordHash: hashedPassword,
+      firstName,
+      lastName,
+      credits: 1000, // 注册赠送1000积分
     }
+  })
 
-    // 检查会话是否存在
-    const sessionData = await redis.get(`session:${token}`)
-    if (!sessionData) {
-      return { success: false, error: 'token已过期' }
+  // 记录注册奖励
+  await prisma.creditTransaction.create({
+    data: {
+      userId: user.id,
+      amount: 1000,
+      type: 'REGISTER_BONUS',
+      description: '注册奖励',
+      balanceBefore: 0,
+      balanceAfter: 1000
     }
+  })
 
-    // 获取用户信息
-    const user = await prisma.user.findUnique({
-      where: { id: String(decoded.userId) }
+  // 生成令牌
+  const token = await generateToken({
+    userId: user.id,
+    email: user.email,
+    role: user.role
+  })
+
+  const refreshToken = await generateRefreshToken(user.id)
+
+  return { user, token, refreshToken }
+}
+
+// 用户登录
+export async function loginUser(email: string, password: string): Promise<AuthResult> {
+  // 查找用户
+  const user = await prisma.user.findUnique({
+    where: { email }
+  })
+
+  if (!user) {
+    throw new Error('用户不存在')
+  }
+
+  if (user.status !== 'ACTIVE') {
+    throw new Error('账户已被禁用')
+  }
+
+  // 验证密码
+  const isValidPassword = await verifyPassword(password, user.passwordHash)
+  if (!isValidPassword) {
+    throw new Error('密码错误')
+  }
+
+  // 更新最后登录时间
+  await prisma.user.update({
+    where: { id: user.id },
+    data: { lastLoginAt: new Date() }
+  })
+
+  // 生成令牌
+  const token = await generateToken({
+    userId: user.id,
+    email: user.email,
+    role: user.role
+  })
+
+  const refreshToken = await generateRefreshToken(user.id)
+
+  return { user, token, refreshToken }
+}
+
+// 获取当前用户
+export async function getCurrentUser(token: string): Promise<User> {
+  const payload = await verifyToken(token)
+
+  const user = await prisma.user.findUnique({
+    where: { id: payload.userId }
+  })
+
+  if (!user) {
+    throw new Error('用户不存在')
+  }
+
+  if (user.status !== 'ACTIVE') {
+    throw new Error('账户已被禁用')
+  }
+
+  return user
+}
+
+// 更新用户积分
+export async function updateUserCredits(
+  userId: string,
+  amount: number,
+  type: string,
+  description: string,
+  relatedId?: string
+): Promise<User> {
+  return prisma.$transaction(async (tx) => {
+    // 获取当前用户
+    const user = await tx.user.findUnique({
+      where: { id: userId }
     })
 
-    if (!user || user.status !== 'ACTIVE') {
-      return { success: false, error: '用户不存在或已被禁用' }
+    if (!user) {
+      throw new Error('用户不存在')
     }
 
-    return {
-      success: true,
-      user: {
-        id: user.id,
-        username: user.username,
-        email: user.email,
-        credits: user.credits,
-        level: user.level || 1,
-        status: user.status
+    const newBalance = user.credits + amount
+
+    // 检查余额是否足够（扣费时）
+    if (amount < 0 && newBalance < 0) {
+      throw new Error('积分余额不足')
+    }
+
+    // 更新用户积分
+    const updatedUser = await tx.user.update({
+      where: { id: userId },
+      data: {
+        credits: newBalance,
+        totalSpent: amount < 0 ? user.totalSpent + Math.abs(amount) : user.totalSpent,
+        totalEarned: amount > 0 ? user.totalEarned + amount : user.totalEarned
       }
-    }
+    })
 
-  } catch (error) {
-    return { success: false, error: 'token无效' }
+    // 记录交易
+    await tx.creditTransaction.create({
+      data: {
+        userId,
+        amount,
+        type: type as any,
+        description,
+        balanceBefore: user.credits,
+        balanceAfter: newBalance,
+        relatedId
+      }
+    })
+
+    return updatedUser
+  })
+}
+
+// API认证中间件
+export async function authenticateRequest(request: NextRequest): Promise<User> {
+  const authHeader = request.headers.get('authorization')
+
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    throw new Error('Missing or invalid authorization header')
   }
+
+  const token = authHeader.substring(7)
+  return getCurrentUser(token)
+}
+
+// API错误处理
+export function handleApiError(error: any): NextResponse {
+  console.error('API Error:', error)
+
+  if (error.message.includes('用户') || error.message.includes('密码') || error.message.includes('邮箱')) {
+    return NextResponse.json(
+      { success: false, error: error.message } as ApiResponse,
+      { status: 400 }
+    )
+  }
+
+  if (error.message.includes('token') || error.message.includes('authorization')) {
+    return NextResponse.json(
+      { success: false, error: '认证失败' } as ApiResponse,
+      { status: 401 }
+    )
+  }
+
+  if (error.message.includes('积分') || error.message.includes('余额')) {
+    return NextResponse.json(
+      { success: false, error: error.message } as ApiResponse,
+      { status: 400 }
+    )
+  }
+
+  return NextResponse.json(
+    { success: false, error: '服务器内部错误' } as ApiResponse,
+    { status: 500 }
+  )
+}
+
+// API成功响应
+export function handleApiSuccess<T>(data: T, message?: string): NextResponse {
+  return NextResponse.json({
+    success: true,
+    data,
+    message
+  } as ApiResponse<T>)
+}
+
+// 验证邮箱格式
+export function validateEmail(email: string): boolean {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+  return emailRegex.test(email)
+}
+
+// 验证密码强度
+export function validatePassword(password: string): { valid: boolean; message?: string } {
+  if (password.length < 6) {
+    return { valid: false, message: '密码至少需要6个字符' }
+  }
+
+  if (!/(?=.*[a-zA-Z])(?=.*\d)/.test(password)) {
+    return { valid: false, message: '密码需要包含字母和数字' }
+  }
+
+  return { valid: true }
+}
+
+// 验证用户名
+export function validateUsername(username: string): { valid: boolean; message?: string } {
+  if (username.length < 3 || username.length > 20) {
+    return { valid: false, message: '用户名长度应为3-20个字符' }
+  }
+
+  if (!/^[a-zA-Z0-9_-]+$/.test(username)) {
+    return { valid: false, message: '用户名只能包含字母、数字、下划线和连字符' }
+  }
+
+  return { valid: true }
+}
+
+export default {
+  generateToken,
+  verifyToken,
+  generateRefreshToken,
+  hashPassword,
+  verifyPassword,
+  registerUser,
+  loginUser,
+  getCurrentUser,
+  updateUserCredits,
+  authenticateRequest,
+  handleApiError,
+  handleApiSuccess,
+  validateEmail,
+  validatePassword,
+  validateUsername
 }

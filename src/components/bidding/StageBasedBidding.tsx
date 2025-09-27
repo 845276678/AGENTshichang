@@ -2,9 +2,14 @@
 
 import React, { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { useRouter } from 'next/navigation'
 import { useBiddingWebSocket } from '@/hooks/useBiddingWebSocket'
-import { AI_PERSONAS, type AIMessage, type BiddingEvent, DISCUSSION_PHASES } from '@/lib/ai-persona-system'
-import { Clock, Users, Trophy, Play, Lightbulb, Target, Star, ThumbsUp, Heart, MessageCircle, Gift, TrendingUp } from 'lucide-react'
+import { useAuth } from '@/hooks/useAuth'
+import EnhancedBiddingStage from './EnhancedBiddingStage'
+import { AI_PERSONAS, type AIMessage } from '@/lib/ai-persona-system'
+import { DialogueDecisionEngine } from '@/lib/dialogue-strategy'
+import AIServiceManager from '@/lib/ai-service-manager'
+import { Clock, Users, Trophy, Play, Lightbulb, Target, Star, ThumbsUp, Heart, MessageCircle, Gift, TrendingUp, ArrowLeft, Plus, AlertCircle } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
@@ -19,19 +24,24 @@ interface CreativeIdeaBiddingProps {
 // 创意输入表单组件
 const CreativeInputForm = ({
   onSubmit,
-  isLoading
+  isLoading,
+  userCredits
 }: {
   onSubmit: (idea: string) => void
   isLoading: boolean
+  userCredits: number
 }) => {
   const [ideaContent, setIdeaContent] = useState('')
+  const REQUIRED_CREDITS = 50 // 参与竞价需要的积分
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    if (ideaContent.trim()) {
+    if (ideaContent.trim() && userCredits >= REQUIRED_CREDITS) {
       onSubmit(ideaContent.trim())
     }
   }
+
+  const hasEnoughCredits = userCredits >= REQUIRED_CREDITS
 
   return (
     <motion.div
@@ -56,7 +66,33 @@ const CreativeInputForm = ({
             <p className="text-gray-600 text-lg">
               分享你的创意，让 5 位 AI 专家为你的想法竞价！
             </p>
+            <div className="mt-4 flex items-center justify-center space-x-4">
+              <div className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-4 py-2 rounded-full text-sm font-medium">
+                💰 当前积分: {userCredits}
+              </div>
+              <div className={`px-4 py-2 rounded-full text-sm font-medium ${
+                hasEnoughCredits
+                  ? 'bg-green-100 text-green-800'
+                  : 'bg-red-100 text-red-800'
+              }`}>
+                {hasEnoughCredits ? '✅ 积分充足' : `❌ 需要 ${REQUIRED_CREDITS} 积分参与`}
+              </div>
+            </div>
           </div>
+
+          {!hasEnoughCredits && (
+            <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+              <div className="flex items-center">
+                <AlertCircle className="w-5 h-5 text-red-500 mr-2" />
+                <div>
+                  <p className="text-red-800 font-medium">积分不足</p>
+                  <p className="text-red-600 text-sm">
+                    参与 AI 竞价需要至少 {REQUIRED_CREDITS} 积分，请先充值或完成每日签到获取积分。
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
@@ -69,6 +105,7 @@ const CreativeInputForm = ({
                 placeholder="例如：一个基于AI的智能家居管理系统，可以学习用户习惯并自动调节环境..."
                 className="min-h-[120px] text-lg border-purple-200 focus:border-purple-500 focus:ring-purple-500"
                 maxLength={500}
+                disabled={!hasEnoughCredits}
               />
               <div className="flex justify-between mt-2 text-sm text-gray-500">
                 <span>详细描述有助于获得更准确的评估</span>
@@ -77,12 +114,12 @@ const CreativeInputForm = ({
             </div>
 
             <motion.div
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
+              whileHover={{ scale: hasEnoughCredits ? 1.02 : 1 }}
+              whileTap={{ scale: hasEnoughCredits ? 0.98 : 1 }}
             >
               <Button
                 type="submit"
-                disabled={!ideaContent.trim() || isLoading}
+                disabled={!ideaContent.trim() || isLoading || !hasEnoughCredits}
                 className="w-full py-4 text-lg font-semibold bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 disabled:opacity-50"
               >
                 {isLoading ? (
@@ -90,10 +127,15 @@ const CreativeInputForm = ({
                     <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2" />
                     启动 AI 竞价...
                   </>
+                ) : !hasEnoughCredits ? (
+                  <>
+                    <AlertCircle className="w-5 h-5 mr-2" />
+                    积分不足，无法参与
+                  </>
                 ) : (
                   <>
                     <Play className="w-5 h-5 mr-2" />
-                    开始 AI 竞价表演
+                    开始 AI 竞价表演 (-{REQUIRED_CREDITS} 积分)
                   </>
                 )}
               </Button>
@@ -177,12 +219,15 @@ const AIPersonaStage = ({
 
           {/* 角色信息 */}
           <h3 className="font-bold text-lg text-gray-800 mb-1">{persona.name}</h3>
-          <p className="text-sm text-gray-600 mb-3">{persona.role}</p>
+          <p className="text-sm text-gray-600 mb-1">{persona.specialty}</p>
+          <div className="text-xs text-purple-600 mb-3 font-medium">
+            {persona.personality.slice(0, 2).join(' • ')}
+          </div>
 
           {/* 当前竞价 */}
           <div className="mb-4">
             <div className="text-2xl font-bold text-purple-600 mb-1">
-              {currentBid} 积分
+              ¥{(currentBid * 0.01).toFixed(2)}
             </div>
             <Badge variant={currentBid > 100 ? "default" : "secondary"} className="text-xs">
               {currentBid > 100 ? "高价竞争" : "保守出价"}
@@ -227,13 +272,24 @@ const PhaseIndicator = ({
   currentPhase: string
   timeRemaining: number
 }) => {
-  const phases = [
-    { key: 'warmup', label: '预热', icon: Target, duration: 120 },
-    { key: 'discussion', label: '讨论', icon: MessageCircle, duration: 720 },
-    { key: 'bidding', label: '竞价', icon: Trophy, duration: 1200 },
-    { key: 'prediction', label: '预测', icon: TrendingUp, duration: 240 },
-    { key: 'result', label: '结果', icon: Star, duration: 300 }
-  ]
+  const phases = DISCUSSION_PHASES.map(phase => ({
+    key: phase.phase,
+    label: {
+      'warmup': '预热',
+      'discussion': '讨论',
+      'bidding': '竞价',
+      'prediction': '预测',
+      'result': '结果'
+    }[phase.phase] || phase.phase,
+    icon: {
+      'warmup': Target,
+      'discussion': MessageCircle,
+      'bidding': Trophy,
+      'prediction': TrendingUp,
+      'result': Star
+    }[phase.phase] || Target,
+    duration: phase.duration * 60 // 转换为秒
+  }))
 
   const currentPhaseIndex = phases.findIndex(p => p.key === currentPhase)
   const currentPhaseData = phases[currentPhaseIndex]
@@ -321,7 +377,7 @@ const LiveStatsPanel = ({
           <div className="flex items-center justify-center mb-2">
             <Trophy className="w-5 h-5 text-green-600 mr-1" />
           </div>
-          <div className="text-2xl font-bold text-green-600">{highestBid}</div>
+          <div className="text-2xl font-bold text-green-600">¥{highestBid}</div>
           <div className="text-sm text-green-700">最高出价</div>
         </CardContent>
       </Card>
@@ -340,43 +396,172 @@ const LiveStatsPanel = ({
 }
 
 export default function CreativeIdeaBidding({ ideaId }: CreativeIdeaBiddingProps) {
+  const router = useRouter()
+  const { user, updateCredits, checkCredits, isLoading: authLoading } = useAuth()
   const [showForm, setShowForm] = useState(true)
   const [isStarting, setIsStarting] = useState(false)
+  const [sessionId, setSessionId] = useState<string | null>(null)
+  const [error, setError] = useState<string | null>(null)
 
+  // 使用实际的WebSocket hook
   const {
     isConnected,
-    connectionStatus,
-    currentPhase,
-    timeRemaining,
-    viewerCount,
-    aiMessages,
-    activeSpeaker,
+    sessionData,
     currentBids,
-    highestBid,
-    supportPersona,
-    sendReaction
-  } = useBiddingWebSocket({
-    ideaId,
-    userId: 'user-123',
-    autoConnect: !showForm,
-    enableMockMode: false
+    aiInteractions,
+    viewerCount,
+    hasSubmittedGuess,
+    supportAgent,
+    reactToDialogue
+  } = useBiddingWebSocket(sessionId)
+
+  // 如果用户未登录或数据加载中，显示加载状态
+  if (authLoading || !user) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-purple-100 via-blue-50 to-indigo-100 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto mb-4" />
+          <p className="text-gray-600">加载用户信息中...</p>
+        </div>
+      </div>
+    )
+  }
+
+  // 模拟数据用于展示
+  const activeSpeaker = 'tech-pioneer-alex'
+  const currentPhase = sessionData?.phase || 'warmup'
+  const timeRemaining = sessionData?.timeRemaining || 120
+  const highestBid = Math.max(...currentBids.map(b => b.amount), 50)
+  const currentBidsMap: Record<string, number> = {}
+
+  // 转换现有竞价数据为角色映射
+  AI_PERSONAS.forEach(persona => {
+    const bid = currentBids.find(b => b.agentName === persona.name)
+    currentBidsMap[persona.id] = bid?.amount || Math.floor(Math.random() * 100) + 50
   })
 
+  // 转换AI交互为消息格式
+  const aiMessages: AIMessage[] = aiInteractions.map(interaction => ({
+    id: interaction.id,
+    personaId: AI_PERSONAS.find(p => p.name === interaction.agentName)?.id || 'tech-pioneer-alex',
+    phase: 'discussion',
+    round: 1,
+    type: 'speech',
+    content: interaction.content,
+    emotion: interaction.emotion as any || 'neutral',
+    timestamp: new Date(interaction.timestamp)
+  }))
+
   const handleStartBidding = async (ideaContent: string) => {
+    const REQUIRED_CREDITS = 50
+
+    // 检查积分是否充足
+    if (!checkCredits(REQUIRED_CREDITS)) {
+      setError('积分不足，无法参与竞价')
+      return
+    }
+
     setIsStarting(true)
-    // 这里可以添加创意提交逻辑
-    await new Promise(resolve => setTimeout(resolve, 2000)) // 模拟提交
-    setShowForm(false)
-    setIsStarting(false)
+    setError(null)
+
+    try {
+      // 扣除积分
+      await updateCredits(-REQUIRED_CREDITS)
+
+      // 创建会话ID
+      const newSessionId = `session-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+      setSessionId(newSessionId)
+
+      // 模拟启动延迟
+      await new Promise(resolve => setTimeout(resolve, 2000))
+      setShowForm(false)
+    } catch (error) {
+      console.error('Failed to start bidding:', error)
+      setError('启动竞价失败，积分已退还')
+      // 退还积分
+      try {
+        await updateCredits(REQUIRED_CREDITS)
+      } catch (refundError) {
+        console.error('Failed to refund credits:', refundError)
+      }
+    } finally {
+      setIsStarting(false)
+    }
+  }
+
+  const handleSupportPersona = async (personaId: string) => {
+    const SUPPORT_COST = 10 // 支持AI角色的积分消耗
+
+    // 检查积分是否充足
+    if (!checkCredits(SUPPORT_COST)) {
+      setError('积分不足，无法支持该角色')
+      return
+    }
+
+    try {
+      const persona = AI_PERSONAS.find(p => p.id === personaId)
+      if (persona && sessionId) {
+        // 扣除积分
+        await updateCredits(-SUPPORT_COST)
+        supportAgent(persona.name)
+        setError(null)
+      }
+    } catch (error) {
+      console.error('Failed to support persona:', error)
+      setError('支持失败，积分已退还')
+      // 退还积分
+      try {
+        await updateCredits(SUPPORT_COST)
+      } catch (refundError) {
+        console.error('Failed to refund credits:', refundError)
+      }
+    }
+  }
+
+  const handleSendReaction = async (messageId: string, reaction: string) => {
+    const REACTION_COST = 5 // 发送反应的积分消耗
+
+    // 检查积分是否充足
+    if (!checkCredits(REACTION_COST)) {
+      setError('积分不足，无法发送反应')
+      return
+    }
+
+    try {
+      if (sessionId) {
+        // 扣除积分
+        await updateCredits(-REACTION_COST)
+        reactToDialogue(reaction)
+        setError(null)
+      }
+    } catch (error) {
+      console.error('Failed to send reaction:', error)
+      setError('发送反应失败，积分已退还')
+      // 退还积分
+      try {
+        await updateCredits(REACTION_COST)
+      } catch (refundError) {
+        console.error('Failed to refund credits:', refundError)
+      }
+    }
   }
 
   // 显示创意输入表单
   if (showForm) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-purple-100 via-blue-50 to-indigo-100 flex items-center justify-center p-6">
+        {error && (
+          <div className="fixed top-4 right-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg shadow-lg z-50">
+            <div className="flex items-center">
+              <AlertCircle className="w-5 h-5 mr-2" />
+              {error}
+            </div>
+          </div>
+        )}
         <CreativeInputForm
           onSubmit={handleStartBidding}
           isLoading={isStarting}
+          userCredits={user.credits}
         />
       </div>
     )
@@ -385,126 +570,66 @@ export default function CreativeIdeaBidding({ ideaId }: CreativeIdeaBiddingProps
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-100 via-blue-50 to-indigo-100 p-6">
       <div className="max-w-7xl mx-auto">
+        {/* 错误提示 */}
+        {error && (
+          <div className="fixed top-4 right-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg shadow-lg z-50">
+            <div className="flex items-center">
+              <AlertCircle className="w-5 h-5 mr-2" />
+              {error}
+            </div>
+          </div>
+        )}
+
         {/* 页面标题 */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           className="text-center mb-8"
         >
-          <h1 className="text-4xl font-bold text-gray-800 mb-2">
-            🎭 AI 创意竞价舞台
-          </h1>
-          <p className="text-lg text-gray-600">
-            观看 5 位 AI 专家为您的创意激烈竞价
-          </p>
-        </motion.div>
-
-        {/* 阶段进度 */}
-        <PhaseIndicator
-          currentPhase={currentPhase}
-          timeRemaining={timeRemaining}
-        />
-
-        {/* 实时统计 */}
-        <LiveStatsPanel
-          viewerCount={viewerCount}
-          highestBid={highestBid}
-          messageCount={aiMessages.length}
-        />
-
-        {/* AI 角色舞台 - 水平布局 */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.3 }}
-          className="mb-8"
-        >
-          <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">
-            🤖 AI 专家团队
-          </h2>
-
-          <div className="grid grid-cols-5 gap-4">
-            {AI_PERSONAS.map((persona) => (
-              <AIPersonaStage
-                key={persona.id}
-                persona={persona}
-                isActive={activeSpeaker === persona.id}
-                currentBid={currentBids[persona.id] || 50}
-                messages={aiMessages}
-                onSupport={() => supportPersona(persona.id)}
-              />
-            ))}
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-xl font-bold">🎭 AI 创意竞价舞台</h3>
+            <div className="flex items-center space-x-4">
+              <div className="text-sm text-gray-600">
+                观看 5 位 AI 专家为您的创意激烈竞价
+              </div>
+              <div className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-3 py-1 rounded-full text-sm font-medium">
+                💰 当前积分: {user.credits}
+              </div>
+              <Button
+                onClick={() => router.push('/payment')}
+                size="sm"
+                variant="outline"
+                className="border-yellow-400 text-yellow-600 hover:bg-yellow-50"
+              >
+                <Plus className="w-4 h-4 mr-1" />
+                充值
+              </Button>
+              <Button
+                onClick={() => router.back()}
+                size="sm"
+                variant="ghost"
+              >
+                <ArrowLeft className="w-4 h-4 mr-1" />
+                返回
+              </Button>
+            </div>
           </div>
         </motion.div>
 
-        {/* 实时对话流 */}
-        <Card className="bg-white shadow-xl">
-          <CardContent className="p-6">
-            <h3 className="text-xl font-bold mb-4 flex items-center">
-              <MessageCircle className="w-5 h-5 mr-2 text-purple-600" />
-              实时讨论
-            </h3>
-
-            <div className="h-96 overflow-y-auto space-y-4">
-              <AnimatePresence>
-                {aiMessages.slice(-20).map((message) => {
-                  const persona = AI_PERSONAS.find(p => p.id === message.personaId)
-                  return (
-                    <motion.div
-                      key={message.id}
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      exit={{ opacity: 0, x: 20 }}
-                      className="flex items-start space-x-3"
-                    >
-                      <div className="w-10 h-10 rounded-full overflow-hidden">
-                        <Image
-                          src={persona?.avatar || '/avatars/alex.png'}
-                          alt={persona?.name || 'AI专家'}
-                          width={40}
-                          height={40}
-                          className="w-full h-full object-cover"
-                        />
-                      </div>
-                      <div className="flex-1">
-                        <div className="flex items-center space-x-2 mb-1">
-                          <span className="font-medium text-gray-800">{persona?.name}</span>
-                          {message.type === 'bid' && (
-                            <Badge className="bg-green-100 text-green-800">
-                              出价 {message.bidValue} 积分
-                            </Badge>
-                          )}
-                          <span className="text-xs text-gray-500">
-                            {new Date(message.timestamp).toLocaleTimeString()}
-                          </span>
-                        </div>
-                        <p className="text-gray-700">{message.content}</p>
-
-                        {/* 互动按钮 */}
-                        <div className="flex items-center space-x-4 mt-2">
-                          <button
-                            onClick={() => sendReaction(message.id, 'like')}
-                            className="flex items-center space-x-1 text-sm text-gray-500 hover:text-purple-600"
-                          >
-                            <ThumbsUp className="w-4 h-4" />
-                            <span>赞</span>
-                          </button>
-                          <button
-                            onClick={() => sendReaction(message.id, 'love')}
-                            className="flex items-center space-x-1 text-sm text-gray-500 hover:text-red-600"
-                          >
-                            <Heart className="w-4 h-4" />
-                            <span>喜欢</span>
-                          </button>
-                        </div>
-                      </div>
-                    </motion.div>
-                  )
-                })}
-              </AnimatePresence>
-            </div>
-          </CardContent>
-        </Card>
+        {/* 使用增强的竞价舞台组件 */}
+        <EnhancedBiddingStage
+          ideaId="demo-idea"
+          messages={aiMessages}
+          currentBids={Object.fromEntries(
+            AI_PERSONAS.map(persona => [
+              persona.id,
+              currentBidsMap[persona.id] || Math.floor(Math.random() * 200) + 50
+            ])
+          )}
+          activeSpeaker={activeSpeaker}
+          currentPhase={currentPhase}
+          onSupportPersona={handleSupportPersona}
+        />
 
         {/* 连接状态指示器 */}
         <div className="fixed bottom-4 right-4">

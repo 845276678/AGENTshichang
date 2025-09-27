@@ -1,6 +1,8 @@
 // AI服务管理器 - 统一管理DeepSeek、智谱GLM、通义千问
 // 实现负载均衡、错误处理、成本控制
 
+import type { DialogueContext } from './dialogue-strategy';
+
 export interface AIServiceProvider {
   name: 'deepseek' | 'zhipu' | 'qwen';
   apiKey: string;

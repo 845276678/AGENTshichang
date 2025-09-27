@@ -15,6 +15,8 @@ import {
 } from 'lucide-react';
 import { AI_PERSONAS, DISCUSSION_PHASES, type AIPersona, type AIMessage, type BiddingEvent } from '@/lib/ai-persona-system';
 import { useBiddingWebSocket } from '@/hooks/useBiddingWebSocket';
+import AIPersonaSceneManager from './AIPersonaSceneManager';
+import { getRecommendedConfig, calculateDynamicIntensity } from '@/lib/visual-effects-config';
 
 interface CreativeIdeaBiddingProps {
   ideaId: string;
@@ -61,6 +63,11 @@ export default function CreativeIdeaBidding({ ideaId }: CreativeIdeaBiddingProps
     totalActions: 0
   });
 
+  // 视觉效果配置
+  const [effectConfig, setEffectConfig] = useState(() => getRecommendedConfig(currentPhase));
+  const [showEffectControls, setShowEffectControls] = useState(false);
+  const [enableEnhancedEffects, setEnableEnhancedEffects] = useState(true);
+
   // 创意信息
   const [idea] = useState({
     id: ideaId,
@@ -69,6 +76,14 @@ export default function CreativeIdeaBidding({ ideaId }: CreativeIdeaBiddingProps
     category: "智能硬件",
     tags: ["AI", "IoT", "语音识别", "机器学习"]
   });
+
+  // 根据阶段自动调整效果配置
+  useEffect(() => {
+    if (!showEffectControls) {
+      const newConfig = getRecommendedConfig(currentPhase);
+      setEffectConfig(newConfig);
+    }
+  }, [currentPhase, showEffectControls]);
 
   // 用户互动处理
   const handleReaction = useCallback((messageId: string, reactionType: string) => {
@@ -192,79 +207,156 @@ export default function CreativeIdeaBidding({ ideaId }: CreativeIdeaBiddingProps
           </Card>
 
           <div className="grid lg:grid-cols-4 gap-6">
-            {/* 左侧：AI 角色面板 */}
+            {/* 视觉效果控制面板 */}
             <div className="lg:col-span-1">
               <Card className="sticky top-4">
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Brain className="w-5 h-5" />
-                    AI 竞价师们
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  {AI_PERSONAS.map((persona) => (
-                    <motion.div
-                      key={persona.id}
-                      className={`p-3 rounded-lg border transition-all cursor-pointer ${
-                        activeSpeaker === persona.id
-                          ? 'border-primary bg-primary/10 shadow-lg scale-105'
-                          : supportedPersona === persona.id
-                          ? 'border-green-500 bg-green-50 dark:bg-green-900/20'
-                          : 'border-border hover:border-primary/50'
-                      }`}
-                      whileHover={{ scale: 1.02 }}
-                      onClick={() => handleSupportPersona(persona.id)}
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="flex items-center gap-2 text-sm">
+                      <Sparkles className="w-4 h-4" />
+                      视觉效果
+                    </CardTitle>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setShowEffectControls(!showEffectControls)}
                     >
-                      <div className="flex items-center gap-3 mb-2">
-                        <div className="text-2xl">{persona.avatar}</div>
-                        <div className="flex-1 min-w-0">
-                          <div className="font-medium text-sm truncate">
-                            {persona.name}
-                          </div>
-                          <div className="text-xs text-muted-foreground">
-                            {persona.specialty.split('、')[0]}
-                          </div>
-                        </div>
-                        {activeSpeaker === persona.id && (
-                          <div className="flex items-center">
-                            <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse" />
-                          </div>
-                        )}
+                      <Target className="w-4 h-4" />
+                    </Button>
+                  </div>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm">增强效果</span>
+                    <Button
+                      variant={enableEnhancedEffects ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => setEnableEnhancedEffects(!enableEnhancedEffects)}
+                    >
+                      {enableEnhancedEffects ? '开启' : '关闭'}
+                    </Button>
+                  </div>
+
+                  {enableEnhancedEffects && (
+                    <div className="space-y-2">
+                      <div className="text-xs text-muted-foreground">
+                        当前方案: {effectConfig.name}
                       </div>
-
-                      {currentBids[persona.id] && (
-                        <div className="text-center">
-                          <div className="text-lg font-bold text-green-600">
-                            {currentBids[persona.id]} 积分
-                          </div>
-                          <div className="text-xs text-muted-foreground">最新出价</div>
-                        </div>
-                      )}
-
-                      <div className="flex flex-wrap gap-1 mt-2">
-                        {persona.personality.slice(0, 2).map((trait) => (
-                          <Badge key={trait} variant="outline" className="text-xs">
-                            {trait}
-                          </Badge>
-                        ))}
+                      <div className="text-xs text-muted-foreground">
+                        适用阶段: {getCurrentPhaseConfig().description}
                       </div>
+                      <div className="flex items-center gap-2">
+                        <div
+                          className="w-3 h-3 rounded-full animate-pulse"
+                          style={{ backgroundColor: effectConfig.colors.primary }}
+                        />
+                        <span className="text-xs">实时同步</span>
+                      </div>
+                    </div>
+                  )}
 
-                      {supportedPersona === persona.id && (
-                        <div className="mt-2 text-center">
-                          <Badge variant="default" className="text-xs">
-                            <Heart className="w-3 h-3 mr-1" />
-                            你支持的AI
-                          </Badge>
-                        </div>
-                      )}
-                    </motion.div>
-                  ))}
+                  <div className="border-t pt-3 mt-3">
+                    <div className="text-xs text-muted-foreground mb-2">观看统计</div>
+                    <div className="flex items-center justify-between text-sm">
+                      <span>在线观众</span>
+                      <Badge variant="secondary">{viewerCount}</Badge>
+                    </div>
+                    <div className="flex items-center justify-between text-sm">
+                      <span>当前最高</span>
+                      <Badge variant="secondary">{highestBid} 积分</Badge>
+                    </div>
+                  </div>
                 </CardContent>
               </Card>
             </div>
 
-            {/* 中间：对话和竞价舞台 */}
+            {/* 中间：AI角色舞台 - 使用增强版本 */}
             <div className="lg:col-span-2 space-y-4">
+              {enableEnhancedEffects ? (
+                <AIPersonaSceneManager
+                  messages={aiMessages}
+                  currentBids={Object.fromEntries(
+                    AI_PERSONAS.map(persona => [
+                      persona.id,
+                      currentBids[persona.id] || Math.floor(Math.random() * 200) + 50
+                    ])
+                  )}
+                  activeSpeaker={activeSpeaker}
+                  onSupportPersona={handleSupportPersona}
+                  effectStyle={effectConfig.id as any}
+                  enableDimming={effectConfig.effects.spotlight}
+                  enableFocusMode={effectConfig.effects.focusMode}
+                />
+              ) : (
+                /* 原版AI角色面板作为回退 */
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Brain className="w-5 h-5" />
+                      AI 竞价师们
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    {AI_PERSONAS.map((persona) => (
+                      <motion.div
+                        key={persona.id}
+                        className={`p-3 rounded-lg border transition-all cursor-pointer ${
+                          activeSpeaker === persona.id
+                            ? 'border-primary bg-primary/10 shadow-lg scale-105'
+                            : supportedPersona === persona.id
+                            ? 'border-green-500 bg-green-50 dark:bg-green-900/20'
+                            : 'border-border hover:border-primary/50'
+                        }`}
+                        whileHover={{ scale: 1.02 }}
+                        onClick={() => handleSupportPersona(persona.id)}
+                      >
+                        <div className="flex items-center gap-3 mb-2">
+                          <div className="text-2xl">{persona.avatar}</div>
+                          <div className="flex-1 min-w-0">
+                            <div className="font-medium text-sm truncate">
+                              {persona.name}
+                            </div>
+                            <div className="text-xs text-muted-foreground">
+                              {persona.specialty.split('、')[0]}
+                            </div>
+                          </div>
+                          {activeSpeaker === persona.id && (
+                            <div className="flex items-center">
+                              <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse" />
+                            </div>
+                          )}
+                        </div>
+
+                        {currentBids[persona.id] && (
+                          <div className="text-center">
+                            <div className="text-lg font-bold text-green-600">
+                              {currentBids[persona.id]} 积分
+                            </div>
+                            <div className="text-xs text-muted-foreground">最新出价</div>
+                          </div>
+                        )}
+
+                        <div className="flex flex-wrap gap-1 mt-2">
+                          {persona.personality.slice(0, 2).map((trait) => (
+                            <Badge key={trait} variant="outline" className="text-xs">
+                              {trait}
+                            </Badge>
+                          ))}
+                        </div>
+
+                        {supportedPersona === persona.id && (
+                          <div className="mt-2 text-center">
+                            <Badge variant="default" className="text-xs">
+                              <Heart className="w-3 h-3 mr-1" />
+                              你支持的AI
+                            </Badge>
+                          </div>
+                        )}
+                      </motion.div>
+                    ))}
+                  </CardContent>
+                </Card>
+              )}
               {/* 实时对话区域 */}
               <Card className="h-96 flex flex-col">
                 <CardHeader className="pb-3">

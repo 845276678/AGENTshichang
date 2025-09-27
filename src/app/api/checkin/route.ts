@@ -56,17 +56,31 @@ export async function GET(request: NextRequest) {
       }, { status: 404 });
     }
 
-    // 计算签到状态（简化版本，真实场景应该有专门的签到记录表）
-    const today = new Date().toDateString();
-    const lastLogin = user.lastLoginAt ? user.lastLoginAt.toDateString() : null;
+    // 计算签到状态 - 检查今日是否已签到
+    const today = new Date();
+    const todayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    const todayEnd = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1);
+
+    const todayCheckin = await prisma.creditTransaction.findFirst({
+      where: {
+        userId: decoded.userId,
+        description: {
+          contains: '每日签到奖励'
+        },
+        createdAt: {
+          gte: todayStart,
+          lt: todayEnd
+        }
+      }
+    });
 
     const stats: CheckInStats = {
       currentStreak: user.consecutiveGuesses || 0,
       totalCheckIns: user.totalGuesses || 0,
-      lastCheckIn: lastLogin,
+      lastCheckIn: user.lastLoginAt ? user.lastLoginAt.toISOString() : null,
       nextRewardMultiplier: user.consecutiveGuesses >= 6 ? 1.5 : 1,
       todayCredits: Math.floor(((user.consecutiveGuesses % 7) + 1) * 10 * (user.consecutiveGuesses >= 6 ? 1.5 : 1)),
-      canCheckInToday: !lastLogin || lastLogin !== today
+      canCheckInToday: !todayCheckin
     };
 
     console.log('✅ 签到状态获取成功');
@@ -126,11 +140,25 @@ export async function POST(request: NextRequest) {
       }, { status: 404 });
     }
 
-    // 检查今日是否已签到
-    const today = new Date().toDateString();
-    const lastLogin = user.lastLoginAt ? user.lastLoginAt.toDateString() : null;
+    // 检查今日是否已签到 - 查询今日是否有签到记录
+    const today = new Date();
+    const todayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    const todayEnd = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1);
 
-    if (lastLogin === today) {
+    const todayCheckin = await prisma.creditTransaction.findFirst({
+      where: {
+        userId: decoded.userId,
+        description: {
+          contains: '每日签到奖励'
+        },
+        createdAt: {
+          gte: todayStart,
+          lt: todayEnd
+        }
+      }
+    });
+
+    if (todayCheckin) {
       return NextResponse.json({
         success: false,
         message: '今日已签到'

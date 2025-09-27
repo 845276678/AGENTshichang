@@ -6,7 +6,7 @@ import { DialogueContext, AIDialogueContent } from './dialogue-strategy';
 export interface DialogueTemplate {
   id: string;
   name: string;
-  phase: 'warmup' | 'discussion' | 'bidding' | 'prediction' | 'result';
+  phase: 'warmup' | 'discussion' | 'bidding' | 'prediction' | 'result' | 'any';
   trigger: string;
   personaType: string;
   variants: TemplateVariant[];
@@ -133,7 +133,7 @@ export const DIALOGUE_TEMPLATES: DialogueTemplate[] = [
   {
     id: 'stage_transition',
     name: '阶段过渡',
-    phase: 'all',
+    phase: 'any',
     trigger: 'transition_segments',
     personaType: 'any',
     weight: 0.6,
@@ -278,7 +278,7 @@ export class TemplateManager {
 
   // 检查模板是否适用
   private isTemplateApplicable(template: DialogueTemplate, context: DialogueContext): boolean {
-    if (template.phase !== 'all' && template.phase !== context.phase) {
+    if (template.phase !== 'any' && template.phase !== context.phase) {
       return false;
     }
 

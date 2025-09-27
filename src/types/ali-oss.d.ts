@@ -55,7 +55,8 @@ declare module 'ali-oss' {
     [key: string]: any
   }
 
-  class OSS {\n    options: OSSOptions
+  class OSS {
+    options: OSSOptions
     constructor(options: OSSOptions)
 
     put(key: string, file: Buffer | string, options?: any): Promise<PutResult>
