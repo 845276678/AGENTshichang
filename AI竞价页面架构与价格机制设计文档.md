@@ -153,41 +153,63 @@ const COST_STRUCTURE = {
 }
 ```
 
-## 💰 **价格机制优化方案**
+## 💰 **价格机制现状分析与优化方案**
 
-### **问题分析**
-原系统使用固定价格（100积分）生成商业落地指南，存在以下问题：
-- 价格与AI评估价值脱节
-- 无法体现竞价结果的真实价值
-- 用户体验不够合理
+### **当前实现状态**
+根据代码分析，当前竞价系统已基本实现：
+- ✅ **竞价结果展示**：显示获胜者和竞价金额（如：350积分）
+- ✅ **数据传递机制**：通过URL参数传递winningBid到business-plan页面
+- ⚠️ **商业指南定价**：目前按钮显示"查看专业商业计划书"，未明确展示价格
 
-### **优化方案**
-将价格机制改为**基于AI Agent竞价成功价格**的动态定价：
-
-#### **价格计算逻辑**
 ```typescript
-// 核心算法
-const winningBid = Math.max(...currentBids.map(b => b.amount), 50)
-const guideCost = Math.max(winningBid, 50) // 最低50积分，基于竞价成功价格
+// 当前实现的竞价结果数据
+const mockResults = {
+  winningBid: 350,           // 获胜竞价金额
+  winner: personas[1],       // 获胜AI角色（商业大亨老王）
+  userReward: 150,          // 用户获得奖励积分
+  reportId: 'report_' + Date.now(),
+  ideaTitle: ideaData?.title || '智能家居语音控制系统'
+}
 ```
 
-#### **价格示例**
-- 如果AI Agent最高竞价80积分 → 指南价格80积分
-- 如果AI Agent最高竞价120积分 → 指南价格120积分  
-- 如果AI Agent最高竞价30积分 → 指南价格50积分（最低门槛）
+### **价格机制优化方案**
+将商业指南价格与竞价结果动态关联：
 
-### **用户体验优化**
+#### **优化前问题**
+- 商业计划生成按钮无明确价格提示
+- 价格与竞价结果价值不关联
+- 用户对费用预期不明确
 
-#### **动态价格显示**
+#### **建议优化方案**
 ```typescript
-// 按钮文本动态显示当前价格
-🚀 生成专业落地指南 ({guideCost} 积分)
+// 动态价格计算逻辑
+const calculateGuideCost = (winningBid: number) => {
+  return Math.max(winningBid, 50) // 最低50积分，基于竞价成功价格
+}
+
+// 按钮优化显示
+const guideCost = calculateGuideCost(mockResults.winningBid)
+// 按钮文本：🚀 生成专业落地指南 ({guideCost} 积分)
 ```
 
-#### **智能提示信息**
+#### **实现建议**
+在ResultsPhase组件中添加动态价格显示：
 ```typescript
-// 积分不足时的提示信息
-生成专业落地指南需要 {guideCost} 积分（基于竞价成功价格），当前积分不足。
+const guideCost = Math.max(mockResults.winningBid, 50)
+```
+
+### **用户体验优化建议**
+
+#### **价格透明化**
+- 明确显示生成指南的积分费用
+- 基于竞价结果解释价格合理性
+- 提供积分不足时的充值引导
+
+#### **价值感知提升**
+```typescript
+// 建议的提示文案
+`基于获胜专家${mockResults.winner.name}的${mockResults.winningBid}积分竞价结果，
+生成专业商业落地指南仅需${guideCost}积分`
 ```
 
 ## 🎯 **页面布局设计**

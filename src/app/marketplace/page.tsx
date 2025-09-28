@@ -689,6 +689,13 @@ function ResultsPhase({ bids, userPrediction, personas, ideaData }: any) {
     ideaTitle: ideaData?.title || '智能家居语音控制系统'
   }
 
+  // 动态价格计算逻辑
+  const calculateGuideCost = (winningBid: number) => {
+    return Math.max(winningBid, 50) // 最低50积分，基于竞价成功价格
+  }
+
+  const guideCost = calculateGuideCost(mockResults.winningBid)
+
   const handleViewBusinessPlan = () => {
     // 跳转到business-plan页面，传递竞价结果数据
     const params = new URLSearchParams({
@@ -696,7 +703,8 @@ function ResultsPhase({ bids, userPrediction, personas, ideaData }: any) {
       ideaTitle: mockResults.ideaTitle,
       source: 'marketplace',
       winningBid: mockResults.winningBid.toString(),
-      winner: mockResults.winner.name
+      winner: mockResults.winner.name,
+      guideCost: guideCost.toString() // 传递动态计算的价格
     })
 
     router.push(`/business-plan?${params.toString()}`)
@@ -745,12 +753,22 @@ function ResultsPhase({ bids, userPrediction, personas, ideaData }: any) {
 
           {/* 下一步操作 */}
           <div className="space-y-3">
+            {/* 价格说明区域 */}
+            <div className="p-3 bg-gradient-to-r from-green-50 to-blue-50 rounded-lg border border-green-200">
+              <p className="text-sm text-green-700 mb-1">
+                💰 基于获胜专家<strong>{mockResults.winner.name}</strong>的{mockResults.winningBid}积分竞价结果
+              </p>
+              <p className="text-xs text-green-600">
+                生成专业商业落地指南仅需 <strong>{guideCost}积分</strong>
+              </p>
+            </div>
+
             <Button
               onClick={handleViewBusinessPlan}
               className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-lg py-3"
             >
               <FileText className="w-5 h-5 mr-2" />
-              查看专业商业计划书
+              🚀 生成专业落地指南 ({guideCost} 积分)
             </Button>
             <div className="grid grid-cols-2 gap-3">
               <Button variant="outline" className="w-full">
@@ -777,12 +795,17 @@ function ResultsPhase({ bids, userPrediction, personas, ideaData }: any) {
                 <p className="text-sm text-blue-700 mb-3">
                   基于竞价讨论和{mockResults.winner.name}的专业建议，系统将自动生成：
                 </p>
-                <ul className="text-xs text-blue-600 space-y-1">
+                <ul className="text-xs text-blue-600 space-y-1 mb-3">
                   <li>• 市场分析与竞品研究</li>
                   <li>• 技术实现路径规划</li>
                   <li>• 商业模式与盈利预测</li>
                   <li>• 落地执行计划</li>
                 </ul>
+                <div className="p-2 bg-white/60 rounded border border-blue-200">
+                  <p className="text-xs text-blue-800">
+                    💡 <strong>价格说明：</strong>基于竞价成功价格{mockResults.winningBid}积分，体现AI评估的真实价值。最低门槛50积分确保服务可及性。
+                  </p>
+                </div>
               </div>
             </div>
           </div>

@@ -44,6 +44,7 @@ export default function BusinessPlanPage() {
   const source = searchParams.get('source') // 来源：marketplace 或其他
   const winningBid = searchParams.get('winningBid')
   const winner = searchParams.get('winner')
+  const guideCost = searchParams.get('guideCost') // 动态价格
 
   const [loadingState, setLoadingState] = useState<LoadingState>({
     isLoading: Boolean(reportId),
