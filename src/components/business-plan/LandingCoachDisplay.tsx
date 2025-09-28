@@ -27,7 +27,13 @@ import {
   Lightbulb,
   Zap,
   BarChart3,
-  Shield
+  Shield,
+  Star,
+  AlertTriangle,
+  TrendingDown,
+  Eye,
+  Flame,
+  Compass
 } from 'lucide-react'
 
 import { LandingCoachGuide } from '@/lib/utils/transformReportToGuide'
@@ -119,6 +125,202 @@ export default function LandingCoachDisplay({
               可行性：{guide.metadata.confidenceLevel}%
             </Badge>
           </div>
+
+          {/* AI犀利点评区域 */}
+          {guide.aiInsights && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+              className="mb-8"
+            >
+              <Card className="border-2 border-orange-200 bg-gradient-to-r from-orange-50 to-red-50 shadow-lg">
+                <CardHeader className="pb-4">
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="w-10 h-10 bg-gradient-to-r from-orange-500 to-red-500 rounded-full flex items-center justify-center">
+                      <Eye className="w-5 h-5 text-white" />
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-bold text-orange-900">AI犀利点评</h3>
+                      <p className="text-sm text-orange-700">基于{guide.metadata.source === 'marketplace' ? `竞价专家${guide.metadata.winner}` : '调研数据'}的专业洞察</p>
+                    </div>
+                    <div className="ml-auto">
+                      <Badge className={`${guide.aiInsights.overallAssessment.score >= 8 ? 'bg-green-500' : guide.aiInsights.overallAssessment.score >= 6 ? 'bg-yellow-500' : 'bg-red-500'} text-white`}>
+                        {guide.aiInsights.overallAssessment.score}/10分
+                      </Badge>
+                    </div>
+                  </div>
+
+                  <div className="bg-white/60 rounded-lg p-4">
+                    <div className="flex items-start gap-3">
+                      <Flame className="w-6 h-6 text-orange-600 mt-1 flex-shrink-0" />
+                      <div>
+                        <div className="flex items-center gap-2 mb-2">
+                          <span className="font-semibold text-orange-900">{guide.aiInsights.overallAssessment.level}</span>
+                          <div className="flex">
+                            {[1,2,3,4,5].map((star) => (
+                              <Star key={star} className={`w-4 h-4 ${star <= Math.round(guide.aiInsights.overallAssessment.score/2) ? 'text-yellow-500 fill-yellow-500' : 'text-gray-300'}`} />
+                            ))}
+                          </div>
+                        </div>
+                        <p className="text-orange-800 text-base leading-relaxed font-medium">
+                          {guide.aiInsights.overallAssessment.summary}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </CardHeader>
+
+                <CardContent className="space-y-4">
+                  <div className="grid md:grid-cols-2 gap-4">
+                    {/* 核心优势 */}
+                    <div className="bg-green-50 rounded-lg p-4 border border-green-200">
+                      <div className="flex items-center gap-2 mb-3">
+                        <CheckCircle2 className="w-5 h-5 text-green-600" />
+                        <h4 className="font-semibold text-green-900">核心优势</h4>
+                      </div>
+                      <ul className="space-y-2">
+                        {guide.aiInsights.overallAssessment.keyStrengths.map((strength, index) => (
+                          <li key={index} className="text-sm text-green-800 flex items-start gap-2">
+                            <div className="w-1.5 h-1.5 bg-green-500 rounded-full mt-2 flex-shrink-0"></div>
+                            {strength}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+
+                    {/* 关键挑战 */}
+                    <div className="bg-red-50 rounded-lg p-4 border border-red-200">
+                      <div className="flex items-center gap-2 mb-3">
+                        <AlertTriangle className="w-5 h-5 text-red-600" />
+                        <h4 className="font-semibold text-red-900">关键挑战</h4>
+                      </div>
+                      <ul className="space-y-2">
+                        {guide.aiInsights.overallAssessment.criticalChallenges.map((challenge, index) => (
+                          <li key={index} className="text-sm text-red-800 flex items-start gap-2">
+                            <div className="w-1.5 h-1.5 bg-red-500 rounded-full mt-2 flex-shrink-0"></div>
+                            {challenge}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  </div>
+
+                  {/* 长期坚持建议 */}
+                  <div className="bg-blue-50 rounded-lg p-4 border border-blue-200">
+                    <div className="flex items-center gap-2 mb-3">
+                      <TrendingUp className="w-5 h-5 text-blue-600" />
+                      <h4 className="font-semibold text-blue-900">长期坚持策略</h4>
+                    </div>
+                    <p className="text-sm text-blue-800 mb-3">{guide.aiInsights.sustainabilityAnalysis.longTermViability}</p>
+                    <div className="grid md:grid-cols-2 gap-4">
+                      <div>
+                        <h5 className="font-medium text-blue-900 mb-2">成功关键因素</h5>
+                        <ul className="space-y-1">
+                          {guide.aiInsights.sustainabilityAnalysis.persistenceFactors.map((factor, index) => (
+                            <li key={index} className="text-xs text-blue-700 flex items-start gap-2">
+                              <CheckCircle2 className="w-3 h-3 text-blue-500 mt-0.5 flex-shrink-0" />
+                              {factor}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                      <div>
+                        <h5 className="font-medium text-blue-900 mb-2">风险缓解</h5>
+                        <ul className="space-y-1">
+                          {guide.aiInsights.sustainabilityAnalysis.riskMitigation.map((risk, index) => (
+                            <li key={index} className="text-xs text-blue-700 flex items-start gap-2">
+                              <Shield className="w-3 h-3 text-blue-500 mt-0.5 flex-shrink-0" />
+                              {risk}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* 阶段预警 */}
+                  <div className="bg-purple-50 rounded-lg p-4 border border-purple-200">
+                    <div className="flex items-center gap-2 mb-3">
+                      <AlertCircle className="w-5 h-5 text-purple-600" />
+                      <h4 className="font-semibold text-purple-900">阶段预警指标</h4>
+                    </div>
+                    <div className="space-y-3">
+                      {guide.aiInsights.stageAlerts.map((alert, index) => (
+                        <div key={index} className="border border-purple-200 rounded-lg p-3 bg-white/60">
+                          <div className="flex items-center justify-between mb-2">
+                            <h5 className="font-medium text-purple-900">{alert.stage}</h5>
+                            <Badge variant="outline" className="text-xs text-purple-700">{alert.timeline}</Badge>
+                          </div>
+                          <div className="grid md:grid-cols-2 gap-3 text-xs">
+                            <div>
+                              <h6 className="font-medium text-green-700 mb-1">关键里程碑</h6>
+                              <ul className="space-y-1">
+                                {alert.criticalMilestones.map((milestone, idx) => (
+                                  <li key={idx} className="text-green-600 flex items-start gap-1">
+                                    <Target className="w-3 h-3 mt-0.5 flex-shrink-0" />
+                                    {milestone}
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                            <div>
+                              <h6 className="font-medium text-red-700 mb-1">预警信号</h6>
+                              <ul className="space-y-1">
+                                {alert.warningSignals.map((signal, idx) => (
+                                  <li key={idx} className="text-red-600 flex items-start gap-1">
+                                    <TrendingDown className="w-3 h-3 mt-0.5 flex-shrink-0" />
+                                    {signal}
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* 快速导航 */}
+                  <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                    <div className="flex items-center gap-2 mb-3">
+                      <Compass className="w-5 h-5 text-gray-600" />
+                      <h4 className="font-semibold text-gray-900">快速导航到详细内容</h4>
+                    </div>
+                    <div className="grid grid-cols-3 gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setActiveTab('situation')}
+                        className="text-xs h-8"
+                      >
+                        <BarChart3 className="w-3 h-3 mr-1" />
+                        现状分析
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setActiveTab('mvp')}
+                        className="text-xs h-8"
+                      >
+                        <Rocket className="w-3 h-3 mr-1" />
+                        MVP规划
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setActiveTab('business')}
+                        className="text-xs h-8"
+                      >
+                        <TrendingUp className="w-3 h-3 mr-1" />
+                        商业落地
+                      </Button>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+          )}
 
           {/* 操作按钮 */}
           <div className="flex justify-center gap-4">

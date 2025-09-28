@@ -3,6 +3,28 @@ import { ResearchReport } from '@/generated/prisma'
 
 // 落地教练三段结构的数据类型
 export interface LandingCoachGuide {
+  // AI犀利点评机制
+  aiInsights?: {
+    overallAssessment: {
+      score: number // 0-10分
+      level: string // 项目潜力等级
+      summary: string // 一句话犀利点评
+      keyStrengths: string[] // 核心优势
+      criticalChallenges: string[] // 关键挑战
+    }
+    sustainabilityAnalysis: {
+      longTermViability: string // 长期可行性评估
+      persistenceFactors: string[] // 坚持成功的关键因素
+      riskMitigation: string[] // 风险缓解建议
+    }
+    stageAlerts: Array<{
+      stage: string // 阶段名称
+      timeline: string // 时间线
+      criticalMilestones: string[] // 关键里程碑
+      warningSignals: string[] // 预警信号
+    }>
+  }
+
   // 第一段：现状认知与方向确认
   currentSituation: {
     title: string
@@ -80,10 +102,14 @@ export interface LandingCoachGuide {
   // 元数据
   metadata: {
     ideaTitle: string
-    generatedAt: Date
+    reportId?: string
+    generatedAt: string
     estimatedReadTime: number
     implementationTimeframe: string
     confidenceLevel: number
+    source?: string
+    winningBid?: number
+    winner?: string
   }
 }
 

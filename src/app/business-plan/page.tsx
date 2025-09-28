@@ -115,6 +115,82 @@ export default function BusinessPlanPage() {
             winningBid: winningBid ? parseInt(winningBid) : 350,
             winner: winner || '商业大亨老王'
           },
+          // AI犀利点评
+          aiInsights: {
+            overallAssessment: {
+              score: 7.8,
+              level: '中高潜力项目',
+              summary: '这是一个技术驱动的智能家居项目，具备明确的商业价值，但需要在隐私保护和生态建设方面下功夫。',
+              keyStrengths: [
+                '技术方向符合未来趋势，语音交互已进入成熟期',
+                '隐私保护定位差异化明显，能形成竞争壁垒',
+                '智能家居市场增长强劲，用户接受度不断提升'
+              ],
+              criticalChallenges: [
+                '技术门槛高，需要顶级AI团队和持续投入',
+                '生态建设周期长，需要大量设备厂商合作',
+                '竞争激烈，与巨头正面竞争风险极大'
+              ]
+            },
+            sustainabilityAnalysis: {
+              longTermViability: '需要建立技术护城河和生态优势',
+              persistenceFactors: [
+                '核心技术持续创新能力',
+                '用户数据和使用习惯的积累',
+                '供应链和渠道合作伙伴关系',
+                '品牌认知度和用户信任度'
+              ],
+              riskMitigation: [
+                '避免与巨头正面竞争，专注细分市场',
+                '重视数据安全和隐私保护，建立信任优势',
+                '快速迭代产品，保持技术领先地位'
+              ]
+            },
+            stageAlerts: [
+              {
+                stage: 'MVP开发',
+                timeline: '0-6个月',
+                criticalMilestones: [
+                  '语音识别准确率达到95%以上',
+                  '至少支持20种主流智能设备',
+                  '完成隐私保护技术验证'
+                ],
+                warningSignals: [
+                  '技术指标未达预期，需及时调整技术路线',
+                  '用户测试反馈不佳，产品体验需大幅优化',
+                  '开发进度严重滞后，团队配置需要调整'
+                ]
+              },
+              {
+                stage: '市场验证',
+                timeline: '6-12个月',
+                criticalMilestones: [
+                  '获得1000+种子用户认可',
+                  '日活跃度保持在60%以上',
+                  '完成与3家以上设备厂商合作'
+                ],
+                warningSignals: [
+                  '用户增长停滞，产品市场匹配度存疑',
+                  '客户流失率超过30%，用户粘性不足',
+                  '合作伙伴响应冷淡，商业模式需要调整'
+                ]
+              },
+              {
+                stage: '规模化扩展',
+                timeline: '12-24个月',
+                criticalMilestones: [
+                  '月活用户突破10万',
+                  '实现正向现金流',
+                  '建立完整的生态系统'
+                ],
+                warningSignals: [
+                  '扩展成本过高，盈利模式不可持续',
+                  '技术架构无法支撑用户增长',
+                  '竞争对手推出类似产品，优势被削弱'
+                ]
+              }
+            ]
+          },
           executiveSummary: {
             vision: `基于AI竞价专家${winner}的建议，${ideaTitle}定位为下一代智能家居控制中心`,
             keyInsights: [
@@ -130,69 +206,198 @@ export default function BusinessPlanPage() {
               '用户体验优化'
             ]
           },
-          marketAnalysis: {
-            targetMarket: {
-              size: '预计2024年全球智能家居市场规模达到4000亿人民币',
-              growth: '年复合增长率约25%',
-              segments: ['高端家庭用户', '科技爱好者', '智慧社区']
+          currentSituation: {
+            title: "现状认知与方向确认",
+            summary: "智能家居语音控制正成为下一个技术风口，隐私保护成为差异化关键。",
+            keyInsights: [
+              "语音交互技术日趋成熟，准确率已达商用标准",
+              "智能家居设备普及率快速提升，为语音控制创造需求",
+              "隐私保护成为用户关注焦点，本土化方案更受信任"
+            ],
+            marketReality: {
+              marketSize: "预计2024年全球智能家居市场规模达到4000亿人民币",
+              competition: "Amazon Alexa、Google Assistant占据国际市场，小爱同学等本土产品快速发展",
+              opportunities: [
+                "国产替代需求增长",
+                "隐私保护成为差异化优势",
+                "物联网设备普及率提升",
+                "5G技术推动智能家居升级"
+              ],
+              challenges: [
+                "技术门槛高，需要AI专业团队",
+                "生态建设周期长，需要设备厂商配合",
+                "与互联网巨头正面竞争",
+                "用户习惯迁移成本高"
+              ]
             },
-            competitors: [
-              { name: 'Amazon Alexa', strength: '市场领先地位', weakness: '隐私争议' },
-              { name: 'Google Assistant', strength: 'AI技术优势', weakness: '生态封闭' },
-              { name: '小爱同学', strength: '本土化优势', weakness: '技术相对落后' }
-            ],
-            opportunities: [
-              '国产替代需求增长',
-              '隐私保护成为差异化优势',
-              '物联网设备普及率提升'
+            userNeeds: {
+              targetUsers: "注重隐私的科技爱好者、高端家庭用户、智慧社区",
+              painPoints: [
+                "现有产品隐私保护不足",
+                "设备兼容性差，无法统一控制",
+                "语音识别准确率有待提升",
+                "功能单一，智能化程度不高"
+              ],
+              solutions: [
+                "本地化语音处理，数据不上云",
+                "开放式接口，支持主流设备品牌",
+                "深度学习优化语音识别",
+                "AI场景化智能推荐"
+              ]
+            },
+            actionItems: [
+              "深入调研目标用户隐私保护需求",
+              "评估主流智能设备的接入难度",
+              "分析竞品的技术优劣势"
             ]
           },
-          businessModel: {
-            revenueStreams: [
-              '硬件设备销售',
-              '软件服务订阅',
-              '第三方设备接入费用',
-              '数据分析服务'
-            ],
-            costStructure: [
-              '研发成本：40%',
-              '制造成本：25%',
-              '营销成本：20%',
-              '运营成本：15%'
-            ],
-            keyMetrics: [
-              '月活跃用户数',
-              '设备连接数量',
-              '语音识别准确率',
-              '用户满意度'
+          mvpDefinition: {
+            title: "MVP产品定义与验证计划",
+            productConcept: {
+              uniqueValue: "国内首个完全本地化的智能家居语音控制中心，零数据上云",
+              minimumScope: "支持20种主流设备的语音控制，准确率达95%，响应时间<2秒",
+              coreFeatures: [
+                "离线语音识别引擎",
+                "多设备统一控制接口",
+                "隐私保护机制",
+                "智能场景推荐",
+                "设备状态监控"
+              ]
+            },
+            developmentPlan: {
+              phases: [
+                {
+                  name: "技术验证阶段",
+                  duration: "3个月",
+                  deliverables: ["语音识别原型", "设备接入demo", "隐私架构设计"],
+                  resources: ["AI算法工程师3人", "IoT开发工程师2人", "产品经理1人"]
+                },
+                {
+                  name: "MVP开发阶段",
+                  duration: "4个月",
+                  deliverables: ["完整产品原型", "用户测试版本", "技术文档"],
+                  resources: ["全栈开发团队8人", "UI/UX设计师2人", "测试工程师2人"]
+                }
+              ],
+              techStack: ["Python", "TensorFlow", "React Native", "Node.js", "Docker", "Redis"],
+              estimatedCost: "技术验证150万，MVP开发300万，总计450万"
+            },
+            validationStrategy: {
+              hypotheses: [
+                "用户对隐私保护的重视程度超过便利性",
+                "本地化语音处理技术可以达到云端效果",
+                "智能家居设备厂商愿意开放接口"
+              ],
+              experiments: [
+                "用户隐私敏感度调研",
+                "语音识别准确率对比测试",
+                "设备厂商合作意愿调研"
+              ],
+              successMetrics: [
+                "用户满意度>85%",
+                "语音识别准确率>95%",
+                "设备响应时间<2秒"
+              ],
+              timeline: "MVP完成后2个月内完成用户验证"
+            },
+            actionItems: [
+              "搭建技术团队，重点招聘AI算法专家",
+              "与潜在设备厂商建立初步合作意向",
+              "设计用户验证实验方案"
             ]
           },
-          implementation: {
-            phases: [
-              {
-                phase: '第一阶段：MVP开发',
-                duration: '6个月',
-                objectives: ['核心语音识别功能', '基础设备控制', '隐私保护机制'],
-                resources: '研发团队15人，预算300万'
-              },
-              {
-                phase: '第二阶段：产品完善',
-                duration: '4个月',
-                objectives: ['扩展设备支持', '用户界面优化', '云端服务部署'],
-                resources: '团队扩展至25人，预算200万'
-              },
-              {
-                phase: '第三阶段：市场推广',
-                duration: '6个月',
-                objectives: ['渠道建设', '品牌推广', '用户获取'],
-                resources: '营销团队10人，预算500万'
-              }
-            ],
-            risks: [
-              { risk: '技术风险', mitigation: '与科研院所合作，建立技术壁垒' },
-              { risk: '市场风险', mitigation: '多元化产品线，降低单一市场依赖' },
-              { risk: '竞争风险', mitigation: '专注差异化特性，建立用户粘性' }
+          businessExecution: {
+            title: "商业化落地与运营策略",
+            businessModel: {
+              revenueStreams: [
+                "硬件设备销售（控制中心硬件）",
+                "软件授权费用（设备厂商集成）",
+                "增值服务订阅（高级AI功能）",
+                "数据分析服务（匿名化使用数据）"
+              ],
+              costStructure: [
+                "研发成本：40%（持续技术投入）",
+                "制造成本：25%（硬件生产）",
+                "营销成本：20%（市场推广）",
+                "运营成本：15%（团队和运维）"
+              ],
+              pricingStrategy: "硬件499元起，软件授权按设备数量收费，增值服务月费29元",
+              scalability: "标准化API接口，可快速适配新设备；云端管理平台，支持大规模部署"
+            },
+            launchStrategy: {
+              phases: [
+                {
+                  name: "种子用户阶段",
+                  timeline: "前3个月",
+                  goals: ["获得100个种子用户", "收集产品反馈", "优化用户体验"],
+                  tactics: ["科技博主合作", "线下体验活动", "社交媒体推广"]
+                },
+                {
+                  name: "市场扩展阶段",
+                  timeline: "3-12个月",
+                  goals: ["月活用户1万+", "设备厂商合作", "建立销售渠道"],
+                  tactics: ["渠道代理商合作", "电商平台入驻", "技术博览会参展"]
+                }
+              ],
+              marketingChannels: [
+                "科技媒体报道",
+                "KOL合作推广",
+                "线下体验店",
+                "电商平台",
+                "技术社区"
+              ],
+              budgetAllocation: [
+                "渠道建设：40%",
+                "内容营销：30%",
+                "广告投放：20%",
+                "活动推广：10%"
+              ]
+            },
+            operationalPlan: {
+              teamStructure: [
+                "CEO/创始人",
+                "CTO/技术负责人",
+                "产品总监",
+                "AI算法团队（5人）",
+                "软硬件开发团队（8人）",
+                "市场营销团队（3人）",
+                "运营支持团队（2人）"
+              ],
+              processes: [
+                "敏捷开发流程，2周迭代周期",
+                "用户反馈收集和产品改进机制",
+                "设备厂商合作和接入流程",
+                "客户支持和售后服务体系"
+              ],
+              infrastructure: [
+                "云端设备管理平台",
+                "用户数据分析系统",
+                "自动化测试和部署平台",
+                "客户服务管理系统"
+              ],
+              riskManagement: [
+                "技术风险：建立技术专家顾问团",
+                "市场风险：多元化合作减少依赖",
+                "竞争风险：专注差异化优势建设",
+                "资金风险：分阶段融资降低压力"
+              ]
+            },
+            actionItems: [
+              "制定详细的商业模式画布",
+              "启动种子轮融资准备",
+              "建立核心团队和顾问团"
             ]
+          },
+          metadata: {
+            ideaTitle: ideaTitle || '智能家居语音控制系统',
+            reportId: targetReportId,
+            generatedAt: new Date().toISOString(),
+            estimatedReadTime: 15,
+            implementationTimeframe: "12-18个月",
+            confidenceLevel: 78,
+            source: 'marketplace',
+            winningBid: winningBid ? parseInt(winningBid) : 350,
+            winner: winner || '商业大亨老王'
           }
         }
 
