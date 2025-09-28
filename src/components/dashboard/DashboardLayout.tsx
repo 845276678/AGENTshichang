@@ -183,35 +183,33 @@ const Sidebar = ({ isOpen, onClose }: { isOpen?: boolean; onClose?: () => void }
   if (isOpen !== undefined) {
     return (
       <AnimatePresence mode="wait">
-        {isOpen && (
-          <>
-            <motion.div
-              key="sidebar-overlay"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.2 }}
-              className="fixed inset-0 bg-black/20 z-40 lg:hidden"
-              onClick={onClose}
-            />
-            <motion.div
-              key="sidebar-content"
-              initial={{ x: '-100%' }}
-              animate={{ x: 0 }}
-              exit={{ x: '-100%' }}
-              transition={{ type: 'spring', damping: 20, stiffness: 300 }}
-              className="fixed left-0 top-0 h-full w-72 bg-background border-r z-50 lg:hidden"
-            >
-              <div className="flex items-center justify-between p-4 border-b">
-                <h2 className="font-semibold">Dashboard</h2>
-                <Button variant="ghost" size="icon" onClick={onClose}>
-                  <X className="h-4 w-4" />
-                </Button>
-              </div>
-              {sidebarContent}
-            </motion.div>
-          </>
-        )}
+        {isOpen && [
+          <motion.div
+            key="sidebar-overlay"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="fixed inset-0 bg-black/20 z-40 lg:hidden"
+            onClick={onClose}
+          />,
+          <motion.div
+            key="sidebar-content"
+            initial={{ x: '-100%' }}
+            animate={{ x: 0 }}
+            exit={{ x: '-100%' }}
+            transition={{ type: 'spring', damping: 20, stiffness: 300 }}
+            className="fixed left-0 top-0 h-full w-72 bg-background border-r z-50 lg:hidden"
+          >
+            <div className="flex items-center justify-between p-4 border-b">
+              <h2 className="font-semibold">Dashboard</h2>
+              <Button variant="ghost" size="icon" onClick={onClose}>
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+            {sidebarContent}
+          </motion.div>
+        ]}
       </AnimatePresence>
     )
   }

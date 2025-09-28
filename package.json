@@ -34,7 +34,10 @@
     "db:migrate": "npx prisma migrate dev",
     "setup:local": "npm run db:generate && npm run db:push",
     "health": "curl -s http://localhost:4000/api/health/simple | jq .",
-    "health:full": "curl -s http://localhost:4000/api/health | jq ."
+    "health:full": "curl -s http://localhost:4000/api/health | jq .",
+    "check:production": "node scripts/ai-marketplace-checker.js",
+    "check:site": "node scripts/production-site-checker.js",
+    "check:devtools": "node scripts/chrome-devtools-mcp.js"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.7.0",

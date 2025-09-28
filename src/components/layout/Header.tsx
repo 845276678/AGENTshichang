@@ -245,9 +245,8 @@ const MobileMenu = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void 
 
   return (
     <AnimatePresence mode="wait">
-      {isOpen && (
-        <>
-          <motion.div
+      {isOpen && [
+        <motion.div
             key="mobile-overlay"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -255,8 +254,8 @@ const MobileMenu = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void 
             transition={{ duration: 0.2 }}
             className="fixed inset-0 bg-black/20 z-40"
             onClick={onClose}
-          />
-          <motion.div
+          />,
+        <motion.div
             key="mobile-menu"
             initial={{ x: '100%' }}
             animate={{ x: 0 }}
@@ -389,8 +388,7 @@ const MobileMenu = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void 
               )}
             </div>
           </motion.div>
-        </>
-      )}
+        ]}
     </AnimatePresence>
   )
 }
