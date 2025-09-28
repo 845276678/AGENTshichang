@@ -41,7 +41,7 @@ const AI_PERSONAS = [
   {
     id: 'alex',
     name: '科技先锋艾克斯',
-    avatar: '👨‍💻',
+    avatar: '/avatars/alex.png',
     specialty: '架构评估、算法优化',
     personality: '理性、技术控',
     color: 'bg-blue-500',
@@ -50,7 +50,7 @@ const AI_PERSONAS = [
   {
     id: 'wang',
     name: '商业大亨老王',
-    avatar: '💼',
+    avatar: '/avatars/wang.png',
     specialty: '盈利模型、风险评估',
     personality: '结果导向',
     color: 'bg-green-500',
@@ -59,7 +59,7 @@ const AI_PERSONAS = [
   {
     id: 'lin',
     name: '文艺少女小琳',
-    avatar: '🎨',
+    avatar: '/avatars/lin.png',
     specialty: '用户体验、品牌故事',
     personality: '情感共鸣',
     color: 'bg-pink-500',
@@ -68,7 +68,7 @@ const AI_PERSONAS = [
   {
     id: 'alan',
     name: '趋势达人阿伦',
-    avatar: '📈',
+    avatar: '/avatars/alan.png',
     specialty: '传播策略、热点预测',
     personality: '营销、社交',
     color: 'bg-purple-500',
@@ -77,7 +77,7 @@ const AI_PERSONAS = [
   {
     id: 'prof',
     name: '学者教授李博',
-    avatar: '👨‍🏫',
+    avatar: '/avatars/prof.png',
     specialty: '理论支撑、系统分析',
     personality: '严谨权威',
     color: 'bg-amber-500',
@@ -228,8 +228,12 @@ function MarketplaceLobby({ onStartSession }: {
                   transition={{ delay: index * 0.1 }}
                   className="text-center group cursor-pointer"
                 >
-                  <div className={`w-20 h-20 rounded-full ${persona.color} flex items-center justify-center text-4xl mx-auto mb-3 shadow-lg group-hover:scale-110 transition-transform`}>
-                    {persona.avatar}
+                  <div className={`w-20 h-20 rounded-full ${persona.color} flex items-center justify-center mx-auto mb-3 shadow-lg group-hover:scale-110 transition-transform overflow-hidden border-4 border-white`}>
+                    <img
+                      src={persona.avatar}
+                      alt={persona.name}
+                      className="w-full h-full object-cover"
+                    />
                   </div>
                   <h3 className="font-semibold text-sm">{persona.name}</h3>
                   <p className="text-xs text-muted-foreground mt-1">{persona.specialty}</p>
@@ -748,8 +752,12 @@ function DiscussionPhase({
             const PersonaIcon = persona.icon
             return (
               <div key={persona.id} className="flex items-center gap-3 p-2 rounded-lg bg-secondary/20">
-                <div className={`w-8 h-8 rounded-full ${persona.color} flex items-center justify-center`}>
-                  <PersonaIcon className="w-4 h-4 text-white" />
+                <div className={`w-8 h-8 rounded-full ${persona.color} flex items-center justify-center overflow-hidden border-2 border-white`}>
+                  <img
+                    src={persona.avatar}
+                    alt={persona.name}
+                    className="w-full h-full object-cover"
+                  />
                 </div>
                 <div className="flex-1 min-w-0">
                   <h4 className="font-medium text-sm truncate">{persona.name}</h4>
@@ -834,8 +842,12 @@ function ResultsPhase({ bids, userPrediction, personas, ideaData }: any) {
           {/* 获胜者信息 */}
           <div className="text-center p-6 bg-white/60 rounded-xl">
             <div className="flex items-center justify-center gap-4 mb-4">
-              <div className={`w-12 h-12 rounded-full ${mockResults.winner.color} flex items-center justify-center`}>
-                <mockResults.winner.icon className="w-6 h-6 text-white" />
+              <div className={`w-12 h-12 rounded-full ${mockResults.winner.color} flex items-center justify-center overflow-hidden border-2 border-white`}>
+                <img
+                  src={mockResults.winner.avatar}
+                  alt={mockResults.winner.name}
+                  className="w-full h-full object-cover"
+                />
               </div>
               <div>
                 <h3 className="text-xl font-bold">{mockResults.winner.name}</h3>
