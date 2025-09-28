@@ -632,10 +632,119 @@ function DiscussionPhase({
   onSendMessage,
   personas
 }: any) {
+  const [aiDiscussionMessages, setAiDiscussionMessages] = useState<any[]>([])
+  const [currentRound, setCurrentRound] = useState(1)
+
+  // 模拟AI专家讨论内容
+  const aiDiscussionData = [
+    {
+      round: 1,
+      messages: [
+        {
+          id: 'ai_1',
+          persona: personas[0], // 艾克斯
+          content: '从技术角度来看，这个创意有很强的可行性。我建议重点关注核心算法的优化和数据处理架构。',
+          timestamp: new Date()
+        },
+        {
+          id: 'ai_2',
+          persona: personas[1], // 老王
+          content: '市场潜力确实不错，但需要仔细评估成本结构。初期投入可能较大，建议分阶段实施降低风险。',
+          timestamp: new Date()
+        },
+        {
+          id: 'ai_3',
+          persona: personas[2], // 小琳
+          content: '用户体验设计至关重要！建议增加情感化设计元素，让产品更有温度和亲和力。',
+          timestamp: new Date()
+        }
+      ]
+    },
+    {
+      round: 2,
+      messages: [
+        {
+          id: 'ai_4',
+          persona: personas[3], // 阿伦
+          content: '当前市场趋势显示，这类解决方案正处于爆发期。建议抓住社交媒体传播的黄金时机。',
+          timestamp: new Date()
+        },
+        {
+          id: 'ai_5',
+          persona: personas[4], // 李博
+          content: '从理论基础来看，需要更深入的可行性研究。建议参考相关学术研究和行业最佳实践。',
+          timestamp: new Date()
+        },
+        {
+          id: 'ai_6',
+          persona: personas[0], // 艾克斯回应
+          content: '同意李博的观点。我们可以建立一个技术原型来验证核心假设，这样更有说服力。',
+          timestamp: new Date()
+        }
+      ]
+    },
+    {
+      round: 3,
+      messages: [
+        {
+          id: 'ai_7',
+          persona: personas[1], // 老王
+          content: '经过深入分析，我认为这个项目的ROI预期可以达到300%。建议优先考虑B2B市场切入。',
+          timestamp: new Date()
+        },
+        {
+          id: 'ai_8',
+          persona: personas[2], // 小琳
+          content: '用户调研显示，情感连接是成功的关键。建议在产品设计中融入更多人性化元素。',
+          timestamp: new Date()
+        },
+        {
+          id: 'ai_9',
+          persona: personas[3], // 阿伦
+          content: '营销策略方面，建议采用内容营销+KOL合作的组合策略，预计可以获得更好的转化效果。',
+          timestamp: new Date()
+        }
+      ]
+    }
+  ]
+
+  // 自动播放AI讨论
+  useEffect(() => {
+    let timeoutId: NodeJS.Timeout
+
+    const playAiDiscussion = () => {
+      const roundData = aiDiscussionData.find(r => r.round === currentRound)
+      if (roundData && aiDiscussionMessages.length < roundData.messages.length) {
+        const nextMessage = roundData.messages[aiDiscussionMessages.length]
+        setAiDiscussionMessages(prev => [...prev, nextMessage])
+
+        // 继续播放下一条消息
+        timeoutId = setTimeout(playAiDiscussion, 3000 + Math.random() * 2000) // 3-5秒间隔
+      }
+    }
+
+    // 开始播放当前轮次的讨论
+    if (currentRound <= 3) {
+      timeoutId = setTimeout(playAiDiscussion, 1000)
+    }
+
+    return () => {
+      if (timeoutId) clearTimeout(timeoutId)
+    }
+  }, [currentRound, aiDiscussionMessages])
+
   const handleSendMessage = () => {
     if (userInput.trim()) {
-      onSendMessage(userInput, 1) // 默认第1轮
+      onSendMessage(userInput, currentRound)
       setUserInput('')
+
+      // 用户发送消息后，进入下一轮AI讨论
+      if (currentRound < 3) {
+        setTimeout(() => {
+          setCurrentRound(prev => prev + 1)
+          setAiDiscussionMessages([]) // 清空当前显示，准备下一轮
+        }, 2000)
+      }
     }
   }
 
@@ -656,6 +765,7 @@ function DiscussionPhase({
         </CardHeader>
         <CardContent className="flex-1 flex flex-col">
           <div className="flex-1 overflow-y-auto space-y-4 mb-4">
+            {/* 显示用户消息 */}
             {messages.map((message: any) => (
               <div
                 key={message.id}
@@ -675,19 +785,69 @@ function DiscussionPhase({
                 </div>
               </div>
             ))}
+
+            {/* 显示AI讨论消息 */}
+            {aiDiscussionMessages.map((message: any) => (
+              <motion.div
+                key={message.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="flex justify-start"
+              >
+                <div className="max-w-[85%] p-4 rounded-lg bg-gradient-to-r from-purple-50 to-blue-50 border border-purple-200">
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className={`w-8 h-8 rounded-full ${message.persona.color} flex items-center justify-center overflow-hidden border-2 border-white`}>
+                      <img
+                        src={message.persona.avatar}
+                        alt={message.persona.name}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-sm text-purple-800">{message.persona.name}</h4>
+                      <p className="text-xs text-purple-600">{message.persona.specialty}</p>
+                    </div>
+                  </div>
+                  <p className="text-sm text-gray-800 leading-relaxed">{message.content}</p>
+                  <p className="text-xs text-purple-500 mt-2">
+                    {new Date(message.timestamp).toLocaleTimeString()}
+                  </p>
+                </div>
+              </motion.div>
+            ))}
+
+            {/* 轮次提示 */}
+            {currentRound <= 3 && (
+              <div className="text-center py-2">
+                <span className="text-sm bg-blue-100 text-blue-600 px-3 py-1 rounded-full">
+                  第{currentRound}轮讨论进行中...
+                </span>
+              </div>
+            )}
           </div>
 
           {/* 消息输入 */}
-          <div className="flex gap-2">
-            <Input
-              value={userInput}
-              onChange={(e) => setUserInput(e.target.value)}
-              placeholder="与 AI 专家交流您的想法..."
-              onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
-            />
-            <Button onClick={handleSendMessage} disabled={!userInput.trim()}>
-              发送
-            </Button>
+          <div className="space-y-2">
+            {currentRound <= 3 && (
+              <div className="text-sm text-muted-foreground text-center">
+                💡 第{currentRound}轮讨论：请针对AI专家的观点提出您的问题或补充创意细节
+              </div>
+            )}
+            <div className="flex gap-2">
+              <Input
+                value={userInput}
+                onChange={(e) => setUserInput(e.target.value)}
+                placeholder={`第${currentRound}轮：补充您的创意细节或提出问题...`}
+                onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
+                disabled={currentRound > 3}
+              />
+              <Button
+                onClick={handleSendMessage}
+                disabled={!userInput.trim() || currentRound > 3}
+              >
+                {currentRound > 3 ? '讨论结束' : '发送'}
+              </Button>
+            </div>
           </div>
         </CardContent>
       </Card>
