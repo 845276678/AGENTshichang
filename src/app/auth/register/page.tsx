@@ -44,10 +44,10 @@ export default function RegisterPage() {
       }
 
       // 保存认证信息
-      const { user, tokens } = result.data;
-      localStorage.setItem('auth.access_token', tokens.accessToken);
-      localStorage.setItem('auth.refresh_token', tokens.refreshToken);
-      localStorage.setItem('auth.user', JSON.stringify(user));
+      const { user, token, refreshToken } = result.data;
+      localStorage.setItem('auth_token', token);
+      localStorage.setItem('refresh_token', refreshToken);
+      localStorage.setItem('user_data', JSON.stringify(user));
 
       // 跳转到首页并显示成功消息
       window.location.href = '/?message=registration-success';
