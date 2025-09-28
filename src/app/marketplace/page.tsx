@@ -30,7 +30,10 @@ import {
   Pause,
   RotateCcw,
   FileText,
-  Share2
+  Share2,
+  Send,
+  Rocket,
+  Zap
 } from 'lucide-react'
 
 // AI 角色配置
@@ -90,45 +93,25 @@ enum BiddingPhase {
   RESULTS = 'results'
 }
 
-// 模拟创意数据
-const mockIdeas = [
-  {
-    id: '1',
-    title: '智能家居语音控制系统',
-    description: '基于AI的全屋智能语音控制方案，支持自然语言理解和多设备联动',
-    category: '科技创新',
-    author: '创意者001',
-    submittedAt: '2小时前',
-    status: '等待讨论',
-    participants: 12,
-    estimatedDuration: '35-45分钟'
-  },
-  {
-    id: '2',
-    title: '城市回忆录文化传承项目',
-    description: '通过AR技术和口述历史，打造沉浸式城市文化体验',
-    category: '文艺创作',
-    author: '创意者002',
-    submittedAt: '5小时前',
-    status: '竞价中',
-    currentBid: 280,
-    participants: 8,
-    estimatedDuration: '25分钟剩余'
-  }
-]
+// 模拟创意提交状态
+const CREATE_IDEA_PHASE = {
+  FORM: 'form',
+  PROCESSING: 'processing',
+  SESSION: 'session'
+}
 
 export default function MarketplacePage() {
   const [currentView, setCurrentView] = useState<'lobby' | 'session'>('lobby')
-  const [selectedIdea, setSelectedIdea] = useState<string | null>(null)
+  const [userIdea, setUserIdea] = useState<any>(null)
 
-  const handleJoinSession = (ideaId: string) => {
-    setSelectedIdea(ideaId)
+  const handleStartSession = (ideaData: any) => {
+    setUserIdea(ideaData)
     setCurrentView('session')
   }
 
   const handleBackToLobby = () => {
     setCurrentView('lobby')
-    setSelectedIdea(null)
+    setUserIdea(null)
   }
 
   return (
@@ -139,15 +122,14 @@ export default function MarketplacePage() {
             {currentView === 'lobby' && (
               <MarketplaceLobby
                 key="lobby"
-                ideas={mockIdeas}
-                onJoinSession={handleJoinSession}
+                onStartSession={handleStartSession}
               />
             )}
-            {currentView === 'session' && selectedIdea && (
-              <WebSocketProvider sessionId={selectedIdea}>
+            {currentView === 'session' && userIdea && (
+              <WebSocketProvider sessionId={userIdea.id}>
                 <BiddingSessionView
                   key="session"
-                  ideaId={selectedIdea}
+                  ideaData={userIdea}
                   onBackToLobby={handleBackToLobby}
                 />
               </WebSocketProvider>
@@ -159,11 +141,47 @@ export default function MarketplacePage() {
   )
 }
 
-// 市场大厅组件
-function MarketplaceLobby({ ideas, onJoinSession }: {
-  ideas: typeof mockIdeas
-  onJoinSession: (ideaId: string) => void
+// 市场大厅组件 - 重新设计为用户创意提交界面
+function MarketplaceLobby({ onStartSession }: {
+  onStartSession: (ideaData: any) => void
 }) {
+  const [ideaTitle, setIdeaTitle] = useState('')
+  const [ideaDescription, setIdeaDescription] = useState('')
+  const [selectedCategory, setSelectedCategory] = useState('')
+  const [isSubmitting, setIsSubmitting] = useState(false)
+
+  const categories = [
+    { name: '科技创新', icon: '💻', desc: '前沿技术与创新应用' },
+    { name: '文艺创作', icon: '🎨', desc: '艺术创作与文化表达' },
+    { name: '商业策略', icon: '💼', desc: '商业模式与策略创新' },
+    { name: '生活创意', icon: '💡', desc: '日常生活改善方案' },
+    { name: '教育方案', icon: '📚', desc: '教育创新与学习方法' },
+    { name: '社会公益', icon: '🌱', desc: '社会责任与公益创新' }
+  ]
+
+  const handleSubmitIdea = async () => {
+    if (!ideaTitle.trim() || !ideaDescription.trim() || !selectedCategory) {
+      alert('请填写完整的创意信息')
+      return
+    }
+
+    setIsSubmitting(true)
+
+    // 模拟提交处理
+    setTimeout(() => {
+      const ideaData = {
+        id: 'idea_' + Date.now(),
+        title: ideaTitle,
+        description: ideaDescription,
+        category: selectedCategory,
+        submittedAt: new Date()
+      }
+
+      onStartSession(ideaData)
+      setIsSubmitting(false)
+    }, 2000)
+  }
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -178,15 +196,15 @@ function MarketplaceLobby({ ideas, onJoinSession }: {
           animate={{ opacity: 1, y: 0 }}
         >
           <h1 className="text-5xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-4">
-            创意竞价市场
+            AI创意竞价中心
           </h1>
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto mb-6">
-            体验全新的三阶段交互：深度讨论 → 激烈竞价 → 丰厚奖励
+            分享您的创意，与AI专家深度交流，获得专业评估和丰厚奖励
           </p>
         </motion.div>
       </div>
 
-      {/* AI 专家团队展示 */}
+      {/* AI 专家团队展示 - 修复头像显示 */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -202,158 +220,244 @@ function MarketplaceLobby({ ideas, onJoinSession }: {
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-5 gap-4">
-              {AI_PERSONAS.map((persona, index) => {
-                const PersonaIcon = persona.icon
-                return (
-                  <motion.div
-                    key={persona.id}
-                    initial={{ opacity: 0, scale: 0.8 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ delay: index * 0.1 }}
-                    className="text-center group cursor-pointer"
-                  >
-                    <div className={`w-20 h-20 rounded-full ${persona.color} flex items-center justify-center text-3xl mx-auto mb-3 shadow-lg group-hover:scale-110 transition-transform`}>
-                      <PersonaIcon className="w-10 h-10 text-white" />
-                    </div>
-                    <h3 className="font-semibold text-sm">{persona.name}</h3>
-                    <p className="text-xs text-muted-foreground mt-1">{persona.specialty}</p>
-                    <Badge variant="outline" className="mt-2 text-xs">{persona.personality}</Badge>
-                  </motion.div>
-                )
-              })}
+              {AI_PERSONAS.map((persona, index) => (
+                <motion.div
+                  key={persona.id}
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: index * 0.1 }}
+                  className="text-center group cursor-pointer"
+                >
+                  <div className={`w-20 h-20 rounded-full ${persona.color} flex items-center justify-center text-4xl mx-auto mb-3 shadow-lg group-hover:scale-110 transition-transform`}>
+                    {persona.avatar}
+                  </div>
+                  <h3 className="font-semibold text-sm">{persona.name}</h3>
+                  <p className="text-xs text-muted-foreground mt-1">{persona.specialty}</p>
+                  <Badge variant="outline" className="mt-2 text-xs">{persona.personality}</Badge>
+                </motion.div>
+              ))}
             </div>
           </CardContent>
         </Card>
       </motion.div>
 
-      {/* 流程说明 */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.3 }}
-        className="mb-8"
-      >
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-center">🎯 三阶段互动流程</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="text-center p-4 rounded-lg bg-blue-50">
-                <MessageCircle className="w-8 h-8 text-blue-600 mx-auto mb-3" />
-                <h3 className="font-semibold text-blue-600 mb-2">阶段一：深度讨论</h3>
-                <p className="text-sm text-muted-foreground">与AI专家进行3轮深度问答<br />时长：10-12分钟</p>
-              </div>
-              <div className="text-center p-4 rounded-lg bg-green-50">
-                <Gavel className="w-8 h-8 text-green-600 mx-auto mb-3" />
-                <h3 className="font-semibold text-green-600 mb-2">阶段二：激烈竞价</h3>
-                <p className="text-sm text-muted-foreground">观看AI角色实时竞价博弈<br />时长：18-22分钟</p>
-              </div>
-              <div className="text-center p-4 rounded-lg bg-amber-50">
-                <Trophy className="w-8 h-8 text-amber-600 mx-auto mb-3" />
-                <h3 className="font-semibold text-amber-600 mb-2">阶段三：丰厚奖励</h3>
-                <p className="text-sm text-muted-foreground">价格预测获得积分奖励<br />时长：4-6分钟</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </motion.div>
+      <div className="grid lg:grid-cols-3 gap-8">
+        {/* 主要创意提交表单 */}
+        <motion.div
+          className="lg:col-span-2"
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.3 }}
+        >
+          <Card className="border-0 shadow-2xl bg-white/80 backdrop-blur-sm">
+            <CardHeader className="pb-6">
+              <CardTitle className="flex items-center gap-3 text-2xl">
+                <motion.div
+                  className="p-2 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl"
+                  whileHover={{ scale: 1.1, rotate: 5 }}
+                  whileTap={{ scale: 0.9 }}
+                >
+                  <Lightbulb className="w-6 h-6 text-white" />
+                </motion.div>
+                分享您的创意想法
+              </CardTitle>
+              <p className="text-base text-muted-foreground">
+                详细描述您的创意，AI专家将与您深度交流并进行专业评估
+              </p>
+            </CardHeader>
 
-      {/* 创意列表 */}
-      <div className="space-y-6">
-        <h2 className="text-2xl font-bold text-center mb-6">🔥 热门创意正在进行</h2>
-        {ideas.map((idea, index) => (
-          <motion.div
-            key={idea.id}
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: index * 0.1 }}
-          >
-            <IdeaCard idea={idea} onJoin={() => onJoinSession(idea.id)} />
-          </motion.div>
-        ))}
+            <CardContent className="space-y-6">
+              {/* 创意标题 */}
+              <div>
+                <label className="text-base font-medium mb-3 block">
+                  创意标题 ✨
+                </label>
+                <Input
+                  value={ideaTitle}
+                  onChange={(e) => setIdeaTitle(e.target.value)}
+                  placeholder="为您的创意起一个吸引人的标题..."
+                  className="text-lg p-4 border-2 border-slate-200 focus:border-purple-400 rounded-xl"
+                  disabled={isSubmitting}
+                />
+              </div>
+
+              {/* 创意分类 */}
+              <div>
+                <label className="text-base font-medium mb-4 block">
+                  选择创意分类 🎯
+                </label>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                  {categories.map((cat) => (
+                    <motion.div
+                      key={cat.name}
+                      className={`cursor-pointer p-4 rounded-2xl border-2 transition-all duration-300 ${
+                        selectedCategory === cat.name
+                          ? 'border-purple-400 bg-purple-50 shadow-lg'
+                          : 'border-slate-200 bg-white hover:border-slate-300 hover:shadow-md'
+                      }`}
+                      onClick={() => !isSubmitting && setSelectedCategory(cat.name)}
+                      whileHover={{ scale: 1.02, y: -2 }}
+                      whileTap={{ scale: 0.98 }}
+                    >
+                      <div className="text-center">
+                        <div className="text-3xl mb-2">{cat.icon}</div>
+                        <div className={`font-medium text-sm ${selectedCategory === cat.name ? 'text-purple-700' : 'text-slate-800'}`}>
+                          {cat.name}
+                        </div>
+                        <div className={`text-xs mt-1 ${selectedCategory === cat.name ? 'text-purple-600' : 'text-slate-500'}`}>
+                          {cat.desc}
+                        </div>
+                      </div>
+                      {selectedCategory === cat.name && (
+                        <motion.div
+                          className="absolute -top-1 -right-1 w-6 h-6 bg-purple-500 rounded-full flex items-center justify-center"
+                          initial={{ scale: 0 }}
+                          animate={{ scale: 1 }}
+                        >
+                          <Zap className="w-4 h-4 text-white" />
+                        </motion.div>
+                      )}
+                    </motion.div>
+                  ))}
+                </div>
+              </div>
+
+              {/* 创意描述 */}
+              <div>
+                <label className="text-base font-medium mb-3 block">
+                  创意详细描述 🚀
+                </label>
+                <textarea
+                  value={ideaDescription}
+                  onChange={(e) => setIdeaDescription(e.target.value)}
+                  placeholder="详细描述您的创意想法：
+
+💡 核心概念和独特价值
+🎯 目标用户或应用场景
+🏆 预期效果和解决的问题
+🛠️ 初步实现思路
+
+字数越详细，AI专家的评估越精准！"
+                  className="w-full min-h-[200px] text-base p-6 border-2 border-slate-200 focus:border-purple-400 rounded-2xl resize-none transition-all duration-300"
+                  disabled={isSubmitting}
+                />
+                <div className="flex justify-between items-center mt-3">
+                  <div className="text-sm text-muted-foreground">
+                    当前字数: <span className="font-medium text-purple-600">{ideaDescription.length}</span> / 建议200字以上
+                  </div>
+                </div>
+              </div>
+
+              {/* 提交按钮 */}
+              <motion.div
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                <Button
+                  onClick={handleSubmitIdea}
+                  disabled={!ideaTitle.trim() || !ideaDescription.trim() || !selectedCategory || isSubmitting}
+                  className="w-full h-14 text-lg bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
+                >
+                  <div className="flex items-center gap-3">
+                    {isSubmitting ? (
+                      <>
+                        <motion.div
+                          animate={{ rotate: 360 }}
+                          transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                        >
+                          <Brain className="w-5 h-5" />
+                        </motion.div>
+                        <span>正在启动AI评估...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Rocket className="w-5 h-5" />
+                        <span>开始AI专家评估</span>
+                        <Send className="w-5 h-5" />
+                      </>
+                    )}
+                  </div>
+                </Button>
+              </motion.div>
+            </CardContent>
+          </Card>
+        </motion.div>
+
+        {/* 右侧流程说明 */}
+        <motion.div
+          className="space-y-6"
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.4 }}
+        >
+          {/* 流程说明 */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-center">🎯 三阶段互动流程</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div className="text-center p-4 rounded-lg bg-blue-50">
+                  <MessageCircle className="w-8 h-8 text-blue-600 mx-auto mb-3" />
+                  <h3 className="font-semibold text-blue-600 mb-2">阶段一：深度讨论</h3>
+                  <p className="text-sm text-muted-foreground">与AI专家进行3轮深度问答<br />时长：10-12分钟</p>
+                </div>
+                <div className="text-center p-4 rounded-lg bg-green-50">
+                  <Gavel className="w-8 h-8 text-green-600 mx-auto mb-3" />
+                  <h3 className="font-semibold text-green-600 mb-2">阶段二：激烈竞价</h3>
+                  <p className="text-sm text-muted-foreground">观看AI角色实时竞价博弈<br />时长：18-22分钟</p>
+                </div>
+                <div className="text-center p-4 rounded-lg bg-amber-50">
+                  <Trophy className="w-8 h-8 text-amber-600 mx-auto mb-3" />
+                  <h3 className="font-semibold text-amber-600 mb-2">阶段三：丰厚奖励</h3>
+                  <p className="text-sm text-muted-foreground">价格预测获得积分奖励<br />时长：4-6分钟</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* 积分奖励说明 */}
+          <Card className="border-0 shadow-xl bg-gradient-to-br from-amber-50 to-orange-50">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <motion.div
+                  animate={{ rotate: [0, 10, -10, 0] }}
+                  transition={{ duration: 3, repeat: Infinity }}
+                >
+                  <Sparkles className="w-5 h-5 text-amber-500" />
+                </motion.div>
+                积分奖励系统
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {[
+                { action: '创意分享', reward: '+10积分', icon: '📝' },
+                { action: 'AI竞价成功', reward: '+50-500积分', icon: '💰' },
+                { action: '高质量创意', reward: '额外奖励', icon: '🏆' },
+                { action: '生成商业计划', reward: '专业指导', icon: '🚀' }
+              ].map((item, index) => (
+                <div
+                  key={index}
+                  className="flex justify-between items-center p-3 bg-white rounded-lg shadow-sm"
+                >
+                  <div className="flex items-center gap-2">
+                    <span className="text-lg">{item.icon}</span>
+                    <span className="text-sm">{item.action}</span>
+                  </div>
+                  <span className="font-medium text-amber-600">{item.reward}</span>
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+        </motion.div>
       </div>
     </motion.div>
   )
 }
 
-// 创意卡片组件
-function IdeaCard({ idea, onJoin }: { idea: typeof mockIdeas[0], onJoin: () => void }) {
-  return (
-    <Card className="relative overflow-hidden hover:shadow-xl transition-all duration-300 group">
-      <div className="absolute top-4 right-4 z-10">
-        <Badge
-          variant={idea.status === '竞价中' ? 'default' : 'secondary'}
-          className={idea.status === '竞价中' ? 'bg-green-500 animate-pulse' : ''}
-        >
-          {idea.status}
-        </Badge>
-      </div>
-
-      <CardHeader className="pb-4">
-        <div className="flex items-start justify-between pr-20">
-          <div>
-            <CardTitle className="text-xl mb-2 group-hover:text-blue-600 transition-colors">
-              {idea.title}
-            </CardTitle>
-            <div className="flex items-center gap-4 text-sm text-muted-foreground mb-2">
-              <span>创意者: {idea.author}</span>
-              <span>提交: {idea.submittedAt}</span>
-              <Badge variant="outline">{idea.category}</Badge>
-            </div>
-          </div>
-        </div>
-        <p className="text-muted-foreground">{idea.description}</p>
-      </CardHeader>
-
-      <CardContent className="space-y-4">
-        {/* 状态信息 */}
-        <div className="flex items-center justify-between p-4 bg-secondary/20 rounded-lg">
-          <div className="flex items-center gap-6">
-            <div>
-              <div className="text-sm text-muted-foreground">参与人数</div>
-              <div className="text-lg font-bold flex items-center gap-1">
-                <Users className="w-4 h-4" />
-                {idea.participants}
-              </div>
-            </div>
-            {idea.currentBid && (
-              <div>
-                <div className="text-sm text-muted-foreground">当前最高价</div>
-                <div className="text-lg font-bold text-green-600">{idea.currentBid} 积分</div>
-              </div>
-            )}
-          </div>
-          <div className="text-right">
-            <div className="text-sm text-muted-foreground">预计时长</div>
-            <div className="font-semibold text-blue-600">
-              <Timer className="w-4 h-4 inline mr-1" />
-              {idea.estimatedDuration}
-            </div>
-          </div>
-        </div>
-
-        {/* 操作按钮 */}
-        <div className="flex gap-3">
-          <Button
-            onClick={onJoin}
-            className="flex-1 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
-          >
-            <Play className="w-4 h-4 mr-2" />
-            {idea.status === '竞价中' ? '立即观看' : '开始讨论'}
-          </Button>
-          <Button variant="outline" className="px-6">
-            了解详情
-          </Button>
-        </div>
-      </CardContent>
-    </Card>
-  )
-}
-
 // 竞价会话主视图
-function BiddingSessionView({ ideaId, onBackToLobby }: {
-  ideaId: string
+function BiddingSessionView({ ideaData, onBackToLobby }: {
+  ideaData: any
   onBackToLobby: () => void
 }) {
   const [currentPhase, setCurrentPhase] = useState<BiddingPhase>(BiddingPhase.DISCUSSION)
@@ -367,7 +471,7 @@ function BiddingSessionView({ ideaId, onBackToLobby }: {
     sendUserMessage,
     submitPrediction,
     isConnected
-  } = useBiddingSession(ideaId)
+  } = useBiddingSession(ideaData.id)
 
   // 计时器
   useEffect(() => {
@@ -542,7 +646,7 @@ function BiddingSessionInterface({
         )}
 
         {phase === BiddingPhase.BIDDING && (
-          <BiddingPhase
+          <BiddingPhaseComponent
             key="bidding"
             bids={bids}
             userPrediction={userPrediction}
@@ -558,7 +662,7 @@ function BiddingSessionInterface({
             bids={bids}
             userPrediction={userPrediction}
             personas={personas}
-            ideaData={sessionData?.idea}
+            ideaData={ideaData}
           />
         )}
       </AnimatePresence>
@@ -686,7 +790,7 @@ function ResultsPhase({ bids, userPrediction, personas, ideaData }: any) {
     winner: personas[1], // 商业大亨老王
     userReward: 150,
     reportId: 'report_' + Date.now(), // 模拟生成的报告ID
-    ideaTitle: ideaData?.title || '智能家居语音控制系统'
+    ideaTitle: ideaData?.title || '智能创意项目'
   }
 
   // 动态价格计算逻辑
