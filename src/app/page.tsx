@@ -102,16 +102,16 @@ const HeroSection = () => {
       <div className="absolute inset-0 bg-grid-pattern opacity-[0.02]" />
       <div className="absolute -top-40 -right-40 w-80 h-80 rounded-full bg-gradient-to-br from-primary/20 to-agent-500/20 blur-3xl" />
       <div className="absolute -bottom-40 -left-40 w-80 h-80 rounded-full bg-gradient-to-br from-agent-500/20 to-primary/20 blur-3xl" />
-      
+
       <div className="container relative">
         <div className="flex flex-col items-center text-center py-24 lg:py-32">
           <AnimatedSection delay={0.1}>
             <Badge variant="outline" className="mb-6">
               <Sparkles className="w-4 h-4 mr-2" />
-              创意变现新纪元 · AI投资者生态
+              AI智能体创意竞价 · 专业商业指导
             </Badge>
           </AnimatedSection>
-          
+
           <AnimatedSection delay={0.2}>
             <motion.h1
               className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight mb-6 max-w-4xl"
@@ -119,52 +119,52 @@ const HeroSection = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3, duration: 0.8 }}
             >
-              创意改变世界{' '}
+              创意竞价获得{' '}
               <span className="bg-gradient-to-r from-primary via-agent-500 to-purple-600 bg-clip-text text-transparent">
-                想法即是财富
+                专业商业指导
               </span>
             </motion.h1>
           </AnimatedSection>
-          
+
           <AnimatedSection delay={0.3}>
             <p className="text-xl text-muted-foreground mb-8 max-w-2xl leading-relaxed">
-              全球首个创意交易平台！分享你的奇思妙想，让AI智能体为你的创意竞价，
-              获得专业改造和增值服务，在创意生态中实现想法变现和价值循环。
+              在创意竞价市场提交您的想法，让AI智能体为您的创意竞价，
+              竞价成功后自动生成专业的商业计划书，助力您的创意商业化。
             </p>
           </AnimatedSection>
-          
+
           <AnimatedSection delay={0.4}>
             <div className="flex flex-col sm:flex-row gap-4 mb-12">
-              <Button 
-                size="lg" 
+              <Button
+                size="lg"
                 className="text-lg px-8 py-4 h-auto group"
                 asChild
               >
-                <Link href="/ideas/submit">
-                  分享创意想法
+                <Link href="/marketplace">
+                  进入创意竞价市场
                   <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
                 </Link>
               </Button>
-              
-              <Button 
-                size="lg" 
-                variant="outline" 
+
+              <Button
+                size="lg"
+                variant="outline"
                 className="text-lg px-8 py-4 h-auto group"
                 asChild
               >
-                <Link href={isAuthenticated ? "/marketplace" : "/auth/register"}>
+                <Link href={isAuthenticated ? "/business-plan" : "/auth/register"}>
                   <PlayCircle className="mr-2 h-5 w-5" />
-                  {isAuthenticated ? "创意交易市场" : "获取每日积分"}
+                  {isAuthenticated ? "查看商业指导" : "注册开始体验"}
                 </Link>
               </Button>
             </div>
           </AnimatedSection>
-          
+
           {/* Trust indicators */}
           <AnimatedSection delay={0.5}>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
               {stats.map((stat, index) => (
-                <motion.div 
+                <motion.div
                   key={stat.label}
                   className="flex flex-col items-center"
                   initial={{ opacity: 0, scale: 0.5 }}
@@ -391,7 +391,7 @@ const CTASection = () => {
             <div className="absolute inset-0 bg-grid-pattern opacity-[0.02]" />
             <div className="absolute -top-20 -right-20 w-40 h-40 rounded-full bg-gradient-to-br from-primary/30 to-agent-500/30 blur-2xl" />
             <div className="absolute -bottom-20 -left-20 w-40 h-40 rounded-full bg-gradient-to-br from-agent-500/30 to-purple-500/30 blur-2xl" />
-            
+
             <div className="relative">
               <motion.div
                 initial={{ scale: 0.8, opacity: 0 }}
@@ -404,24 +404,24 @@ const CTASection = () => {
                   <Sparkles className="w-10 h-10 text-white" />
                 </div>
               </motion.div>
-              
+
               <h2 className="text-3xl md:text-4xl font-bold mb-4">
-                准备好分享创意了吗？
+                准备体验创意竞价了吗？
               </h2>
               <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
-                立即加入创意交易生态，分享你的第一个想法，看AI竞价师如何为你的创意竞价！
+                立即进入创意竞价市场，提交您的创意想法，让AI智能体为您竞价，获得专业的商业计划指导！
               </p>
-              
+
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Button size="lg" className="text-lg px-8 py-4 h-auto group" asChild>
-                  <Link href={isAuthenticated ? "/ideas/submit" : "/auth/register"}>
-                    {isAuthenticated ? "分享创意赚积分" : "注册开始赚积分"}
+                  <Link href="/marketplace">
+                    进入创意竞价市场
                     <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
                   </Link>
                 </Button>
                 <Button size="lg" variant="outline" className="text-lg px-8 py-4 h-auto" asChild>
-                  <Link href="/marketplace">
-                    浏览创意市场
+                  <Link href="/business-plan">
+                    查看商业计划示例
                   </Link>
                 </Button>
               </div>

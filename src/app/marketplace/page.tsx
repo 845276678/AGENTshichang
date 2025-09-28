@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { useRouter } from 'next/navigation'
 import { WebSocketProvider, useBiddingSession } from '@/lib/websocket'
 
 import { Layout } from '@/components/layout'
@@ -27,7 +28,9 @@ import {
   BookOpen,
   Play,
   Pause,
-  RotateCcw
+  RotateCcw,
+  FileText,
+  Share2
 } from 'lucide-react'
 
 // AI 角色配置
@@ -555,6 +558,7 @@ function BiddingSessionInterface({
             bids={bids}
             userPrediction={userPrediction}
             personas={personas}
+            ideaData={sessionData?.idea}
           />
         )}
       </AnimatePresence>
@@ -672,19 +676,118 @@ function BiddingPhaseComponent({ bids, userPrediction, setUserPrediction, onSubm
   )
 }
 
-// 结果阶段组件（占位符）
-function ResultsPhase({ bids, userPrediction }: any) {
+// 结果阶段组件
+function ResultsPhase({ bids, userPrediction, personas, ideaData }: any) {
+  const router = useRouter()
+
+  // 模拟竞价结果数据
+  const mockResults = {
+    winningBid: 350,
+    winner: personas[1], // 商业大亨老王
+    userReward: 150,
+    reportId: 'report_' + Date.now(), // 模拟生成的报告ID
+    ideaTitle: ideaData?.title || '智能家居语音控制系统'
+  }
+
+  const handleViewBusinessPlan = () => {
+    // 跳转到business-plan页面，传递竞价结果数据
+    const params = new URLSearchParams({
+      reportId: mockResults.reportId,
+      ideaTitle: mockResults.ideaTitle,
+      source: 'marketplace',
+      winningBid: mockResults.winningBid.toString(),
+      winner: mockResults.winner.name
+    })
+
+    router.push(`/business-plan?${params.toString()}`)
+  }
+
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.9 }}
       animate={{ opacity: 1, scale: 1 }}
       exit={{ opacity: 0, scale: 0.9 }}
-      className="text-center p-12"
+      className="space-y-6"
     >
-      <Trophy className="w-16 h-16 text-amber-500 mx-auto mb-4" />
-      <h3 className="text-2xl font-bold mb-4">竞价结果</h3>
-      <p className="text-muted-foreground mb-6">恭喜！您获得了积分奖励</p>
-      <Badge className="text-lg px-4 py-2">+150 积分</Badge>
+      {/* 竞价结果卡片 */}
+      <Card className="border-2 border-amber-200 bg-gradient-to-br from-amber-50 to-orange-50">
+        <CardHeader className="text-center">
+          <div className="mx-auto w-16 h-16 bg-gradient-to-br from-amber-500 to-orange-500 rounded-full flex items-center justify-center mb-4">
+            <Trophy className="w-8 h-8 text-white" />
+          </div>
+          <CardTitle className="text-2xl text-amber-700">竞价结束！</CardTitle>
+          <p className="text-amber-600">您的创意获得了AI专家们的激烈竞价</p>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          {/* 获胜者信息 */}
+          <div className="text-center p-6 bg-white/60 rounded-xl">
+            <div className="flex items-center justify-center gap-4 mb-4">
+              <div className={`w-12 h-12 rounded-full ${mockResults.winner.color} flex items-center justify-center`}>
+                <mockResults.winner.icon className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <h3 className="text-xl font-bold">{mockResults.winner.name}</h3>
+                <p className="text-sm text-muted-foreground">{mockResults.winner.specialty}</p>
+              </div>
+            </div>
+            <div className="text-3xl font-bold text-green-600 mb-2">
+              {mockResults.winningBid} 积分
+            </div>
+            <Badge className="bg-green-500">获胜出价</Badge>
+          </div>
+
+          {/* 用户奖励 */}
+          <div className="text-center p-4 bg-blue-50 rounded-lg">
+            <p className="text-sm text-muted-foreground mb-2">您获得的奖励</p>
+            <div className="text-2xl font-bold text-blue-600">+{mockResults.userReward} 积分</div>
+            <p className="text-xs text-muted-foreground mt-1">基于竞价活跃度和预测准确性</p>
+          </div>
+
+          {/* 下一步操作 */}
+          <div className="space-y-3">
+            <Button
+              onClick={handleViewBusinessPlan}
+              className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-lg py-3"
+            >
+              <FileText className="w-5 h-5 mr-2" />
+              查看专业商业计划书
+            </Button>
+            <div className="grid grid-cols-2 gap-3">
+              <Button variant="outline" className="w-full">
+                <MessageCircle className="w-4 h-4 mr-2" />
+                查看详细讨论
+              </Button>
+              <Button variant="outline" className="w-full">
+                <Share2 className="w-4 h-4 mr-2" />
+                分享竞价结果
+              </Button>
+            </div>
+          </div>
+
+          {/* 商业计划预览 */}
+          <div className="p-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg border border-blue-200">
+            <div className="flex items-start gap-3">
+              <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                <Sparkles className="w-5 h-5 text-blue-600" />
+              </div>
+              <div className="flex-1">
+                <h4 className="font-semibold text-blue-900 mb-1">
+                  AI将为您生成商业计划书
+                </h4>
+                <p className="text-sm text-blue-700 mb-3">
+                  基于竞价讨论和{mockResults.winner.name}的专业建议，系统将自动生成：
+                </p>
+                <ul className="text-xs text-blue-600 space-y-1">
+                  <li>• 市场分析与竞品研究</li>
+                  <li>• 技术实现路径规划</li>
+                  <li>• 商业模式与盈利预测</li>
+                  <li>• 落地执行计划</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
     </motion.div>
   )
 }

@@ -14,39 +14,30 @@ export interface User {
   level: 'BRONZE' | 'SILVER' | 'GOLD' | 'PLATINUM' | 'DIAMOND'
   totalSpent: number
   totalEarned: number
-  guessAccuracy: number
-  consecutiveGuesses: number
+  role: string
+  isEmailVerified: boolean
+  status: string
+  createdAt: string
+  updatedAt: string
+  lastLoginAt?: string
 }
 
 export interface AuthState {
   user: User | null
   token: string | null
   isLoading: boolean
+  isInitialized: boolean
+  isAuthenticated: boolean
   error: string | null
 }
 
 export interface UseAuthReturn extends AuthState {
   login: (email: string, password: string) => Promise<void>
-  logout: () => void
+  logout: () => Promise<void>
   refreshUserData: () => Promise<void>
   updateCredits: (amount: number) => Promise<void>
   checkCredits: (required: number) => boolean
-}
-
-// 模拟用户数据 - 后续替换为真实API调用
-const mockUser: User = {
-  id: 'user_123',
-  email: 'user@example.com',
-  username: 'demo_user',
-  firstName: '演示',
-  lastName: '用户',
-  avatar: '/avatars/user.png',
-  credits: Math.floor(Math.random() * 5000) + 1000,
-  level: 'SILVER',
-  totalSpent: 0,
-  totalEarned: 0,
-  guessAccuracy: 75.5,
-  consecutiveGuesses: 3
+  clearError: () => void
 }
 
 export function useAuth(): UseAuthReturn {
@@ -54,6 +45,8 @@ export function useAuth(): UseAuthReturn {
     user: null,
     token: null,
     isLoading: true,
+    isInitialized: false,
+    isAuthenticated: false,
     error: null
   })
   const router = useRouter()
@@ -74,6 +67,9 @@ export function useAuth(): UseAuthReturn {
       }
     } catch (error) {
       console.error('Error reading stored auth:', error)
+      // 清除损坏的数据
+      localStorage.removeItem('auth_token')
+      localStorage.removeItem('user_data')
     }
 
     return null
@@ -99,29 +95,79 @@ export function useAuth(): UseAuthReturn {
     localStorage.removeItem('user_data')
   }, [])
 
+  // 验证token有效性
+  const validateToken = useCallback(async (token: string): Promise<User | null> => {
+    try {
+      const response = await fetch('/api/auth/me', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      })
+
+      if (!response.ok) {
+        return null
+      }
+
+      const data = await response.json()
+
+      if (!data.success) {
+        return null
+      }
+
+      return data.data as User
+    } catch (error) {
+      console.error('Token validation error:', error)
+      return null
+    }
+  }, [])
+
   // 初始化认证状态
   useEffect(() => {
-    const storedAuth = getStoredAuth()
+    const initAuth = async () => {
+      const storedAuth = getStoredAuth()
 
-    if (storedAuth) {
-      setState({
-        user: storedAuth.user,
-        token: storedAuth.token,
-        isLoading: false,
-        error: null
-      })
-    } else {
-      // 临时：自动使用模拟用户
-      const mockToken = 'mock_jwt_token_' + Date.now()
-      setState({
-        user: mockUser,
-        token: mockToken,
-        isLoading: false,
-        error: null
-      })
-      storeAuth(mockToken, mockUser)
+      if (storedAuth) {
+        // 验证存储的token是否仍然有效
+        const user = await validateToken(storedAuth.token)
+
+        if (user) {
+          setState({
+            user,
+            token: storedAuth.token,
+            isLoading: false,
+            isInitialized: true,
+            isAuthenticated: true,
+            error: null
+          })
+
+          // 更新存储的用户数据
+          storeAuth(storedAuth.token, user)
+        } else {
+          // Token无效，清除存储的数据
+          clearAuth()
+          setState({
+            user: null,
+            token: null,
+            isLoading: false,
+            isInitialized: true,
+            isAuthenticated: false,
+            error: null
+          })
+        }
+      } else {
+        setState({
+          user: null,
+          token: null,
+          isLoading: false,
+          isInitialized: true,
+          isAuthenticated: false,
+          error: null
+        })
+      }
     }
-  }, [getStoredAuth, storeAuth])
+
+    initAuth()
+  }, [getStoredAuth, storeAuth, clearAuth, validateToken])
 
   // 登录
   const login = useCallback(async (email: string, password: string) => {
@@ -139,11 +185,11 @@ export function useAuth(): UseAuthReturn {
       const data = await response.json()
 
       if (!response.ok) {
-        throw new Error(data.error || '登录失败')
+        throw new Error(data.message || data.error || '登录失败')
       }
 
       if (!data.success) {
-        throw new Error(data.error || '登录失败')
+        throw new Error(data.message || data.error || '登录失败')
       }
 
       const userData = data.data.user
@@ -153,94 +199,86 @@ export function useAuth(): UseAuthReturn {
         user: userData,
         token,
         isLoading: false,
+        isInitialized: true,
+        isAuthenticated: true,
         error: null
       })
 
       storeAuth(token, userData)
+
+      console.log('✅ 登录成功:', userData.email)
     } catch (error) {
-      console.error('Login error:', error)
+      console.error('❌ 登录失败:', error)
       setState(prev => ({
         ...prev,
         error: error instanceof Error ? error.message : '登录失败',
-        isLoading: false
+        isLoading: false,
+        isAuthenticated: false
       }))
       throw error
     }
   }, [storeAuth])
 
   // 登出
-  const logout = useCallback(() => {
-    setState({
-      user: null,
-      token: null,
-      isLoading: false,
-      error: null
-    })
+  const logout = useCallback(async () => {
+    try {
+      // 调用登出API
+      if (state.token) {
+        await fetch('/api/auth/session', {
+          method: 'DELETE',
+          headers: {
+            'Authorization': `Bearer ${state.token}`
+          }
+        })
+      }
+    } catch (error) {
+      console.error('Logout API error:', error)
+    } finally {
+      setState({
+        user: null,
+        token: null,
+        isLoading: false,
+        isInitialized: true,
+        isAuthenticated: false,
+        error: null
+      })
 
-    clearAuth()
-    router.push('/auth/login')
-  }, [clearAuth, router])
+      clearAuth()
+      router.push('/auth/login')
+    }
+  }, [state.token, clearAuth, router])
 
   // 刷新用户数据
   const refreshUserData = useCallback(async () => {
     if (!state.token) return
 
     try {
-      const response = await fetch('/api/user/profile', {
-        headers: {
-          'Authorization': `Bearer ${state.token}`
-        }
-      })
+      const user = await validateToken(state.token)
 
-      const data = await response.json()
+      if (user) {
+        setState(prev => ({
+          ...prev,
+          user,
+          isAuthenticated: true
+        }))
 
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to refresh user data')
-      }
-
-      if (!data.success) {
-        throw new Error(data.error || 'Failed to refresh user data')
-      }
-
-      const userData = data.data
-
-      setState(prev => ({
-        ...prev,
-        user: userData
-      }))
-
-      if (userData) {
-        storeAuth(state.token, userData)
+        storeAuth(state.token, user)
+      } else {
+        // Token无效，执行登出
+        await logout()
       }
     } catch (error) {
       console.error('Error refreshing user data:', error)
       // 认证失败时清除状态
-      if (error instanceof Error && error.message.includes('认证')) {
-        logout()
-      }
+      await logout()
     }
-  }, [state.token, storeAuth])
+  }, [state.token, storeAuth, logout, validateToken])
 
   // 更新积分
   const updateCredits = useCallback(async (amount: number) => {
     if (!state.user || !state.token) {
       throw new Error('用户未登录')
     }
-
-    // 乐观更新
-    const updatedUser = {
-      ...state.user,
-      credits: state.user.credits + amount,
-      totalSpent: amount < 0 ? state.user.totalSpent + Math.abs(amount) : state.user.totalSpent,
-      totalEarned: amount > 0 ? state.user.totalEarned + amount : state.user.totalEarned
-    }
-
-    setState(prev => ({
-      ...prev,
-      user: updatedUser
-    }))
-
-    storeAuth(state.token, updatedUser)
 
     try {
       const response = await fetch('/api/user/credits', {
@@ -259,37 +297,30 @@ export function useAuth(): UseAuthReturn {
       const data = await response.json()
 
       if (!response.ok) {
-        // 回滚乐观更新
-        setState(prev => ({
-          ...prev,
-          user: state.user
-        }))
-        storeAuth(state.token, state.user)
-        throw new Error(data.error || '积分更新失败')
+        throw new Error(data.message || data.error || '积分更新失败')
       }
 
       if (!data.success) {
-        // 回滚乐观更新
-        setState(prev => ({
-          ...prev,
-          user: state.user
-        }))
-        storeAuth(state.token, state.user)
-        throw new Error(data.error || '积分更新失败')
+        throw new Error(data.message || data.error || '积分更新失败')
       }
 
-      // 获取最新的用户数据
+      // 刷新用户数据获取最新积分
       await refreshUserData()
     } catch (error) {
       console.error('Error updating credits:', error)
       throw error
     }
-  }, [state.user, state.token, storeAuth, refreshUserData])
+  }, [state.user, state.token, refreshUserData])
 
   // 检查积分是否足够
   const checkCredits = useCallback((required: number): boolean => {
     return state.user ? state.user.credits >= required : false
   }, [state.user])
+
+  // 清除错误
+  const clearError = useCallback(() => {
+    setState(prev => ({ ...prev, error: null }))
+  }, [])
 
   return {
     ...state,
@@ -297,7 +328,8 @@ export function useAuth(): UseAuthReturn {
     logout,
     refreshUserData,
     updateCredits,
-    checkCredits
+    checkCredits,
+    clearError
   }
 }
 

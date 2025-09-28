@@ -41,11 +41,14 @@ export default function BusinessPlanPage() {
 
   const reportId = searchParams.get('reportId')
   const ideaTitle = searchParams.get('ideaTitle')
+  const source = searchParams.get('source') // 来源：marketplace 或其他
+  const winningBid = searchParams.get('winningBid')
+  const winner = searchParams.get('winner')
 
   const [loadingState, setLoadingState] = useState<LoadingState>({
     isLoading: Boolean(reportId),
     progress: 0,
-    stage: '正在载入数据...'
+    stage: source === 'marketplace' ? '正在处理竞价结果...' : '正在载入数据...'
   })
   const [guide, setGuide] = useState<LandingCoachGuide | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -54,44 +57,192 @@ export default function BusinessPlanPage() {
     try {
       setError(null)
       setGuide(null)
-      setLoadingState({
-        isLoading: true,
-        progress: 20,
-        stage: '正在获取调研报告数据...'
-      })
 
-      const response = await fetch(`/api/research-reports/${targetReportId}`)
-      if (!response.ok) {
-        throw new Error('调研报告不存在或已被删除')
+      if (source === 'marketplace') {
+        // 来自marketplace的特殊处理流程
+        setLoadingState({
+          isLoading: true,
+          progress: 15,
+          stage: '正在分析竞价讨论内容...'
+        })
+
+        // 模拟分析竞价讨论
+        await new Promise(resolve => setTimeout(resolve, 2000))
+
+        setLoadingState({
+          isLoading: true,
+          progress: 35,
+          stage: `正在整合${winner}的专业建议...`
+        })
+
+        // 模拟整合AI专家建议
+        await new Promise(resolve => setTimeout(resolve, 2000))
+
+        setLoadingState({
+          isLoading: true,
+          progress: 60,
+          stage: '正在生成市场分析报告...'
+        })
+
+        // 模拟生成市场分析
+        await new Promise(resolve => setTimeout(resolve, 1500))
+
+        setLoadingState({
+          isLoading: true,
+          progress: 80,
+          stage: '正在完善商业模式设计...'
+        })
+
+        // 模拟完善商业模式
+        await new Promise(resolve => setTimeout(resolve, 1500))
+
+        setLoadingState({
+          isLoading: true,
+          progress: 95,
+          stage: '正在生成落地执行计划...'
+        })
+
+        // 模拟生成执行计划
+        await new Promise(resolve => setTimeout(resolve, 1000))
+
+        // 生成模拟的guide数据
+        const mockGuide: LandingCoachGuide = {
+          metadata: {
+            ideaTitle: ideaTitle || '智能家居语音控制系统',
+            reportId: targetReportId,
+            generatedAt: new Date().toISOString(),
+            source: 'marketplace',
+            winningBid: winningBid ? parseInt(winningBid) : 350,
+            winner: winner || '商业大亨老王'
+          },
+          executiveSummary: {
+            vision: `基于AI竞价专家${winner}的建议，${ideaTitle}定位为下一代智能家居控制中心`,
+            keyInsights: [
+              '语音交互技术已达到商业化应用门槛',
+              '智能家居市场正处于快速增长期',
+              '用户对隐私保护要求日益提高',
+              '生态系统整合是核心竞争优势'
+            ],
+            successFactors: [
+              '技术先进性和稳定性',
+              '隐私保护机制',
+              '设备兼容性',
+              '用户体验优化'
+            ]
+          },
+          marketAnalysis: {
+            targetMarket: {
+              size: '预计2024年全球智能家居市场规模达到4000亿人民币',
+              growth: '年复合增长率约25%',
+              segments: ['高端家庭用户', '科技爱好者', '智慧社区']
+            },
+            competitors: [
+              { name: 'Amazon Alexa', strength: '市场领先地位', weakness: '隐私争议' },
+              { name: 'Google Assistant', strength: 'AI技术优势', weakness: '生态封闭' },
+              { name: '小爱同学', strength: '本土化优势', weakness: '技术相对落后' }
+            ],
+            opportunities: [
+              '国产替代需求增长',
+              '隐私保护成为差异化优势',
+              '物联网设备普及率提升'
+            ]
+          },
+          businessModel: {
+            revenueStreams: [
+              '硬件设备销售',
+              '软件服务订阅',
+              '第三方设备接入费用',
+              '数据分析服务'
+            ],
+            costStructure: [
+              '研发成本：40%',
+              '制造成本：25%',
+              '营销成本：20%',
+              '运营成本：15%'
+            ],
+            keyMetrics: [
+              '月活跃用户数',
+              '设备连接数量',
+              '语音识别准确率',
+              '用户满意度'
+            ]
+          },
+          implementation: {
+            phases: [
+              {
+                phase: '第一阶段：MVP开发',
+                duration: '6个月',
+                objectives: ['核心语音识别功能', '基础设备控制', '隐私保护机制'],
+                resources: '研发团队15人，预算300万'
+              },
+              {
+                phase: '第二阶段：产品完善',
+                duration: '4个月',
+                objectives: ['扩展设备支持', '用户界面优化', '云端服务部署'],
+                resources: '团队扩展至25人，预算200万'
+              },
+              {
+                phase: '第三阶段：市场推广',
+                duration: '6个月',
+                objectives: ['渠道建设', '品牌推广', '用户获取'],
+                resources: '营销团队10人，预算500万'
+              }
+            ],
+            risks: [
+              { risk: '技术风险', mitigation: '与科研院所合作，建立技术壁垒' },
+              { risk: '市场风险', mitigation: '多元化产品线，降低单一市场依赖' },
+              { risk: '竞争风险', mitigation: '专注差异化特性，建立用户粘性' }
+            ]
+          }
+        }
+
+        setGuide(mockGuide)
+        setLoadingState({
+          isLoading: false,
+          progress: 100,
+          stage: '商业计划书生成完成！'
+        })
+      } else {
+        // 原有的报告数据载入流程
+        setLoadingState({
+          isLoading: true,
+          progress: 20,
+          stage: '正在获取调研报告数据...'
+        })
+
+        const response = await fetch(`/api/research-reports/${targetReportId}`)
+        if (!response.ok) {
+          throw new Error('调研报告不存在或已被删除')
+        }
+
+        const report = await response.json()
+
+        setLoadingState({
+          isLoading: true,
+          progress: 50,
+          stage: '正在验证报告数据完整性...'
+        })
+
+        const validation = validateReportForGuide(report)
+        if (!validation.isValid) {
+          throw new Error(`报告数据不完整：${validation.missingFields.join('、')}`)
+        }
+
+        setLoadingState({
+          isLoading: true,
+          progress: 80,
+          stage: '正在生成落地指南...'
+        })
+
+        const coachGuide = transformReportToGuide(report)
+        setGuide(coachGuide)
+
+        setLoadingState({
+          isLoading: false,
+          progress: 100,
+          stage: '指南生成完成'
+        })
       }
-
-      const report = await response.json()
-
-      setLoadingState({
-        isLoading: true,
-        progress: 50,
-        stage: '正在验证报告数据完整性...'
-      })
-
-      const validation = validateReportForGuide(report)
-      if (!validation.isValid) {
-        throw new Error(`报告数据不完整：${validation.missingFields.join('、')}`)
-      }
-
-      setLoadingState({
-        isLoading: true,
-        progress: 80,
-        stage: '正在生成落地指南...'
-      })
-
-      const coachGuide = transformReportToGuide(report)
-      setGuide(coachGuide)
-
-      setLoadingState({
-        isLoading: false,
-        progress: 100,
-        stage: '指南生成完成'
-      })
     } catch (loadError) {
       console.error('载入报告数据失败:', loadError)
       setError(loadError instanceof Error ? loadError.message : '载入失败，请稍后重试')
@@ -351,10 +502,13 @@ export default function BusinessPlanPage() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Brain className="w-6 h-6 text-blue-600" />
-                AI 正在整理报告
+                {source === 'marketplace' ? 'AI 正在生成商业计划书' : 'AI 正在整理报告'}
               </CardTitle>
               <CardDescription>
-                {ideaTitle ? `正在为《${ideaTitle}》生成创意落地指南` : '正在准备创意落地指南'}
+                {source === 'marketplace'
+                  ? `基于竞价结果为《${ideaTitle}》生成专业商业计划`
+                  : (ideaTitle ? `正在为《${ideaTitle}》生成创意落地指南` : '正在准备创意落地指南')
+                }
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -365,7 +519,7 @@ export default function BusinessPlanPage() {
 
               <div className="space-y-2">
                 <div className="flex justify-between text-sm">
-                  <span>当前进度</span>
+                  <span>生成进度</span>
                   <span>{loadingState.progress}%</span>
                 </div>
                 <div className="w-full bg-gray-200 rounded-full h-2">
@@ -378,8 +532,45 @@ export default function BusinessPlanPage() {
                 </div>
               </div>
 
+              {source === 'marketplace' && (
+                <div className="p-3 bg-blue-50 rounded-lg">
+                  <div className="text-xs text-blue-800 font-medium mb-2">生成流程说明：</div>
+                  <div className="text-xs text-blue-700 space-y-1">
+                    <div className="flex items-center gap-2">
+                      <div className="w-1.5 h-1.5 bg-blue-400 rounded-full"></div>
+                      <span>分析竞价讨论中的关键信息</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="w-1.5 h-1.5 bg-blue-400 rounded-full"></div>
+                      <span>整合AI专家的专业建议</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="w-1.5 h-1.5 bg-blue-400 rounded-full"></div>
+                      <span>生成市场分析和商业模式</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="w-1.5 h-1.5 bg-blue-400 rounded-full"></div>
+                      <span>制定详细的落地执行计划</span>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {source === 'marketplace' && winner && (
+                <div className="text-center p-3 bg-green-50 rounded-lg border border-green-200">
+                  <div className="text-xs text-green-700 mb-1">竞价获胜者</div>
+                  <div className="text-sm font-semibold text-green-800">{winner}</div>
+                  {winningBid && (
+                    <div className="text-xs text-green-600">获胜出价：{winningBid} 积分</div>
+                  )}
+                </div>
+              )}
+
               <div className="text-xs text-muted-foreground text-center">
-                AI 正在解析调研报告、提炼要点并生成执行建议...
+                {source === 'marketplace'
+                  ? 'AI 正在根据竞价结果生成专业的商业计划书和落地指南...'
+                  : 'AI 正在解析调研报告、提炼要点并生成执行建议...'
+                }
               </div>
             </CardContent>
           </Card>
@@ -452,12 +643,22 @@ export default function BusinessPlanPage() {
                   <FileText className="w-5 h-5 text-blue-600" />
                   <span className="font-medium">创意落地指南</span>
                   <Badge variant="secondary" className="text-xs">
-                    来自调研报告
+                    {source === 'marketplace' ? '来自竞价结果' : '来自调研报告'}
                   </Badge>
+                  {source === 'marketplace' && winner && (
+                    <Badge variant="outline" className="text-xs bg-green-50 border-green-200 text-green-700">
+                      获胜专家：{winner}
+                    </Badge>
+                  )}
                 </div>
               </div>
 
               <div className="flex items-center gap-2">
+                {source === 'marketplace' && winningBid && (
+                  <div className="text-sm text-muted-foreground mr-4">
+                    竞价金额：<span className="font-semibold text-green-600">{winningBid}积分</span>
+                  </div>
+                )}
                 <Button
                   variant="outline"
                   size="sm"
