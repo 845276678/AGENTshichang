@@ -313,7 +313,7 @@ export default function CategoryDetailPage({ params }: CategoryPageProps) {
                 清除筛选条件
               </Button>
               <Button asChild>
-                <a href="/ideas/submit">
+                <a href="/marketplace">
                   提交创意
                 </a>
               </Button>

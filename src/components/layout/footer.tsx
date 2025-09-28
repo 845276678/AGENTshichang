@@ -34,7 +34,7 @@ const footerSections = [
     title: 'Features',
     links: [
       { label: 'AI Bidding', href: '/marketplace' },
-      { label: 'Idea Submit', href: '/ideas/submit' },
+      { label: 'Idea Submit', href: '/marketplace' },
       { label: 'Daily Check-in', href: '/checkin' },
       { label: 'User Dashboard', href: '/' },
     ]

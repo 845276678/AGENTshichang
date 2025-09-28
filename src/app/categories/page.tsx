@@ -351,7 +351,7 @@ export default function CategoriesPage() {
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Button size="lg" asChild>
-                  <a href="/ideas/submit">
+                  <a href="/marketplace">
                     <Sparkles className="mr-2 h-4 w-4" />
                     提交创意想法
                   </a>

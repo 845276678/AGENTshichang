@@ -208,7 +208,7 @@ const UserMenu = () => {
                 </Link>
               )}
               <Link
-                href="/ideas/submit"
+                href="/marketplace"
                 className="flex items-center gap-2 rounded-sm px-3 py-2 text-sm hover:bg-accent transition-colors"
                 onClick={() => setIsOpen(false)}
               >
@@ -278,7 +278,7 @@ const MobileMenu = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void 
               
               <nav className="space-y-2">
                 <Link
-                  href="/ideas/submit"
+                  href="/marketplace"
                   className="block rounded-sm px-3 py-2 text-sm hover:bg-accent transition-colors"
                   onClick={onClose}
                 >
@@ -370,7 +370,7 @@ const MobileMenu = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void 
                     Dashboard
                   </Link>
                   <Link
-                    href="/ideas/submit"
+                    href="/marketplace"
                     className="block rounded-sm px-3 py-2 text-sm hover:bg-accent transition-colors"
                     onClick={onClose}
                   >
@@ -425,7 +425,7 @@ export function Header({ className }: HeaderProps) {
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-6">
             <Link
-              href="/ideas/submit"
+              href="/marketplace"
               className="text-sm font-medium transition-colors hover:text-primary"
             >
               创意竞价

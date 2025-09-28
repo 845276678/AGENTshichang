@@ -222,7 +222,7 @@ export default function EarningsTrackingPage() {
               导出报告
             </Button>
             <Button asChild>
-              <a href="/ideas/submit">
+              <a href="/marketplace">
                 <Plus className="w-4 h-4 mr-2" />
                 提交新创意
               </a>

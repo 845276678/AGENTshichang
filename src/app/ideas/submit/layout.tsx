@@ -16,7 +16,7 @@ export default function SubmitIdeaLayout({ children }: SubmitIdeaLayoutProps) {
   useEffect(() => {
     if (!isInitialized) {return}
     if (!isAuthenticated) {
-      const redirectUrl = `/auth/login?redirect=${encodeURIComponent('/ideas/submit')}`
+      const redirectUrl = `/auth/login?redirect=${encodeURIComponent('/marketplace')}`
       router.replace(redirectUrl)
     }
   }, [isInitialized, isAuthenticated, router])

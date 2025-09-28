@@ -688,7 +688,7 @@ export default function BusinessPlanPage() {
                     </p>
                   </div>
                 </div>
-                <Button variant="outline" onClick={() => router.push('/ideas/submit')}>
+                <Button variant="outline" onClick={() => router.push('/marketplace')}>
                   <BarChart3 className="w-4 h-4 mr-2" />
                   前往创意竞价中心
                 </Button>
