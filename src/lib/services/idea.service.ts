@@ -1,7 +1,7 @@
 // 创意数据库操作服务
 import { prisma, handlePrismaError, ideaSelectFields, PaginationResult, buildPaginationResult, calculatePaginationOffset } from '../database'
-import { Idea, IdeaCategory, IdeaStatus, IdeaVisibility } from '@/generated/prisma'
-import type { Prisma } from '@/generated/prisma'
+import { Idea, IdeaCategory, IdeaStatus, IdeaVisibility } from '@prisma/client'
+import type { Prisma } from '@prisma/client'
 
 // 创意创建数据类型
 export interface CreateIdeaData {

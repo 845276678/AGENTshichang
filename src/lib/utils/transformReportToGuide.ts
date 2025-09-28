@@ -1,5 +1,5 @@
 // 调研报告转换为落地教练指南的工具函数
-import { ResearchReport } from '@/generated/prisma'
+import { ResearchReport } from '@prisma/client'
 
 // 落地教练三段结构的数据类型
 export interface LandingCoachGuide {

@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { SignJWT, jwtVerify } from 'jose'
 import bcrypt from 'bcryptjs'
 import { prisma } from '@/lib/prisma'
-import type { User } from '@/generated/prisma'
+import type { User } from '@prisma/client'
 
 // JWT配置
 const JWT_SECRET = new TextEncoder().encode(

@@ -1,6 +1,6 @@
 import jwt from 'jsonwebtoken';
 import { JWTPayload, TokenPair } from '@/types/auth';
-import { UserRole } from '@/generated/prisma';
+import { UserRole } from '@prisma/client';
 
 // Environment variables with defaults
 const JWT_SECRET = process.env.JWT_SECRET || 'your-super-secret-jwt-key-change-in-production';

@@ -1,5 +1,5 @@
 // Authentication related types
-import { UserRole, UserStatus } from '@/generated/prisma'
+import { UserRole, UserStatus } from '@prisma/client'
 
 export interface User {
   id: string;
@@ -28,7 +28,7 @@ export interface User {
 }
 
 // Re-export the Prisma enums for convenience
-export { UserRole, UserStatus } from '@/generated/prisma'
+export { UserRole, UserStatus } from '@prisma/client'
 
 // JWT Token payload
 export interface JWTPayload {

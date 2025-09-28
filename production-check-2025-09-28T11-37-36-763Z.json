@@ -1,0 +1,52 @@
+{
+  "url": "https://aijiayuan.top/",
+  "timestamp": "2025-09-28T11:37:34.745Z",
+  "checks": {
+    "performance": {
+      "metrics": [],
+      "status": "success"
+    },
+    "resources": {
+      "mainFrame": {
+        "id": "A6C6D780BB4AC34D12485644F77608C3",
+        "loaderId": "B59217AB2887798DFF36B74FF2CA77B1",
+        "url": "https://aijiayuan.top/",
+        "domainAndRegistry": "aijiayuan.top",
+        "securityOrigin": "https://aijiayuan.top",
+        "securityOriginDetails": {
+          "isLocalhost": false
+        },
+        "mimeType": "text/html",
+        "adFrameStatus": {
+          "adFrameType": "none"
+        },
+        "secureContextType": "Secure",
+        "crossOriginIsolatedContextType": "NotIsolated",
+        "gatedAPIFeatures": []
+      },
+      "subFrames": [],
+      "status": "success"
+    },
+    "javascript": {
+      "result": {
+        "title": "AI Agent Market - Discover, Deploy, and Monetize AI Agents",
+        "url": "https://aijiayuan.top/",
+        "readyState": "complete",
+        "errors": "no error handler",
+        "viewport": {
+          "width": 764,
+          "height": 433
+        }
+      },
+      "status": "success"
+    },
+    "console": {
+      "errors": [],
+      "status": "success"
+    },
+    "network": {
+      "failedRequests": [],
+      "status": "success"
+    }
+  }
+}

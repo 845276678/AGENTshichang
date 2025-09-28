@@ -1,0 +1,262 @@
+{
+  "url": "https://aijiayuan.top/business-plan",
+  "timestamp": "2025-09-28T11:41:39.340Z",
+  "checks": {
+    "availability": {
+      "mainPage": {
+        "size": 12185,
+        "hasTitle": true,
+        "hasDoctype": true,
+        "hasErrors": true
+      },
+      "responseTime": 680,
+      "httpStatus": {
+        "code": 200,
+        "text": "OK",
+        "ok": true
+      },
+      "headers": {
+        "alt-svc": "h3=\":443\"; ma=86400",
+        "cache-control": "s-maxage=31536000, stale-while-revalidate",
+        "content-encoding": "gzip",
+        "content-type": "text/html; charset=utf-8",
+        "date": "Sun, 28 Sep 2025 11:41:39 GMT",
+        "etag": "\"84qxzku0619dj\"",
+        "permissions-policy": "camera=(), microphone=(), geolocation=()",
+        "referrer-policy": "strict-origin-when-cross-origin",
+        "strict-transport-security": "max-age=31536000; includeSubDomains",
+        "transfer-encoding": "chunked",
+        "vary": "RSC, Next-Router-State-Tree, Next-Router-Prefetch, Accept-Encoding",
+        "x-content-type-options": "nosniff",
+        "x-frame-options": "DENY",
+        "x-nextjs-cache": "HIT",
+        "x-xss-protection": "1; mode=block",
+        "x-zeabur-ip-country": "CN",
+        "x-zeabur-request-id": "sfo1::3ddf56ef-0320-451a-a34b-ebd85ff5610f"
+      },
+      "ssl": {
+        "protocol": "https",
+        "secure": true
+      }
+    },
+    "health": {
+      "/api/health/simple": {
+        "status": 404,
+        "statusText": "Not Found",
+        "headers": {
+          "alt-svc": "h3=\":443\"; ma=86400",
+          "cache-control": "private, no-cache, no-store, max-age=0, must-revalidate",
+          "content-encoding": "gzip",
+          "content-type": "text/html; charset=utf-8",
+          "date": "Sun, 28 Sep 2025 11:41:39 GMT",
+          "link": "</_next/static/media/e4af272ccee01ff0-s.p.woff2>; rel=preload; as=\"font\"; crossorigin=\"\"; type=\"font/woff2\"",
+          "permissions-policy": "camera=(), microphone=(), geolocation=()",
+          "referrer-policy": "strict-origin-when-cross-origin",
+          "strict-transport-security": "max-age=31536000; includeSubDomains",
+          "transfer-encoding": "chunked",
+          "vary": "RSC, Next-Router-State-Tree, Next-Router-Prefetch, Accept-Encoding",
+          "x-content-type-options": "nosniff",
+          "x-frame-options": "DENY",
+          "x-xss-protection": "1; mode=block",
+          "x-zeabur-ip-country": "CN",
+          "x-zeabur-request-id": "sfo1::49728768-1bd3-4eee-a93d-7a504cf9bd3f"
+        },
+        "available": false
+      },
+      "/api/health": {
+        "status": 404,
+        "statusText": "Not Found",
+        "headers": {
+          "alt-svc": "h3=\":443\"; ma=86400",
+          "cache-control": "private, no-cache, no-store, max-age=0, must-revalidate",
+          "content-encoding": "gzip",
+          "content-type": "text/html; charset=utf-8",
+          "date": "Sun, 28 Sep 2025 11:41:43 GMT",
+          "link": "</_next/static/media/e4af272ccee01ff0-s.p.woff2>; rel=preload; as=\"font\"; crossorigin=\"\"; type=\"font/woff2\"",
+          "permissions-policy": "camera=(), microphone=(), geolocation=()",
+          "referrer-policy": "strict-origin-when-cross-origin",
+          "strict-transport-security": "max-age=31536000; includeSubDomains",
+          "transfer-encoding": "chunked",
+          "vary": "RSC, Next-Router-State-Tree, Next-Router-Prefetch, Accept-Encoding",
+          "x-content-type-options": "nosniff",
+          "x-frame-options": "DENY",
+          "x-xss-protection": "1; mode=block",
+          "x-zeabur-ip-country": "CN",
+          "x-zeabur-request-id": "sfo1::ddc7e7b0-627b-4830-913c-9b2d717b8548"
+        },
+        "available": false
+      },
+      "/health": {
+        "status": 200,
+        "statusText": "OK",
+        "headers": {
+          "alt-svc": "h3=\":443\"; ma=86400",
+          "cache-control": "private, no-cache, no-store, max-age=0, must-revalidate",
+          "content-encoding": "gzip",
+          "content-type": "text/html; charset=utf-8",
+          "date": "Sun, 28 Sep 2025 11:41:44 GMT",
+          "link": "</_next/static/media/e4af272ccee01ff0-s.p.woff2>; rel=preload; as=\"font\"; crossorigin=\"\"; type=\"font/woff2\"",
+          "permissions-policy": "camera=(), microphone=(), geolocation=()",
+          "referrer-policy": "strict-origin-when-cross-origin",
+          "strict-transport-security": "max-age=31536000; includeSubDomains",
+          "transfer-encoding": "chunked",
+          "vary": "RSC, Next-Router-State-Tree, Next-Router-Prefetch, Accept-Encoding",
+          "x-content-type-options": "nosniff",
+          "x-frame-options": "DENY",
+          "x-xss-protection": "1; mode=block",
+          "x-zeabur-ip-country": "CN",
+          "x-zeabur-request-id": "sfo1::cb298d36-629e-4476-9ecb-7cc908fc48b1"
+        },
+        "available": true,
+        "data": "<!DOCTYPE html><html lang=\"en\" class=\"__variable_f367f3\"><head><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"/><link rel=\"stylesheet\" href=\"/_next/static/css/3add334ee59f67ac.css\" data-precedence=\"next\"/><link rel=\"stylesheet\" href=\"/_next/static/css/96cf69921e44fc99.css\" data-precedence=\"next\"/><link rel=\"preload\" as=\"script\" fetchPriority=\"low\" href=\"/_next/static/chunks/webpack-ae9bfe0d75875557.js\"/><script src=\"/_next/static/chunks/fd9d1056-aa431a5b11d07789.js\" async=\"\"></script><script src=\"/_next/static/chunks/2117-f2d46b53e4e6bb07.js\" async=\"\"></script><script src=\"/_next/static/chunks/main-app-5294d1645fe5526e.js\" async=\"\"></script><script src=\"/_next/static/chunks/6137-03d2cd0024eec2f8.js\" async=\"\"></script><script src=\"/_next/static/chunks/7360-1eef911a4eb2c644.js\" async=\"\"></script><script src=\"/_next/static/chunks/4582-04567776bbb2a51d.js\" async=\"\"></script><script src=\"/_next/static/chunks/app/business-plan/%5Bid%5D/page-ccef6c1b80e07e2f.js\" async=\"\"></script><script src=\"/_next/static/chunks/4603-f594bdb44b6b4ad5.js\" async=\"\"></script><script src=\"/_next/static/chunks/app/layout-0092a05b5f55ac03.js\" async=\"\"></script><link rel=\"preconnect\" href=\"https://fonts.googleapis.com\"/><link rel=\"preconnect\" href=\"https://fonts.gstatic.com\" crossorigin=\"\"/><title>AI Agent Market - Discover, Deploy, and Monetize AI Agents</title><meta name=\"description\" content=\"The world&#x27;s largest marketplace for AI agents. Discover powerful AI agents, deploy them instantly, and monetize your own creations.\"/><meta name=\"author\" content=\"AI Agent Market Team\"/><link rel=\"manifest\" href=\"/site.webmanifest\" crossorigin=\"use-credentials\"/><meta name=\"keywords\" content=\"AI agents,artificial intelligence,marketplace,automation,AI tools,machine learning\"/><meta name=\"creator\" content=\"AI Agent Market\"/><meta name=\"robots\" content=\"index, follow\"/><meta name=\"googlebot\" content=\"index, follow, max-video-preview:-1, max-image-preview:large, max-snippet:-1\"/><meta property=\"og:title\" content=\"AI Agent Market - Discover, Deploy, and Monetize AI Agents\"/><meta property=\"og:description\" content=\"The world&#x27;s largest marketplace for AI agents. Discover powerful AI agents, deploy them instantly, and monetize your own creations.\"/><meta property=\"og:url\" content=\"https://aiagentmarket.com\"/><meta property=\"og:site_name\" content=\"AI Agent Market\"/><meta property=\"og:locale\" content=\"en_US\"/><meta property=\"og:image\" content=\"http://localhost:8080/og-image.png\"/><meta property=\"og:image:width\" content=\"1200\"/><meta property=\"og:image:height\" content=\"630\"/><meta property=\"og:image:alt\" content=\"AI Agent Market\"/><meta property=\"og:type\" content=\"website\"/><meta name=\"twitter:card\" content=\"summary_large_image\"/><meta name=\"twitter:creator\" content=\"@aiagentmarket\"/><meta name=\"twitter:title\" content=\"AI Agent Market\"/><meta name=\"twitter:description\" content=\"The world&#x27;s largest marketplace for AI agents\"/><meta name=\"twitter:image\" content=\"http://localhost:8080/twitter-image.png\"/><link rel=\"shortcut icon\" href=\"/favicon-16x16.png\"/><link rel=\"icon\" href=\"/favicon.ico\"/><link rel=\"apple-touch-icon\" href=\"/apple-touch-icon.png\"/><meta name=\"next-size-adjust\"/><script src=\"/_next/static/chunks/polyfills-42372ed130431b0a.js\" noModule=\"\"></script></head><body class=\"font-sans antialiased __className_f367f3\"><div class=\"min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100\"><div class=\"text-center\"><div class=\"animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mx-auto\"></div><p class=\"mt-4 text-gray-600 font-medium\">正在初始化身份验证...</p></div></div><script src=\"/_next/static/chunks/webpack-ae9bfe0d75875557.js\" async=\"\"></script><script>(self.__next_f=self.__next_f||[]).push([0]);self.__next_f.push([2,null])</script><script>self.__next_f.push([1,\"1:HL[\\\"/_next/static/media/e4af272ccee01ff0-s.p.woff2\\\",\\\"font\\\",{\\\"crossOrigin\\\":\\\"\\\",\\\"type\\\":\\\"font/woff2\\\"}]\\n2:HL[\\\"/_next/static/css/3add334ee59f67ac.css\\\",\\\"style\\\"]\\n3:HL[\\\"/_next/static/css/96cf69921e44fc99.css\\\",\\\"style\\\"]\\n\"])</script><script>self.__next_f.push([1,\"4:I[12846,[],\\\"\\\"]\\n6:I[19107,[],\\\"ClientPageRoot\\\"]\\n7:I[57386,[\\\"6137\\\",\\\"static/chunks/6137-03d2cd0024eec2f8.js\\\",\\\"7360\\\",\\\"static/chunks/7360-1eef911a4eb2c644.js\\\",\\\"4582\\\",\\\"static/chunks/4582-04567776bbb2a51d.js\\\",\\\"457\\\",\\\"static/chunks/app/business-plan/%5Bid%5D/page-ccef6c1b80e07e2f.js\\\"],\\\"default\\\",1]\\n8:I[4707,[],\\\"\\\"]\\na:I[36423,[],\\\"\\\"]\\nb:I[88941,[\\\"4603\\\",\\\"static/chunks/4603-f594bdb44b6b4ad5.js\\\",\\\"3185\\\",\\\"static/chunks/app/layout-0092a05b5f55ac03.js\\\"],\\\"AuthProvider\\\"]\\nc:I[79252,[\\\"4603\\\",\\\"static/chunks/4603-f594bdb44b6b4ad5.js\\\",\\\"3185\\\",\\\"static/chunks/app/layout-0092a05b5f55ac03.js\\\"],\\\"CartProvider\\\"]\\ne:I[61060,[],\\\"\\\"]\\n9:[\\\"id\\\",\\\"health\\\",\\\"d\\\"]\\nf:[]\\n\"])</script><script>self.__next_f.push([1,\"0:[\\\"$\\\",\\\"$L4\\\",null,{\\\"buildId\\\":\\\"RtnQ-GcVYc5FX7g0gNMwb\\\",\\\"assetPrefix\\\":\\\"\\\",\\\"urlParts\\\":[\\\"\\\",\\\"business-plan\\\",\\\"health\\\"],\\\"initialTree\\\":[\\\"\\\",{\\\"children\\\":[\\\"business-plan\\\",{\\\"children\\\":[[\\\"id\\\",\\\"health\\\",\\\"d\\\"],{\\\"children\\\":[\\\"__PAGE__\\\",{}]}]}]},\\\"$undefined\\\",\\\"$undefined\\\",true],\\\"initialSeedData\\\":[\\\"\\\",{\\\"children\\\":[\\\"business-plan\\\",{\\\"children\\\":[[\\\"id\\\",\\\"health\\\",\\\"d\\\"],{\\\"children\\\":[\\\"__PAGE__\\\",{},[[\\\"$L5\\\",[\\\"$\\\",\\\"$L6\\\",null,{\\\"props\\\":{\\\"params\\\":{\\\"id\\\":\\\"health\\\"},\\\"searchParams\\\":{}},\\\"Component\\\":\\\"$7\\\"}],null],null],null]},[null,[\\\"$\\\",\\\"$L8\\\",null,{\\\"parallelRouterKey\\\":\\\"children\\\",\\\"segmentPath\\\":[\\\"children\\\",\\\"business-plan\\\",\\\"children\\\",\\\"$9\\\",\\\"children\\\"],\\\"error\\\":\\\"$undefined\\\",\\\"errorStyles\\\":\\\"$undefined\\\",\\\"errorScripts\\\":\\\"$undefined\\\",\\\"template\\\":[\\\"$\\\",\\\"$La\\\",null,{}],\\\"templateStyles\\\":\\\"$undefined\\\",\\\"templateScripts\\\":\\\"$undefined\\\",\\\"notFound\\\":\\\"$undefined\\\",\\\"notFoundStyles\\\":\\\"$undefined\\\"}]],null]},[null,[\\\"$\\\",\\\"$L8\\\",null,{\\\"parallelRouterKey\\\":\\\"children\\\",\\\"segmentPath\\\":[\\\"children\\\",\\\"business-plan\\\",\\\"children\\\"],\\\"error\\\":\\\"$undefined\\\",\\\"errorStyles\\\":\\\"$undefined\\\",\\\"errorScripts\\\":\\\"$undefined\\\",\\\"template\\\":[\\\"$\\\",\\\"$La\\\",null,{}],\\\"templateStyles\\\":\\\"$undefined\\\",\\\"templateScripts\\\":\\\"$undefined\\\",\\\"notFound\\\":\\\"$undefined\\\",\\\"notFoundStyles\\\":\\\"$undefined\\\"}]],null]},[[[[\\\"$\\\",\\\"link\\\",\\\"0\\\",{\\\"rel\\\":\\\"stylesheet\\\",\\\"href\\\":\\\"/_next/static/css/3add334ee59f67ac.css\\\",\\\"precedence\\\":\\\"next\\\",\\\"crossOrigin\\\":\\\"$undefined\\\"}],[\\\"$\\\",\\\"link\\\",\\\"1\\\",{\\\"rel\\\":\\\"stylesheet\\\",\\\"href\\\":\\\"/_next/static/css/96cf69921e44fc99.css\\\",\\\"precedence\\\":\\\"next\\\",\\\"crossOrigin\\\":\\\"$undefined\\\"}]],[\\\"$\\\",\\\"html\\\",null,{\\\"lang\\\":\\\"en\\\",\\\"className\\\":\\\"__variable_f367f3\\\",\\\"children\\\":[[\\\"$\\\",\\\"head\\\",null,{\\\"children\\\":[[\\\"$\\\",\\\"link\\\",null,{\\\"rel\\\":\\\"preconnect\\\",\\\"href\\\":\\\"https://fonts.googleapis.com\\\"}],[\\\"$\\\",\\\"link\\\",null,{\\\"rel\\\":\\\"preconnect\\\",\\\"href\\\":\\\"https://fonts.gstatic.com\\\",\\\"crossOrigin\\\":\\\"\\\"}]]}],[\\\"$\\\",\\\"body\\\",null,{\\\"className\\\":\\\"font-sans antialiased __className_f367f3\\\",\\\"children\\\":[\\\"$\\\",\\\"$Lb\\\",null,{\\\"children\\\":[\\\"$\\\",\\\"$Lc\\\",null,{\\\"children\\\":[\\\"$\\\",\\\"div\\\",null,{\\\"id\\\":\\\"root\\\",\\\"children\\\":[\\\"$\\\",\\\"$L8\\\",null,{\\\"parallelRouterKey\\\":\\\"children\\\",\\\"segmentPath\\\":[\\\"children\\\"],\\\"error\\\":\\\"$undefined\\\",\\\"errorStyles\\\":\\\"$undefined\\\",\\\"errorScripts\\\":\\\"$undefined\\\",\\\"template\\\":[\\\"$\\\",\\\"$La\\\",null,{}],\\\"templateStyles\\\":\\\"$undefined\\\",\\\"templateScripts\\\":\\\"$undefined\\\",\\\"notFound\\\":[[\\\"$\\\",\\\"title\\\",null,{\\\"children\\\":\\\"404: This page could not be found.\\\"}],[\\\"$\\\",\\\"div\\\",null,{\\\"style\\\":{\\\"fontFamily\\\":\\\"system-ui,\\\\\\\"Segoe UI\\\\\\\",Roboto,Helvetica,Arial,sans-serif,\\\\\\\"Apple Color Emoji\\\\\\\",\\\\\\\"Segoe UI Emoji\\\\\\\"\\\",\\\"height\\\":\\\"100vh\\\",\\\"textAlign\\\":\\\"center\\\",\\\"display\\\":\\\"flex\\\",\\\"flexDirection\\\":\\\"column\\\",\\\"alignItems\\\":\\\"center\\\",\\\"justifyContent\\\":\\\"center\\\"},\\\"children\\\":[\\\"$\\\",\\\"div\\\",null,{\\\"children\\\":[[\\\"$\\\",\\\"style\\\",null,{\\\"dangerouslySetInnerHTML\\\":{\\\"__html\\\":\\\"body{color:#000;background:#fff;margin:0}.next-error-h1{border-right:1px solid rgba(0,0,0,.3)}@media (prefers-color-scheme:dark){body{color:#fff;background:#000}.next-error-h1{border-right:1px solid rgba(255,255,255,.3)}}\\\"}}],[\\\"$\\\",\\\"h1\\\",null,{\\\"className\\\":\\\"next-error-h1\\\",\\\"style\\\":{\\\"display\\\":\\\"inline-block\\\",\\\"margin\\\":\\\"0 20px 0 0\\\",\\\"padding\\\":\\\"0 23px 0 0\\\",\\\"fontSize\\\":24,\\\"fontWeight\\\":500,\\\"verticalAlign\\\":\\\"top\\\",\\\"lineHeight\\\":\\\"49px\\\"},\\\"children\\\":\\\"404\\\"}],[\\\"$\\\",\\\"div\\\",null,{\\\"style\\\":{\\\"display\\\":\\\"inline-block\\\"},\\\"children\\\":[\\\"$\\\",\\\"h2\\\",null,{\\\"style\\\":{\\\"fontSize\\\":14,\\\"fontWeight\\\":400,\\\"lineHeight\\\":\\\"49px\\\",\\\"margin\\\":0},\\\"children\\\":\\\"This page could not be found.\\\"}]}]]}]}]],\\\"notFoundStyles\\\":[]}]}]}]}]}]]}]],null],null],\\\"couldBeIntercepted\\\":false,\\\"initialHead\\\":[null,\\\"$Ld\\\"],\\\"globalErrorComponent\\\":\\\"$e\\\",\\\"missingSlots\\\":\\\"$Wf\\\"}]\\n\"])</script><script>self.__next_f.push([1,\"d:[[\\\"$\\\",\\\"meta\\\",\\\"0\\\",{\\\"name\\\":\\\"viewport\\\",\\\"content\\\":\\\"width=device-width, initial-scale=1\\\"}],[\\\"$\\\",\\\"meta\\\",\\\"1\\\",{\\\"charSet\\\":\\\"utf-8\\\"}],[\\\"$\\\",\\\"title\\\",\\\"2\\\",{\\\"children\\\":\\\"AI Agent Market - Discover, Deploy, and Monetize AI Agents\\\"}],[\\\"$\\\",\\\"meta\\\",\\\"3\\\",{\\\"name\\\":\\\"description\\\",\\\"content\\\":\\\"The world's largest marketplace for AI agents. Discover powerful AI agents, deploy them instantly, and monetize your own creations.\\\"}],[\\\"$\\\",\\\"meta\\\",\\\"4\\\",{\\\"name\\\":\\\"author\\\",\\\"content\\\":\\\"AI Agent Market Team\\\"}],[\\\"$\\\",\\\"link\\\",\\\"5\\\",{\\\"rel\\\":\\\"manifest\\\",\\\"href\\\":\\\"/site.webmanifest\\\",\\\"crossOrigin\\\":\\\"use-credentials\\\"}],[\\\"$\\\",\\\"meta\\\",\\\"6\\\",{\\\"name\\\":\\\"keywords\\\",\\\"content\\\":\\\"AI agents,artificial intelligence,marketplace,automation,AI tools,machine learning\\\"}],[\\\"$\\\",\\\"meta\\\",\\\"7\\\",{\\\"name\\\":\\\"creator\\\",\\\"content\\\":\\\"AI Agent Market\\\"}],[\\\"$\\\",\\\"meta\\\",\\\"8\\\",{\\\"name\\\":\\\"robots\\\",\\\"content\\\":\\\"index, follow\\\"}],[\\\"$\\\",\\\"meta\\\",\\\"9\\\",{\\\"name\\\":\\\"googlebot\\\",\\\"content\\\":\\\"index, follow, max-video-preview:-1, max-image-preview:large, max-snippet:-1\\\"}],[\\\"$\\\",\\\"meta\\\",\\\"10\\\",{\\\"property\\\":\\\"og:title\\\",\\\"content\\\":\\\"AI Agent Market - Discover, Deploy, and Monetize AI Agents\\\"}],[\\\"$\\\",\\\"meta\\\",\\\"11\\\",{\\\"property\\\":\\\"og:description\\\",\\\"content\\\":\\\"The world's largest marketplace for AI agents. Discover powerful AI agents, deploy them instantly, and monetize your own creations.\\\"}],[\\\"$\\\",\\\"meta\\\",\\\"12\\\",{\\\"property\\\":\\\"og:url\\\",\\\"content\\\":\\\"https://aiagentmarket.com\\\"}],[\\\"$\\\",\\\"meta\\\",\\\"13\\\",{\\\"property\\\":\\\"og:site_name\\\",\\\"content\\\":\\\"AI Agent Market\\\"}],[\\\"$\\\",\\\"meta\\\",\\\"14\\\",{\\\"property\\\":\\\"og:locale\\\",\\\"content\\\":\\\"en_US\\\"}],[\\\"$\\\",\\\"meta\\\",\\\"15\\\",{\\\"property\\\":\\\"og:image\\\",\\\"content\\\":\\\"http://localhost:8080/og-image.png\\\"}],[\\\"$\\\",\\\"meta\\\",\\\"16\\\",{\\\"property\\\":\\\"og:image:width\\\",\\\"content\\\":\\\"1200\\\"}],[\\\"$\\\",\\\"meta\\\",\\\"17\\\",{\\\"property\\\":\\\"og:image:height\\\",\\\"content\\\":\\\"630\\\"}],[\\\"$\\\",\\\"meta\\\",\\\"18\\\",{\\\"property\\\":\\\"og:image:alt\\\",\\\"content\\\":\\\"AI Agent Market\\\"}],[\\\"$\\\",\\\"meta\\\",\\\"19\\\",{\\\"property\\\":\\\"og:type\\\",\\\"content\\\":\\\"website\\\"}],[\\\"$\\\",\\\"meta\\\",\\\"20\\\",{\\\"name\\\":\\\"twitter:card\\\",\\\"content\\\":\\\"summary_large_image\\\"}],[\\\"$\\\",\\\"meta\\\",\\\"21\\\",{\\\"name\\\":\\\"twitter:creator\\\",\\\"content\\\":\\\"@aiagentmarket\\\"}],[\\\"$\\\",\\\"meta\\\",\\\"22\\\",{\\\"name\\\":\\\"twitter:title\\\",\\\"content\\\":\\\"AI Agent Market\\\"}],[\\\"$\\\",\\\"meta\\\",\\\"23\\\",{\\\"name\\\":\\\"twitter:description\\\",\\\"content\\\":\\\"The world's largest marketplace for AI agents\\\"}],[\\\"$\\\",\\\"meta\\\",\\\"24\\\",{\\\"name\\\":\\\"twitter:image\\\",\\\"content\\\":\\\"http://localhost:8080/twitter-image.png\\\"}],[\\\"$\\\",\\\"link\\\",\\\"25\\\",{\\\"rel\\\":\\\"shortcut icon\\\",\\\"href\\\":\\\"/favicon-16x16.png\\\"}],[\\\"$\\\",\\\"link\\\",\\\"26\\\",{\\\"rel\\\":\\\"icon\\\",\\\"href\\\":\\\"/favicon.ico\\\"}],[\\\"$\\\",\\\"link\\\",\\\"27\\\",{\\\"rel\\\":\\\"apple-touch-icon\\\",\\\"href\\\":\\\"/apple-touch-icon.png\\\"}],[\\\"$\\\",\\\"meta\\\",\\\"28\\\",{\\\"name\\\":\\\"next-size-adjust\\\"}]]\\n\"])</script><script>self.__next_f.push([1,\"5:null\\n\"])</script></body></html>"
+      },
+      "/_health": {
+        "status": 200,
+        "statusText": "OK",
+        "headers": {
+          "alt-svc": "h3=\":443\"; ma=86400",
+          "cache-control": "private, no-cache, no-store, max-age=0, must-revalidate",
+          "content-encoding": "gzip",
+          "content-type": "text/html; charset=utf-8",
+          "date": "Sun, 28 Sep 2025 11:41:46 GMT",
+          "link": "</_next/static/media/e4af272ccee01ff0-s.p.woff2>; rel=preload; as=\"font\"; crossorigin=\"\"; type=\"font/woff2\"",
+          "permissions-policy": "camera=(), microphone=(), geolocation=()",
+          "referrer-policy": "strict-origin-when-cross-origin",
+          "strict-transport-security": "max-age=31536000; includeSubDomains",
+          "transfer-encoding": "chunked",
+          "vary": "RSC, Next-Router-State-Tree, Next-Router-Prefetch, Accept-Encoding",
+          "x-content-type-options": "nosniff",
+          "x-frame-options": "DENY",
+          "x-xss-protection": "1; mode=block",
+          "x-zeabur-ip-country": "CN",
+          "x-zeabur-request-id": "sfo1::bfd6d9db-7e3c-45fa-a2e4-95e0bf713cb1"
+        },
+        "available": true,
+        "data": "<!DOCTYPE html><html lang=\"en\" class=\"__variable_f367f3\"><head><meta charSet=\"utf-8\"/><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"/><link rel=\"stylesheet\" href=\"/_next/static/css/3add334ee59f67ac.css\" data-precedence=\"next\"/><link rel=\"stylesheet\" href=\"/_next/static/css/96cf69921e44fc99.css\" data-precedence=\"next\"/><link rel=\"preload\" as=\"script\" fetchPriority=\"low\" href=\"/_next/static/chunks/webpack-ae9bfe0d75875557.js\"/><script src=\"/_next/static/chunks/fd9d1056-aa431a5b11d07789.js\" async=\"\"></script><script src=\"/_next/static/chunks/2117-f2d46b53e4e6bb07.js\" async=\"\"></script><script src=\"/_next/static/chunks/main-app-5294d1645fe5526e.js\" async=\"\"></script><script src=\"/_next/static/chunks/6137-03d2cd0024eec2f8.js\" async=\"\"></script><script src=\"/_next/static/chunks/7360-1eef911a4eb2c644.js\" async=\"\"></script><script src=\"/_next/static/chunks/4582-04567776bbb2a51d.js\" async=\"\"></script><script src=\"/_next/static/chunks/app/business-plan/%5Bid%5D/page-ccef6c1b80e07e2f.js\" async=\"\"></script><script src=\"/_next/static/chunks/4603-f594bdb44b6b4ad5.js\" async=\"\"></script><script src=\"/_next/static/chunks/app/layout-0092a05b5f55ac03.js\" async=\"\"></script><link rel=\"preconnect\" href=\"https://fonts.googleapis.com\"/><link rel=\"preconnect\" href=\"https://fonts.gstatic.com\" crossorigin=\"\"/><title>AI Agent Market - Discover, Deploy, and Monetize AI Agents</title><meta name=\"description\" content=\"The world&#x27;s largest marketplace for AI agents. Discover powerful AI agents, deploy them instantly, and monetize your own creations.\"/><meta name=\"author\" content=\"AI Agent Market Team\"/><link rel=\"manifest\" href=\"/site.webmanifest\" crossorigin=\"use-credentials\"/><meta name=\"keywords\" content=\"AI agents,artificial intelligence,marketplace,automation,AI tools,machine learning\"/><meta name=\"creator\" content=\"AI Agent Market\"/><meta name=\"robots\" content=\"index, follow\"/><meta name=\"googlebot\" content=\"index, follow, max-video-preview:-1, max-image-preview:large, max-snippet:-1\"/><meta property=\"og:title\" content=\"AI Agent Market - Discover, Deploy, and Monetize AI Agents\"/><meta property=\"og:description\" content=\"The world&#x27;s largest marketplace for AI agents. Discover powerful AI agents, deploy them instantly, and monetize your own creations.\"/><meta property=\"og:url\" content=\"https://aiagentmarket.com\"/><meta property=\"og:site_name\" content=\"AI Agent Market\"/><meta property=\"og:locale\" content=\"en_US\"/><meta property=\"og:image\" content=\"http://localhost:8080/og-image.png\"/><meta property=\"og:image:width\" content=\"1200\"/><meta property=\"og:image:height\" content=\"630\"/><meta property=\"og:image:alt\" content=\"AI Agent Market\"/><meta property=\"og:type\" content=\"website\"/><meta name=\"twitter:card\" content=\"summary_large_image\"/><meta name=\"twitter:creator\" content=\"@aiagentmarket\"/><meta name=\"twitter:title\" content=\"AI Agent Market\"/><meta name=\"twitter:description\" content=\"The world&#x27;s largest marketplace for AI agents\"/><meta name=\"twitter:image\" content=\"http://localhost:8080/twitter-image.png\"/><link rel=\"shortcut icon\" href=\"/favicon-16x16.png\"/><link rel=\"icon\" href=\"/favicon.ico\"/><link rel=\"apple-touch-icon\" href=\"/apple-touch-icon.png\"/><meta name=\"next-size-adjust\"/><script src=\"/_next/static/chunks/polyfills-42372ed130431b0a.js\" noModule=\"\"></script></head><body class=\"font-sans antialiased __className_f367f3\"><div class=\"min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100\"><div class=\"text-center\"><div class=\"animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mx-auto\"></div><p class=\"mt-4 text-gray-600 font-medium\">正在初始化身份验证...</p></div></div><script src=\"/_next/static/chunks/webpack-ae9bfe0d75875557.js\" async=\"\"></script><script>(self.__next_f=self.__next_f||[]).push([0]);self.__next_f.push([2,null])</script><script>self.__next_f.push([1,\"1:HL[\\\"/_next/static/media/e4af272ccee01ff0-s.p.woff2\\\",\\\"font\\\",{\\\"crossOrigin\\\":\\\"\\\",\\\"type\\\":\\\"font/woff2\\\"}]\\n2:HL[\\\"/_next/static/css/3add334ee59f67ac.css\\\",\\\"style\\\"]\\n3:HL[\\\"/_next/static/css/96cf69921e44fc99.css\\\",\\\"style\\\"]\\n\"])</script><script>self.__next_f.push([1,\"4:I[12846,[],\\\"\\\"]\\n6:I[19107,[],\\\"ClientPageRoot\\\"]\\n7:I[57386,[\\\"6137\\\",\\\"static/chunks/6137-03d2cd0024eec2f8.js\\\",\\\"7360\\\",\\\"static/chunks/7360-1eef911a4eb2c644.js\\\",\\\"4582\\\",\\\"static/chunks/4582-04567776bbb2a51d.js\\\",\\\"457\\\",\\\"static/chunks/app/business-plan/%5Bid%5D/page-ccef6c1b80e07e2f.js\\\"],\\\"default\\\",1]\\n8:I[4707,[],\\\"\\\"]\\na:I[36423,[],\\\"\\\"]\\nb:I[88941,[\\\"4603\\\",\\\"static/chunks/4603-f594bdb44b6b4ad5.js\\\",\\\"3185\\\",\\\"static/chunks/app/layout-0092a05b5f55ac03.js\\\"],\\\"AuthProvider\\\"]\\nc:I[79252,[\\\"4603\\\",\\\"static/chunks/4603-f594bdb44b6b4ad5.js\\\",\\\"3185\\\",\\\"static/chunks/app/layout-0092a05b5f55ac03.js\\\"],\\\"CartProvider\\\"]\\ne:I[61060,[],\\\"\\\"]\\n9:[\\\"id\\\",\\\"_health\\\",\\\"d\\\"]\\nf:[]\\n\"])</script><script>self.__next_f.push([1,\"0:[\\\"$\\\",\\\"$L4\\\",null,{\\\"buildId\\\":\\\"RtnQ-GcVYc5FX7g0gNMwb\\\",\\\"assetPrefix\\\":\\\"\\\",\\\"urlParts\\\":[\\\"\\\",\\\"business-plan\\\",\\\"_health\\\"],\\\"initialTree\\\":[\\\"\\\",{\\\"children\\\":[\\\"business-plan\\\",{\\\"children\\\":[[\\\"id\\\",\\\"_health\\\",\\\"d\\\"],{\\\"children\\\":[\\\"__PAGE__\\\",{}]}]}]},\\\"$undefined\\\",\\\"$undefined\\\",true],\\\"initialSeedData\\\":[\\\"\\\",{\\\"children\\\":[\\\"business-plan\\\",{\\\"children\\\":[[\\\"id\\\",\\\"_health\\\",\\\"d\\\"],{\\\"children\\\":[\\\"__PAGE__\\\",{},[[\\\"$L5\\\",[\\\"$\\\",\\\"$L6\\\",null,{\\\"props\\\":{\\\"params\\\":{\\\"id\\\":\\\"_health\\\"},\\\"searchParams\\\":{}},\\\"Component\\\":\\\"$7\\\"}],null],null],null]},[null,[\\\"$\\\",\\\"$L8\\\",null,{\\\"parallelRouterKey\\\":\\\"children\\\",\\\"segmentPath\\\":[\\\"children\\\",\\\"business-plan\\\",\\\"children\\\",\\\"$9\\\",\\\"children\\\"],\\\"error\\\":\\\"$undefined\\\",\\\"errorStyles\\\":\\\"$undefined\\\",\\\"errorScripts\\\":\\\"$undefined\\\",\\\"template\\\":[\\\"$\\\",\\\"$La\\\",null,{}],\\\"templateStyles\\\":\\\"$undefined\\\",\\\"templateScripts\\\":\\\"$undefined\\\",\\\"notFound\\\":\\\"$undefined\\\",\\\"notFoundStyles\\\":\\\"$undefined\\\"}]],null]},[null,[\\\"$\\\",\\\"$L8\\\",null,{\\\"parallelRouterKey\\\":\\\"children\\\",\\\"segmentPath\\\":[\\\"children\\\",\\\"business-plan\\\",\\\"children\\\"],\\\"error\\\":\\\"$undefined\\\",\\\"errorStyles\\\":\\\"$undefined\\\",\\\"errorScripts\\\":\\\"$undefined\\\",\\\"template\\\":[\\\"$\\\",\\\"$La\\\",null,{}],\\\"templateStyles\\\":\\\"$undefined\\\",\\\"templateScripts\\\":\\\"$undefined\\\",\\\"notFound\\\":\\\"$undefined\\\",\\\"notFoundStyles\\\":\\\"$undefined\\\"}]],null]},[[[[\\\"$\\\",\\\"link\\\",\\\"0\\\",{\\\"rel\\\":\\\"stylesheet\\\",\\\"href\\\":\\\"/_next/static/css/3add334ee59f67ac.css\\\",\\\"precedence\\\":\\\"next\\\",\\\"crossOrigin\\\":\\\"$undefined\\\"}],[\\\"$\\\",\\\"link\\\",\\\"1\\\",{\\\"rel\\\":\\\"stylesheet\\\",\\\"href\\\":\\\"/_next/static/css/96cf69921e44fc99.css\\\",\\\"precedence\\\":\\\"next\\\",\\\"crossOrigin\\\":\\\"$undefined\\\"}]],[\\\"$\\\",\\\"html\\\",null,{\\\"lang\\\":\\\"en\\\",\\\"className\\\":\\\"__variable_f367f3\\\",\\\"children\\\":[[\\\"$\\\",\\\"head\\\",null,{\\\"children\\\":[[\\\"$\\\",\\\"link\\\",null,{\\\"rel\\\":\\\"preconnect\\\",\\\"href\\\":\\\"https://fonts.googleapis.com\\\"}],[\\\"$\\\",\\\"link\\\",null,{\\\"rel\\\":\\\"preconnect\\\",\\\"href\\\":\\\"https://fonts.gstatic.com\\\",\\\"crossOrigin\\\":\\\"\\\"}]]}],[\\\"$\\\",\\\"body\\\",null,{\\\"className\\\":\\\"font-sans antialiased __className_f367f3\\\",\\\"children\\\":[\\\"$\\\",\\\"$Lb\\\",null,{\\\"children\\\":[\\\"$\\\",\\\"$Lc\\\",null,{\\\"children\\\":[\\\"$\\\",\\\"div\\\",null,{\\\"id\\\":\\\"root\\\",\\\"children\\\":[\\\"$\\\",\\\"$L8\\\",null,{\\\"parallelRouterKey\\\":\\\"children\\\",\\\"segmentPath\\\":[\\\"children\\\"],\\\"error\\\":\\\"$undefined\\\",\\\"errorStyles\\\":\\\"$undefined\\\",\\\"errorScripts\\\":\\\"$undefined\\\",\\\"template\\\":[\\\"$\\\",\\\"$La\\\",null,{}],\\\"templateStyles\\\":\\\"$undefined\\\",\\\"templateScripts\\\":\\\"$undefined\\\",\\\"notFound\\\":[[\\\"$\\\",\\\"title\\\",null,{\\\"children\\\":\\\"404: This page could not be found.\\\"}],[\\\"$\\\",\\\"div\\\",null,{\\\"style\\\":{\\\"fontFamily\\\":\\\"system-ui,\\\\\\\"Segoe UI\\\\\\\",Roboto,Helvetica,Arial,sans-serif,\\\\\\\"Apple Color Emoji\\\\\\\",\\\\\\\"Segoe UI Emoji\\\\\\\"\\\",\\\"height\\\":\\\"100vh\\\",\\\"textAlign\\\":\\\"center\\\",\\\"display\\\":\\\"flex\\\",\\\"flexDirection\\\":\\\"column\\\",\\\"alignItems\\\":\\\"center\\\",\\\"justifyContent\\\":\\\"center\\\"},\\\"children\\\":[\\\"$\\\",\\\"div\\\",null,{\\\"children\\\":[[\\\"$\\\",\\\"style\\\",null,{\\\"dangerouslySetInnerHTML\\\":{\\\"__html\\\":\\\"body{color:#000;background:#fff;margin:0}.next-error-h1{border-right:1px solid rgba(0,0,0,.3)}@media (prefers-color-scheme:dark){body{color:#fff;background:#000}.next-error-h1{border-right:1px solid rgba(255,255,255,.3)}}\\\"}}],[\\\"$\\\",\\\"h1\\\",null,{\\\"className\\\":\\\"next-error-h1\\\",\\\"style\\\":{\\\"display\\\":\\\"inline-block\\\",\\\"margin\\\":\\\"0 20px 0 0\\\",\\\"padding\\\":\\\"0 23px 0 0\\\",\\\"fontSize\\\":24,\\\"fontWeight\\\":500,\\\"verticalAlign\\\":\\\"top\\\",\\\"lineHeight\\\":\\\"49px\\\"},\\\"children\\\":\\\"404\\\"}],[\\\"$\\\",\\\"div\\\",null,{\\\"style\\\":{\\\"display\\\":\\\"inline-block\\\"},\\\"children\\\":[\\\"$\\\",\\\"h2\\\",null,{\\\"style\\\":{\\\"fontSize\\\":14,\\\"fontWeight\\\":400,\\\"lineHeight\\\":\\\"49px\\\",\\\"margin\\\":0},\\\"children\\\":\\\"This page could not be found.\\\"}]}]]}]}]],\\\"notFoundStyles\\\":[]}]}]}]}]}]]}]],null],null],\\\"couldBeIntercepted\\\":false,\\\"initialHead\\\":[null,\\\"$Ld\\\"],\\\"globalErrorComponent\\\":\\\"$e\\\",\\\"missingSlots\\\":\\\"$Wf\\\"}]\\n\"])</script><script>self.__next_f.push([1,\"d:[[\\\"$\\\",\\\"meta\\\",\\\"0\\\",{\\\"name\\\":\\\"viewport\\\",\\\"content\\\":\\\"width=device-width, initial-scale=1\\\"}],[\\\"$\\\",\\\"meta\\\",\\\"1\\\",{\\\"charSet\\\":\\\"utf-8\\\"}],[\\\"$\\\",\\\"title\\\",\\\"2\\\",{\\\"children\\\":\\\"AI Agent Market - Discover, Deploy, and Monetize AI Agents\\\"}],[\\\"$\\\",\\\"meta\\\",\\\"3\\\",{\\\"name\\\":\\\"description\\\",\\\"content\\\":\\\"The world's largest marketplace for AI agents. Discover powerful AI agents, deploy them instantly, and monetize your own creations.\\\"}],[\\\"$\\\",\\\"meta\\\",\\\"4\\\",{\\\"name\\\":\\\"author\\\",\\\"content\\\":\\\"AI Agent Market Team\\\"}],[\\\"$\\\",\\\"link\\\",\\\"5\\\",{\\\"rel\\\":\\\"manifest\\\",\\\"href\\\":\\\"/site.webmanifest\\\",\\\"crossOrigin\\\":\\\"use-credentials\\\"}],[\\\"$\\\",\\\"meta\\\",\\\"6\\\",{\\\"name\\\":\\\"keywords\\\",\\\"content\\\":\\\"AI agents,artificial intelligence,marketplace,automation,AI tools,machine learning\\\"}],[\\\"$\\\",\\\"meta\\\",\\\"7\\\",{\\\"name\\\":\\\"creator\\\",\\\"content\\\":\\\"AI Agent Market\\\"}],[\\\"$\\\",\\\"meta\\\",\\\"8\\\",{\\\"name\\\":\\\"robots\\\",\\\"content\\\":\\\"index, follow\\\"}],[\\\"$\\\",\\\"meta\\\",\\\"9\\\",{\\\"name\\\":\\\"googlebot\\\",\\\"content\\\":\\\"index, follow, max-video-preview:-1, max-image-preview:large, max-snippet:-1\\\"}],[\\\"$\\\",\\\"meta\\\",\\\"10\\\",{\\\"property\\\":\\\"og:title\\\",\\\"content\\\":\\\"AI Agent Market - Discover, Deploy, and Monetize AI Agents\\\"}],[\\\"$\\\",\\\"meta\\\",\\\"11\\\",{\\\"property\\\":\\\"og:description\\\",\\\"content\\\":\\\"The world's largest marketplace for AI agents. Discover powerful AI agents, deploy them instantly, and monetize your own creations.\\\"}],[\\\"$\\\",\\\"meta\\\",\\\"12\\\",{\\\"property\\\":\\\"og:url\\\",\\\"content\\\":\\\"https://aiagentmarket.com\\\"}],[\\\"$\\\",\\\"meta\\\",\\\"13\\\",{\\\"property\\\":\\\"og:site_name\\\",\\\"content\\\":\\\"AI Agent Market\\\"}],[\\\"$\\\",\\\"meta\\\",\\\"14\\\",{\\\"property\\\":\\\"og:locale\\\",\\\"content\\\":\\\"en_US\\\"}],[\\\"$\\\",\\\"meta\\\",\\\"15\\\",{\\\"property\\\":\\\"og:image\\\",\\\"content\\\":\\\"http://localhost:8080/og-image.png\\\"}],[\\\"$\\\",\\\"meta\\\",\\\"16\\\",{\\\"property\\\":\\\"og:image:width\\\",\\\"content\\\":\\\"1200\\\"}],[\\\"$\\\",\\\"meta\\\",\\\"17\\\",{\\\"property\\\":\\\"og:image:height\\\",\\\"content\\\":\\\"630\\\"}],[\\\"$\\\",\\\"meta\\\",\\\"18\\\",{\\\"property\\\":\\\"og:image:alt\\\",\\\"content\\\":\\\"AI Agent Market\\\"}],[\\\"$\\\",\\\"meta\\\",\\\"19\\\",{\\\"property\\\":\\\"og:type\\\",\\\"content\\\":\\\"website\\\"}],[\\\"$\\\",\\\"meta\\\",\\\"20\\\",{\\\"name\\\":\\\"twitter:card\\\",\\\"content\\\":\\\"summary_large_image\\\"}],[\\\"$\\\",\\\"meta\\\",\\\"21\\\",{\\\"name\\\":\\\"twitter:creator\\\",\\\"content\\\":\\\"@aiagentmarket\\\"}],[\\\"$\\\",\\\"meta\\\",\\\"22\\\",{\\\"name\\\":\\\"twitter:title\\\",\\\"content\\\":\\\"AI Agent Market\\\"}],[\\\"$\\\",\\\"meta\\\",\\\"23\\\",{\\\"name\\\":\\\"twitter:description\\\",\\\"content\\\":\\\"The world's largest marketplace for AI agents\\\"}],[\\\"$\\\",\\\"meta\\\",\\\"24\\\",{\\\"name\\\":\\\"twitter:image\\\",\\\"content\\\":\\\"http://localhost:8080/twitter-image.png\\\"}],[\\\"$\\\",\\\"link\\\",\\\"25\\\",{\\\"rel\\\":\\\"shortcut icon\\\",\\\"href\\\":\\\"/favicon-16x16.png\\\"}],[\\\"$\\\",\\\"link\\\",\\\"26\\\",{\\\"rel\\\":\\\"icon\\\",\\\"href\\\":\\\"/favicon.ico\\\"}],[\\\"$\\\",\\\"link\\\",\\\"27\\\",{\\\"rel\\\":\\\"apple-touch-icon\\\",\\\"href\\\":\\\"/apple-touch-icon.png\\\"}],[\\\"$\\\",\\\"meta\\\",\\\"28\\\",{\\\"name\\\":\\\"next-size-adjust\\\"}]]\\n\"])</script><script>self.__next_f.push([1,\"5:null\\n\"])</script></body></html>"
+      }
+    },
+    "database": {
+      "/api/agents": {
+        "status": 404,
+        "available": true,
+        "responseTime": "unknown"
+      },
+      "/api/agents/featured": {
+        "status": 404,
+        "available": true,
+        "responseTime": "unknown"
+      },
+      "/api/user/profile": {
+        "status": 404,
+        "available": true,
+        "responseTime": "unknown"
+      }
+    },
+    "resources": {
+      "stylesheets": [
+        "https://aijiayuan.top/_next/static/css/3add334ee59f67ac.css",
+        "https://aijiayuan.top/_next/static/css/96cf69921e44fc99.css"
+      ],
+      "scripts": [
+        "https://aijiayuan.top/_next/static/chunks/fd9d1056-aa431a5b11d07789.js",
+        "https://aijiayuan.top/_next/static/chunks/2117-f2d46b53e4e6bb07.js",
+        "https://aijiayuan.top/_next/static/chunks/main-app-5294d1645fe5526e.js",
+        "https://aijiayuan.top/_next/static/chunks/6237-07428cd58e724e22.js",
+        "https://aijiayuan.top/_next/static/chunks/6137-03d2cd0024eec2f8.js",
+        "https://aijiayuan.top/_next/static/chunks/6518-df7f9b98476ec331.js",
+        "https://aijiayuan.top/_next/static/chunks/3448-acb0fb828ef80630.js",
+        "https://aijiayuan.top/_next/static/chunks/7360-1eef911a4eb2c644.js",
+        "https://aijiayuan.top/_next/static/chunks/4582-04567776bbb2a51d.js",
+        "https://aijiayuan.top/_next/static/chunks/2026-f2649509f445a790.js",
+        "https://aijiayuan.top/_next/static/chunks/4603-f594bdb44b6b4ad5.js",
+        "https://aijiayuan.top/_next/static/chunks/7569-ef36c91ac69c07c1.js",
+        "https://aijiayuan.top/_next/static/chunks/1121-dd1b051f14a6bb53.js",
+        "https://aijiayuan.top/_next/static/chunks/app/business-plan/page-bd4584dfdff561de.js",
+        "https://aijiayuan.top/_next/static/chunks/app/layout-0092a05b5f55ac03.js",
+        "https://aijiayuan.top/_next/static/chunks/polyfills-42372ed130431b0a.js",
+        "https://aijiayuan.top/_next/static/chunks/webpack-ae9bfe0d75875557.js"
+      ],
+      "images": [],
+      "failures": []
+    },
+    "projectSpecific": {
+      "coreAPIs": {
+        "/api/health/simple": {
+          "status": 404,
+          "available": false,
+          "responseTime": null,
+          "contentType": "text/html; charset=utf-8"
+        },
+        "/api/health": {
+          "status": 404,
+          "available": false,
+          "responseTime": null,
+          "contentType": "text/html; charset=utf-8"
+        },
+        "/api/agents": {
+          "status": 404,
+          "available": false,
+          "responseTime": null,
+          "contentType": "text/html; charset=utf-8"
+        },
+        "/api/agents/featured": {
+          "status": 404,
+          "available": false,
+          "responseTime": null,
+          "contentType": "text/html; charset=utf-8"
+        },
+        "/api/user/profile": {
+          "status": 404,
+          "available": false,
+          "responseTime": null,
+          "contentType": "text/html; charset=utf-8"
+        },
+        "/api/auth/session": {
+          "status": 404,
+          "available": false,
+          "responseTime": null,
+          "contentType": "text/html; charset=utf-8"
+        },
+        "/api/search": {
+          "status": 404,
+          "available": false,
+          "responseTime": null,
+          "contentType": "text/html; charset=utf-8"
+        },
+        "/api/categories": {
+          "status": 404,
+          "available": false,
+          "responseTime": null,
+          "contentType": "text/html; charset=utf-8"
+        }
+      },
+      "authentication": {
+        "sessionEndpoint": 404,
+        "available": true,
+        "nextAuthWorking": false
+      },
+      "agentSystem": {},
+      "fileUpload": {
+        "available": false,
+        "status": 404
+      }
+    }
+  },
+  "summary": {
+    "overall": "fair",
+    "issues": [
+      "仅0/8个核心API正常工作",
+      "智能体系统API异常"
+    ],
+    "warnings": [
+      "认证系统可能存在问题"
+    ],
+    "successes": [
+      "网站基础可用性正常",
+      "2个健康检查API正常工作",
+      "3个数据库相关API正常",
+      "关键资源加载正常"
+    ]
+  },
+  "duration": 12469
+}

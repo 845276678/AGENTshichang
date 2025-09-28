@@ -1,5 +1,5 @@
 // 数据库客户端和操作工具
-import { PrismaClient } from '@/generated/prisma'
+import { PrismaClient } from '@prisma/client'
 
 // 全局类型声明
 declare global {
@@ -69,7 +69,7 @@ export type {
   RefreshToken,
   SystemConfig,
   AIUsageStats
-} from '@/generated/prisma'
+} from '@prisma/client'
 
 // 数据库默认选择字段（排除敏感信息）
 export const userSelectFields = {

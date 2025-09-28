@@ -1,6 +1,6 @@
 // 用户数据库操作
 import { prisma, handlePrismaError, userSelectFields, PaginationResult, buildPaginationResult, calculatePaginationOffset } from '../database'
-import { User, UserRole, UserStatus, UserLevel } from '@/generated/prisma'
+import { User, UserRole, UserStatus, UserLevel } from '@prisma/client'
 import bcrypt from 'bcryptjs'
 
 // 用户创建数据类型

@@ -3,7 +3,7 @@
  * 用于数据库操作的全局客户端
  */
 
-import { PrismaClient } from '@/generated/prisma'
+import { PrismaClient } from '@prisma/client'
 
 // 防止在开发环境下创建多个实例
 const globalForPrisma = globalThis as unknown as {

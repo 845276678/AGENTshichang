@@ -1,0 +1,122 @@
+{
+  "url": "https://www.baidu.com",
+  "timestamp": "2025-09-28T11:24:07.545Z",
+  "checks": {
+    "availability": {
+      "mainPage": {
+        "size": 227,
+        "hasTitle": false,
+        "hasDoctype": false,
+        "hasErrors": false
+      },
+      "responseTime": 227,
+      "httpStatus": {
+        "code": 200,
+        "text": "OK",
+        "ok": true
+      },
+      "headers": {
+        "accept-ranges": "bytes",
+        "cache-control": "no-cache",
+        "connection": "keep-alive",
+        "content-length": "227",
+        "content-security-policy": "frame-ancestors 'self' https://chat.baidu.com http://mirror-chat.baidu.com https://fj-chat.baidu.com https://hba-chat.baidu.com https://hbe-chat.baidu.com https://njjs-chat.baidu.com https://nj-chat.baidu.com https://hna-chat.baidu.com https://hnb-chat.baidu.com http://debug.baidu-int.com https://sai.baidu.com https://mcpstore.baidu.com https://mcpserver.baidu.com https://www.mcpworld.com https://platform-openai.now.baidu.com;",
+        "content-type": "text/html",
+        "date": "Sun, 28 Sep 2025 11:24:06 GMT",
+        "p3p": "CP=\" OTI DSP COR IVA OUR IND COM \", CP=\" OTI DSP COR IVA OUR IND COM \"",
+        "pragma": "no-cache",
+        "server": "BWS/1.1",
+        "set-cookie": "BAIDUID=3D98688AF03041C3BABB3F01953758A0:FG=1; max-age=31536000; expires=Mon, 28-Sep-26 11:24:06 GMT; domain=.baidu.com; path=/; version=1; comment=bd",
+        "traceid": "1759058646282138292215240603055134955053",
+        "x-ua-compatible": "IE=Edge,chrome=1",
+        "x-xss-protection": "1;mode=block"
+      },
+      "ssl": {
+        "protocol": "https",
+        "secure": true
+      }
+    },
+    "health": {
+      "/api/health/simple": {
+        "status": 404,
+        "statusText": "Not Found",
+        "headers": {
+          "content-length": "215",
+          "content-type": "text/html; charset=iso-8859-1",
+          "date": "Sun, 28 Sep 2025 11:24:06 GMT",
+          "server": "Apache"
+        },
+        "available": false
+      },
+      "/api/health": {
+        "status": 404,
+        "statusText": "Not Found",
+        "headers": {
+          "content-length": "208",
+          "content-type": "text/html; charset=iso-8859-1",
+          "date": "Sun, 28 Sep 2025 11:24:07 GMT",
+          "server": "Apache"
+        },
+        "available": false
+      },
+      "/health": {
+        "status": 404,
+        "statusText": "Not Found",
+        "headers": {
+          "content-length": "204",
+          "content-type": "text/html; charset=iso-8859-1",
+          "date": "Sun, 28 Sep 2025 11:24:07 GMT",
+          "server": "Apache"
+        },
+        "available": false
+      },
+      "/_health": {
+        "status": 404,
+        "statusText": "Not Found",
+        "headers": {
+          "content-length": "205",
+          "content-type": "text/html; charset=iso-8859-1",
+          "date": "Sun, 28 Sep 2025 11:24:07 GMT",
+          "server": "Apache"
+        },
+        "available": false
+      }
+    },
+    "database": {
+      "/api/agents": {
+        "status": 404,
+        "available": true,
+        "responseTime": "unknown"
+      },
+      "/api/agents/featured": {
+        "status": 404,
+        "available": true,
+        "responseTime": "unknown"
+      },
+      "/api/user/profile": {
+        "status": 404,
+        "available": true,
+        "responseTime": "unknown"
+      }
+    },
+    "resources": {
+      "stylesheets": [],
+      "scripts": [],
+      "images": [],
+      "failures": []
+    }
+  },
+  "summary": {
+    "overall": "good",
+    "issues": [],
+    "warnings": [
+      "未发现可用的健康检查API"
+    ],
+    "successes": [
+      "网站基础可用性正常",
+      "3个数据库相关API正常",
+      "关键资源加载正常"
+    ]
+  },
+  "duration": 676
+}

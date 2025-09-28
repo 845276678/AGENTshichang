@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/database'
 import { getUserFromToken } from '@/lib/auth-helper'
-import { $Enums } from '@/generated/prisma'
+import { $Enums } from '@prisma/client'
 
 type MessageType = $Enums.MessageType
 const MessageType = $Enums.MessageType

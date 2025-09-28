@@ -1,0 +1,343 @@
+{
+  "url": "https://aijiayuan.top/",
+  "timestamp": "2025-09-28T11:37:08.489Z",
+  "checks": {
+    "availability": {
+      "mainPage": {
+        "size": 11553,
+        "hasTitle": true,
+        "hasDoctype": true,
+        "hasErrors": true
+      },
+      "responseTime": 740,
+      "httpStatus": {
+        "code": 200,
+        "text": "OK",
+        "ok": true
+      },
+      "headers": {
+        "alt-svc": "h3=\":443\"; ma=86400",
+        "cache-control": "s-maxage=31536000, stale-while-revalidate",
+        "content-encoding": "gzip",
+        "content-type": "text/html; charset=utf-8",
+        "date": "Sun, 28 Sep 2025 11:37:08 GMT",
+        "etag": "\"b2awgyh398vz\"",
+        "permissions-policy": "camera=(), microphone=(), geolocation=()",
+        "referrer-policy": "strict-origin-when-cross-origin",
+        "strict-transport-security": "max-age=31536000; includeSubDomains",
+        "transfer-encoding": "chunked",
+        "vary": "RSC, Next-Router-State-Tree, Next-Router-Prefetch, Accept-Encoding",
+        "x-content-type-options": "nosniff",
+        "x-frame-options": "DENY",
+        "x-nextjs-cache": "HIT",
+        "x-xss-protection": "1; mode=block",
+        "x-zeabur-ip-country": "CN",
+        "x-zeabur-request-id": "sfo1::149b1651-e54e-45fd-ae3a-4d903bf2fcda"
+      },
+      "ssl": {
+        "protocol": "https",
+        "secure": true
+      }
+    },
+    "health": {
+      "/api/health/simple": {
+        "status": 200,
+        "statusText": "OK",
+        "headers": {
+          "alt-svc": "h3=\":443\"; ma=86400",
+          "content-type": "application/json",
+          "date": "Sun, 28 Sep 2025 11:37:08 GMT",
+          "permissions-policy": "camera=(), microphone=(), geolocation=()",
+          "referrer-policy": "strict-origin-when-cross-origin",
+          "strict-transport-security": "max-age=31536000; includeSubDomains",
+          "transfer-encoding": "chunked",
+          "vary": "RSC, Next-Router-State-Tree, Next-Router-Prefetch",
+          "x-content-type-options": "nosniff",
+          "x-frame-options": "DENY",
+          "x-nextjs-cache": "HIT",
+          "x-xss-protection": "1; mode=block",
+          "x-zeabur-ip-country": "CN",
+          "x-zeabur-request-id": "sfo1::883a70ff-08ce-4e40-bcd8-5147df535598"
+        },
+        "available": true,
+        "data": "{\"status\":\"ok\",\"timestamp\":\"2025-09-27T09:06:51.005Z\",\"database\":\"connected\",\"environment\":\"production\",\"responseTime\":199}",
+        "json": {
+          "status": "ok",
+          "timestamp": "2025-09-27T09:06:51.005Z",
+          "database": "connected",
+          "environment": "production",
+          "responseTime": 199
+        }
+      },
+      "/api/health": {
+        "status": 206,
+        "statusText": "Partial Content",
+        "headers": {
+          "alt-svc": "h3=\":443\"; ma=86400",
+          "cache-control": "no-cache, no-store, must-revalidate",
+          "content-type": "application/json",
+          "date": "Sun, 28 Sep 2025 11:37:09 GMT",
+          "expires": "0",
+          "permissions-policy": "camera=(), microphone=(), geolocation=()",
+          "pragma": "no-cache",
+          "referrer-policy": "strict-origin-when-cross-origin",
+          "strict-transport-security": "max-age=31536000; includeSubDomains",
+          "transfer-encoding": "chunked",
+          "vary": "RSC, Next-Router-State-Tree, Next-Router-Prefetch",
+          "x-content-type-options": "nosniff",
+          "x-frame-options": "DENY",
+          "x-nextjs-cache": "HIT",
+          "x-xss-protection": "1; mode=block",
+          "x-zeabur-ip-country": "CN",
+          "x-zeabur-request-id": "sfo1::47b83910-c1d9-47ae-9a93-44ebb2827768"
+        },
+        "available": true,
+        "data": "{\"status\":\"degraded\",\"timestamp\":\"2025-09-27T09:06:50.905Z\",\"version\":\"0.1.0\",\"uptime\":3.185386504,\"services\":{\"database\":{\"status\":\"healthy\",\"responseTime\":195,\"details\":{\"userCount\":3,\"ideaCount\":0,\"reportCount\":0,\"connectionPool\":{\"status\":\"active\"}}},\"ai\":{\"status\":\"degraded\",\"responseTime\":1322,\"details\":{\"totalServices\":3,\"healthyServices\":2,\"healthyPercentage\":67,\"services\":[{\"provider\":\"ali\",\"healthy\":false},{\"provider\":\"zhipu\",\"healthy\":true,\"model\":\"GLM-4\"},{\"provider\":\"deepseek\",\"healthy\":true,\"model\":\"deepseek-chat\"}]}},\"storage\":{\"status\":\"degraded\",\"error\":\"a.getConfig is not a function\",\"responseTime\":9}},\"metrics\":{\"memory\":{\"used\":90664960,\"total\":16277495808,\"percentage\":0.5569957508785863,\"heap\":{\"used\":26997832,\"total\":40747008}},\"process\":{\"pid\":170,\"uptime\":4.772451462,\"cpuUsage\":{\"user\":0.962318,\"system\":0.18195}}},\"responseTime\":1587}",
+        "json": {
+          "status": "degraded",
+          "timestamp": "2025-09-27T09:06:50.905Z",
+          "version": "0.1.0",
+          "uptime": 3.185386504,
+          "services": {
+            "database": {
+              "status": "healthy",
+              "responseTime": 195,
+              "details": {
+                "userCount": 3,
+                "ideaCount": 0,
+                "reportCount": 0,
+                "connectionPool": {
+                  "status": "active"
+                }
+              }
+            },
+            "ai": {
+              "status": "degraded",
+              "responseTime": 1322,
+              "details": {
+                "totalServices": 3,
+                "healthyServices": 2,
+                "healthyPercentage": 67,
+                "services": [
+                  {
+                    "provider": "ali",
+                    "healthy": false
+                  },
+                  {
+                    "provider": "zhipu",
+                    "healthy": true,
+                    "model": "GLM-4"
+                  },
+                  {
+                    "provider": "deepseek",
+                    "healthy": true,
+                    "model": "deepseek-chat"
+                  }
+                ]
+              }
+            },
+            "storage": {
+              "status": "degraded",
+              "error": "a.getConfig is not a function",
+              "responseTime": 9
+            }
+          },
+          "metrics": {
+            "memory": {
+              "used": 90664960,
+              "total": 16277495808,
+              "percentage": 0.5569957508785863,
+              "heap": {
+                "used": 26997832,
+                "total": 40747008
+              }
+            },
+            "process": {
+              "pid": 170,
+              "uptime": 4.772451462,
+              "cpuUsage": {
+                "user": 0.962318,
+                "system": 0.18195
+              }
+            }
+          },
+          "responseTime": 1587
+        }
+      },
+      "/health": {
+        "status": 404,
+        "statusText": "Not Found",
+        "headers": {
+          "alt-svc": "h3=\":443\"; ma=86400",
+          "cache-control": "private, no-cache, no-store, max-age=0, must-revalidate",
+          "content-encoding": "gzip",
+          "content-type": "text/html; charset=utf-8",
+          "date": "Sun, 28 Sep 2025 11:37:09 GMT",
+          "link": "</_next/static/media/e4af272ccee01ff0-s.p.woff2>; rel=preload; as=\"font\"; crossorigin=\"\"; type=\"font/woff2\"",
+          "permissions-policy": "camera=(), microphone=(), geolocation=()",
+          "referrer-policy": "strict-origin-when-cross-origin",
+          "strict-transport-security": "max-age=31536000; includeSubDomains",
+          "transfer-encoding": "chunked",
+          "vary": "RSC, Next-Router-State-Tree, Next-Router-Prefetch, Accept-Encoding",
+          "x-content-type-options": "nosniff",
+          "x-frame-options": "DENY",
+          "x-xss-protection": "1; mode=block",
+          "x-zeabur-ip-country": "CN",
+          "x-zeabur-request-id": "sfo1::4398cf96-0e25-4f1c-812d-8d96aeb59045"
+        },
+        "available": false
+      },
+      "/_health": {
+        "status": 404,
+        "statusText": "Not Found",
+        "headers": {
+          "alt-svc": "h3=\":443\"; ma=86400",
+          "cache-control": "private, no-cache, no-store, max-age=0, must-revalidate",
+          "content-encoding": "gzip",
+          "content-type": "text/html; charset=utf-8",
+          "date": "Sun, 28 Sep 2025 11:37:10 GMT",
+          "link": "</_next/static/media/e4af272ccee01ff0-s.p.woff2>; rel=preload; as=\"font\"; crossorigin=\"\"; type=\"font/woff2\"",
+          "permissions-policy": "camera=(), microphone=(), geolocation=()",
+          "referrer-policy": "strict-origin-when-cross-origin",
+          "strict-transport-security": "max-age=31536000; includeSubDomains",
+          "transfer-encoding": "chunked",
+          "vary": "RSC, Next-Router-State-Tree, Next-Router-Prefetch, Accept-Encoding",
+          "x-content-type-options": "nosniff",
+          "x-frame-options": "DENY",
+          "x-xss-protection": "1; mode=block",
+          "x-zeabur-ip-country": "CN",
+          "x-zeabur-request-id": "sfo1::38718198-2c34-4e0b-bde3-e8b01b5d0163"
+        },
+        "available": false
+      }
+    },
+    "database": {
+      "/api/agents": {
+        "status": 200,
+        "available": true,
+        "responseTime": "unknown"
+      },
+      "/api/agents/featured": {
+        "status": 404,
+        "available": true,
+        "responseTime": "unknown"
+      },
+      "/api/user/profile": {
+        "status": 401,
+        "available": true,
+        "responseTime": "unknown"
+      }
+    },
+    "resources": {
+      "stylesheets": [
+        "https://aijiayuan.top/_next/static/css/3add334ee59f67ac.css",
+        "https://aijiayuan.top/_next/static/css/96cf69921e44fc99.css"
+      ],
+      "scripts": [
+        "https://aijiayuan.top/_next/static/chunks/fd9d1056-aa431a5b11d07789.js",
+        "https://aijiayuan.top/_next/static/chunks/2117-f2d46b53e4e6bb07.js",
+        "https://aijiayuan.top/_next/static/chunks/main-app-5294d1645fe5526e.js",
+        "https://aijiayuan.top/_next/static/chunks/6237-07428cd58e724e22.js",
+        "https://aijiayuan.top/_next/static/chunks/6137-03d2cd0024eec2f8.js",
+        "https://aijiayuan.top/_next/static/chunks/6518-df7f9b98476ec331.js",
+        "https://aijiayuan.top/_next/static/chunks/3448-acb0fb828ef80630.js",
+        "https://aijiayuan.top/_next/static/chunks/783-1ca6fc81fbd12a93.js",
+        "https://aijiayuan.top/_next/static/chunks/4603-f594bdb44b6b4ad5.js",
+        "https://aijiayuan.top/_next/static/chunks/7569-ef36c91ac69c07c1.js",
+        "https://aijiayuan.top/_next/static/chunks/1121-dd1b051f14a6bb53.js",
+        "https://aijiayuan.top/_next/static/chunks/5474-0f8b0ac530e2a29d.js",
+        "https://aijiayuan.top/_next/static/chunks/app/page-d0ba049b2082829f.js",
+        "https://aijiayuan.top/_next/static/chunks/app/layout-0092a05b5f55ac03.js",
+        "https://aijiayuan.top/_next/static/chunks/polyfills-42372ed130431b0a.js",
+        "https://aijiayuan.top/_next/static/chunks/webpack-ae9bfe0d75875557.js"
+      ],
+      "images": [],
+      "failures": []
+    },
+    "projectSpecific": {
+      "coreAPIs": {
+        "/api/health/simple": {
+          "status": 200,
+          "available": true,
+          "responseTime": null,
+          "contentType": "application/json"
+        },
+        "/api/health": {
+          "status": 206,
+          "available": true,
+          "responseTime": null,
+          "contentType": "application/json"
+        },
+        "/api/agents": {
+          "status": 200,
+          "available": true,
+          "responseTime": null,
+          "contentType": "application/json"
+        },
+        "/api/agents/featured": {
+          "status": 404,
+          "available": false,
+          "responseTime": null,
+          "contentType": "application/json"
+        },
+        "/api/user/profile": {
+          "status": 401,
+          "available": false,
+          "responseTime": null,
+          "contentType": "application/json"
+        },
+        "/api/auth/session": {
+          "status": 404,
+          "available": false,
+          "responseTime": null,
+          "contentType": "text/html; charset=utf-8"
+        },
+        "/api/search": {
+          "status": 404,
+          "available": false,
+          "responseTime": null,
+          "contentType": "text/html; charset=utf-8"
+        },
+        "/api/categories": {
+          "status": 200,
+          "available": true,
+          "responseTime": null,
+          "contentType": "application/json"
+        }
+      },
+      "authentication": {
+        "sessionEndpoint": 404,
+        "available": true,
+        "nextAuthWorking": false
+      },
+      "agentSystem": {
+        "agentsAPI": {
+          "working": true,
+          "dataStructure": "object",
+          "count": "unknown"
+        }
+      },
+      "fileUpload": {
+        "available": false,
+        "status": 404
+      }
+    }
+  },
+  "summary": {
+    "overall": "fair",
+    "issues": [
+      "仅4/8个核心API正常工作"
+    ],
+    "warnings": [
+      "认证系统可能存在问题"
+    ],
+    "successes": [
+      "网站基础可用性正常",
+      "2个健康检查API正常工作",
+      "3个数据库相关API正常",
+      "关键资源加载正常",
+      "智能体系统API正常"
+    ]
+  },
+  "duration": 5488
+}

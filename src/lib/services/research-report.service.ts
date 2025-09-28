@@ -1,7 +1,7 @@
 // 调研报告数据库操作服务
 import { prisma, handlePrismaError, PaginationResult, buildPaginationResult, calculatePaginationOffset } from '../database'
-import { ResearchReport, ReportStatus } from '@/generated/prisma'
-import type { Prisma } from '@/generated/prisma'
+import { ResearchReport, ReportStatus } from '@prisma/client'
+import type { Prisma } from '@prisma/client'
 import UserService from './user.service'
 
 // 调研报告创建数据类型
