@@ -1,0 +1,18 @@
+{
+  "mcpServers": {
+    "chatlog": {
+      "url": "http://127.0.0.1:5030/sse"
+    },
+    "context7": {
+      "url": "https://mcp.context7.com/mcp"
+    },
+    "playwright": {
+      "command": "npx",
+      "args": ["@playwright/mcp@latest"]
+    },
+    "chrome-devtools": {
+      "command": "npx",
+      "args": ["chrome-devtools-mcp@latest"]
+    }
+  }
+}
