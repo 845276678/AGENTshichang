@@ -54,9 +54,9 @@ COPY prisma ./prisma/
 RUN npm ci --frozen-lockfile --legacy-peer-deps
 
 # 在复制其他代码之前生成 Prisma 客户端（关键修复）
-# 这确保为容器环境生成正确的二进制文件
-ENV PRISMA_CLI_QUERY_ENGINE_TYPE=binary
-ENV PRISMA_CLIENT_ENGINE_TYPE=binary
+# 使用library引擎类型避免binary文件问题
+ENV PRISMA_CLI_QUERY_ENGINE_TYPE=library
+ENV PRISMA_CLIENT_ENGINE_TYPE=library
 RUN npx prisma generate
 
 # 现在复制其余源代码
@@ -84,7 +84,6 @@ COPY --from=builder --chown=nextjs:nodejs /app/public ./public
 
 # 复制Prisma文件
 COPY --from=builder --chown=nextjs:nodejs /app/prisma ./prisma
-COPY --from=builder --chown=nextjs:nodejs /app/src/generated ./src/generated
 
 # 复制健康检查文件
 COPY --from=builder --chown=nextjs:nodejs /app/healthcheck.js ./
@@ -101,10 +100,8 @@ EXPOSE 3000
 # 环境变量
 ENV PORT=3000 \
     HOSTNAME="0.0.0.0" \
-    PRISMA_CLI_QUERY_ENGINE_TYPE=binary \
-    PRISMA_CLIENT_ENGINE_TYPE=binary \
-    PRISMA_QUERY_ENGINE_BINARY="" \
-    PRISMA_QUERY_ENGINE_LIBRARY=""
+    PRISMA_CLI_QUERY_ENGINE_TYPE=library \
+    PRISMA_CLIENT_ENGINE_TYPE=library
 
 # 健康检查
 HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
