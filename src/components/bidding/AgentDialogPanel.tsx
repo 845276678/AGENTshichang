@@ -245,10 +245,10 @@ export const AgentDialogPanel: React.FC<AgentDialogPanelProps> = ({
         isActive ? 'ring-2 ring-blue-400 ring-opacity-50 shadow-2xl is-active' : ''
       } ${className}`}
       style={{
-        width: '220px',
-        height: '320px',
-        minWidth: '200px',
-        minHeight: '280px'
+        width: '260px',
+        height: '380px',
+        minWidth: '240px',
+        minHeight: '340px'
       }}
     >
       {/* 1. 头像区域 */}
@@ -343,15 +343,15 @@ export const AgentDialogPanel: React.FC<AgentDialogPanelProps> = ({
       </div>
 
       {/* 3. 对话气泡区域 */}
-      <div className="dialog-section relative flex-1 flex items-end justify-center" style={{ minHeight: '80px' }}>
+      <div className="dialog-section relative flex-1 flex items-end justify-center" style={{ minHeight: '120px', maxHeight: '160px' }}>
         <AnimatePresence>
           {state.currentMessage && (
             <MotionDiv
-              className="dialog-bubble relative bg-white border border-gray-200 rounded-2xl shadow-md p-3 max-w-full"
+              className="dialog-bubble relative bg-white border border-gray-200 rounded-2xl shadow-md p-3 w-full max-w-none"
             >
               {/* 气泡内容 */}
               <div className="bubble-content relative z-10">
-                <div className="message-text text-sm text-gray-800 leading-relaxed line-clamp-4">
+                <div className="message-text text-xs text-gray-800 leading-relaxed break-words hyphens-auto overflow-hidden" style={{ maxHeight: '80px', overflowY: 'auto', lineHeight: '1.4' }}>
                   {state.currentMessage}
                 </div>
               </div>
@@ -380,7 +380,7 @@ export const AgentDialogPanel: React.FC<AgentDialogPanelProps> = ({
           transition={{ delay: 0.3, duration: 0.4 }}
         >
           <MotionDiv
-            className={`bid-amount flex items-center gap-1 px-3 py-1.5 rounded-full shadow-lg ${
+            className={`bid-amount flex items-center gap-1 px-4 py-2 rounded-full shadow-lg ${
               currentBid === 0
                 ? 'bg-gradient-to-r from-gray-300 to-gray-400 text-gray-700'
                 : 'bg-gradient-to-r from-yellow-400 to-orange-400 text-white'
@@ -402,9 +402,9 @@ export const AgentDialogPanel: React.FC<AgentDialogPanelProps> = ({
               ease: "easeInOut"
             }}
           >
-            <span className="text-sm font-medium">¥</span>
+            <span className="text-base font-medium">¥</span>
             <span
-              className="text-sm font-bold"
+              className="text-base font-bold min-w-[40px] text-center"
               key={currentBid} // 重新动画当出价变化时
             >
               {currentBid || 0}

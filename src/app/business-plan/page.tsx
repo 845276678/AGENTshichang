@@ -39,20 +39,173 @@ export default function BusinessPlanPage() {
   const router = useRouter()
   const searchParams = useSearchParams()
 
+  // 支持新的会话ID参数和旧的报告参数
+  const sessionId = searchParams.get('sessionId')
   const reportId = searchParams.get('reportId')
   const ideaTitle = searchParams.get('ideaTitle')
-  const source = searchParams.get('source') // 来源：marketplace 或其他
+  const source = searchParams.get('source') // 来源：ai-bidding, marketplace 或其他
   const winningBid = searchParams.get('winningBid')
   const winner = searchParams.get('winner')
   const guideCost = searchParams.get('guideCost') // 动态价格
 
   const [loadingState, setLoadingState] = useState<LoadingState>({
-    isLoading: Boolean(reportId),
+    isLoading: Boolean(sessionId || reportId),
     progress: 0,
     stage: source === 'marketplace' ? '正在处理竞价结果...' : '正在载入数据...'
   })
   const [guide, setGuide] = useState<LandingCoachGuide | null>(null)
   const [error, setError] = useState<string | null>(null)
+
+  // 新增：从会话加载数据的函数
+  const loadSessionData = async (sessionId: string) => {
+    try {
+      setError(null)
+      setGuide(null)
+
+      setLoadingState({
+        isLoading: true,
+        progress: 10,
+        stage: '正在获取竞价会话数据...'
+      })
+
+      const response = await fetch(`/api/business-plan-session?sessionId=${sessionId}`)
+
+      if (!response.ok) {
+        if (response.status === 404) {
+          throw new Error('竞价会话不存在或已过期')
+        } else if (response.status === 410) {
+          throw new Error('竞价会话已过期，请重新发起竞价')
+        }
+        throw new Error('无法获取会话数据')
+      }
+
+      const { data } = await response.json()
+
+      setLoadingState({
+        isLoading: true,
+        progress: 30,
+        stage: `正在分析${data.winnerName}的专业建议...`
+      })
+
+      // 模拟分析AI专家建议
+      await new Promise(resolve => setTimeout(resolve, 2000))
+
+      setLoadingState({
+        isLoading: true,
+        progress: 60,
+        stage: '正在生成商业计划...'
+      })
+
+      // 模拟生成商业计划
+      await new Promise(resolve => setTimeout(resolve, 2000))
+
+      setLoadingState({
+        isLoading: true,
+        progress: 90,
+        stage: '正在整理最终报告...'
+      })
+
+      await new Promise(resolve => setTimeout(resolve, 1000))
+
+      // 基于会话数据生成guide
+      const mockGuide: LandingCoachGuide = {
+        metadata: {
+          ideaTitle: data.ideaContent || '用户创意',
+          reportId: sessionId,
+          generatedAt: new Date().toISOString(),
+          source: 'ai-bidding',
+          winningBid: data.highestBid,
+          winner: data.winnerName
+        },
+        // AI犀利点评 (基于实际竞价数据)
+        aiInsights: {
+          overallAssessment: {
+            score: data.highestBid > 400 ? 8.5 : data.highestBid > 200 ? 7.0 : 6.0,
+            level: data.highestBid > 400 ? '高潜力项目' : data.highestBid > 200 ? '中高潜力项目' : '中等潜力项目',
+            summary: `经过5位专业AI评估，您的创意获得了${data.highestBid}元的最高出价。${data.winnerName}认为此项目具备商业价值。`,
+            keyStrengths: [
+              '获得多位专业AI的认可和竞价',
+              '商业逻辑得到专业验证',
+              '具备一定的市场潜力'
+            ],
+            criticalChallenges: [
+              '需要进一步完善技术实现方案',
+              '市场竞争分析有待深入',
+              '商业模式需要详细论证'
+            ]
+          },
+          sustainabilityAnalysis: {
+            longTermViability: '基于AI专家评估，项目具备发展潜力',
+            persistenceFactors: [
+              '专业团队的持续投入',
+              '用户需求的准确把握',
+              '技术和商业的平衡发展'
+            ],
+            riskMitigation: [
+              '听取专业AI的建议和改进意见',
+              '分阶段实施，降低风险',
+              '持续优化产品和服务'
+            ]
+          }
+        },
+        businessModel: {
+          valueProposition: `基于AI专家分析的${data.ideaContent}`,
+          targetMarket: '待进一步调研确定',
+          revenueStreams: ['主要收入来源待定义'],
+          costStructure: {
+            fixed: ['人员成本', '技术开发成本'],
+            variable: ['运营成本', '市场推广成本']
+          }
+        },
+        implementationPlan: {
+          phases: [
+            {
+              name: '概念验证阶段',
+              duration: '1-3个月',
+              key_objectives: ['完善创意细节', '技术可行性验证', '初步市场调研'],
+              deliverables: ['详细产品规划', '技术架构设计', '市场分析报告']
+            }
+          ]
+        },
+        marketAnalysis: {
+          marketSize: {
+            total: '待调研',
+            addressable: '待分析',
+            penetrable: '待评估'
+          },
+          competitiveAnalysis: {
+            directCompetitors: [],
+            indirectCompetitors: [],
+            competitiveAdvantage: ['AI专家认可的创新方案']
+          }
+        },
+        financialProjections: {
+          assumptions: [
+            `基于${data.highestBid}元的专业估值`,
+            '需要详细的财务建模'
+          ],
+          projections: []
+        }
+      }
+
+      setGuide(mockGuide)
+
+      setLoadingState({
+        isLoading: false,
+        progress: 100,
+        stage: '商业计划已生成完成'
+      })
+
+    } catch (error) {
+      console.error('Error loading session data:', error)
+      setError(error instanceof Error ? error.message : '加载会话数据失败')
+      setLoadingState({
+        isLoading: false,
+        progress: 0,
+        stage: '加载失败'
+      })
+    }
+  }
 
   const loadReportData = async (targetReportId: string) => {
     try {
@@ -461,6 +614,13 @@ export default function BusinessPlanPage() {
   }
 
   useEffect(() => {
+    // 优先处理会话ID（新的AI竞价流程）
+    if (sessionId) {
+      void loadSessionData(sessionId)
+      return
+    }
+
+    // 兼容旧的报告ID流程
     if (!reportId) {
       setGuide(null)
       setError(null)
@@ -473,10 +633,10 @@ export default function BusinessPlanPage() {
     }
 
     void loadReportData(reportId)
-  }, [reportId])
+  }, [sessionId, reportId])
 
   const handleDownload = async (format: 'pdf' | 'docx' | 'markdown') => {
-    if (!guide || !reportId) return
+    if (!guide || (!reportId && !sessionId)) return
 
     try {
       if (format === 'markdown') {
@@ -493,7 +653,7 @@ export default function BusinessPlanPage() {
         return
       }
 
-      const response = await fetch(`/api/documents/download?reportId=${reportId}&format=${format}&type=guide`)
+      const response = await fetch(`/api/documents/download?reportId=${sessionId || reportId}&format=${format}&type=guide`)
       if (!response.ok) {
         throw new Error('下载失败')
       }
