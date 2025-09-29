@@ -227,8 +227,8 @@ export function useBiddingWebSocketOriginal(config: { ideaId: string; autoConnec
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
     const host = process.env.NODE_ENV === 'production'
       ? window.location.host
-      : 'localhost:3000'
-    return `${protocol}//${host}/ws/bidding`
+      : 'localhost:4000'
+    return `${protocol}//${host}/api/bidding`
   }, [])
 
   // 发送消息

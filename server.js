@@ -4,9 +4,9 @@ const next = require('next');
 const { WebSocketServer } = require('ws');
 
 const dev = process.env.NODE_ENV !== 'production';
-const hostname = 'localhost';
-const port = process.env.PORT || 4000;
-const app = next({ dev, hostname, port });
+const hostname = dev ? 'localhost' : '0.0.0.0';
+const port = process.env.PORT || process.env.WEB_PORT || 4000;
+const app = next({ dev, hostname: dev ? hostname : undefined, port });
 const handle = app.getRequestHandler();
 
 // WebSocket处理器
@@ -88,9 +88,11 @@ app.prepare().then(() => {
     }
   });
 
-  server.listen(port, (err) => {
+  server.listen(port, hostname, (err) => {
     if (err) throw err;
     console.log(`> Ready on http://${hostname}:${port}`);
     console.log(`> WebSocket server ready on ws://${hostname}:${port}/api/bidding`);
+    console.log(`> Environment: ${process.env.NODE_ENV}`);
+    console.log(`> Database: ${process.env.DATABASE_URL ? 'Connected' : 'Not configured'}`);
   });
 });
