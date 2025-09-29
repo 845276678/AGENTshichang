@@ -69,6 +69,7 @@ export default function IdeaDiscussionPage() {
   const [error, setError] = useState<string | null>(null)
   const [userMessage, setUserMessage] = useState('')
   const [sending, setSending] = useState(false)
+  const [skipping, setSkipping] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
   const ideaId = params?.id as string
@@ -179,6 +180,50 @@ export default function IdeaDiscussionPage() {
       setError(error instanceof Error ? error.message : '发送消息失败')
     } finally {
       setSending(false)
+    }
+  }
+
+  const skipRound = async () => {
+    if (!discussion || skipping) return
+
+    try {
+      setSkipping(true)
+      const token = localStorage.getItem('auth.access_token')
+
+      const response = await fetch('/api/discussions/messages', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          discussionId: discussion.id,
+          action: 'skip'
+        })
+      })
+
+      const result = await response.json()
+
+      if (!response.ok || !result.success) {
+        throw new Error(result.error || '跳过失败')
+      }
+
+      // 更新讨论状态
+      const updatedDiscussion = { ...discussion }
+      updatedDiscussion.messages.push(result.userMessage, result.aiMessage)
+
+      if (result.isCompleted) {
+        updatedDiscussion.status = 'COMPLETED'
+      } else {
+        updatedDiscussion.currentRound = result.nextRound
+      }
+
+      setDiscussion(updatedDiscussion)
+    } catch (error) {
+      console.error('跳过失败:', error)
+      setError(error instanceof Error ? error.message : '跳过失败')
+    } finally {
+      setSkipping(false)
     }
   }
 
@@ -388,11 +433,21 @@ export default function IdeaDiscussionPage() {
           {/* 输入区域 */}
           {!isCompleted && (
             <div className="p-4 border-t">
+              {/* 讨论进度提示 */}
+              <div className="mb-3 text-center">
+                <Badge variant="outline" className="text-xs">
+                  第 {discussion.currentRound} / {discussion.totalRounds} 轮讨论
+                </Badge>
+                <div className="text-xs text-muted-foreground mt-1">
+                  您可以详细回应AI的问题，或选择跳过此轮进入下一阶段
+                </div>
+              </div>
+
               <div className="flex gap-3">
                 <Textarea
                   value={userMessage}
                   onChange={(e) => setUserMessage(e.target.value)}
-                  placeholder="输入您的回应..."
+                  placeholder="输入您的回应...（可选，您也可以选择跳过此轮）"
                   className="min-h-[60px] resize-none"
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' && !e.shiftKey) {
@@ -400,25 +455,41 @@ export default function IdeaDiscussionPage() {
                       sendMessage()
                     }
                   }}
-                  disabled={sending}
+                  disabled={sending || skipping}
                 />
-                <Button
-                  onClick={sendMessage}
-                  disabled={!userMessage.trim() || sending}
-                  size="icon"
-                  className="h-[60px] w-[60px] rounded-xl"
-                >
-                  {sending ? (
-                    <motion.div
-                      animate={{ rotate: 360 }}
-                      transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
-                    >
-                      <RefreshCw className="w-5 h-5" />
-                    </motion.div>
-                  ) : (
-                    <Send className="w-5 h-5" />
-                  )}
-                </Button>
+                <div className="flex flex-col gap-2">
+                  <Button
+                    onClick={sendMessage}
+                    disabled={!userMessage.trim() || sending || skipping}
+                    size="icon"
+                    className="h-[60px] w-[60px] rounded-xl"
+                  >
+                    {sending ? (
+                      <motion.div
+                        animate={{ rotate: 360 }}
+                        transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+                      >
+                        <RefreshCw className="w-5 h-5" />
+                      </motion.div>
+                    ) : (
+                      <Send className="w-5 h-5" />
+                    )}
+                  </Button>
+
+                  <Button
+                    onClick={skipRound}
+                    disabled={sending || skipping}
+                    variant="outline"
+                    size="sm"
+                    className="text-xs px-2 py-1 h-auto"
+                  >
+                    {skipping ? '跳过中...' : '跳过此轮'}
+                  </Button>
+                </div>
+              </div>
+
+              <div className="text-xs text-muted-foreground mt-2 text-center">
+                💡 提示：跳过后AI会基于现有信息继续分析，您随时可以进入下一轮讨论
               </div>
             </div>
           )}

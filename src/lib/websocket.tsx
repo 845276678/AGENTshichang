@@ -20,7 +20,7 @@ export function WebSocketProvider({ children, sessionId }: WebSocketProviderProp
   const [isConnected, setIsConnected] = useState(false)
 
   useEffect(() => {
-    const newSocket = io(process.env.NEXT_PUBLIC_WS_URL || 'ws://localhost:3001', {
+    const newSocket = io(process.env.NEXT_PUBLIC_WS_URL || 'ws://localhost:3000', {
       query: { sessionId }
     })
 

@@ -14,10 +14,10 @@ export async function POST(req: NextRequest) {
     }
     const user = authResult.user
 
-    const { discussionId, content } = await req.json()
+    const { discussionId, content, action } = await req.json()
 
-    if (!discussionId || !content?.trim()) {
-      return NextResponse.json({ error: '讨论ID和内容不能为空' }, { status: 400 })
+    if (!discussionId || (!content?.trim() && action !== 'skip')) {
+      return NextResponse.json({ error: '讨论ID和内容不能为空（除非跳过）' }, { status: 400 })
     }
 
     // 验证讨论是否存在且属于用户
@@ -45,33 +45,66 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: '讨论轮数已达上限' }, { status: 400 })
     }
 
-    // 创建用户回复消息
-    const userMessage = await prisma.discussionMessage.create({
-      data: {
-        discussionId,
-        content: content.trim(),
-        messageType: 'USER_RESPONSE',
-        roundNumber: discussion.currentRound,
-        senderType: 'USER',
-        senderName: user.username || user.email
-      }
-    })
+    let userMessage = null
+    let aiMessage = null
 
-    // 生成AI回复
-    const aiResponse = await generateAIResponse(discussion, content, discussion.messages)
+    // 处理跳过操作
+    if (action === 'skip') {
+      // 创建跳过消息记录
+      userMessage = await prisma.discussionMessage.create({
+        data: {
+          discussionId,
+          content: '用户选择跳过此轮讨论',
+          messageType: 'USER_RESPONSE',
+          roundNumber: discussion.currentRound,
+          senderType: 'USER',
+          senderName: user.username || user.email
+        }
+      })
 
-    const aiMessage = await prisma.discussionMessage.create({
-      data: {
-        discussionId,
-        content: aiResponse.content,
-        messageType: aiResponse.messageType as MessageType,
-        roundNumber: discussion.currentRound,
-        senderType: 'AI_AGENT',
-        senderName: discussion.aiAgentName,
-        analysisData: aiResponse.analysisData,
-        suggestions: aiResponse.suggestions
-      }
-    })
+      // AI回应跳过
+      const skipResponse = generateSkipResponse(discussion.aiAgentType, discussion.currentRound)
+      aiMessage = await prisma.discussionMessage.create({
+        data: {
+          discussionId,
+          content: skipResponse.content,
+          messageType: skipResponse.messageType as MessageType,
+          roundNumber: discussion.currentRound,
+          senderType: 'AI_AGENT',
+          senderName: discussion.aiAgentName,
+          analysisData: skipResponse.analysisData,
+          suggestions: skipResponse.suggestions
+        }
+      })
+    } else {
+      // 创建用户回复消息
+      userMessage = await prisma.discussionMessage.create({
+        data: {
+          discussionId,
+          content: content.trim(),
+          messageType: 'USER_RESPONSE',
+          roundNumber: discussion.currentRound,
+          senderType: 'USER',
+          senderName: user.username || user.email
+        }
+      })
+
+      // 生成AI回复
+      const aiResponse = await generateAIResponse(discussion, content, discussion.messages)
+
+      aiMessage = await prisma.discussionMessage.create({
+        data: {
+          discussionId,
+          content: aiResponse.content,
+          messageType: aiResponse.messageType as MessageType,
+          roundNumber: discussion.currentRound,
+          senderType: 'AI_AGENT',
+          senderName: discussion.aiAgentName,
+          analysisData: aiResponse.analysisData,
+          suggestions: aiResponse.suggestions
+        }
+      })
+    }
 
     // 检查是否完成所有轮次
     const shouldComplete = discussion.currentRound >= discussion.totalRounds
@@ -628,6 +661,37 @@ function extractSuggestions(aiResponse: string): string[] {
   }
 
   return suggestions.slice(0, 5) // 最多返回5个建议
+}
+
+// 生成跳过回复
+function generateSkipResponse(agentType: string, currentRound: number) {
+  const agentNames = {
+    'tech': '科技艾克斯',
+    'business': '商人老王',
+    'artistic': '文艺小琳',
+    'trend': '趋势阿伦',
+    'academic': '教授李博'
+  }
+
+  const agentName = agentNames[agentType as keyof typeof agentNames] || '专家'
+
+  let content = ''
+  if (currentRound < 3) {
+    content = `😊 **${agentName}理解您的选择** (第${currentRound}轮)\n\n没关系，我理解您可能暂时没有更多信息要补充。让我们进入下一轮讨论，我会基于现有信息继续为您提供分析和建议。\n\n**基于当前信息的建议：**\n• 建议先收集更多相关信息\n• 可以考虑咨询相关领域专家\n• 建议从小规模验证开始\n\n让我们继续深入分析您的创意！✨`
+  } else {
+    content = `🎉 **${agentName}的最终总结** (第${currentRound}轮)\n\n感谢您参与我们的讨论！虽然您选择跳过了一些环节，但我已经为您的创意进行了全面分析。\n\n**最终建议：**\n• 您的创意具有很好的发展潜力\n• 建议继续完善和深化想法\n• 可以考虑寻找合作伙伴或投资\n\n现在可以进入竞价阶段，看看AI们对您创意的评价！🚀`
+  }
+
+  return {
+    content,
+    messageType: currentRound === 3 ? 'FINAL_ASSESSMENT' : 'IMPROVEMENT_SUGGESTION',
+    analysisData: generateAnalysisData(agentType, currentRound),
+    suggestions: [
+      '建议收集更多相关信息',
+      '可以考虑咨询专业人士',
+      '建议从简单的原型开始验证'
+    ]
+  }
 }
 
 // 备用回复生成（当AI服务不可用时）
