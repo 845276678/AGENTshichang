@@ -1,0 +1,178 @@
+# AI Agent 对话框系统 - 生产部署配置
+# 部署到 Zeabur 平台的配置文件
+
+# 应用基础信息
+app:
+  name: ai-agent-marketplace
+  version: 2.0.0
+  description: AI Agent 智能对话框竞价系统
+
+# 环境配置
+environment:
+  NODE_ENV: production
+  PORT: 8080
+
+# 数据库配置（使用 Zeabur PostgreSQL 服务）
+database:
+  type: postgresql
+  # DATABASE_URL 将由 Zeabur 自动注入
+  connection_pool_size: 20
+  max_connections: 100
+
+# Redis 缓存配置
+cache:
+  type: redis
+  # REDIS_URL 将由 Zeabur 自动注入
+  max_connections: 50
+
+# WebSocket 配置
+websocket:
+  enabled: true
+  heartbeat_interval: 30000
+  max_connections: 1000
+
+# AI 服务配置
+ai_services:
+  deepseek:
+    enabled: true
+    # API keys 从环境变量获取
+    timeout: 30000
+    max_tokens: 4000
+
+  dashscope:
+    enabled: true
+    timeout: 30000
+    max_tokens: 4000
+
+  zhipu:
+    enabled: true
+    timeout: 30000
+    max_tokens: 4000
+
+# 性能优化配置
+performance:
+  # Next.js 构建优化
+  build:
+    minify: true
+    compress: true
+    bundle_analyzer: false
+
+  # 缓存策略
+  cache:
+    static_assets: "1y"
+    api_responses: "5m"
+    agent_states: "30s"
+
+  # 资源限制
+  limits:
+    request_size: "10mb"
+    file_upload: "50mb"
+    rate_limit: "100/min"
+
+# 监控配置
+monitoring:
+  enabled: true
+  metrics:
+    system: true
+    performance: true
+    errors: true
+
+  alerts:
+    error_threshold: 5%
+    latency_threshold: 1000ms
+    memory_threshold: 80%
+
+  health_checks:
+    interval: 30s
+    timeout: 10s
+
+# 安全配置
+security:
+  cors:
+    origins:
+      - "https://aijiayuan.top"
+      - "https://*.aijiayuan.top"
+    credentials: true
+
+  helmet:
+    enabled: true
+    content_security_policy: true
+
+  rate_limiting:
+    enabled: true
+    window_ms: 60000
+    max_requests: 100
+
+# 日志配置
+logging:
+  level: "info"
+  format: "json"
+  outputs:
+    - console
+    - file
+
+  retention:
+    days: 30
+    max_size: "100mb"
+
+# 部署脚本
+deployment:
+  pre_deploy:
+    - npm run db:generate
+    - npm run db:migrate
+
+  build:
+    - npm run build
+
+  post_deploy:
+    - npm run db:seed:prod
+
+  health_check:
+    path: "/api/health"
+    expected_status: 200
+    timeout: 30s
+
+# 环境变量模板
+env_vars:
+  required:
+    - DATABASE_URL
+    - NEXTAUTH_SECRET
+    - NEXTAUTH_URL
+    - DEEPSEEK_API_KEY
+    - DASHSCOPE_API_KEY
+    - ZHIPU_API_KEY
+
+  optional:
+    - REDIS_URL
+    - SENTRY_DSN
+    - ANALYTICS_ID
+
+# Zeabur 特定配置
+zeabur:
+  # 服务规格
+  plan: "pro"
+
+  # 域名配置
+  domains:
+    - "aijiayuan.top"
+    - "www.aijiayuan.top"
+
+  # 自动扩缩容
+  auto_scaling:
+    enabled: true
+    min_instances: 1
+    max_instances: 5
+    cpu_threshold: 70%
+    memory_threshold: 80%
+
+  # 备份策略
+  backup:
+    database:
+      enabled: true
+      frequency: "daily"
+      retention: 7
+
+  # SSL 证书
+  ssl:
+    enabled: true
+    auto_renewal: true

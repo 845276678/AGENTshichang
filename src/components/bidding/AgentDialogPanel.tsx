@@ -261,8 +261,9 @@ export const AgentDialogPanel: React.FC<AgentDialogPanelProps> = ({
                 // 头像加载失败时的备用处理
                 const target = e.target as HTMLImageElement
                 target.style.display = 'none'
-                target.nextElementSibling &&
-                (target.nextElementSibling as HTMLElement).style.display = 'flex'
+                if (target.nextElementSibling) {
+                  (target.nextElementSibling as HTMLElement).style.display = 'flex'
+                }
               }}
             />
 

@@ -1,0 +1,66 @@
+{
+  "name": "ai-agent-dialog-tests",
+  "version": "1.0.0",
+  "description": "AI Agent对话框系统测试配置",
+  "scripts": {
+    "test": "vitest",
+    "test:ui": "vitest --ui",
+    "test:coverage": "vitest --coverage",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "test:performance": "vitest run --reporter=verbose src/tests/performance",
+    "test:responsive": "playwright test --grep=\"响应式\"",
+    "test:accessibility": "playwright test --grep=\"可访问性\"",
+    "test:all": "npm run test && npm run test:e2e"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.40.0",
+    "@testing-library/jest-dom": "^6.1.0",
+    "@testing-library/react": "^13.4.0",
+    "@testing-library/user-event": "^14.5.0",
+    "@vitejs/plugin-react": "^4.1.0",
+    "@vitest/coverage-v8": "^0.34.0",
+    "@vitest/ui": "^0.34.0",
+    "jsdom": "^22.1.0",
+    "vitest": "^0.34.0"
+  },
+  "testConfig": {
+    "coverage": {
+      "threshold": {
+        "global": {
+          "branches": 80,
+          "functions": 85,
+          "lines": 85,
+          "statements": 85
+        }
+      },
+      "include": [
+        "src/components/bidding/**/*.{ts,tsx}",
+        "src/hooks/useAgentStates.ts",
+        "src/services/AgentStateManager.ts"
+      ],
+      "exclude": [
+        "**/*.test.{ts,tsx}",
+        "**/*.e2e.{ts,tsx}",
+        "**/demo/**"
+      ]
+    },
+    "performance": {
+      "budgets": {
+        "renderTime": 5,
+        "memoryUsage": 50,
+        "bundleSize": 500
+      }
+    },
+    "e2e": {
+      "baseURL": "http://localhost:3000",
+      "timeout": 30000,
+      "retries": 2,
+      "devices": {
+        "desktop": { "width": 1920, "height": 1080 },
+        "tablet": { "width": 768, "height": 1024 },
+        "mobile": { "width": 375, "height": 667 }
+      }
+    }
+  }
+}
