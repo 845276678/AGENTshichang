@@ -26,6 +26,16 @@ import {
   EyeOff
 } from 'lucide-react'
 
+// 简化组件替代motion - 避免生产环境错误
+const SimpleDiv = ({ children, className, style, ...props }: any) => (
+  <div className={className} style={style} {...props}>{children}</div>
+)
+const SimplePresence = ({ children }: any) => <>{children}</>
+
+// 使用简化组件替代motion组件
+const MotionDiv = SimpleDiv
+const AnimatePresence = SimplePresence
+
 // Props interface
 interface UnifiedBiddingStageProps {
   ideaId: string
@@ -309,24 +319,10 @@ export default function UnifiedBiddingStage({
       </Card>
 
       {/* Agent对话面板网格 */}
-      <motion.div
-        className="agents-grid-container"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, delay: 0.2 }}
-      >
+      <MotionDiv className="agents-grid-container">
         <div className={`agents-grid ${compactMode ? 'compact-mode' : ''}`}>
           {AI_PERSONAS.map((agent, index) => (
-            <motion.div
-              key={agent.id}
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{
-                duration: 0.5,
-                delay: index * 0.1,
-                ease: "easeOut"
-              }}
-            >
+            <MotionDiv key={agent.id}>
               <AgentDialogPanel
                 agent={agent}
                 state={agentStates[agent.id] || {
@@ -344,20 +340,15 @@ export default function UnifiedBiddingStage({
                 currentBid={currentBids[agent.id]}
                 className={`${compactMode ? 'compact' : ''}`}
               />
-            </motion.div>
+            </MotionDiv>
           ))}
         </div>
-      </motion.div>
+      </MotionDiv>
 
       {/* 设置面板 */}
       <AnimatePresence>
         {showSettings && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.3 }}
-          >
+          <MotionDiv>
             <Card>
               <CardHeader>
                 <CardTitle className="text-lg">显示设置</CardTitle>
@@ -393,7 +384,7 @@ export default function UnifiedBiddingStage({
                 </div>
               </CardContent>
             </Card>
-          </motion.div>
+          </MotionDiv>
         )}
       </AnimatePresence>
 
