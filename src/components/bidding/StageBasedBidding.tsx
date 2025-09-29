@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import React, { useState, useEffect, useRef, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -22,23 +22,29 @@ interface CreativeIdeaBiddingProps {
   ideaId: string
 }
 
-// 创意输入表单组件 - 升级版
+// 鍒涙剰杈撳叆琛ㄥ崟缁勪欢 - 鍗囩骇鐗?
 const CreativeInputForm = ({
   onSubmit,
   isLoading,
-  userCredits
+  userCredits,
+  defaultContent
 }: {
-  onSubmit: (idea: string) => void
+  onSubmit: (idea: string) => Promise<void | boolean> | void | boolean
   isLoading: boolean
   userCredits: number
+  defaultContent?: string
 }) => {
-  const [ideaContent, setIdeaContent] = useState('')
-  const REQUIRED_CREDITS = 50 // 参与竞价需要的积分
+  const [ideaContent, setIdeaContent] = useState(defaultContent ?? '')
+  const REQUIRED_CREDITS = 50 // Required credits to join bidding
 
-  const handleSubmit = (e: React.FormEvent) => {
+  useEffect(() => {
+    setIdeaContent(defaultContent ?? '')
+  }, [defaultContent])
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (ideaContent.trim() && userCredits >= REQUIRED_CREDITS) {
-      onSubmit(ideaContent.trim())
+      await onSubmit(ideaContent.trim())
     }
   }
 
@@ -67,7 +73,7 @@ const CreativeInputForm = ({
               transition={{ delay: 0.4 }}
               className="text-4xl font-bold bg-gradient-to-r from-purple-600 via-blue-600 to-indigo-600 bg-clip-text text-transparent mb-3"
             >
-              🎭 AI 创意竞价舞台
+              馃幁 AI 鍒涙剰绔炰环鑸炲彴
             </motion.h1>
             <motion.p
               initial={{ opacity: 0, y: -10 }}
@@ -75,10 +81,10 @@ const CreativeInputForm = ({
               transition={{ delay: 0.6 }}
               className="text-gray-600 text-xl font-medium"
             >
-              5 位顶级 AI 专家即将为您的创意展开激烈竞价！
+              5 浣嶉《绾?AI 涓撳鍗冲皢涓烘偍鐨勫垱鎰忓睍寮€婵€鐑堢珵浠凤紒
             </motion.p>
 
-            {/* 积分状态显示 */}
+            {/* 绉垎鐘舵€佹樉绀?*/}
             <motion.div
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
@@ -86,14 +92,14 @@ const CreativeInputForm = ({
               className="mt-6 flex items-center justify-center space-x-6"
             >
               <div className="bg-gradient-to-r from-yellow-400 via-orange-400 to-red-400 text-white px-6 py-3 rounded-full text-lg font-bold shadow-lg">
-                💰 当前积分: {userCredits}
+                馃挵 褰撳墠绉垎: {userCredits}
               </div>
               <div className={`px-6 py-3 rounded-full text-lg font-bold shadow-lg transition-all duration-300 ${
                 hasEnoughCredits
                   ? 'bg-gradient-to-r from-green-400 to-emerald-400 text-white'
                   : 'bg-gradient-to-r from-red-400 to-pink-400 text-white'
               }`}>
-                {hasEnoughCredits ? '✅ 准备就绪' : `⚠️ 需要 ${REQUIRED_CREDITS} 积分`}
+                {hasEnoughCredits ? '鉁?鍑嗗灏辩华' : `鈿狅笍 闇€瑕?${REQUIRED_CREDITS} 绉垎`}
               </div>
             </motion.div>
           </div>
@@ -107,9 +113,9 @@ const CreativeInputForm = ({
               <div className="flex items-center">
                 <AlertCircle className="w-6 h-6 text-red-500 mr-3" />
                 <div>
-                  <p className="text-red-800 font-bold text-lg">积分不足，无法启动竞价</p>
+                  <p className="text-red-800 font-bold text-lg">绉垎涓嶈冻锛屾棤娉曞惎鍔ㄧ珵浠?/p>
                   <p className="text-red-600 mt-1">
-                    参与 AI 创意竞价需要至少 {REQUIRED_CREDITS} 积分。请完成每日签到或充值获取积分，然后重新体验这场精彩的创意竞拍！
+                    鍙備笌 AI 鍒涙剰绔炰环闇€瑕佽嚦灏?{REQUIRED_CREDITS} 绉垎銆傝瀹屾垚姣忔棩绛惧埌鎴栧厖鍊艰幏鍙栫Н鍒嗭紝鐒跺悗閲嶆柊浣撻獙杩欏満绮惧僵鐨勫垱鎰忕珵鎷嶏紒
                   </p>
                 </div>
               </div>
@@ -125,19 +131,19 @@ const CreativeInputForm = ({
           >
             <div>
               <label className="block text-lg font-bold text-gray-700 mb-4">
-                ✨ 描述您的创意想法
+                鉁?鎻忚堪鎮ㄧ殑鍒涙剰鎯虫硶
               </label>
               <Textarea
                 value={ideaContent}
                 onChange={(e) => setIdeaContent(e.target.value)}
-                placeholder="例如：一个基于AI的智能家居管理系统，可以学习用户习惯并自动调节环境参数，实现真正的个性化居住体验..."
+                placeholder="渚嬪锛氫竴涓熀浜嶢I鐨勬櫤鑳藉灞呯鐞嗙郴缁燂紝鍙互瀛︿範鐢ㄦ埛涔犳儻骞惰嚜鍔ㄨ皟鑺傜幆澧冨弬鏁帮紝瀹炵幇鐪熸鐨勪釜鎬у寲灞呬綇浣撻獙..."
                 className="min-h-[150px] text-lg border-2 border-purple-200 focus:border-purple-500 focus:ring-4 focus:ring-purple-200 rounded-xl transition-all duration-300 shadow-inner"
                 maxLength={500}
                 disabled={!hasEnoughCredits}
               />
               <div className="flex justify-between mt-3 text-sm">
                 <span className="text-gray-500 font-medium">
-                  💡 详细描述有助于 AI 专家更准确评估您的创意价值
+                  馃挕 璇︾粏鎻忚堪鏈夊姪浜?AI 涓撳鏇村噯纭瘎浼版偍鐨勫垱鎰忎环鍊?
                 </span>
                 <span className={`font-bold ${ideaContent.length > 400 ? 'text-red-500' : 'text-gray-500'}`}>
                   {ideaContent.length}/500
@@ -166,24 +172,24 @@ const CreativeInputForm = ({
                       transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
                       className="inline-block w-6 h-6 border-3 border-white border-t-transparent rounded-full mr-3"
                     />
-                    正在启动 AI 竞价舞台...
+                    姝ｅ湪鍚姩 AI 绔炰环鑸炲彴...
                   </>
                 ) : !hasEnoughCredits ? (
                   <>
                     <AlertCircle className="w-6 h-6 mr-3" />
-                    积分不足，无法参与竞价
+                    绉垎涓嶈冻锛屾棤娉曞弬涓庣珵浠?
                   </>
                 ) : (
                   <>
                     <Play className="w-6 h-6 mr-3" />
-                    🎬 开始 AI 创意竞价表演 (-{REQUIRED_CREDITS} 积分)
+                    馃幀 寮€濮?AI 鍒涙剰绔炰环琛ㄦ紨 (-{REQUIRED_CREDITS} 绉垎)
                   </>
                 )}
               </Button>
             </motion.div>
           </motion.form>
 
-          {/* 特色说明 */}
+          {/* 鐗硅壊璇存槑 */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -191,19 +197,19 @@ const CreativeInputForm = ({
             className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4"
           >
             <div className="text-center p-4 bg-white/60 rounded-lg border border-purple-100">
-              <div className="text-2xl mb-2">🎯</div>
-              <h3 className="font-bold text-gray-700">专业评估</h3>
-              <p className="text-sm text-gray-600">5位AI专家多维度分析</p>
+              <div className="text-2xl mb-2">馃幆</div>
+              <h3 className="font-bold text-gray-700">涓撲笟璇勪及</h3>
+              <p className="text-sm text-gray-600">5浣岮I涓撳澶氱淮搴﹀垎鏋?/p>
             </div>
             <div className="text-center p-4 bg-white/60 rounded-lg border border-purple-100">
-              <div className="text-2xl mb-2">💰</div>
-              <h3 className="font-bold text-gray-700">实时竞价</h3>
-              <p className="text-sm text-gray-600">动态竞价过程可视化</p>
+              <div className="text-2xl mb-2">馃挵</div>
+              <h3 className="font-bold text-gray-700">瀹炴椂绔炰环</h3>
+              <p className="text-sm text-gray-600">鍔ㄦ€佺珵浠疯繃绋嬪彲瑙嗗寲</p>
             </div>
             <div className="text-center p-4 bg-white/60 rounded-lg border border-purple-100">
-              <div className="text-2xl mb-2">📊</div>
-              <h3 className="font-bold text-gray-700">商业指导</h3>
-              <p className="text-sm text-gray-600">生成专业落地方案</p>
+              <div className="text-2xl mb-2">馃搳</div>
+              <h3 className="font-bold text-gray-700">鍟嗕笟鎸囧</h3>
+              <p className="text-sm text-gray-600">鐢熸垚涓撲笟钀藉湴鏂规</p>
             </div>
           </motion.div>
         </CardContent>
@@ -212,9 +218,9 @@ const CreativeInputForm = ({
   )
 }
 
-// 该组件已被 EnhancedAIPersonaStage 取代，提供更丰富的视觉效果
+// 璇ョ粍浠跺凡琚?EnhancedAIPersonaStage 鍙栦唬锛屾彁渚涙洿涓板瘜鐨勮瑙夋晥鏋?
 
-// 阶段进度指示器
+// 闃舵杩涘害鎸囩ず鍣?
 const PhaseIndicator = ({
   currentPhase,
   timeRemaining
@@ -225,11 +231,11 @@ const PhaseIndicator = ({
   const phases = DISCUSSION_PHASES.map(phase => ({
     key: phase.phase,
     label: {
-      'warmup': '预热',
-      'discussion': '讨论',
-      'bidding': '竞价',
-      'prediction': '预测',
-      'result': '结果'
+      'warmup': '棰勭儹',
+      'discussion': '璁ㄨ',
+      'bidding': '绔炰环',
+      'prediction': '棰勬祴',
+      'result': '缁撴灉'
     }[phase.phase] || phase.phase,
     icon: {
       'warmup': Target,
@@ -238,7 +244,7 @@ const PhaseIndicator = ({
       'prediction': TrendingUp,
       'result': Star
     }[phase.phase] || Target,
-    duration: phase.duration * 60 // 转换为秒
+    duration: phase.duration * 60 // 杞崲涓虹
   }))
 
   const currentPhaseIndex = phases.findIndex(p => p.key === currentPhase)
@@ -247,7 +253,7 @@ const PhaseIndicator = ({
   return (
     <div className="bg-white rounded-xl shadow-lg p-6 mb-6">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-semibold text-gray-800">竞价进度</h3>
+        <h3 className="text-lg font-semibold text-gray-800">绔炰环杩涘害</h3>
         <div className="flex items-center text-purple-600 font-medium">
           <Clock className="w-4 h-4 mr-1" />
           {Math.floor(timeRemaining / 60)}:{(timeRemaining % 60).toString().padStart(2, '0')}
@@ -300,7 +306,7 @@ const PhaseIndicator = ({
   )
 }
 
-// 实时统计面板
+// 瀹炴椂缁熻闈㈡澘
 const LiveStatsPanel = ({
   viewerCount,
   highestBid,
@@ -318,7 +324,7 @@ const LiveStatsPanel = ({
             <Users className="w-5 h-5 text-blue-600 mr-1" />
           </div>
           <div className="text-2xl font-bold text-blue-600">{viewerCount}</div>
-          <div className="text-sm text-blue-700">在线观众</div>
+          <div className="text-sm text-blue-700">鍦ㄧ嚎瑙備紬</div>
         </CardContent>
       </Card>
 
@@ -327,8 +333,8 @@ const LiveStatsPanel = ({
           <div className="flex items-center justify-center mb-2">
             <Trophy className="w-5 h-5 text-green-600 mr-1" />
           </div>
-          <div className="text-2xl font-bold text-green-600">¥{highestBid}</div>
-          <div className="text-sm text-green-700">最高出价</div>
+          <div className="text-2xl font-bold text-green-600">楼{highestBid}</div>
+          <div className="text-sm text-green-700">鏈€楂樺嚭浠?/div>
         </CardContent>
       </Card>
 
@@ -338,25 +344,29 @@ const LiveStatsPanel = ({
             <MessageCircle className="w-5 h-5 text-purple-600 mr-1" />
           </div>
           <div className="text-2xl font-bold text-purple-600">{messageCount}</div>
-          <div className="text-sm text-purple-700">讨论条数</div>
+          <div className="text-sm text-purple-700">璁ㄨ鏉℃暟</div>
         </CardContent>
       </Card>
     </div>
   )
 }
 
-export default function CreativeIdeaBidding({ ideaId }: CreativeIdeaBiddingProps) {
+export default function CreativeIdeaBidding({ ideaId, autoStart = false, initialIdeaContent }: CreativeIdeaBiddingProps) {
   const router = useRouter()
   const { user, isLoading: authLoading, isInitialized, checkAuthState } = useAuth()
-  const [showForm, setShowForm] = useState(true)
+  const [showForm, setShowForm] = useState(() => !autoStart)
   const [isStarting, setIsStarting] = useState(false)
+  const [isAutoStarting, setIsAutoStarting] = useState(false)
   const [sessionId, setSessionId] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [prefilledIdeaContent, setPrefilledIdeaContent] = useState(initialIdeaContent ?? '')
+  const autoStartRequestedRef = useRef(false)
+  const [loadedIdea, setLoadedIdea] = useState<{ id: string; title?: string; description: string; category?: string } | null>(null)
 
   const getAccessToken = useCallback(() => {
     const token = tokenStorage.getAccessToken()
     if (!token) {
-      throw new Error('登录状态已失效，请重新登录后重试')
+      throw new Error('鐧诲綍鐘舵€佸凡澶辨晥锛岃閲嶆柊鐧诲綍鍚庨噸璇?)
     }
     return token
   }, [])
@@ -378,7 +388,7 @@ export default function CreativeIdeaBidding({ ideaId }: CreativeIdeaBiddingProps
         body: JSON.stringify({
           amount,
           type: amount >= 0 ? 'EARN' : 'SPEND',
-          description: description ?? '精彩会话值得期待'
+          description: description ?? '绮惧僵浼氳瘽鍊煎緱鏈熷緟'
         })
       })
 
@@ -390,7 +400,7 @@ export default function CreativeIdeaBidding({ ideaId }: CreativeIdeaBiddingProps
       }
 
       if (!response.ok || !data?.success) {
-        throw new Error(data?.error || data?.message || '竞价启动失败')
+        throw new Error(data?.error || data?.message || '绔炰环鍚姩澶辫触')
       }
 
       await checkAuthState()
@@ -398,11 +408,11 @@ export default function CreativeIdeaBidding({ ideaId }: CreativeIdeaBiddingProps
     [getAccessToken, checkAuthState]
   )
 
-  // 生成商业指导书相关状态
+  // 鐢熸垚鍟嗕笟鎸囧涔︾浉鍏崇姸鎬?
   const [isGeneratingGuide, setIsGeneratingGuide] = useState(false)
   const [guideProgress, setGuideProgress] = useState(0)
 
-  // 使用实际的WebSocket hook
+  // 浣跨敤瀹為檯鐨刉ebSocket hook
   const {
     isConnected,
     sessionData,
@@ -416,32 +426,32 @@ export default function CreativeIdeaBidding({ ideaId }: CreativeIdeaBiddingProps
     ? useBiddingWebSocketOriginal({ ideaId: sessionId })
     : useBiddingWebSocket(sessionId)
 
-  // 如果用户未登录或数据加载中，显示加载状态
+  // 濡傛灉鐢ㄦ埛鏈櫥褰曟垨鏁版嵁鍔犺浇涓紝鏄剧ず鍔犺浇鐘舵€?
   if (authLoading || !user) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-purple-100 via-blue-50 to-indigo-100 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto mb-4" />
-          <p className="text-gray-600">加载用户信息中...</p>
+          <p className="text-gray-600">鍔犺浇鐢ㄦ埛淇℃伅涓?..</p>
         </div>
       </div>
     )
   }
 
-  // 模拟数据用于展示
+  // 妯℃嫙鏁版嵁鐢ㄤ簬灞曠ず
   const activeSpeaker = 'tech-pioneer-alex'
   const currentPhase = sessionData?.phase || 'warmup'
   const timeRemaining = sessionData?.timeRemaining || 120
   const highestBid = Math.max(...currentBids.map(b => b.amount), 50)
   const currentBidsMap: Record<string, number> = {}
 
-  // 转换现有竞价数据为角色映射
+  // 杞崲鐜版湁绔炰环鏁版嵁涓鸿鑹叉槧灏?
   AI_PERSONAS.forEach(persona => {
     const bid = currentBids.find(b => b.agentName === persona.name)
     currentBidsMap[persona.id] = bid?.amount || Math.floor(Math.random() * 100) + 50
   })
 
-  // 转换AI交互为消息格式
+  // 杞崲AI浜や簰涓烘秷鎭牸寮?
   const aiMessages: AIMessage[] = aiInteractions.map(interaction => ({
     id: interaction.id,
     personaId: AI_PERSONAS.find(p => p.name === interaction.agentName)?.id || 'tech-pioneer-alex',
@@ -456,9 +466,9 @@ export default function CreativeIdeaBidding({ ideaId }: CreativeIdeaBiddingProps
   const handleStartBidding = async (ideaContent: string) => {
     const REQUIRED_CREDITS = 50
 
-    // 检查积分是否充足
+    // 妫€鏌ョН鍒嗘槸鍚﹀厖瓒?
     if (!hasEnoughCredits(REQUIRED_CREDITS)) {
-      setError('积分不足，无法参与竞价')
+      setError('绉垎涓嶈冻锛屾棤娉曞弬涓庣珵浠?)
       return
     }
 
@@ -466,22 +476,22 @@ export default function CreativeIdeaBidding({ ideaId }: CreativeIdeaBiddingProps
     setError(null)
 
     try {
-      // 扣除积分
-      await adjustCredits(-REQUIRED_CREDITS, 'AI创意竞价参与费用')
+      // 鎵ｉ櫎绉垎
+      await adjustCredits(-REQUIRED_CREDITS, 'AI鍒涙剰绔炰环鍙備笌璐圭敤')
 
-      // 创建会话ID
+      // 鍒涘缓浼氳瘽ID
       const newSessionId = `session-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
       setSessionId(newSessionId)
 
-      // 模拟启动延迟
+      // 妯℃嫙鍚姩寤惰繜
       await new Promise(resolve => setTimeout(resolve, 2000))
       setShowForm(false)
     } catch (error) {
       console.error('Failed to start bidding:', error)
-      setError('启动竞价失败，积分已退还')
-      // 退还积分
+      setError('鍚姩绔炰环澶辫触锛岀Н鍒嗗凡閫€杩?)
+      // 閫€杩樼Н鍒?
       try {
-        await adjustCredits(REQUIRED_CREDITS, '竞价启动失败退款')
+        await adjustCredits(REQUIRED_CREDITS, '绔炰环鍚姩澶辫触閫€娆?)
       } catch (refundError) {
         console.error('Failed to refund credits:', refundError)
       }
@@ -491,28 +501,28 @@ export default function CreativeIdeaBidding({ ideaId }: CreativeIdeaBiddingProps
   }
 
   const handleSupportPersona = async (personaId: string) => {
-    const SUPPORT_COST = 10 // 支持AI角色的积分消耗
+    const SUPPORT_COST = 10 // 鏀寔AI瑙掕壊鐨勭Н鍒嗘秷鑰?
 
-    // 检查积分是否充足
+    // 妫€鏌ョН鍒嗘槸鍚﹀厖瓒?
     if (!hasEnoughCredits(SUPPORT_COST)) {
-      setError('积分不足，无法支持该角色')
+      setError('绉垎涓嶈冻锛屾棤娉曟敮鎸佽瑙掕壊')
       return
     }
 
     try {
       const persona = AI_PERSONAS.find(p => p.id === personaId)
       if (persona && sessionId) {
-        // 扣除积分
-        await adjustCredits(-SUPPORT_COST, `支持AI专家 ${persona.name}`)
+        // 鎵ｉ櫎绉垎
+        await adjustCredits(-SUPPORT_COST, `鏀寔AI涓撳 ${persona.name}`)
         supportAgent(persona.name)
         setError(null)
       }
     } catch (error) {
       console.error('Failed to support persona:', error)
-      setError('支持失败，积分已退还')
-      // 退还积分
+      setError('鏀寔澶辫触锛岀Н鍒嗗凡閫€杩?)
+      // 閫€杩樼Н鍒?
       try {
-        await adjustCredits(SUPPORT_COST, '支持失败退款')
+        await adjustCredits(SUPPORT_COST, '鏀寔澶辫触閫€娆?)
       } catch (refundError) {
         console.error('Failed to refund credits:', refundError)
       }
@@ -520,27 +530,27 @@ export default function CreativeIdeaBidding({ ideaId }: CreativeIdeaBiddingProps
   }
 
   const handleSendReaction = async (messageId: string, reaction: string) => {
-    const REACTION_COST = 5 // 发送反应的积分消耗
+    const REACTION_COST = 5 // 鍙戦€佸弽搴旂殑绉垎娑堣€?
 
-    // 检查积分是否充足
+    // 妫€鏌ョН鍒嗘槸鍚﹀厖瓒?
     if (!hasEnoughCredits(REACTION_COST)) {
-      setError('积分不足，无法发送反应')
+      setError('绉垎涓嶈冻锛屾棤娉曞彂閫佸弽搴?)
       return
     }
 
     try {
       if (sessionId) {
-        // 扣除积分
-        await adjustCredits(-REACTION_COST, '发送互动反应')
+        // 鎵ｉ櫎绉垎
+        await adjustCredits(-REACTION_COST, '鍙戦€佷簰鍔ㄥ弽搴?)
         reactToDialogue(reaction)
         setError(null)
       }
     } catch (error) {
       console.error('Failed to send reaction:', error)
-      setError('发送反应失败，积分已退还')
-      // 退还积分
+      setError('鍙戦€佸弽搴斿け璐ワ紝绉垎宸查€€杩?)
+      // 閫€杩樼Н鍒?
       try {
-        await adjustCredits(REACTION_COST, '反应发送失败退款')
+        await adjustCredits(REACTION_COST, '鍙嶅簲鍙戦€佸け璐ラ€€娆?)
       } catch (refundError) {
         console.error('Failed to refund credits:', refundError)
       }
@@ -548,11 +558,11 @@ export default function CreativeIdeaBidding({ ideaId }: CreativeIdeaBiddingProps
   }
 
   const handleGenerateGuide = async () => {
-    const GUIDE_COST = 100 // 生成落地指南的积分消耗
+    const GUIDE_COST = 100 // 鐢熸垚钀藉湴鎸囧崡鐨勭Н鍒嗘秷鑰?
 
-    // 检查积分是否充足
+    // 妫€鏌ョН鍒嗘槸鍚﹀厖瓒?
     if (!hasEnoughCredits(GUIDE_COST)) {
-      setError('积分不足，需要100积分生成商业落地指南')
+      setError('绉垎涓嶈冻锛岄渶瑕?00绉垎鐢熸垚鍟嗕笟钀藉湴鎸囧崡')
       return
     }
 
@@ -561,10 +571,10 @@ export default function CreativeIdeaBidding({ ideaId }: CreativeIdeaBiddingProps
     setError(null)
 
     try {
-      // 扣除积分
-      await adjustCredits(-GUIDE_COST, '生成商业落地指南')
+      // 鎵ｉ櫎绉垎
+      await adjustCredits(-GUIDE_COST, '鐢熸垚鍟嗕笟钀藉湴鎸囧崡')
 
-      // 模拟进度更新
+      // 妯℃嫙杩涘害鏇存柊
       const progressInterval = setInterval(() => {
         setGuideProgress((prev) => {
           if (prev >= 90) {
@@ -575,7 +585,7 @@ export default function CreativeIdeaBidding({ ideaId }: CreativeIdeaBiddingProps
         })
       }, 500)
 
-      // 调用生成落地指南API
+      // 璋冪敤鐢熸垚钀藉湴鎸囧崡API
       const response = await fetch('/api/generate-business-plan', {
         method: 'POST',
         headers: {
@@ -584,7 +594,7 @@ export default function CreativeIdeaBidding({ ideaId }: CreativeIdeaBiddingProps
         },
         body: JSON.stringify({
           ideaId: sessionId,
-          ideaContent: 'AI创意竞价舞台系统', // 使用当前会话的创意内容
+          ideaContent: 'AI鍒涙剰绔炰环鑸炲彴绯荤粺', // 浣跨敤褰撳墠浼氳瘽鐨勫垱鎰忓唴瀹?
           biddingResults: currentBids,
           aiDialogue: aiInteractions
         })
@@ -594,20 +604,20 @@ export default function CreativeIdeaBidding({ ideaId }: CreativeIdeaBiddingProps
       setGuideProgress(100)
 
       if (!response.ok) {
-        throw new Error('生成失败')
+        throw new Error('鐢熸垚澶辫触')
       }
 
       const result = await response.json()
 
-      // 跳转到商业计划页面
-      router.push(`/business-plan?reportId=${result.reportId}&ideaTitle=${encodeURIComponent('AI创意竞价舞台系统')}`)
+      // 璺宠浆鍒板晢涓氳鍒掗〉闈?
+      router.push(`/business-plan?reportId=${result.reportId}&ideaTitle=${encodeURIComponent('AI鍒涙剰绔炰环鑸炲彴绯荤粺')}`)
 
     } catch (error) {
       console.error('Failed to generate guide:', error)
-      setError('生成落地指南失败，积分已退还')
-      // 退还积分
+      setError('鐢熸垚钀藉湴鎸囧崡澶辫触锛岀Н鍒嗗凡閫€杩?)
+      // 閫€杩樼Н鍒?
       try {
-        await adjustCredits(GUIDE_COST, '落地指南生成失败退款')
+        await adjustCredits(GUIDE_COST, '钀藉湴鎸囧崡鐢熸垚澶辫触閫€娆?)
       } catch (refundError) {
         console.error('Failed to refund credits:', refundError)
       }
@@ -617,7 +627,7 @@ export default function CreativeIdeaBidding({ ideaId }: CreativeIdeaBiddingProps
     }
   }
 
-  // 显示创意输入表单
+  // 鏄剧ず鍒涙剰杈撳叆琛ㄥ崟
   if (showForm) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-purple-100 via-blue-50 to-indigo-100 flex items-center justify-center p-6">
@@ -641,7 +651,7 @@ export default function CreativeIdeaBidding({ ideaId }: CreativeIdeaBiddingProps
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-100 via-blue-50 to-indigo-100 p-6">
       <div className="max-w-7xl mx-auto">
-        {/* 错误提示 */}
+        {/* 閿欒鎻愮ず */}
         {error && (
           <div className="fixed top-4 right-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg shadow-lg z-50">
             <div className="flex items-center">
@@ -651,7 +661,7 @@ export default function CreativeIdeaBidding({ ideaId }: CreativeIdeaBiddingProps
           </div>
         )}
 
-        {/* 页面标题 - 升级版 */}
+        {/* 椤甸潰鏍囬 - 鍗囩骇鐗?*/}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -668,10 +678,10 @@ export default function CreativeIdeaBidding({ ideaId }: CreativeIdeaBiddingProps
               </div>
               <div>
                 <h3 className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
-                  🎭 AI 创意竞价舞台
+                  馃幁 AI 鍒涙剰绔炰环鑸炲彴
                 </h3>
                 <p className="text-gray-600 text-lg">
-                  观看 5 位 AI 专家为您的创意激烈竞价
+                  瑙傜湅 5 浣?AI 涓撳涓烘偍鐨勫垱鎰忔縺鐑堢珵浠?
                 </p>
               </div>
             </motion.div>
@@ -682,7 +692,7 @@ export default function CreativeIdeaBidding({ ideaId }: CreativeIdeaBiddingProps
               className="flex items-center space-x-4"
             >
               <div className="bg-gradient-to-r from-yellow-400 via-orange-400 to-red-400 text-white px-4 py-2 rounded-full text-lg font-bold shadow-lg">
-                💰 积分: {user.credits}
+                馃挵 绉垎: {user.credits}
               </div>
               <Button
                 onClick={() => router.push('/payment')}
@@ -690,7 +700,7 @@ export default function CreativeIdeaBidding({ ideaId }: CreativeIdeaBiddingProps
                 className="bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white shadow-lg"
               >
                 <Plus className="w-4 h-4 mr-1" />
-                充值
+                鍏呭€?
               </Button>
               <Button
                 onClick={() => router.back()}
@@ -699,12 +709,12 @@ export default function CreativeIdeaBidding({ ideaId }: CreativeIdeaBiddingProps
                 className="border-gray-300 hover:border-gray-400 shadow-lg"
               >
                 <ArrowLeft className="w-4 h-4 mr-1" />
-                返回
+                杩斿洖
               </Button>
             </motion.div>
           </div>
 
-          {/* 实时状态指示器 */}
+          {/* 瀹炴椂鐘舵€佹寚绀哄櫒 */}
           <motion.div
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -715,22 +725,22 @@ export default function CreativeIdeaBidding({ ideaId }: CreativeIdeaBiddingProps
               <div className="flex items-center space-x-2">
                 <div className={`w-3 h-3 rounded-full ${isConnected ? 'bg-green-400 animate-pulse' : 'bg-red-400'}`} />
                 <span className="text-sm font-medium text-gray-700">
-                  {isConnected ? '🟢 竞价进行中' : '🔴 连接中...'}
+                  {isConnected ? '馃煝 绔炰环杩涜涓? : '馃敶 杩炴帴涓?..'}
                 </span>
               </div>
               <div className="flex items-center space-x-2">
                 <Users className="w-4 h-4 text-blue-500" />
-                <span className="text-sm font-medium text-gray-700">{viewerCount} 在线观众</span>
+                <span className="text-sm font-medium text-gray-700">{viewerCount} 鍦ㄧ嚎瑙備紬</span>
               </div>
               <div className="flex items-center space-x-2">
                 <TrendingUp className="w-4 h-4 text-green-500" />
-                <span className="text-sm font-medium text-gray-700">最高竞价¥{highestBid}</span>
+                <span className="text-sm font-medium text-gray-700">鏈€楂樼珵浠仿highestBid}</span>
               </div>
             </div>
           </motion.div>
         </motion.div>
 
-        {/* 使用增强的竞价舞台组件 */}
+        {/* 浣跨敤澧炲己鐨勭珵浠疯垶鍙扮粍浠?*/}
         <EnhancedBiddingStage
           ideaId="demo-idea"
           messages={aiMessages}
@@ -745,7 +755,7 @@ export default function CreativeIdeaBidding({ ideaId }: CreativeIdeaBiddingProps
           onSupportPersona={handleSupportPersona}
         />
 
-        {/* 商业落地指南生成 - 升级版 */}
+        {/* 鍟嗕笟钀藉湴鎸囧崡鐢熸垚 - 鍗囩骇鐗?*/}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -753,7 +763,7 @@ export default function CreativeIdeaBidding({ ideaId }: CreativeIdeaBiddingProps
           className="mt-12"
         >
           <Card className="bg-gradient-to-br from-emerald-50 via-green-50 to-teal-50 border-2 border-emerald-200 shadow-2xl overflow-hidden relative">
-            {/* 背景装饰 */}
+            {/* 鑳屾櫙瑁呴グ */}
             <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/5 to-teal-500/5" />
             <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-emerald-400 to-teal-400 rounded-full opacity-10 transform translate-x-16 -translate-y-16" />
             <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-green-400 to-emerald-400 rounded-full opacity-10 transform -translate-x-12 translate-y-12" />
@@ -775,7 +785,7 @@ export default function CreativeIdeaBidding({ ideaId }: CreativeIdeaBiddingProps
                   transition={{ delay: 1.2 }}
                   className="text-3xl font-bold bg-gradient-to-r from-emerald-600 via-green-600 to-teal-600 bg-clip-text text-transparent mb-3"
                 >
-                  🎯 AI 商业落地指南
+                  馃幆 AI 鍟嗕笟钀藉湴鎸囧崡
                 </motion.h3>
 
                 <motion.p
@@ -784,10 +794,10 @@ export default function CreativeIdeaBidding({ ideaId }: CreativeIdeaBiddingProps
                   transition={{ delay: 1.4 }}
                   className="text-gray-600 text-xl mb-8 max-w-2xl mx-auto"
                 >
-                  基于 AI 专家竞价结果，生成专业的商业落地指导方案，助您实现创意变现
+                  鍩轰簬 AI 涓撳绔炰环缁撴灉锛岀敓鎴愪笓涓氱殑鍟嗕笟钀藉湴鎸囧鏂规锛屽姪鎮ㄥ疄鐜板垱鎰忓彉鐜?
                 </motion.p>
 
-                {/* 特色功能展示 */}
+                {/* 鐗硅壊鍔熻兘灞曠ず */}
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -795,19 +805,19 @@ export default function CreativeIdeaBidding({ ideaId }: CreativeIdeaBiddingProps
                   className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8"
                 >
                   <div className="bg-white/70 backdrop-blur-sm p-6 rounded-xl border border-emerald-100 shadow-lg">
-                    <div className="text-3xl mb-3">📊</div>
-                    <h4 className="font-bold text-gray-700 mb-2">市场分析</h4>
-                    <p className="text-sm text-gray-600">深度市场调研与竞争分析</p>
+                    <div className="text-3xl mb-3">馃搳</div>
+                    <h4 className="font-bold text-gray-700 mb-2">甯傚満鍒嗘瀽</h4>
+                    <p className="text-sm text-gray-600">娣卞害甯傚満璋冪爺涓庣珵浜夊垎鏋?/p>
                   </div>
                   <div className="bg-white/70 backdrop-blur-sm p-6 rounded-xl border border-emerald-100 shadow-lg">
-                    <div className="text-3xl mb-3">💡</div>
-                    <h4 className="font-bold text-gray-700 mb-2">执行方案</h4>
-                    <p className="text-sm text-gray-600">详细的实施步骤与时间规划</p>
+                    <div className="text-3xl mb-3">馃挕</div>
+                    <h4 className="font-bold text-gray-700 mb-2">鎵ц鏂规</h4>
+                    <p className="text-sm text-gray-600">璇︾粏鐨勫疄鏂芥楠や笌鏃堕棿瑙勫垝</p>
                   </div>
                   <div className="bg-white/70 backdrop-blur-sm p-6 rounded-xl border border-emerald-100 shadow-lg">
-                    <div className="text-3xl mb-3">💰</div>
-                    <h4 className="font-bold text-gray-700 mb-2">商业模式</h4>
-                    <p className="text-sm text-gray-600">可行的盈利模式与投资建议</p>
+                    <div className="text-3xl mb-3">馃挵</div>
+                    <h4 className="font-bold text-gray-700 mb-2">鍟嗕笟妯″紡</h4>
+                    <p className="text-sm text-gray-600">鍙鐨勭泩鍒╂ā寮忎笌鎶曡祫寤鸿</p>
                   </div>
                 </motion.div>
 
@@ -827,7 +837,7 @@ export default function CreativeIdeaBidding({ ideaId }: CreativeIdeaBiddingProps
                       }`}
                     >
                       <FileText className="w-6 h-6 mr-3" />
-                      🚀 生成专业落地指南 (100 积分)
+                      馃殌 鐢熸垚涓撲笟钀藉湴鎸囧崡 (100 绉垎)
                     </Button>
                   </motion.div>
                 ) : (
@@ -842,7 +852,7 @@ export default function CreativeIdeaBidding({ ideaId }: CreativeIdeaBiddingProps
                         transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
                         className="w-8 h-8 border-4 border-emerald-600 border-t-transparent rounded-full mr-4"
                       />
-                      <span className="text-emerald-700 text-xl font-bold">AI 正在分析您的创意...</span>
+                      <span className="text-emerald-700 text-xl font-bold">AI 姝ｅ湪鍒嗘瀽鎮ㄧ殑鍒涙剰...</span>
                     </div>
 
                     <div className="w-full max-w-md mx-auto">
@@ -855,13 +865,13 @@ export default function CreativeIdeaBidding({ ideaId }: CreativeIdeaBiddingProps
                         />
                       </div>
                       <div className="flex justify-between mt-2 text-sm text-emerald-600 font-medium">
-                        <span>生成进度</span>
+                        <span>鐢熸垚杩涘害</span>
                         <span>{guideProgress}%</span>
                       </div>
                     </div>
 
                     <p className="text-emerald-600 font-medium">
-                      正在整合 5 位 AI 专家的见解，生成您的专属商业方案...
+                      姝ｅ湪鏁村悎 5 浣?AI 涓撳鐨勮瑙ｏ紝鐢熸垚鎮ㄧ殑涓撳睘鍟嗕笟鏂规...
                     </p>
                   </motion.div>
                 )}
@@ -875,17 +885,17 @@ export default function CreativeIdeaBidding({ ideaId }: CreativeIdeaBiddingProps
                   >
                     <div className="flex items-center justify-center mb-4">
                       <AlertCircle className="w-6 h-6 text-amber-500 mr-2" />
-                      <span className="text-amber-800 font-bold text-lg">积分不足</span>
+                      <span className="text-amber-800 font-bold text-lg">绉垎涓嶈冻</span>
                     </div>
                     <p className="text-amber-700 mb-4">
-                      生成专业落地指南需要100 积分，当前积分不足。立即充值解锁完整的 AI 商业咨询服务！
+                      鐢熸垚涓撲笟钀藉湴鎸囧崡闇€瑕?00 绉垎锛屽綋鍓嶇Н鍒嗕笉瓒炽€傜珛鍗冲厖鍊艰В閿佸畬鏁寸殑 AI 鍟嗕笟鍜ㄨ鏈嶅姟锛?
                     </p>
                     <Button
                       onClick={() => router.push('/payment')}
                       className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white px-8 py-3 rounded-xl font-bold shadow-lg"
                     >
                       <Plus className="w-5 h-5 mr-2" />
-                      立即充值获取积分
+                      绔嬪嵆鍏呭€艰幏鍙栫Н鍒?
                     </Button>
                   </motion.div>
                 )}
@@ -894,7 +904,7 @@ export default function CreativeIdeaBidding({ ideaId }: CreativeIdeaBiddingProps
           </Card>
         </motion.div>
 
-        {/* 连接状态指示器 - 升级版 */}
+        {/* 杩炴帴鐘舵€佹寚绀哄櫒 - 鍗囩骇鐗?*/}
         <motion.div
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -915,7 +925,7 @@ export default function CreativeIdeaBidding({ ideaId }: CreativeIdeaBiddingProps
                 className={`w-3 h-3 rounded-full ${isConnected ? 'bg-green-500' : 'bg-red-500'}`}
               />
               <span className="font-medium text-sm">
-                {isConnected ? '🟢 竞价舞台连接正常' : '🔴 正在连接...'}
+                {isConnected ? '馃煝 绔炰环鑸炲彴杩炴帴姝ｅ父' : '馃敶 姝ｅ湪杩炴帴...'}
               </span>
             </div>
           </div>

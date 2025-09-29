@@ -1,0 +1,52 @@
+{
+  "url": "https://aijiayuan.top",
+  "timestamp": "2025-09-29T06:56:15.491Z",
+  "checks": {
+    "performance": {
+      "metrics": [],
+      "status": "success"
+    },
+    "resources": {
+      "mainFrame": {
+        "id": "58D52747AA5D88C3F0F6A411B36195BA",
+        "loaderId": "DB0BCD66B60D10F9AA19F049F5B73E40",
+        "url": "https://aijiayuan.top/",
+        "domainAndRegistry": "aijiayuan.top",
+        "securityOrigin": "https://aijiayuan.top",
+        "securityOriginDetails": {
+          "isLocalhost": false
+        },
+        "mimeType": "text/html",
+        "adFrameStatus": {
+          "adFrameType": "none"
+        },
+        "secureContextType": "Secure",
+        "crossOriginIsolatedContextType": "NotIsolated",
+        "gatedAPIFeatures": []
+      },
+      "subFrames": [],
+      "status": "success"
+    },
+    "javascript": {
+      "result": {
+        "title": "502: SERVICE_UNAVAILABLE",
+        "url": "https://aijiayuan.top/",
+        "readyState": "complete",
+        "errors": "no error handler",
+        "viewport": {
+          "width": 764,
+          "height": 433
+        }
+      },
+      "status": "success"
+    },
+    "console": {
+      "errors": [],
+      "status": "success"
+    },
+    "network": {
+      "failedRequests": [],
+      "status": "success"
+    }
+  }
+}

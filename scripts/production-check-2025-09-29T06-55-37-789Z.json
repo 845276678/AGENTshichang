@@ -1,0 +1,113 @@
+{
+  "url": "https://aijiayuan.top",
+  "timestamp": "2025-09-29T06:55:32.992Z",
+  "checks": {
+    "availability": {
+      "mainPage": {
+        "size": 11,
+        "hasTitle": false,
+        "hasDoctype": false,
+        "hasErrors": false
+      },
+      "responseTime": 1847,
+      "httpStatus": {
+        "code": 502,
+        "text": "Bad Gateway",
+        "ok": false
+      },
+      "headers": {
+        "alt-svc": "h3=\":443\"; ma=86400",
+        "content-type": "text/plain",
+        "date": "Mon, 29 Sep 2025 06:55:34 GMT",
+        "transfer-encoding": "chunked"
+      },
+      "ssl": {
+        "protocol": "https",
+        "secure": true
+      }
+    },
+    "health": {
+      "/api/health/simple": {
+        "status": 502,
+        "statusText": "Bad Gateway",
+        "headers": {
+          "alt-svc": "h3=\":443\"; ma=86400",
+          "content-type": "text/plain",
+          "date": "Mon, 29 Sep 2025 06:55:35 GMT",
+          "transfer-encoding": "chunked"
+        },
+        "available": false
+      },
+      "/api/health": {
+        "status": 502,
+        "statusText": "Bad Gateway",
+        "headers": {
+          "alt-svc": "h3=\":443\"; ma=86400",
+          "content-type": "text/plain",
+          "date": "Mon, 29 Sep 2025 06:55:35 GMT",
+          "transfer-encoding": "chunked"
+        },
+        "available": false
+      },
+      "/health": {
+        "status": 502,
+        "statusText": "Bad Gateway",
+        "headers": {
+          "alt-svc": "h3=\":443\"; ma=86400",
+          "content-type": "text/plain",
+          "date": "Mon, 29 Sep 2025 06:55:35 GMT",
+          "transfer-encoding": "chunked"
+        },
+        "available": false
+      },
+      "/_health": {
+        "status": 502,
+        "statusText": "Bad Gateway",
+        "headers": {
+          "alt-svc": "h3=\":443\"; ma=86400",
+          "content-type": "text/plain",
+          "date": "Mon, 29 Sep 2025 06:55:36 GMT",
+          "transfer-encoding": "chunked"
+        },
+        "available": false
+      }
+    },
+    "database": {
+      "/api/agents": {
+        "status": 502,
+        "available": true,
+        "responseTime": "unknown"
+      },
+      "/api/agents/featured": {
+        "status": 502,
+        "available": true,
+        "responseTime": "unknown"
+      },
+      "/api/user/profile": {
+        "status": 502,
+        "available": true,
+        "responseTime": "unknown"
+      }
+    },
+    "resources": {
+      "stylesheets": [],
+      "scripts": [],
+      "images": [],
+      "failures": []
+    }
+  },
+  "summary": {
+    "overall": "poor",
+    "issues": [
+      "HTTP状态异常: 502"
+    ],
+    "warnings": [
+      "未发现可用的健康检查API"
+    ],
+    "successes": [
+      "3个数据库相关API正常",
+      "关键资源加载正常"
+    ]
+  },
+  "duration": 4799
+}
