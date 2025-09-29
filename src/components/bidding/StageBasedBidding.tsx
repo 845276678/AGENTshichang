@@ -1,7 +1,6 @@
 'use client'
 
 import React, { useState, useEffect, useRef, useCallback } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
 
 import { useRouter } from 'next/navigation'
 import { useBiddingWebSocket, useBiddingWebSocketOriginal } from '@/hooks/useBiddingWebSocket'
@@ -25,12 +24,31 @@ interface CreativeIdeaBiddingProps {
   initialIdeaContent?: string
 }
 
-const MotionDiv = motion.div
-const MotionForm = motion.form
-const MotionH1 = motion.h1
-const MotionP = motion.p
-const MotionH3 = motion.h3
+// 简化的无动画组件，避免framer-motion导致的初始化问题
+const SimpleDiv = ({ children, className, style, ...props }: any) => (
+  <div className={className} style={style} {...props}>{children}</div>
+)
+const SimpleForm = ({ children, className, style, onSubmit, ...props }: any) => (
+  <form className={className} style={style} onSubmit={onSubmit} {...props}>{children}</form>
+)
+const SimpleH1 = ({ children, className, style, ...props }: any) => (
+  <h1 className={className} style={style} {...props}>{children}</h1>
+)
+const SimpleP = ({ children, className, style, ...props }: any) => (
+  <p className={className} style={style} {...props}>{children}</p>
+)
+const SimpleH3 = ({ children, className, style, ...props }: any) => (
+  <h3 className={className} style={style} {...props}>{children}</h3>
+)
+const SimplePresence = ({ children }: any) => <>{children}</>
 
+// 使用简化组件替代motion组件
+const MotionDiv = SimpleDiv
+const MotionForm = SimpleForm
+const MotionH1 = SimpleH1
+const MotionP = SimpleP
+const MotionH3 = SimpleH3
+const AnimatePresence = SimplePresence
 
 // 创意输入表单组件 - 升级版
 const CreativeInputForm = ({
@@ -48,450 +66,271 @@ const CreativeInputForm = ({
   const REQUIRED_CREDITS = 50 // Required credits to join bidding
 
   useEffect(() => {
-    setIdeaContent(defaultContent ?? '')
+    if (defaultContent) {
+      setIdeaContent(defaultContent)
+    }
   }, [defaultContent])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (ideaContent.trim() && userCredits >= REQUIRED_CREDITS) {
-      await onSubmit(ideaContent.trim())
+    if (!ideaContent.trim()) {
+      alert('请输入您的创意内容')
+      return
     }
+
+    if (userCredits < REQUIRED_CREDITS) {
+      alert(`参与AI竞价需要至少 ${REQUIRED_CREDITS} 积分，您当前有 ${userCredits} 积分`)
+      return
+    }
+
+    await onSubmit(ideaContent.trim())
   }
 
-  const hasEnoughCredits = userCredits >= REQUIRED_CREDITS
+  const canSubmit = ideaContent.trim().length > 0 && userCredits >= REQUIRED_CREDITS && !isLoading
 
   return (
-    <div className="max-w-4xl mx-auto">
-      <Card className="bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-50 border-purple-200 shadow-2xl backdrop-blur-sm">
-        <CardContent className="p-8">
-          <div className="text-center mb-8">
-            <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-purple-500 via-blue-500 to-indigo-500 rounded-full text-white mb-6 shadow-lg">
-              <Lightbulb className="w-10 h-10" />
-            </div>
-            <h1 className="text-4xl font-bold bg-gradient-to-r from-purple-600 via-blue-600 to-indigo-600 bg-clip-text text-transparent mb-3">
-              🎁 AI 创意竞价舞台
-            </h1>
-            <p className="text-gray-600 text-xl font-medium">
-              5 位顶级 AI 专家即将为您的创意展开激烈竞价！
-            </p>
+    <Card className="w-full max-w-4xl mx-auto">
+      <CardHeader className="text-center">
+        <MotionH1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-2">
+          🚀 AI创意竞价舞台
+        </MotionH1>
+        <CardDescription className="text-lg text-gray-600">
+          让五位AI专家为您的创意进行激烈竞价！发现创意的真实价值
+        </CardDescription>
+        <div className="flex items-center justify-center gap-4 mt-4">
+          <Badge variant="outline" className="flex items-center gap-1">
+            <Trophy className="w-4 h-4" />
+            专业评估
+          </Badge>
+          <Badge variant="outline" className="flex items-center gap-1">
+            <Users className="w-4 h-4" />
+            AI专家团
+          </Badge>
+          <Badge variant="outline" className="flex items-center gap-1">
+            <Target className="w-4 h-4" />
+            价值发现
+          </Badge>
+        </div>
+      </CardHeader>
 
-            {/* 积分状态显示 */}
-            <div className="mt-6 flex items-center justify-center space-x-6">
-              <div className="bg-gradient-to-r from-yellow-400 via-orange-400 to-red-400 text-white px-6 py-3 rounded-full text-lg font-bold shadow-lg">
-                💰 当前积分: {userCredits}
-              </div>
-              <div className={`px-6 py-3 rounded-full text-lg font-bold shadow-lg transition-all duration-300 ${
-                hasEnoughCredits
-                  ? 'bg-gradient-to-r from-green-400 to-emerald-400 text-white'
-                  : 'bg-gradient-to-r from-red-400 to-pink-400 text-white'
-              }`}>
-                {hasEnoughCredits ? '✅ 准备就绪' : `⚠️ 需要 ${REQUIRED_CREDITS} 积分`}
-              </div>
+      <CardContent>
+        <MotionForm onSubmit={handleSubmit} className="space-y-6">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              描述您的创意想法 ✨
+            </label>
+            <Textarea
+              value={ideaContent}
+              onChange={(e) => setIdeaContent(e.target.value)}
+              placeholder="请详细描述您的创意想法，包括：&#10;• 创意的核心概念和独特价值&#10;• 目标用户群体&#10;• 预期的市场价值&#10;• 实现方式和技术需求&#10;&#10;例如：一个基于AI的个性化学习助手，能够根据学生的学习习惯和知识掌握程度，自动生成个性化的学习计划和练习题..."
+              className="min-h-[120px] resize-none"
+              disabled={isLoading}
+            />
+            <div className="flex justify-between items-center mt-2 text-sm text-gray-500">
+              <span>{ideaContent.length} 字符</span>
+              <span>建议 50-500 字</span>
             </div>
           </div>
 
-          {!hasEnoughCredits && (
-            <div className="mb-8 p-6 bg-gradient-to-r from-red-50 to-pink-50 border-2 border-red-200 rounded-xl">
-              <div className="flex items-center">
-                <AlertCircle className="w-6 h-6 text-red-500 mr-3" />
-                <div>
-                  <p className="text-red-800 font-bold text-lg">积分不足，无法启动竞价</p>
-                  <p className="text-red-600 mt-1">
-                    参与 AI 创意竞价需要至少 {REQUIRED_CREDITS} 积分。请完成每日签到或充值获取积分，然后重新体验这场精彩的创意竞拍！
-                  </p>
-                </div>
+          {/* 积分显示和说明 */}
+          <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-4 rounded-lg border border-blue-200">
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-2">
+                <Gift className="w-5 h-5 text-blue-600" />
+                <span className="font-medium text-blue-900">账户积分</span>
               </div>
+              <Badge variant={userCredits >= REQUIRED_CREDITS ? "default" : "destructive"}>
+                {userCredits} 积分
+              </Badge>
             </div>
-          )}
-
-          <form onSubmit={handleSubmit} className="space-y-8">
-            <div>
-              <label className="block text-lg font-bold text-gray-700 mb-4">
-                ✨ 描述您的创意想法
-              </label>
-              <Textarea
-                value={ideaContent}
-                onChange={(e) => setIdeaContent(e.target.value)}
-                placeholder="例如：一个基于AI的智能家居管理系统，可以学习用户习惯并自动调节环境参数，实现真正的个性化居住体验..."
-                className="min-h-[150px] text-lg border-2 border-purple-200 focus:border-purple-500 focus:ring-4 focus:ring-purple-200 rounded-xl transition-all duration-300 shadow-inner"
-                maxLength={500}
-                disabled={!hasEnoughCredits}
-              />
-              <div className="flex justify-between mt-3 text-sm">
-                <span className="text-gray-500 font-medium">
-                  💡 详细描述有助于 AI 专家更准确评估您的创意价值
-                </span>
-                <span className={`font-bold ${ideaContent.length > 400 ? 'text-red-500' : 'text-gray-500'}`}>
-                  {ideaContent.length}/500
-                </span>
+            <MotionP className="text-sm text-blue-700">
+              参与AI竞价需要消耗 {REQUIRED_CREDITS} 积分。竞价结束后，您将获得详细的商业价值报告和专家评估意见。
+            </MotionP>
+            {userCredits < REQUIRED_CREDITS && (
+              <div className="mt-2 text-sm text-red-600 flex items-center gap-1">
+                <AlertCircle className="w-4 h-4" />
+                积分不足，无法参与竞价
               </div>
-            </div>
+            )}
+          </div>
 
-            <div className="text-center">
-              <Button
-                type="submit"
-                disabled={!ideaContent.trim() || isLoading || !hasEnoughCredits}
-                className={`w-full py-6 text-xl font-bold rounded-xl transition-all duration-300 shadow-lg ${
-                  hasEnoughCredits
-                    ? 'bg-gradient-to-r from-purple-600 via-blue-600 to-indigo-600 hover:from-purple-700 hover:via-blue-700 hover:to-indigo-700 text-white'
-                    : 'bg-gray-400 text-gray-200 cursor-not-allowed'
-                }`}
-              >
-                {isLoading ? (
-                  <>
-                    <Loader2 className="w-6 h-6 mr-3 animate-spin" />
-                    正在启动 AI 竞价舞台...
-                  </>
-                ) : !hasEnoughCredits ? (
-                  <>
-                    <AlertCircle className="w-6 h-6 mr-3" />
-                    积分不足，无法参与竞价
-                  </>
-                ) : (
-                  <>
-                    <Play className="w-6 h-6 mr-3" />
-                    🎀 开始 AI 创意竞价表演 (-{REQUIRED_CREDITS} 积分)
-                  </>
-                )}
-              </Button>
-            </div>
-          </form>
+          <Button
+            type="submit"
+            disabled={!canSubmit}
+            className="w-full h-12 text-lg font-semibold relative overflow-hidden"
+          >
+            {isLoading ? (
+              <div className="flex items-center justify-center gap-2">
+                <Loader2 className="w-5 h-5 animate-spin" />
+                正在启动AI竞价...
+              </div>
+            ) : (
+              <div className="flex items-center justify-center gap-2">
+                <Play className="w-5 h-5" />
+                开始AI专家竞价
+              </div>
+            )}
+          </Button>
 
-          {/* 特色说明 */}
-          <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="text-center p-4 bg-white/60 rounded-lg border border-purple-100">
-              <div className="text-2xl mb-2">🏆</div>
-              <h3 className="font-bold text-gray-700">专业评估</h3>
-              <p className="text-sm text-gray-600">5位AI专家多维度分析</p>
+          {/* 功能说明 */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+            <div className="text-center p-3 bg-gray-50 rounded-lg">
+              <Clock className="w-8 h-8 mx-auto mb-2 text-blue-600" />
+              <h4 className="font-semibold text-gray-800">快速评估</h4>
+              <p className="text-sm text-gray-600">35-45分钟完整流程</p>
             </div>
-            <div className="text-center p-4 bg-white/60 rounded-lg border border-purple-100">
-              <div className="text-2xl mb-2">💰</div>
-              <h3 className="font-bold text-gray-700">实时竞价</h3>
-              <p className="text-sm text-gray-600">动态竞价过程可视化</p>
+            <div className="text-center p-3 bg-gray-50 rounded-lg">
+              <Users className="w-8 h-8 mx-auto mb-2 text-green-600" />
+              <h4 className="font-semibold text-gray-800">专家团队</h4>
+              <p className="text-sm text-gray-600">5位AI专家同时评估</p>
             </div>
-            <div className="text-center p-4 bg-white/60 rounded-lg border border-purple-100">
-              <div className="text-2xl mb-2">📈</div>
-              <h3 className="font-bold text-gray-700">商业指导</h3>
-              <p className="text-sm text-gray-600">生成专业落地方案</p>
+            <div className="text-center p-3 bg-gray-50 rounded-lg">
+              <FileText className="w-8 h-8 mx-auto mb-2 text-purple-600" />
+              <h4 className="font-semibold text-gray-800">详细报告</h4>
+              <p className="text-sm text-gray-600">完整商业价值分析</p>
             </div>
           </div>
-        </CardContent>
-      </Card>
-    </div>
+        </MotionForm>
+      </CardContent>
+    </Card>
   )
 }
 
-export default function CreativeIdeaBidding({ ideaId, autoStart = false, initialIdeaContent }: CreativeIdeaBiddingProps) {
-  const router = useRouter()
-  const { user, isLoading: authLoading } = useAuth()
-  const [showForm, setShowForm] = useState(() => !autoStart)
-  const [isStarting, setIsStarting] = useState(false)
-  const [isAutoStarting, setIsAutoStarting] = useState(false)
-  const [sessionId, setSessionId] = useState<string | null>(null)
-  const [error, setError] = useState<string | null>(null)
-  const [prefilledIdeaContent, setPrefilledIdeaContent] = useState(initialIdeaContent ?? '')
-  const autoStartRequestedRef = useRef(false)
-  const [loadedIdea, setLoadedIdea] = useState<{ id: string; title?: string; description: string; category?: string } | null>(null)
-
-  // Handle auto-loading of idea content from ideaId
-  useEffect(() => {
-    const loadIdeaContent = async () => {
-      if (ideaId && ideaId !== 'demo-idea-001' && !autoStartRequestedRef.current) {
-        try {
-          const token = getAccessToken()
-          const response = await fetch(`/api/ideas/${ideaId}`, {
-            headers: {
-              'Authorization': `Bearer ${token}`
-            }
-          })
-
-          if (response.ok) {
-            const data = await response.json()
-            if (data.idea) {
-              setLoadedIdea(data.idea)
-              setPrefilledIdeaContent(data.idea.description || data.idea.title || '')
-            }
-          }
-        } catch (error) {
-          console.error('Failed to load idea:', error)
-        }
-      }
-    }
-
-    loadIdeaContent()
-  }, [ideaId, getAccessToken])
-
-  // Handle initial content from props
-  useEffect(() => {
-    if (initialIdeaContent) {
-      setPrefilledIdeaContent(initialIdeaContent)
-    }
-  }, [initialIdeaContent])
-
-  // Handle autoStart logic
-  useEffect(() => {
-    const handleAutoStart = async () => {
-      if (autoStart && !autoStartRequestedRef.current && user && !authLoading) {
-        autoStartRequestedRef.current = true
-        setIsAutoStarting(true)
-
-        // Wait for idea content to be loaded if we have an ideaId
-        const contentToUse = loadedIdea?.description || prefilledIdeaContent || initialIdeaContent
-
-        if (contentToUse) {
-          const success = await handleStartBidding(contentToUse)
-          if (!success) {
-            // Reset if auto-start failed
-            autoStartRequestedRef.current = false
-            setIsAutoStarting(false)
-          }
-        } else {
-          console.warn('Auto-start requested but no content available')
-          setError('自动启动失败：未找到创意内容')
-          autoStartRequestedRef.current = false
-          setIsAutoStarting(false)
-        }
-
-        setIsAutoStarting(false)
-      }
-    }
-
-    handleAutoStart()
-  }, [autoStart, user, authLoading, loadedIdea, prefilledIdeaContent, initialIdeaContent, handleStartBidding])
-
-  const getAccessToken = useCallback(() => {
-    const token = tokenStorage.getAccessToken()
-    if (!token) {
-      throw new Error('登录状态已失效，请重新登录后重试')
-    }
-    return token
-  }, [])
-
-  const hasEnoughCredits = useCallback((required: number) => {
-    return (user?.credits ?? 0) >= required
-  }, [user?.credits])
-
-  const adjustCredits = useCallback(
-    async (amount: number, description?: string) => {
-      const token = getAccessToken()
-
-      const response = await fetch('/api/user/credits', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: 'Bearer ' + token
-        },
-        body: JSON.stringify({
-          amount,
-          type: amount >= 0 ? 'EARN' : 'SPEND',
-          description: description ?? '精彩会话值得期待'
-        })
-      })
-
-      let data: any = null
-      try {
-        data = await response.json()
-      } catch (parseError) {
-        data = null
-      }
-
-      if (!response.ok || !data?.success) {
-        throw new Error(data?.error || data?.message || '竞价启动失败')
-      }
-    },
-    [getAccessToken]
-  )
-
-  const handleStartBidding = useCallback(async (ideaContent: string) => {
-    const REQUIRED_CREDITS = 50
-    const sanitizedContent = ideaContent.trim()
-
-    if (!sanitizedContent) {
-      setError('Please describe your idea in detail before starting the bidding.')
-      return false
-    }
-
-    if (!hasEnoughCredits(REQUIRED_CREDITS)) {
-      setError('Not enough credits to enter the bidding stage.')
-      return false
-    }
-
-    setPrefilledIdeaContent(sanitizedContent)
-    setIsStarting(true)
-    setError(null)
-
-    try {
-      await adjustCredits(-REQUIRED_CREDITS, 'AI bidding entry fee')
-
-      const newSessionId = 'session-' + Date.now() + '-' + Math.random().toString(36).slice(2, 9)
-      setSessionId(newSessionId)
-      setShowForm(false)
-
-      // 启动真实的AI竞价
-      await startRealAIBidding(sanitizedContent, newSessionId)
-
-      await new Promise(resolve => setTimeout(resolve, 2000))
-      return true
-    } catch (error) {
-      console.error('Failed to start bidding:', error)
-      setShowForm(true)
-      setError(error instanceof Error ? error.message || 'Failed to start bidding. Credits were refunded.' : 'Failed to start bidding. Credits were refunded.')
-      try {
-        await adjustCredits(REQUIRED_CREDITS, 'Bidding launch refund')
-      } catch (refundError) {
-        console.error('Failed to refund credits:', refundError)
-      }
-      return false
-    } finally {
-      setIsStarting(false)
-    }
-  }, [adjustCredits, hasEnoughCredits])
-
-  // 启动真实的AI竞价
-  const startRealAIBidding = useCallback(async (ideaContent: string, sessionId: string) => {
-    try {
-      const token = getAccessToken()
-
-      console.log('🎭 Starting real AI bidding with content:', ideaContent.substring(0, 50) + '...')
-
-      const response = await fetch('/api/bidding', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          ideaId: loadedIdea?.id || ideaId,
-          ideaContent,
-          sessionId
-        })
-      })
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}))
-        throw new Error(errorData.error || `HTTP ${response.status}: Failed to start AI bidding`)
-      }
-
-      const result = await response.json()
-
-      if (result.success) {
-        console.log('✅ AI bidding started successfully:', result.sessionId)
-        setSessionId(result.sessionId)
-
-        // 显示成功消息
-        setTimeout(() => {
-          setError(null)
-        }, 1000)
-      } else {
-        throw new Error(result.error || 'Failed to start AI bidding session')
-      }
-
-    } catch (error) {
-      console.error('Error starting real AI bidding:', error)
-      throw error
-    }
-  }, [getAccessToken, loadedIdea, ideaId])
-
-  // 如果用户未登录或数据加载中，显示加载状态
-  if (authLoading || !user) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-100 via-blue-50 to-indigo-100 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto mb-4" />
-          <p className="text-gray-600">加载用户信息中...</p>
-        </div>
-      </div>
-    )
-  }
-
-  // 显示创意输入表单
-  if (showForm) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-100 via-blue-50 to-indigo-100 flex items-center justify-center p-6">
-        {error && (
-          <div className="fixed top-4 right-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg shadow-lg z-50">
-            <div className="flex items-center">
-              <AlertCircle className="w-5 h-5 mr-2" />
-              {error}
-            </div>
-          </div>
-        )}
-        <CreativeInputForm
-          onSubmit={handleStartBidding}
-          isLoading={isStarting || isAutoStarting}
-          userCredits={user.credits}
-          defaultContent={prefilledIdeaContent}
-        />
-      </div>
-    )
-  }
+// 竞价阶段指示器
+const BiddingProgressIndicator = ({
+  currentPhase,
+  progress = 0
+}: {
+  currentPhase?: string
+  progress?: number
+}) => {
+  const phases = [
+    { key: 'input', label: '创意输入', icon: Lightbulb },
+    { key: 'warmup', label: 'AI预热', icon: Play },
+    { key: 'discussion', label: '深度讨论', icon: MessageCircle },
+    { key: 'bidding', label: '激烈竞价', icon: Trophy },
+    { key: 'supplement', label: '补充完善', icon: Plus },
+    { key: 'decision', label: '最终决策', icon: Target },
+    { key: 'result', label: '结果展示', icon: Star }
+  ]
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-100 via-blue-50 to-indigo-100 p-6">
-      <div className="max-w-7xl mx-auto">
-        {/* 错误提示 */}
-        {error && (
-          <div className="fixed top-4 right-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg shadow-lg z-50">
-            <div className="flex items-center">
-              <AlertCircle className="w-5 h-5 mr-2" />
-              {error}
-            </div>
+    <Card className="w-full max-w-4xl mx-auto mb-6">
+      <CardContent className="pt-6">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-lg font-semibold text-gray-800">竞价进度</h3>
+          <div className="text-sm text-gray-600">{Math.round(progress)}% 完成</div>
+        </div>
+
+        <Progress value={progress} className="h-2 mb-4" />
+
+        <div className="grid grid-cols-7 gap-2">
+          {phases.map((phase, index) => {
+            const Icon = phase.icon
+            const isActive = currentPhase === phase.key
+            const isCompleted = progress > (index / (phases.length - 1)) * 100
+
+            return (
+              <div
+                key={phase.key}
+                className={`text-center p-2 rounded-lg transition-colors ${
+                  isActive
+                    ? 'bg-blue-100 text-blue-700 border-2 border-blue-300'
+                    : isCompleted
+                    ? 'bg-green-100 text-green-700'
+                    : 'bg-gray-100 text-gray-500'
+                }`}
+              >
+                <Icon className="w-6 h-6 mx-auto mb-1" />
+                <div className="text-xs font-medium">{phase.label}</div>
+              </div>
+            )
+          })}
+        </div>
+      </CardContent>
+    </Card>
+  )
+}
+
+// 主组件
+export default function StageBasedBidding({
+  ideaId,
+  autoStart = false,
+  initialIdeaContent
+}: CreativeIdeaBiddingProps) {
+  const [currentStage, setCurrentStage] = useState<'input' | 'bidding'>('input')
+  const [submittedIdea, setSubmittedIdea] = useState<string>('')
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const { user } = useAuth()
+  const router = useRouter()
+
+  // Auto-start if specified and has initial content
+  useEffect(() => {
+    if (autoStart && initialIdeaContent) {
+      setSubmittedIdea(initialIdeaContent)
+      setCurrentStage('bidding')
+    }
+  }, [autoStart, initialIdeaContent])
+
+  const handleIdeaSubmit = async (ideaContent: string) => {
+    try {
+      setIsSubmitting(true)
+      setSubmittedIdea(ideaContent)
+
+      // 模拟提交延迟
+      await new Promise(resolve => setTimeout(resolve, 1000))
+
+      setCurrentStage('bidding')
+    } catch (error) {
+      console.error('Idea submission error:', error)
+      alert('提交失败，请重试')
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  const handleBackToInput = () => {
+    setCurrentStage('input')
+    setSubmittedIdea('')
+  }
+
+  const userCredits = user?.credits || 0
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 py-8">
+      <div className="container mx-auto px-4">
+        {currentStage === 'input' && (
+          <div className="space-y-8">
+            <CreativeInputForm
+              onSubmit={handleIdeaSubmit}
+              isLoading={isSubmitting}
+              userCredits={userCredits}
+              defaultContent={initialIdeaContent}
+            />
           </div>
         )}
 
-        {/* 页面标题 */}
-        <div className="text-center mb-8">
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center">
-              <div className="bg-gradient-to-r from-purple-500 to-blue-500 rounded-full p-3 mr-4 shadow-lg">
-                <Trophy className="w-8 h-8 text-white" />
-              </div>
-              <div>
-                <h3 className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
-                  🎁 AI 创意竞价舞台
-                </h3>
-                <p className="text-gray-600 text-lg">
-                  观看 5 位 AI 专家为您的创意激烈竞价
-                </p>
-              </div>
+        {currentStage === 'bidding' && submittedIdea && (
+          <div className="space-y-6">
+            <div className="flex items-center justify-between">
+              <Button
+                variant="ghost"
+                onClick={handleBackToInput}
+                className="flex items-center gap-2"
+              >
+                <ArrowLeft className="w-4 h-4" />
+                返回修改创意
+              </Button>
             </div>
 
-            <div className="flex items-center space-x-4">
-              <div className="bg-gradient-to-r from-yellow-400 via-orange-400 to-red-400 text-white px-4 py-2 rounded-full text-lg font-bold shadow-lg">
-                💰 积分: {user.credits}
-              </div>
-              <Button
-                onClick={() => router.push('/payment')}
-                size="sm"
-                className="bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white shadow-lg"
-              >
-                <Plus className="w-4 h-4 mr-1" />
-                充值
-              </Button>
-              <Button
-                onClick={() => router.back()}
-                size="sm"
-                variant="outline"
-                className="border-gray-300 hover:border-gray-400 shadow-lg"
-              >
-                <ArrowLeft className="w-4 h-4 mr-1" />
-                返回
-              </Button>
-            </div>
+            <BiddingProgressIndicator currentPhase="discussion" progress={45} />
+
+            <EnhancedBiddingStage
+              ideaContent={submittedIdea}
+              ideaId={ideaId}
+            />
           </div>
-        </div>
-
-        {/* 使用增强的竞价舞台组件 - 集成真实AI */}
-        <EnhancedBiddingStage
-          ideaId={loadedIdea?.id || ideaId || 'demo-idea'}
-          sessionId={sessionId}
-          ideaContent={prefilledIdeaContent}
-          messages={[]}
-          currentBids={{}}
-          activeSpeaker={null}
-          currentPhase="warmup"
-          onSupportPersona={() => {}}
-        />
+        )}
       </div>
     </div>
   )
