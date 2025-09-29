@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Layout } from '@/components/layout'
-import { useAuth } from '@/hooks/useAuth'
+import { useAuth } from '@/contexts/AuthContext'
 import { useSubmissionLimit } from '@/hooks/useSubmissionLimit'
 import { SubmissionStatus } from '@/components/submission/SubmissionStatus'
 import { Button } from '@/components/ui/button'

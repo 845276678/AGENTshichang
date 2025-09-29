@@ -30,7 +30,7 @@ import {
   TrendingUp
 } from 'lucide-react'
 import { mockAgents } from '@/lib/agents-mock-data'
-import { useAuth } from '@/hooks/useAuth'
+import { useAuth } from '@/contexts/AuthContext'
 import Link from 'next/link'
 
 interface Review {
