@@ -119,6 +119,10 @@ function handleBiddingWebSocket(ws, ideaId, query) {
           await handleSubmitPrediction(ideaId, message.payload, ws);
           break;
 
+        case 'supplement_idea':
+          await handleIdeaSupplement(ideaId, message.payload, ws);
+          break;
+
         case 'ping':
           ws.send(JSON.stringify({ type: 'pong', timestamp: Date.now() }));
           break;
@@ -235,6 +239,100 @@ async function handleSupportPersona(ideaId, payload, ws) {
       timestamp: Date.now()
     }
   });
+}
+
+// 处理用户创意补充
+async function handleIdeaSupplement(ideaId, payload, ws) {
+  const { supplementContent, round } = payload;
+  console.log(`💡 User supplements idea: ${supplementContent.substring(0, 50)}...`);
+
+  // 广播用户补充信息
+  broadcastToSession(ideaId, {
+    type: 'user_supplement',
+    payload: {
+      content: supplementContent,
+      round,
+      timestamp: Date.now(),
+      message: '用户补充了创意细节，AI专家们正在分析...'
+    }
+  });
+
+  // 让AI专家们回应用户的补充
+  try {
+    // 动态导入AI服务管理器
+    let AIServiceManager;
+    try {
+      AIServiceManager = require('./src/lib/ai-service-manager.js').default;
+    } catch (error) {
+      try {
+        require('ts-node/register');
+        AIServiceManager = require('./src/lib/ai-service-manager.ts').default;
+      } catch (tsError) {
+        console.error('Failed to load AI service manager:', tsError);
+        return;
+      }
+    }
+
+    const aiServiceManager = new AIServiceManager();
+
+    const aiPersonas = [
+      { id: 'tech-pioneer-alex', provider: 'deepseek' },
+      { id: 'business-guru-beta', provider: 'zhipu' },
+      { id: 'innovation-mentor-charlie', provider: 'qwen' },
+      { id: 'market-insight-delta', provider: 'deepseek' },
+      { id: 'investment-advisor-ivan', provider: 'zhipu' }
+    ];
+
+    // 选择2个AI专家来回应用户补充
+    const selectedPersonas = aiPersonas.slice(0, 2);
+
+    for (const persona of selectedPersonas) {
+      try {
+        const response = await aiServiceManager.callSingleService({
+          provider: persona.provider,
+          persona: persona.id,
+          context: {
+            ideaContent: supplementContent,
+            phase: 'discussion',
+            round: round,
+            trigger: 'user_supplement',
+            userFeedback: supplementContent
+          },
+          systemPrompt: getSystemPromptForPersona(persona.id) + '\n\n用户刚刚补充了新的创意信息，请针对这些新信息给出你的专业评价和建议。',
+          temperature: 0.7,
+          maxTokens: 250
+        });
+
+        const message = {
+          id: `supplement_response_${Date.now()}_${persona.id}`,
+          personaId: persona.id,
+          phase: 'discussion',
+          round: round,
+          type: 'speech',
+          content: response.content,
+          emotion: determineEmotion(response.content),
+          timestamp: new Date(),
+          confidence: response.confidence
+        };
+
+        broadcastToSession(ideaId, {
+          type: 'ai_message',
+          message
+        });
+
+        console.log(`💬 [SUPPLEMENT] ${persona.id}: ${response.content.substring(0, 60)}...`);
+
+        // AI回应间隔
+        await new Promise(resolve => setTimeout(resolve, 5000 + Math.random() * 3000));
+
+      } catch (error) {
+        console.error(`Error in AI supplement response for ${persona.id}:`, error);
+      }
+    }
+
+  } catch (error) {
+    console.error('Error handling idea supplement:', error);
+  }
 }
 
 // 提交预测
@@ -420,7 +518,7 @@ async function startRealAIDiscussionPhase(ideaId, ideaContent, aiPersonas) {
 
   const aiServiceManager = new AIServiceManager();
 
-  // 进行2轮深度讨论
+  // 进行2轮深度讨论，中间穿插用户互动机会
   for (let round = 1; round <= 2; round++) {
     for (const persona of aiPersonas) {
       try {
@@ -462,6 +560,23 @@ async function startRealAIDiscussionPhase(ideaId, ideaContent, aiPersonas) {
       } catch (error) {
         console.error(`Error in real AI discussion for ${persona.id}:`, error);
       }
+    }
+
+    // 在每轮讨论后，给用户补充机会
+    if (round === 1) {
+      console.log('💭 Sending user interaction prompt after round 1');
+      broadcastToSession(ideaId, {
+        type: 'user_interaction_prompt',
+        payload: {
+          message: '专家们提出了一些深入的问题，您想补充更多创意细节吗？',
+          promptType: 'idea_supplement',
+          timeLimit: 60, // 60秒时间限制
+          round: round
+        }
+      });
+
+      // 等待60秒用户补充时间
+      await new Promise(resolve => setTimeout(resolve, 60000));
     }
   }
 
