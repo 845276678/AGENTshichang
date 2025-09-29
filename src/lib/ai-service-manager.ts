@@ -389,11 +389,17 @@ export class AIServiceManager {
     };
   }
 
-  private buildUserPrompt(context: DialogueContext): string {
+  private buildUserPrompt(context: any): string {
     let prompt = `创意内容：${context.ideaContent}\n`;
     prompt += `当前阶段：${context.phase}\n`;
-    prompt += `触发事件：${context.trigger}\n`;
-    prompt += `轮次：${context.round}\n`;
+
+    if (context.trigger) {
+      prompt += `触发事件：${context.trigger}\n`;
+    }
+
+    if (context.round) {
+      prompt += `轮次：${context.round}\n`;
+    }
 
     if (context.creativityScore) {
       prompt += `创意评分：${context.creativityScore}/100\n`;
@@ -407,7 +413,23 @@ export class AIServiceManager {
       prompt += `之前的对话：\n${context.previousContext.join('\n')}\n`;
     }
 
-    prompt += '\n请根据你的专业角色，对这个创意进行评价和分析，并给出你的竞价建议。回复格式：[对话内容]|[竞价金额]|[理由说明]';
+    if (context.currentBids && Object.keys(context.currentBids).length > 0) {
+      prompt += `当前竞价情况：\n`;
+      Object.entries(context.currentBids).forEach(([personaId, bid]) => {
+        prompt += `${personaId}: ${bid}元\n`;
+      });
+    }
+
+    // 根据阶段调整提示
+    if (context.phase === 'warmup') {
+      prompt += '\n请简短介绍你自己，并对这个创意给出第一印象。保持角色特色，不超过150字。';
+    } else if (context.phase === 'discussion') {
+      prompt += '\n请从你的专业角度深入分析这个创意的优缺点。可以提出问题或与其他专家的观点进行互动。';
+    } else if (context.phase === 'bidding') {
+      prompt += '\n请给出你对这个创意的具体竞价金额（80-500元之间），并详细说明理由。格式：我出价X元，因为...';
+    } else {
+      prompt += '\n请根据你的专业角色，对这个创意进行评价和分析。';
+    }
 
     return prompt;
   }

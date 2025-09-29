@@ -4,7 +4,7 @@ import '@/styles/globals.css'
 import { AuthProvider } from '@/components/auth/AuthProvider'
 import { CartProvider } from '@/contexts/CartContext'
 
-const inter = Inter({ 
+const inter = Inter({
   subsets: ['latin'],
   display: 'swap',
   variable: '--font-inter'
@@ -13,20 +13,23 @@ const inter = Inter({
 export const metadata: Metadata = {
   metadataBase: new URL('https://aijiayuan.top'),
   title: {
-    default: 'AI Agent Market - Discover, Deploy, and Monetize AI Agents',
-    template: '%s | AI Agent Market'
+    default: 'AI创意家园 - AI Agent Market - 发现、部署、变现AI智能体',
+    template: '%s | AI创意家园'
   },
-  description: 'The world\'s largest marketplace for AI agents. Discover powerful AI agents, deploy them instantly, and monetize your own creations.',
+  description: '全球最大的AI智能体交易平台。发现强大的AI智能体，即时部署，变现您的创意。AI创意竞价、专家评估、商业计划生成一站式服务。',
   keywords: [
-    'AI agents',
-    'artificial intelligence',
-    'marketplace',
-    'automation',
-    'AI tools',
-    'machine learning'
+    'AI智能体',
+    'AI创意竞价',
+    'AI专家评估',
+    '人工智能',
+    '智能体市场',
+    'AI工具',
+    '机器学习',
+    '创意变现',
+    '商业计划'
   ],
-  authors: [{ name: 'AI Agent Market Team' }],
-  creator: 'AI Agent Market',
+  authors: [{ name: 'AI创意家园团队' }],
+  creator: 'AI创意家园',
   other: {
     'charset': 'utf-8'
   },
@@ -78,12 +81,14 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en" className={inter.variable}>
+    <html lang="zh-CN" className={inter.variable}>
       <head>
+        <meta charSet="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
       </head>
-      <body className={`font-sans antialiased ${inter.className}`}>
+      <body className={`font-sans antialiased ${inter.className}`} style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Helvetica Neue", Helvetica, Arial, sans-serif' }}>
         <AuthProvider>
           <CartProvider>
             <div id="root">

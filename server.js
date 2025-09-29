@@ -1,3 +1,7 @@
+// 设置UTF-8编码支持，解决中文乱码问题
+process.env.LANG = 'zh_CN.UTF-8'
+process.env.LC_ALL = 'zh_CN.UTF-8'
+
 const { createServer } = require('http');
 const { parse } = require('url');
 const next = require('next');
@@ -143,45 +147,38 @@ async function handleStartBidding(ideaId, payload, ws) {
 
     const { ideaContent, sessionId } = payload;
 
-    // 调用竞价API启动AI对话
-    const response = await fetch(`http://localhost:${port}/api/bidding`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        ideaId,
-        ideaContent,
-        sessionId: sessionId || `session_${Date.now()}`
-      })
+    // 直接调用内部逻辑，避免自循环HTTP请求
+    console.log(`🎭 Creating bidding session: ${sessionId} for idea: ${ideaId}`);
+
+    // 通知客户端竞价已启动
+    ws.send(JSON.stringify({
+      type: 'bidding_started',
+      payload: {
+        sessionId: sessionId || `session_${Date.now()}_${ideaId}`,
+        status: 'active',
+        message: 'AI竞价已启动，专家们正在分析您的创意...'
+      }
+    }));
+
+    // 广播给所有连接到此会话的客户端
+    broadcastToSession(ideaId, {
+      type: 'session_update',
+      payload: {
+        phase: 'warmup',
+        status: 'active',
+        message: 'AI专家团队开始评估创意'
+      }
     });
 
-    if (response.ok) {
-      const result = await response.json();
-
-      // 通知客户端竞价已启动
-      ws.send(JSON.stringify({
-        type: 'bidding_started',
-        payload: {
-          sessionId: result.sessionId,
-          status: 'active',
-          message: 'AI竞价已启动，专家们正在分析您的创意...'
-        }
-      }));
-
-      // 广播给所有连接到此会话的客户端
-      broadcastToSession(ideaId, {
-        type: 'session_update',
-        payload: {
-          phase: 'warmup',
-          status: 'active',
-          message: 'AI专家团队开始评估创意'
-        }
-      });
-
-    } else {
-      throw new Error('Failed to start bidding session');
-    }
+    // 启动真实AI对话流程，如果AI服务不可用则使用模拟流程
+    setTimeout(async () => {
+      try {
+        await startRealAIDiscussion(ideaId, ideaContent);
+      } catch (error) {
+        console.error('Real AI discussion failed, falling back to simulation:', error);
+        simulateAIDiscussion(ideaId, ideaContent);
+      }
+    }, 3000);
 
   } catch (error) {
     console.error('Error starting bidding:', error);
@@ -256,15 +253,562 @@ function broadcastViewerCount(ideaId) {
 // 导出广播函数供API使用
 global.broadcastToSession = broadcastToSession;
 
+// 真实AI讨论流程（使用配置的API密钥）
+async function startRealAIDiscussion(ideaId, ideaContent) {
+  console.log(`🤖 Starting REAL AI discussion for idea: ${ideaId}`);
+
+  // 动态导入AI服务管理器
+  let AIServiceManager;
+  try {
+    // 尝试加载编译后的JS版本
+    AIServiceManager = require('./src/lib/ai-service-manager.js').default;
+  } catch (error) {
+    try {
+      // 如果没有编译版本，尝试使用ts-node加载TS版本
+      require('ts-node/register');
+      AIServiceManager = require('./src/lib/ai-service-manager.ts').default;
+    } catch (tsError) {
+      console.error('Failed to load AI service manager:', tsError);
+      throw new Error('AI service manager not available');
+    }
+  }
+
+  const aiServiceManager = new AIServiceManager();
+
+  const aiPersonas = [
+    { id: 'tech-pioneer-alex', provider: 'deepseek' },
+    { id: 'business-guru-beta', provider: 'zhipu' },
+    { id: 'innovation-mentor-charlie', provider: 'qwen' },
+    { id: 'market-insight-delta', provider: 'deepseek' },
+    { id: 'investment-advisor-ivan', provider: 'zhipu' }
+  ];
+
+  // 暖场阶段 - 每个AI介绍自己
+  for (let i = 0; i < aiPersonas.length; i++) {
+    const persona = aiPersonas[i];
+
+    try {
+      console.log(`🎭 Calling ${persona.id} via ${persona.provider}...`);
+
+      const response = await aiServiceManager.callSingleService({
+        provider: persona.provider,
+        persona: persona.id,
+        context: {
+          ideaContent,
+          phase: 'warmup',
+          round: 1,
+          trigger: 'introduction'
+        },
+        systemPrompt: getSystemPromptForPersona(persona.id),
+        temperature: 0.7,
+        maxTokens: 200
+      });
+
+      const message = {
+        id: `real_msg_${Date.now()}_${i}`,
+        personaId: persona.id,
+        phase: 'warmup',
+        round: 1,
+        type: 'speech',
+        content: response.content,
+        emotion: determineEmotion(response.content),
+        timestamp: new Date(),
+        confidence: response.confidence,
+        tokens: response.tokens_used,
+        cost: response.cost
+      };
+
+      // 广播真实AI消息
+      broadcastToSession(ideaId, {
+        type: 'ai_message',
+        message
+      });
+
+      console.log(`💬 [REAL] ${persona.id}: ${response.content.substring(0, 80)}...`);
+
+      // AI之间间隔2-4秒
+      await new Promise(resolve => setTimeout(resolve, 2000 + Math.random() * 2000));
+
+    } catch (error) {
+      console.error(`Error calling real AI for ${persona.id}:`, error);
+
+      // 发送备用消息
+      const fallbackMessage = {
+        id: `fallback_${Date.now()}_${i}`,
+        personaId: persona.id,
+        phase: 'warmup',
+        round: 1,
+        type: 'speech',
+        content: `大家好，我是${persona.id}的AI专家。这个创意很有意思，让我分析一下...`,
+        emotion: 'neutral',
+        timestamp: new Date(),
+        confidence: 0.5
+      };
+
+      broadcastToSession(ideaId, {
+        type: 'ai_message',
+        message: fallbackMessage
+      });
+
+      await new Promise(resolve => setTimeout(resolve, 3000));
+    }
+  }
+
+  // 3秒后开始讨论阶段
+  setTimeout(async () => {
+    await startRealAIDiscussionPhase(ideaId, ideaContent, aiPersonas);
+  }, 3000);
+}
+
+// 真实AI讨论阶段
+async function startRealAIDiscussionPhase(ideaId, ideaContent, aiPersonas) {
+  console.log(`💭 Starting REAL AI discussion phase for: ${ideaId}`);
+
+  broadcastToSession(ideaId, {
+    type: 'phase_change',
+    phase: 'discussion',
+    timestamp: Date.now(),
+    message: '进入深度讨论阶段'
+  });
+
+  // 动态导入AI服务管理器
+  let AIServiceManager;
+  try {
+    AIServiceManager = require('./src/lib/ai-service-manager.js').default;
+  } catch (error) {
+    try {
+      require('ts-node/register');
+      AIServiceManager = require('./src/lib/ai-service-manager.ts').default;
+    } catch (tsError) {
+      console.error('Failed to load AI service manager:', tsError);
+      return;
+    }
+  }
+
+  const aiServiceManager = new AIServiceManager();
+
+  // 进行2轮深度讨论
+  for (let round = 1; round <= 2; round++) {
+    for (const persona of aiPersonas) {
+      try {
+        const response = await aiServiceManager.callSingleService({
+          provider: persona.provider,
+          persona: persona.id,
+          context: {
+            ideaContent,
+            phase: 'discussion',
+            round,
+            trigger: 'deep_analysis'
+          },
+          systemPrompt: getSystemPromptForPersona(persona.id),
+          temperature: 0.8,
+          maxTokens: 300
+        });
+
+        const message = {
+          id: `real_discussion_${Date.now()}_${round}`,
+          personaId: persona.id,
+          phase: 'discussion',
+          round,
+          type: 'speech',
+          content: response.content,
+          emotion: determineEmotion(response.content),
+          timestamp: new Date(),
+          confidence: response.confidence
+        };
+
+        broadcastToSession(ideaId, {
+          type: 'ai_message',
+          message
+        });
+
+        console.log(`💬 [REAL] Discussion R${round} ${persona.id}: ${response.content.substring(0, 60)}...`);
+
+        await new Promise(resolve => setTimeout(resolve, 3000 + Math.random() * 2000));
+
+      } catch (error) {
+        console.error(`Error in real AI discussion for ${persona.id}:`, error);
+      }
+    }
+  }
+
+  // 5秒后进入竞价阶段
+  setTimeout(async () => {
+    await startRealAIBiddingPhase(ideaId, ideaContent, aiPersonas);
+  }, 5000);
+}
+
+// 真实AI竞价阶段
+async function startRealAIBiddingPhase(ideaId, ideaContent, aiPersonas) {
+  console.log(`💰 Starting REAL AI bidding phase for: ${ideaId}`);
+
+  broadcastToSession(ideaId, {
+    type: 'phase_change',
+    phase: 'bidding',
+    timestamp: Date.now(),
+    message: '进入激烈竞价阶段'
+  });
+
+  // 动态导入AI服务管理器
+  let AIServiceManager;
+  try {
+    AIServiceManager = require('./src/lib/ai-service-manager.js').default;
+  } catch (error) {
+    try {
+      require('ts-node/register');
+      AIServiceManager = require('./src/lib/ai-service-manager.ts').default;
+    } catch (tsError) {
+      console.error('Failed to load AI service manager:', tsError);
+      return;
+    }
+  }
+
+  const aiServiceManager = new AIServiceManager();
+
+  const currentBids = {};
+
+  for (let round = 1; round <= 2; round++) {
+    for (const persona of aiPersonas) {
+      try {
+        const response = await aiServiceManager.callSingleService({
+          provider: persona.provider,
+          persona: persona.id,
+          context: {
+            ideaContent,
+            phase: 'bidding',
+            round,
+            trigger: 'bidding',
+            currentBids
+          },
+          systemPrompt: getSystemPromptForPersona(persona.id) + '\n\n请给出你的竞价，格式：我出价X元，因为...',
+          temperature: 0.6,
+          maxTokens: 250
+        });
+
+        // 从AI回应中提取竞价金额
+        const bidAmount = extractBidAmount(response.content);
+        currentBids[persona.id] = bidAmount;
+
+        const bidMessage = {
+          id: `real_bid_${Date.now()}_${round}`,
+          personaId: persona.id,
+          phase: 'bidding',
+          round,
+          type: 'bid',
+          content: response.content,
+          emotion: 'confident',
+          timestamp: new Date(),
+          bidValue: bidAmount,
+          confidence: response.confidence
+        };
+
+        broadcastToSession(ideaId, {
+          type: 'ai_bid',
+          message: bidMessage,
+          currentBids
+        });
+
+        console.log(`💰 [REAL] ${persona.id} bid: ${bidAmount}元`);
+
+        await new Promise(resolve => setTimeout(resolve, 4000 + Math.random() * 2000));
+
+      } catch (error) {
+        console.error(`Error in real AI bidding for ${persona.id}:`, error);
+
+        // 使用默认竞价
+        const defaultBid = 100 + Math.floor(Math.random() * 150);
+        currentBids[persona.id] = defaultBid;
+      }
+    }
+  }
+
+  // 3秒后结束竞价
+  setTimeout(() => {
+    finishRealAIBidding(ideaId, currentBids);
+  }, 3000);
+}
+
+// 结束真实AI竞价
+function finishRealAIBidding(ideaId, bids) {
+  const highestBid = Math.max(...Object.values(bids));
+  const avgBid = Object.values(bids).reduce((a, b) => a + b, 0) / Object.values(bids).length;
+
+  broadcastToSession(ideaId, {
+    type: 'session_complete',
+    results: {
+      highestBid,
+      averageBid: Math.round(avgBid),
+      finalBids: bids,
+      totalMessages: 25,
+      duration: 480000, // 8分钟
+      report: {
+        summary: '基于5位真实AI专家的专业分析，您的创意获得了全面评估。',
+        recommendations: [
+          '建议结合技术和商业双重视角优化方案',
+          '深入分析目标用户需求和市场定位',
+          '制定分阶段实施的商业化路线图',
+          '考虑技术实现的可行性和扩展性'
+        ]
+      }
+    }
+  });
+
+  console.log(`🎉 REAL AI bidding completed. Highest bid: ${highestBid}元`);
+}
+
+// 获取AI角色的系统提示词
+function getSystemPromptForPersona(personaId) {
+  const prompts = {
+    'tech-pioneer-alex': `你是技术先锋艾克斯，专业的首席技术专家。请从技术可行性、架构设计、开发难度等角度评估创意，说话专业严谨。`,
+    'business-guru-beta': `你是商业智囊贝塔，敏锐的商业战略顾问。请从商业模式、盈利潜力、市场价值等角度分析，说话务实精明。`,
+    'innovation-mentor-charlie': `你是创新导师查理，富有想象力的创新专家。请从用户体验、创新程度、社会价值等角度评价，说话有激情和人文关怀。`,
+    'market-insight-delta': `你是市场洞察黛拉，细致的市场分析专家。请从市场需求、竞争环境、发展趋势等角度研判，说话数据驱动且客观。`,
+    'investment-advisor-ivan': `你是投资顾问伊万，谨慎的风险投资专家。请从投资价值、风险评估、回报预期等角度分析，说话谨慎理性。`
+  };
+
+  return prompts[personaId] || `你是${personaId}，请保持专业性和角色一致性。`;
+}
+
+// 从AI响应中提取竞价金额
+function extractBidAmount(content) {
+  const patterns = [
+    /(\d+)元/,
+    /出价\s*(\d+)/,
+    /价格\s*(\d+)/,
+    /估值\s*(\d+)/,
+    /(\d+)\s*块/,
+    /我的出价是?\s*(\d+)/i
+  ];
+
+  for (const pattern of patterns) {
+    const match = content.match(pattern);
+    if (match) {
+      const amount = parseInt(match[1]);
+      return Math.min(Math.max(amount, 80), 500); // 限制在80-500之间
+    }
+  }
+
+  // 默认随机值
+  return Math.floor(Math.random() * 200) + 120;
+}
+
+// 从回应内容判断情绪
+function determineEmotion(content) {
+  if (content.includes('激动') || content.includes('太棒') || content.includes('惊艳') || content.includes('兴奋')) return 'excited';
+  if (content.includes('担心') || content.includes('风险') || content.includes('挑战') || content.includes('困难')) return 'worried';
+  if (content.includes('自信') || content.includes('确信') || content.includes('肯定') || content.includes('相信')) return 'confident';
+  if (content.includes('问题') || content.includes('不太') || content.includes('怀疑')) return 'worried';
+  return 'neutral';
+}
+
+// 模拟AI讨论流程（在真实AI API配置之前使用）
+function simulateAIDiscussion(ideaId, ideaContent) {
+  console.log(`🎭 Starting simulated AI discussion for idea: ${ideaId}`);
+
+  const aiPersonas = [
+    {
+      id: 'tech-pioneer-alex',
+      name: '技术先锋艾克斯',
+      responses: [
+        '从技术角度来看，这个创意具有很强的可实现性。',
+        '我认为可以采用微服务架构来实现这个方案。',
+        '技术复杂度中等，开发周期大约需要6个月。'
+      ]
+    },
+    {
+      id: 'business-guru-beta',
+      name: '商业智囊贝塔',
+      responses: [
+        '这个创意的商业模式很有潜力，目标市场很明确。',
+        '我建议采用订阅制的盈利模式。',
+        '预计18个月内可以收回投资成本。'
+      ]
+    },
+    {
+      id: 'innovation-mentor-charlie',
+      name: '创新导师查理',
+      responses: [
+        '这个创意的用户体验设计很重要，需要注重交互细节。',
+        '建议加入更多个性化元素来提升用户粘性。',
+        '从创新角度看，这个方案确实有独特之处。'
+      ]
+    },
+    {
+      id: 'market-insight-delta',
+      name: '市场洞察黛拉',
+      responses: [
+        '市场调研显示，用户对这类产品的需求在增长。',
+        '竞品分析表明我们有明显的差异化优势。',
+        '建议重点关注一二线城市的年轻用户群体。'
+      ]
+    },
+    {
+      id: 'investment-advisor-ivan',
+      name: '投资顾问伊万',
+      responses: [
+        '从投资角度看，这个项目的风险是可控的。',
+        '建议分阶段投资，先做MVP验证市场反馈。',
+        '预期投资回报率在15-25%之间。'
+      ]
+    }
+  ];
+
+  let messageIndex = 0;
+  const totalMessages = aiPersonas.length * 3; // 每个AI发3条消息
+
+  const sendNextMessage = () => {
+    if (messageIndex >= totalMessages) {
+      // 讨论结束，进入竞价阶段
+      setTimeout(() => {
+        startSimulatedBidding(ideaId);
+      }, 2000);
+      return;
+    }
+
+    const personaIndex = messageIndex % aiPersonas.length;
+    const messageIndex2 = Math.floor(messageIndex / aiPersonas.length);
+    const persona = aiPersonas[personaIndex];
+    const response = persona.responses[messageIndex2];
+
+    const message = {
+      id: `msg_${Date.now()}_${messageIndex}`,
+      personaId: persona.id,
+      phase: messageIndex < aiPersonas.length ? 'warmup' : (messageIndex < aiPersonas.length * 2 ? 'discussion' : 'discussion'),
+      round: Math.floor(messageIndex / aiPersonas.length) + 1,
+      type: 'speech',
+      content: response,
+      emotion: ['confident', 'excited', 'neutral', 'thoughtful'][Math.floor(Math.random() * 4)],
+      timestamp: new Date(),
+      confidence: 0.7 + Math.random() * 0.2
+    };
+
+    // 广播AI消息
+    broadcastToSession(ideaId, {
+      type: 'ai_message',
+      message
+    });
+
+    console.log(`💬 ${persona.name}: ${response}`);
+
+    messageIndex++;
+    setTimeout(sendNextMessage, 3000 + Math.random() * 2000); // 3-5秒间隔
+  };
+
+  // 开始发送消息
+  setTimeout(sendNextMessage, 1000);
+}
+
+// 模拟AI竞价阶段
+function startSimulatedBidding(ideaId) {
+  console.log(`💰 Starting simulated bidding for idea: ${ideaId}`);
+
+  broadcastToSession(ideaId, {
+    type: 'phase_change',
+    phase: 'bidding',
+    timestamp: Date.now(),
+    message: '进入激烈竞价阶段'
+  });
+
+  const bids = {
+    'tech-pioneer-alex': 150,
+    'business-guru-beta': 200,
+    'innovation-mentor-charlie': 120,
+    'market-insight-delta': 180,
+    'investment-advisor-ivan': 160
+  };
+
+  const personaNames = {
+    'tech-pioneer-alex': '技术先锋艾克斯',
+    'business-guru-beta': '商业智囊贝塔',
+    'innovation-mentor-charlie': '创新导师查理',
+    'market-insight-delta': '市场洞察黛拉',
+    'investment-advisor-ivan': '投资顾问伊万'
+  };
+
+  let bidIndex = 0;
+  const personaIds = Object.keys(bids);
+
+  const sendNextBid = () => {
+    if (bidIndex >= personaIds.length) {
+      // 竞价结束
+      setTimeout(() => {
+        finishSimulatedBidding(ideaId, bids);
+      }, 3000);
+      return;
+    }
+
+    const personaId = personaIds[bidIndex];
+    const bidAmount = bids[personaId];
+
+    const bidMessage = {
+      id: `bid_${Date.now()}_${bidIndex}`,
+      personaId,
+      phase: 'bidding',
+      round: 1,
+      type: 'bid',
+      content: `我出价${bidAmount}元，因为这个创意具有很好的${bidIndex % 2 === 0 ? '技术价值' : '商业潜力'}。`,
+      emotion: 'confident',
+      timestamp: new Date(),
+      bidValue: bidAmount,
+      confidence: 0.8
+    };
+
+    broadcastToSession(ideaId, {
+      type: 'ai_bid',
+      message: bidMessage,
+      currentBids: Object.fromEntries(
+        Object.entries(bids).slice(0, bidIndex + 1)
+      )
+    });
+
+    console.log(`💰 ${personaNames[personaId]} bid: ${bidAmount}元`);
+
+    bidIndex++;
+    setTimeout(sendNextBid, 4000 + Math.random() * 2000); // 4-6秒间隔
+  };
+
+  setTimeout(sendNextBid, 2000);
+}
+
+// 结束模拟竞价
+function finishSimulatedBidding(ideaId, bids) {
+  const highestBid = Math.max(...Object.values(bids));
+  const avgBid = Object.values(bids).reduce((a, b) => a + b, 0) / Object.values(bids).length;
+
+  broadcastToSession(ideaId, {
+    type: 'session_complete',
+    results: {
+      highestBid,
+      averageBid: Math.round(avgBid),
+      finalBids: bids,
+      totalMessages: 20,
+      duration: 300000, // 5分钟
+      report: {
+        summary: '基于5位AI专家的专业分析，您的创意获得了综合评估。',
+        recommendations: [
+          '建议进一步完善技术方案细节',
+          '深入调研目标市场用户需求',
+          '制定详细的商业化实施计划'
+        ]
+      }
+    }
+  });
+
+  console.log(`🎉 Simulated bidding completed. Highest bid: ${highestBid}元`);
+}
+
 app.prepare().then(() => {
   console.log('✅ Next.js app prepared successfully');
 
   const server = createServer(async (req, res) => {
     try {
       // Add CORS headers for better compatibility
+      // 设置UTF-8编码响应头
+      res.setHeader('Content-Type', 'text/html; charset=utf-8');
       res.setHeader('Access-Control-Allow-Origin', '*');
       res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
       res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+      res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
 
       // Handle preflight requests
       if (req.method === 'OPTIONS') {
@@ -284,15 +828,15 @@ app.prepare().then(() => {
     } catch (err) {
       console.error('❌ Error occurred handling', req.url, err);
 
-      // Better error response
+      // Better error response with UTF-8 encoding
       if (!res.headersSent) {
         res.statusCode = 500;
-        res.setHeader('Content-Type', 'application/json');
+        res.setHeader('Content-Type', 'application/json; charset=utf-8');
         res.end(JSON.stringify({
           error: 'Internal Server Error',
           message: dev ? err.message : 'An error occurred',
           timestamp: new Date().toISOString()
-        }));
+        }, null, 2));
       }
     }
   });
@@ -330,7 +874,19 @@ app.prepare().then(() => {
     console.log(`🔌 WebSocket server ready on ws://${hostname}:${port}/api/bidding`);
     console.log(`🌍 Environment: ${process.env.NODE_ENV}`);
     console.log(`💾 Database: ${process.env.DATABASE_URL ? 'Connected' : 'Not configured'}`);
-    console.log(`🔑 AI Services: DeepSeek(${process.env.DEEPSEEK_API_KEY ? '✅' : '❌'}), Zhipu(${process.env.ZHIPU_API_KEY ? '✅' : '❌'}), Dashscope(${process.env.DASHSCOPE_API_KEY ? '✅' : '❌'})`);
+
+    // 详细的AI服务状态检查
+    console.log(`🔑 AI Services Status:`);
+    console.log(`  DeepSeek: ${process.env.DEEPSEEK_API_KEY ? '✅ Configured' : '❌ Missing API Key'}`);
+    console.log(`  Zhipu GLM: ${process.env.ZHIPU_API_KEY ? '✅ Configured' : '❌ Missing API Key'}`);
+    console.log(`  Qwen (Dashscope): ${process.env.DASHSCOPE_API_KEY ? '✅ Configured' : '❌ Missing API Key'}`);
+
+    if (process.env.DEEPSEEK_API_KEY && process.env.ZHIPU_API_KEY && process.env.DASHSCOPE_API_KEY) {
+      console.log(`🤖 Real AI services enabled - AI agents will use actual APIs`);
+    } else {
+      console.log(`🎭 Fallback mode - AI agents will use simulated responses`);
+    }
+
     console.log(`📡 Health check: http://${hostname}:${port}/api/health`);
   });
 

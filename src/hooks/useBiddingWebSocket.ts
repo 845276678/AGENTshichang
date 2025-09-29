@@ -130,6 +130,14 @@ export function useBiddingWebSocket(config: UseBiddingWebSocketConfig): BiddingW
         : 'localhost:8080'
       const wsUrl = `${protocol}//${host}/api/bidding/${ideaId}`
 
+      console.log('🔗 WebSocket connection info:', {
+        protocol,
+        host,
+        wsUrl,
+        environment: process.env.NODE_ENV,
+        ideaId
+      })
+
       console.log(`🔌 Connecting to WebSocket: ${wsUrl}`)
 
       const ws = new WebSocket(wsUrl)

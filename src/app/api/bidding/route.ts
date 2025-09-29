@@ -3,6 +3,13 @@ import { authenticateToken } from '@/lib/auth-middleware'
 import AIServiceManager from '@/lib/ai-service-manager'
 import { AI_PERSONAS } from '@/lib/ai-persona-system'
 
+// UTF-8编码响应助手函数
+function createUTF8Response(data: any, status: number = 200) {
+  const response = NextResponse.json(data, { status })
+  response.headers.set('Content-Type', 'application/json; charset=utf-8')
+  return response
+}
+
 const aiServiceManager = new AIServiceManager()
 
 // 竞价会话状态管理
@@ -41,14 +48,14 @@ export async function POST(request: NextRequest) {
     const { ideaId, ideaContent, sessionId } = body
 
     if (!ideaId || !ideaContent) {
-      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
+      return createUTF8Response({ error: 'Missing required fields' }, 400)
     }
 
     const finalSessionId = sessionId || `session_${Date.now()}_${ideaId}`
 
     // 检查是否已有活跃会话
     if (activeSessions.has(finalSessionId)) {
-      return NextResponse.json({ error: 'Session already exists' }, { status: 409 })
+      return createUTF8Response({ error: 'Session already exists' }, 409)
     }
 
     // 创建竞价会话
@@ -74,7 +81,7 @@ export async function POST(request: NextRequest) {
       await startAIBiddingDialogue(finalSessionId)
     }, 3000) // 3秒后开始AI对话
 
-    return NextResponse.json({
+    return createUTF8Response({
       success: true,
       sessionId: finalSessionId,
       session: {
@@ -85,9 +92,9 @@ export async function POST(request: NextRequest) {
 
   } catch (error) {
     console.error('Error starting bidding session:', error)
-    return NextResponse.json(
+    return createUTF8Response(
       { error: 'Failed to start bidding session' },
-      { status: 500 }
+      500
     )
   }
 }
@@ -99,22 +106,22 @@ export async function GET(request: NextRequest) {
     const sessionId = url.searchParams.get('sessionId')
 
     if (!sessionId) {
-      return NextResponse.json({ error: 'Missing sessionId' }, { status: 400 })
+      return createUTF8Response({ error: 'Missing sessionId' }, 400)
     }
 
     const session = activeSessions.get(sessionId)
     if (!session) {
-      return NextResponse.json({ error: 'Session not found' }, { status: 404 })
+      return createUTF8Response({ error: 'Session not found' }, 404)
     }
 
-    return NextResponse.json({
+    return createUTF8Response({
       success: true,
       session
     })
 
   } catch (error) {
     console.error('Error getting session:', error)
-    return NextResponse.json({ error: 'Failed to get session' }, { status: 500 })
+    return createUTF8Response({ error: 'Failed to get session' }, 500)
   }
 }
 
