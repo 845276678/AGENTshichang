@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useRouter } from 'next/navigation'
 import { WebSocketProvider, useBiddingSession } from '@/lib/websocket'
@@ -174,7 +174,7 @@ export default function MarketplacePage() {
 
   return (
     <Layout>
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 marketplace-container">
         <div className="container mx-auto px-4 py-8">
           <AnimatePresence mode="wait">
             {currentView === 'lobby' && (
@@ -768,6 +768,7 @@ function DiscussionPhase({
 }: any) {
   const [discussionMessages, setDiscussionMessages] = useState<any[]>([])
   const [isLoading, setIsLoading] = useState(false)
+  const inputRef = useRef<HTMLInputElement>(null)
 
   // 获取讨论数据
   useEffect(() => {
@@ -775,6 +776,24 @@ function DiscussionPhase({
       setDiscussionMessages(discussionData.messages)
     }
   }, [discussionData])
+
+  // 确保输入框能够获得焦点
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (inputRef.current) {
+        inputRef.current.focus()
+      }
+    }, 100)
+    return () => clearTimeout(timer)
+  }, [])
+
+  // 当消息列表更新时，滚动到底部
+  useEffect(() => {
+    const messagesContainer = document.querySelector('.messages-container')
+    if (messagesContainer) {
+      messagesContainer.scrollTop = messagesContainer.scrollHeight
+    }
+  }, [discussionMessages, messages])
 
   const handleSendMessage = async () => {
     if (!userInput.trim() || !discussionData) return
@@ -830,18 +849,18 @@ function DiscussionPhase({
       initial={{ opacity: 0, x: -20 }}
       animate={{ opacity: 1, x: 0 }}
       exit={{ opacity: 0, x: 20 }}
-      className="grid grid-cols-1 lg:grid-cols-4 gap-6"
+      className="grid grid-cols-1 lg:grid-cols-4 gap-6 min-h-[600px]"
     >
       {/* 消息区域 */}
-      <Card className="lg:col-span-3 h-96 flex flex-col">
-        <CardHeader>
+      <Card className="lg:col-span-3 flex flex-col min-h-[600px]">
+        <CardHeader className="flex-shrink-0">
           <CardTitle className="flex items-center gap-2">
             <MessageCircle className="w-5 h-5" />
             AI 专家讨论
           </CardTitle>
         </CardHeader>
-        <CardContent className="flex-1 flex flex-col">
-          <div className="flex-1 overflow-y-auto space-y-4 mb-4">
+        <CardContent className="flex-1 flex flex-col min-h-0">
+          <div className="flex-1 overflow-y-auto space-y-4 mb-4 max-h-[450px] scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 messages-container">
             {/* 显示用户消息 */}
             {messages.map((message: any) => (
               <div
@@ -920,18 +939,22 @@ function DiscussionPhase({
           </div>
 
           {/* 消息输入 */}
-          <div className="space-y-2">
+          <div className="space-y-2 flex-shrink-0 bg-white p-2 border-t border-gray-100 relative z-10">
             <div className="flex gap-2">
               <Input
+                ref={inputRef}
                 value={userInput}
                 onChange={(e) => setUserInput(e.target.value)}
                 placeholder="与 AI 专家交流您的想法..."
                 onKeyPress={(e) => e.key === 'Enter' && !isLoading && handleSendMessage()}
                 disabled={isLoading}
+                className="flex-1 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                autoComplete="off"
               />
               <Button
                 onClick={handleSendMessage}
                 disabled={!userInput.trim() || isLoading}
+                className="flex-shrink-0"
               >
                 {isLoading ? '发送中...' : '发送'}
               </Button>
