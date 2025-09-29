@@ -16,8 +16,8 @@ export interface AIPersona {
 export const AI_PERSONAS: AIPersona[] = [
   {
     id: 'tech-pioneer-alex',
-    name: '科技先锋艾克斯',
-    avatar: '/xiaoxiaang/艾克斯.png',  // 使用真实头像图片
+    name: '艾克斯',
+    avatar: '/xiaoxiaang/艾克斯.png',
     personality: ['理性', '技术控', '逻辑思维', '创新导向'],
     specialty: '架构评估、算法优化、技术可行性分析',
     catchPhrase: '让数据说话，用技术改变世界！',
@@ -28,12 +28,12 @@ export const AI_PERSONAS: AIPersona[] = [
     biddingStyle: 'analytical'
   },
   {
-    id: 'business-guru-beta', // 修改为与服务器端匹配的ID
-    name: '商业智囊贝塔',  // 修改名称，去掉"老王"避免与真实人物关联
-    avatar: '/xiaoxiaang/老王.png',  // 使用真实头像图片
+    id: 'business-guru-beta',
+    name: '老王',
+    avatar: '/xiaoxiaang/老王.png',
     personality: ['结果导向', '商业敏锐', '决策果断', '盈利至上'],
     specialty: '盈利模型、风险评估、商业策略',
-    catchPhrase: '数据驱动决策，价值创造未来！',  // 修改口号，去掉"战场"等激进词汇
+    catchPhrase: '数据驱动决策，价值创造未来！',
     primaryModel: 'qwen',
     backupModel: 'zhipu',
     triggerKeywords: ['盈利', 'ROI', '现金流', '商业', '市场', '竞争'],
@@ -41,9 +41,9 @@ export const AI_PERSONAS: AIPersona[] = [
     biddingStyle: 'aggressive'
   },
   {
-    id: 'innovation-mentor-charlie', // 修改为与服务器端匹配的ID
-    name: '创新导师查理',  // 修改名称以匹配服务器端
-    avatar: '/xiaoxiaang/小琳.png',  // 使用真实头像图片
+    id: 'innovation-mentor-charlie',
+    name: '小琳',
+    avatar: '/xiaoxiaang/小琳.png',
     personality: ['情感共鸣', '用户导向', '审美敏感', '人文关怀'],
     specialty: '用户体验、品牌故事、情感价值',
     catchPhrase: '好的创意要触动人心，让生活更美好~',
@@ -54,9 +54,9 @@ export const AI_PERSONAS: AIPersona[] = [
     biddingStyle: 'emotional'
   },
   {
-    id: 'market-insight-delta', // 修改为与服务器端匹配的ID
-    name: '市场洞察黛拉',  // 修改名称以匹配服务器端
-    avatar: '/xiaoxiaang/阿伦.png',  // 使用真实头像图片
+    id: 'market-insight-delta',
+    name: '阿伦',
+    avatar: '/xiaoxiaang/阿伦.png',
     personality: ['营销天才', '社交达人', '热点嗅觉', '传播专家'],
     specialty: '传播策略、热点预测、社交营销',
     catchPhrase: '抓住风口，让创意火遍全网！',
@@ -67,9 +67,9 @@ export const AI_PERSONAS: AIPersona[] = [
     biddingStyle: 'strategic'
   },
   {
-    id: 'investment-advisor-ivan', // 修改为与服务器端匹配的ID
-    name: '投资顾问伊万',  // 修改名称以匹配服务器端
-    avatar: '/xiaoxiaang/李博.png',  // 使用真实头像图片
+    id: 'investment-advisor-ivan',
+    name: '李博',
+    avatar: '/xiaoxiaang/李博.png',
     personality: ['严谨权威', '理论深厚', '逻辑缜密', '学术专业'],
     specialty: '理论支撑、系统分析、学术验证',
     catchPhrase: '理论指导实践，学术成就未来。',
