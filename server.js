@@ -5,7 +5,7 @@ const { WebSocketServer } = require('ws');
 
 const dev = process.env.NODE_ENV !== 'production';
 const hostname = dev ? 'localhost' : '0.0.0.0';
-const port = process.env.PORT || process.env.WEB_PORT || 4000;
+const port = process.env.PORT || process.env.WEB_PORT || 8080;
 
 console.log('🚀 Starting server...');
 console.log(`🌍 Environment: ${process.env.NODE_ENV}`);

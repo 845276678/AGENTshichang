@@ -4,7 +4,7 @@
 console.log('🔍 Starting minimal server for 502 diagnosis...');
 
 const http = require('http');
-const port = process.env.PORT || process.env.WEB_PORT || 4000;
+const port = process.env.PORT || process.env.WEB_PORT || 8080;
 
 // 1. 最基本的HTTP服务器测试
 console.log('1️⃣ Testing basic HTTP server...');

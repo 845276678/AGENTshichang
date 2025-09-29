@@ -6,8 +6,8 @@
 # 基础镜像 - 使用Node.js 18 Alpine
 FROM node:18-alpine AS base
 
-# 缓存破坏 - 强制完全重新构建 (修复502错误和配置文件)
-RUN echo "Cache bust: 2025-09-29-20:15-FIX-502-CONFIG" > /tmp/cache_bust
+# 缓存破坏 - 强制完全重新构建 (修复Zeabur端口8080)
+RUN echo "Cache bust: 2025-09-29-20:30-ZEABUR-PORT-8080" > /tmp/cache_bust
 
 # 安装系统依赖和时区数据
 RUN apk add --no-cache \
@@ -107,12 +107,12 @@ RUN chown -R nextjs:nodejs /app
 # 切换到非root用户
 USER nextjs
 
-# 暴露端口
-EXPOSE 4000
+# 暴露端口 - Zeabur使用8080
+EXPOSE 8080
 
-# 环境变量
-ENV PORT=4000 \
-    WEB_PORT=4000 \
+# 环境变量 - 适配Zeabur端口
+ENV PORT=8080 \
+    WEB_PORT=8080 \
     HOSTNAME="0.0.0.0" \
     PRISMA_CLI_QUERY_ENGINE_TYPE=library \
     PRISMA_CLIENT_ENGINE_TYPE=library
