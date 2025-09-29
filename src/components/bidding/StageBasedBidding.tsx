@@ -7,6 +7,7 @@ import { useBiddingWebSocket, useBiddingWebSocketOriginal } from '@/hooks/useBid
 import { tokenStorage } from '@/lib/token-storage'
 import { useAuth } from '@/contexts/AuthContext'
 import EnhancedBiddingStage from './EnhancedBiddingStage'
+import UnifiedBiddingStage from './UnifiedBiddingStage'
 import { AI_PERSONAS, DISCUSSION_PHASES, type AIMessage } from '@/lib/ai-persona-system'
 import { DialogueDecisionEngine } from '@/lib/dialogue-strategy'
 import AIServiceManager from '@/lib/ai-service-manager'
@@ -132,22 +133,13 @@ const CreativeInputForm = ({
             </div>
           </div>
 
-          {/* 积分显示和说明 */}
-          <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-4 rounded-lg border border-blue-200">
-            <div className="flex items-center justify-between mb-2">
-              <div className="flex items-center gap-2">
-                <Gift className="w-5 h-5 text-blue-600" />
-                <span className="font-medium text-blue-900">账户积分</span>
-              </div>
-              <Badge variant={userCredits >= REQUIRED_CREDITS ? "default" : "destructive"}>
-                {userCredits} 积分
-              </Badge>
-            </div>
-            <MotionP className="text-sm text-blue-700">
-              参与AI竞价需要消耗 {REQUIRED_CREDITS} 积分。竞价结束后，您将获得详细的商业价值报告和专家评估意见。
+          {/* 消耗积分说明 */}
+          <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-3 rounded-lg border border-blue-200">
+            <MotionP className="text-sm text-blue-700 text-center">
+              参与AI竞价需要消耗 {REQUIRED_CREDITS} 积分，竞价结束后您将获得详细的商业价值报告和专家评估意见
             </MotionP>
             {userCredits < REQUIRED_CREDITS && (
-              <div className="mt-2 text-sm text-red-600 flex items-center gap-1">
+              <div className="mt-2 text-sm text-red-600 flex items-center justify-center gap-1">
                 <AlertCircle className="w-4 h-4" />
                 积分不足，无法参与竞价
               </div>
@@ -261,6 +253,8 @@ export default function StageBasedBidding({
   const [currentStage, setCurrentStage] = useState<'input' | 'bidding'>('input')
   const [submittedIdea, setSubmittedIdea] = useState<string>('')
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [biddingPhase, setBiddingPhase] = useState<string>('warmup')
+  const [biddingProgress, setBiddingProgress] = useState<number>(15)
   const { user } = useAuth()
   const router = useRouter()
 
@@ -272,6 +266,35 @@ export default function StageBasedBidding({
     }
   }, [autoStart, initialIdeaContent])
 
+  // 模拟竞价阶段进度
+  useEffect(() => {
+    if (currentStage === 'bidding') {
+      const phases = [
+        { phase: 'warmup', duration: 5000, progress: 15 },
+        { phase: 'discussion', duration: 15000, progress: 45 },
+        { phase: 'bidding', duration: 10000, progress: 75 },
+        { phase: 'supplement', duration: 8000, progress: 90 },
+        { phase: 'result', duration: 2000, progress: 100 }
+      ]
+
+      let phaseIndex = 0
+      const progressTimer = () => {
+        if (phaseIndex < phases.length) {
+          const currentPhase = phases[phaseIndex]
+          setBiddingPhase(currentPhase.phase)
+          setBiddingProgress(currentPhase.progress)
+
+          setTimeout(() => {
+            phaseIndex++
+            progressTimer()
+          }, currentPhase.duration)
+        }
+      }
+
+      progressTimer()
+    }
+  }, [currentStage])
+
   const handleIdeaSubmit = async (ideaContent: string) => {
     try {
       setIsSubmitting(true)
@@ -281,6 +304,8 @@ export default function StageBasedBidding({
       await new Promise(resolve => setTimeout(resolve, 1000))
 
       setCurrentStage('bidding')
+      setBiddingPhase('warmup')
+      setBiddingProgress(15)
     } catch (error) {
       console.error('Idea submission error:', error)
       alert('提交失败，请重试')
@@ -292,6 +317,8 @@ export default function StageBasedBidding({
   const handleBackToInput = () => {
     setCurrentStage('input')
     setSubmittedIdea('')
+    setBiddingPhase('warmup')
+    setBiddingProgress(0)
   }
 
   const userCredits = user?.credits || 0
@@ -323,9 +350,12 @@ export default function StageBasedBidding({
               </Button>
             </div>
 
-            <BiddingProgressIndicator currentPhase="discussion" progress={45} />
+            <BiddingProgressIndicator
+              currentPhase={biddingPhase}
+              progress={biddingProgress}
+            />
 
-            <EnhancedBiddingStage
+            <UnifiedBiddingStage
               ideaContent={submittedIdea}
               ideaId={ideaId}
             />
