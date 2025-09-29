@@ -681,14 +681,25 @@ function finishRealAIBidding(ideaId, bids) {
   const highestBid = Math.max(...Object.values(bids));
   const avgBid = Object.values(bids).reduce((a, b) => a + b, 0) / Object.values(bids).length;
 
+  // 找到获胜者
+  const winnerPersonaId = Object.keys(bids).find(personaId => bids[personaId] === highestBid);
+  const winnerName = getPersonaName(winnerPersonaId);
+
+  // 生成商业计划链接参数
+  const reportId = `report_${ideaId}_${Date.now()}`;
+  const businessPlanUrl = `/business-plan?reportId=${reportId}&ideaTitle=${encodeURIComponent('AI竞价创意')}&source=marketplace&winningBid=${highestBid}&winner=${encodeURIComponent(winnerName)}&guideCost=${Math.round(highestBid * 0.1)}`;
+
   broadcastToSession(ideaId, {
     type: 'session_complete',
     results: {
       highestBid,
       averageBid: Math.round(avgBid),
       finalBids: bids,
+      winner: winnerPersonaId,
+      winnerName: winnerName,
       totalMessages: 25,
       duration: 480000, // 8分钟
+      businessPlanUrl, // 添加商业计划链接
       report: {
         summary: '基于5位真实AI专家的专业分析，您的创意获得了全面评估。',
         recommendations: [
@@ -696,12 +707,13 @@ function finishRealAIBidding(ideaId, bids) {
           '深入分析目标用户需求和市场定位',
           '制定分阶段实施的商业化路线图',
           '考虑技术实现的可行性和扩展性'
-        ]
+        ],
+        winnerAnalysis: `获胜专家${winnerName}认为此创意最具价值，出价${highestBid}元。专家将为您提供深度的商业计划指导。`
       }
     }
   });
 
-  console.log(`🎉 REAL AI bidding completed. Highest bid: ${highestBid}元`);
+  console.log(`🎉 REAL AI bidding completed. Highest bid: ${highestBid}元 by ${winnerName}`);
 }
 
 // 获取AI角色的系统提示词
@@ -981,6 +993,18 @@ function finishSimulatedBidding(ideaId, bids) {
   });
 
   console.log(`🎉 Simulated bidding completed. Highest bid: ${highestBid}元`);
+}
+
+// 根据personaId获取对应的中文名称
+function getPersonaName(personaId) {
+  const personaNames = {
+    'tech-pioneer-alex': '科技先锋艾克斯',
+    'business-guru-beta': '商业智囊贝塔',
+    'innovation-mentor-charlie': '创新导师查理',
+    'market-insight-delta': '市场洞察黛拉',
+    'investment-advisor-ivan': '投资顾问伊万'
+  };
+  return personaNames[personaId] || personaId;
 }
 
 app.prepare().then(() => {
