@@ -56,8 +56,9 @@ export function useAuth(): UseAuthReturn {
     if (typeof window === 'undefined') return null
 
     try {
-      const token = localStorage.getItem('auth_token')
-      const userStr = localStorage.getItem('user_data')
+      // 使用与tokenStorage一致的键名
+      const token = localStorage.getItem('auth.access_token') || localStorage.getItem('access_token')
+      const userStr = localStorage.getItem('auth.user') || localStorage.getItem('user_data')
 
       if (token && userStr) {
         return {
@@ -68,8 +69,11 @@ export function useAuth(): UseAuthReturn {
     } catch (error) {
       console.error('Error reading stored auth:', error)
       // 清除损坏的数据
-      localStorage.removeItem('auth_token')
+      localStorage.removeItem('auth.access_token')
+      localStorage.removeItem('access_token')
+      localStorage.removeItem('auth.user')
       localStorage.removeItem('user_data')
+      localStorage.removeItem('auth_token')
     }
 
     return null
@@ -80,7 +84,12 @@ export function useAuth(): UseAuthReturn {
     if (typeof window === 'undefined') return
 
     try {
-      localStorage.setItem('auth_token', token)
+      // 使用标准的tokenStorage键名，同时为兼容性保存到其他位置
+      localStorage.setItem('auth.access_token', token)
+      localStorage.setItem('auth.user', JSON.stringify(user))
+
+      // 为了兼容现有代码，也保存到这些位置
+      localStorage.setItem('access_token', token)
       localStorage.setItem('user_data', JSON.stringify(user))
     } catch (error) {
       console.error('Error storing auth:', error)
@@ -91,8 +100,13 @@ export function useAuth(): UseAuthReturn {
   const clearAuth = useCallback(() => {
     if (typeof window === 'undefined') return
 
-    localStorage.removeItem('auth_token')
+    // 清除所有可能的token存储位置
+    localStorage.removeItem('auth.access_token')
+    localStorage.removeItem('auth.user')
+    localStorage.removeItem('auth.refresh_token')
+    localStorage.removeItem('access_token')
     localStorage.removeItem('user_data')
+    localStorage.removeItem('auth_token')
   }, [])
 
   // 验证token有效性

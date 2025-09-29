@@ -6,7 +6,8 @@ import { useRouter } from 'next/navigation'
 import { WebSocketProvider, useBiddingSession } from '@/lib/websocket'
 import ReactMarkdown from 'react-markdown'
 
-import { Layout } from '@/components/layout'
+import { tokenStorage } from '@/lib/token-storage'
+import { useAuth } from '@/contexts/AuthContext'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -34,7 +35,8 @@ import {
   Share2,
   Send,
   Rocket,
-  Zap
+  Zap,
+  LogIn
 } from 'lucide-react'
 
 // AI 角色配置
@@ -102,8 +104,62 @@ const CREATE_IDEA_PHASE = {
 }
 
 export default function MarketplacePage() {
+  const router = useRouter()
+  const { user, isLoading, isInitialized } = useAuth()
   const [currentView, setCurrentView] = useState<'lobby' | 'session'>('lobby')
   const [userIdea, setUserIdea] = useState<any>(null)
+
+  // 显示加载状态
+  if (isLoading || !isInitialized) {
+    return (
+      <Layout>
+        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 flex items-center justify-center">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4" />
+            <p className="text-gray-600">加载中...</p>
+          </div>
+        </div>
+      </Layout>
+    )
+  }
+
+  // 如果用户未登录，显示登录提示
+  if (!user) {
+    return (
+      <Layout>
+        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 flex items-center justify-center">
+          <Card className="max-w-md w-full mx-4">
+            <CardHeader className="text-center">
+              <div className="w-16 h-16 bg-blue-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                <LogIn className="w-8 h-8 text-white" />
+              </div>
+              <CardTitle className="text-2xl">需要登录</CardTitle>
+            </CardHeader>
+            <CardContent className="text-center space-y-4">
+              <p className="text-muted-foreground">
+                访问AI创意竞价中心需要登录账户。请先登录或注册一个新账户。
+              </p>
+              <div className="space-y-2">
+                <Button
+                  onClick={() => router.push('/auth/login')}
+                  className="w-full"
+                >
+                  登录账户
+                </Button>
+                <Button
+                  onClick={() => router.push('/auth/register')}
+                  variant="outline"
+                  className="w-full"
+                >
+                  注册新账户
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </Layout>
+    )
+  }
 
   const handleStartSession = (ideaData: any) => {
     setUserIdea(ideaData)
@@ -165,7 +221,7 @@ function MarketplaceLobby({ onStartSession }: {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('access_token')}`
+          'Authorization': `Bearer ${tokenStorage.getAccessToken()}`
         },
         body: JSON.stringify({
           title: ideaTitle,
@@ -185,7 +241,7 @@ function MarketplaceLobby({ onStartSession }: {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('access_token')}`
+          'Authorization': `Bearer ${tokenStorage.getAccessToken()}`
         },
         body: JSON.stringify({
           ideaId: ideaData.idea.id
@@ -470,7 +526,7 @@ function BiddingSessionView({ ideaData, onBackToLobby }: {
         try {
           const response = await fetch(`/api/discussions?ideaId=${ideaData.id}`, {
             headers: {
-              'Authorization': `Bearer ${localStorage.getItem('access_token')}`
+              'Authorization': `Bearer ${tokenStorage.getAccessToken()}`
             }
           })
 
@@ -729,7 +785,7 @@ function DiscussionPhase({
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('access_token')}`
+          'Authorization': `Bearer ${tokenStorage.getAccessToken()}`
         },
         body: JSON.stringify({
           discussionId: discussionData.id,

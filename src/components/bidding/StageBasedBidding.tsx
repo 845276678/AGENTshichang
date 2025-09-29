@@ -1,16 +1,17 @@
 'use client'
 
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect, useRef, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useRouter } from 'next/navigation'
 import { useBiddingWebSocket } from '@/hooks/useBiddingWebSocket'
-import { useAuth } from '@/hooks/useAuth'
+import { tokenStorage } from '@/lib/token-storage'
+import { useAuth } from '@/contexts/AuthContext'
 import EnhancedBiddingStage from './EnhancedBiddingStage'
 import { AI_PERSONAS, DISCUSSION_PHASES, type AIMessage } from '@/lib/ai-persona-system'
 import { DialogueDecisionEngine } from '@/lib/dialogue-strategy'
 import AIServiceManager from '@/lib/ai-service-manager'
 import { Clock, Users, Trophy, Play, Lightbulb, Target, Star, ThumbsUp, Heart, MessageCircle, Gift, TrendingUp, ArrowLeft, Plus, AlertCircle, FileText, Loader2 } from 'lucide-react'
-import { Card, CardContent } from '@/components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
 import { Badge } from '@/components/ui/badge'
@@ -77,7 +78,7 @@ const CreativeInputForm = ({
               5 位顶级 AI 专家即将为您的创意展开激烈竞价！
             </motion.p>
 
-            {/* 积分状态显示 */}
+            {/* 积分状态显示 */
             <motion.div
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
@@ -85,14 +86,14 @@ const CreativeInputForm = ({
               className="mt-6 flex items-center justify-center space-x-6"
             >
               <div className="bg-gradient-to-r from-yellow-400 via-orange-400 to-red-400 text-white px-6 py-3 rounded-full text-lg font-bold shadow-lg">
-                💰 当前积分: {userCredits}
+                \ud83d\udcb0 \u5f53\u524d\u79ef\u5206: {userCredits}
               </div>
               <div className={`px-6 py-3 rounded-full text-lg font-bold shadow-lg transition-all duration-300 ${
                 hasEnoughCredits
                   ? 'bg-gradient-to-r from-green-400 to-emerald-400 text-white'
                   : 'bg-gradient-to-r from-red-400 to-pink-400 text-white'
               }`}>
-                {hasEnoughCredits ? '✨ 准备就绪' : `⚠️ 需要 ${REQUIRED_CREDITS} 积分`}
+                {hasEnoughCredits ? '\u2705 \u51c6\u5907\u5c31\u7eea' : `\u26a0\ufe0f \u9700\u8981 ${REQUIRED_CREDITS} \u79ef\u5206`}
               </div>
             </motion.div>
           </div>
@@ -195,7 +196,7 @@ const CreativeInputForm = ({
               <p className="text-sm text-gray-600">5位AI专家多维度分析</p>
             </div>
             <div className="text-center p-4 bg-white/60 rounded-lg border border-purple-100">
-              <div className="text-2xl mb-2">⚡</div>
+              <div className="text-2xl mb-2">💰</div>
               <h3 className="font-bold text-gray-700">实时竞价</h3>
               <p className="text-sm text-gray-600">动态竞价过程可视化</p>
             </div>
@@ -346,11 +347,56 @@ const LiveStatsPanel = ({
 
 export default function CreativeIdeaBidding({ ideaId }: CreativeIdeaBiddingProps) {
   const router = useRouter()
-  const { user, updateCredits, checkCredits, isLoading: authLoading } = useAuth()
+  const { user, isLoading: authLoading, isInitialized, checkAuthState } = useAuth()
   const [showForm, setShowForm] = useState(true)
   const [isStarting, setIsStarting] = useState(false)
   const [sessionId, setSessionId] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
+
+  const getAccessToken = useCallback(() => {
+    const token = tokenStorage.getAccessToken()
+    if (!token) {
+      throw new Error('登录状态已失效，请重新登录后重试')
+    }
+    return token
+  }, [])
+
+  const hasEnoughCredits = useCallback((required: number) => {
+    return (user?.credits ?? 0) >= required
+  }, [user?.credits])
+
+  const adjustCredits = useCallback(
+    async (amount: number, description?: string) => {
+      const token = getAccessToken()
+
+      const response = await fetch('/api/user/credits', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: 'Bearer ' + token
+        },
+        body: JSON.stringify({
+          amount,
+          type: amount >= 0 ? 'EARN' : 'SPEND',
+          description: description ?? '精彩会话值得期待'
+        })
+      })
+
+      let data: any = null
+      try {
+        data = await response.json()
+      } catch (parseError) {
+        data = null
+      }
+
+      if (!response.ok || !data?.success) {
+        throw new Error(data?.error || data?.message || '竞价启动失败')
+      }
+
+      await checkAuthState()
+    },
+    [getAccessToken, checkAuthState]
+  )
 
   // 生成商业指导书相关状态
   const [isGeneratingGuide, setIsGeneratingGuide] = useState(false)
@@ -409,7 +455,7 @@ export default function CreativeIdeaBidding({ ideaId }: CreativeIdeaBiddingProps
     const REQUIRED_CREDITS = 50
 
     // 检查积分是否充足
-    if (!checkCredits(REQUIRED_CREDITS)) {
+    if (!hasEnoughCredits(REQUIRED_CREDITS)) {
       setError('积分不足，无法参与竞价')
       return
     }
@@ -419,7 +465,7 @@ export default function CreativeIdeaBidding({ ideaId }: CreativeIdeaBiddingProps
 
     try {
       // 扣除积分
-      await updateCredits(-REQUIRED_CREDITS)
+      await adjustCredits(-REQUIRED_CREDITS, 'AI创意竞价参与费用')
 
       // 创建会话ID
       const newSessionId = `session-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
@@ -433,7 +479,7 @@ export default function CreativeIdeaBidding({ ideaId }: CreativeIdeaBiddingProps
       setError('启动竞价失败，积分已退还')
       // 退还积分
       try {
-        await updateCredits(REQUIRED_CREDITS)
+        await adjustCredits(REQUIRED_CREDITS, '竞价启动失败退款')
       } catch (refundError) {
         console.error('Failed to refund credits:', refundError)
       }
@@ -446,7 +492,7 @@ export default function CreativeIdeaBidding({ ideaId }: CreativeIdeaBiddingProps
     const SUPPORT_COST = 10 // 支持AI角色的积分消耗
 
     // 检查积分是否充足
-    if (!checkCredits(SUPPORT_COST)) {
+    if (!hasEnoughCredits(SUPPORT_COST)) {
       setError('积分不足，无法支持该角色')
       return
     }
@@ -455,7 +501,7 @@ export default function CreativeIdeaBidding({ ideaId }: CreativeIdeaBiddingProps
       const persona = AI_PERSONAS.find(p => p.id === personaId)
       if (persona && sessionId) {
         // 扣除积分
-        await updateCredits(-SUPPORT_COST)
+        await adjustCredits(-SUPPORT_COST, `支持AI专家 ${persona.name}`)
         supportAgent(persona.name)
         setError(null)
       }
@@ -464,7 +510,7 @@ export default function CreativeIdeaBidding({ ideaId }: CreativeIdeaBiddingProps
       setError('支持失败，积分已退还')
       // 退还积分
       try {
-        await updateCredits(SUPPORT_COST)
+        await adjustCredits(SUPPORT_COST, '支持失败退款')
       } catch (refundError) {
         console.error('Failed to refund credits:', refundError)
       }
@@ -475,7 +521,7 @@ export default function CreativeIdeaBidding({ ideaId }: CreativeIdeaBiddingProps
     const REACTION_COST = 5 // 发送反应的积分消耗
 
     // 检查积分是否充足
-    if (!checkCredits(REACTION_COST)) {
+    if (!hasEnoughCredits(REACTION_COST)) {
       setError('积分不足，无法发送反应')
       return
     }
@@ -483,7 +529,7 @@ export default function CreativeIdeaBidding({ ideaId }: CreativeIdeaBiddingProps
     try {
       if (sessionId) {
         // 扣除积分
-        await updateCredits(-REACTION_COST)
+        await adjustCredits(-REACTION_COST, '发送互动反应')
         reactToDialogue(reaction)
         setError(null)
       }
@@ -492,7 +538,7 @@ export default function CreativeIdeaBidding({ ideaId }: CreativeIdeaBiddingProps
       setError('发送反应失败，积分已退还')
       // 退还积分
       try {
-        await updateCredits(REACTION_COST)
+        await adjustCredits(REACTION_COST, '反应发送失败退款')
       } catch (refundError) {
         console.error('Failed to refund credits:', refundError)
       }
@@ -503,7 +549,7 @@ export default function CreativeIdeaBidding({ ideaId }: CreativeIdeaBiddingProps
     const GUIDE_COST = 100 // 生成落地指南的积分消耗
 
     // 检查积分是否充足
-    if (!checkCredits(GUIDE_COST)) {
+    if (!hasEnoughCredits(GUIDE_COST)) {
       setError('积分不足，需要100积分生成商业落地指南')
       return
     }
@@ -514,7 +560,7 @@ export default function CreativeIdeaBidding({ ideaId }: CreativeIdeaBiddingProps
 
     try {
       // 扣除积分
-      await updateCredits(-GUIDE_COST)
+      await adjustCredits(-GUIDE_COST, '生成商业落地指南')
 
       // 模拟进度更新
       const progressInterval = setInterval(() => {
@@ -528,14 +574,14 @@ export default function CreativeIdeaBidding({ ideaId }: CreativeIdeaBiddingProps
       }, 500)
 
       // 调用生成落地指南API
-      const response = await fetch('/api/business-plan/generate', {
+      const response = await fetch('/api/generate-business-plan', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
+          'Authorization': `Bearer ${getAccessToken()}`
         },
         body: JSON.stringify({
-          sessionId,
+          ideaId: sessionId,
           ideaContent: 'AI创意竞价舞台系统', // 使用当前会话的创意内容
           biddingResults: currentBids,
           aiDialogue: aiInteractions
@@ -559,7 +605,7 @@ export default function CreativeIdeaBidding({ ideaId }: CreativeIdeaBiddingProps
       setError('生成落地指南失败，积分已退还')
       // 退还积分
       try {
-        await updateCredits(GUIDE_COST)
+        await adjustCredits(GUIDE_COST, '落地指南生成失败退款')
       } catch (refundError) {
         console.error('Failed to refund credits:', refundError)
       }
@@ -676,7 +722,7 @@ export default function CreativeIdeaBidding({ ideaId }: CreativeIdeaBiddingProps
               </div>
               <div className="flex items-center space-x-2">
                 <TrendingUp className="w-4 h-4 text-green-500" />
-                <span className="text-sm font-medium text-gray-700">最高竞价 ¥{highestBid}</span>
+                <span className="text-sm font-medium text-gray-700">最高竞价¥{highestBid}</span>
               </div>
             </div>
           </motion.div>
@@ -830,7 +876,7 @@ export default function CreativeIdeaBidding({ ideaId }: CreativeIdeaBiddingProps
                       <span className="text-amber-800 font-bold text-lg">积分不足</span>
                     </div>
                     <p className="text-amber-700 mb-4">
-                      生成专业落地指南需要 100 积分，当前积分不足。立即充值解锁完整的 AI 商业咨询服务！
+                      生成专业落地指南需要100 积分，当前积分不足。立即充值解锁完整的 AI 商业咨询服务！
                     </p>
                     <Button
                       onClick={() => router.push('/payment')}
@@ -876,3 +922,8 @@ export default function CreativeIdeaBidding({ ideaId }: CreativeIdeaBiddingProps
     </div>
   )
 }
+
+
+
+
+

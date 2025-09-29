@@ -140,12 +140,20 @@ export default function CreativeIdeaBidding({ ideaId }: CreativeIdeaBiddingProps
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('access_token') || localStorage.getItem('auth.access_token')}`
         },
         body: JSON.stringify({
-          ideaTitle: idea.title,
-          ideaDescription: idea.description,
-          category: idea.category,
-          tags: idea.tags
+          ideaData: {
+            title: idea.title,
+            description: idea.description,
+            category: idea.category,
+            tags: idea.tags
+          },
+          force: false,
+          scenarioContext: {
+            source: 'creative-bidding',
+            biddingType: 'creative'
+          }
         })
       });
 
@@ -153,18 +161,19 @@ export default function CreativeIdeaBidding({ ideaId }: CreativeIdeaBiddingProps
       setGuideProgress(100);
 
       if (!response.ok) {
-        throw new Error('生成商业指导书失败');
+        const errorData = await response.json().catch(() => ({}))
+        throw new Error(errorData.error || '生成商业指导书失败');
       }
 
       const result = await response.json();
 
-      // 跳转到商业指导书页面
-      if (result.reportId) {
-        const guideUrl = `/business-plan?reportId=${result.reportId}&ideaTitle=${encodeURIComponent(idea.title)}`;
-        window.open(guideUrl, '_blank');
-      } else {
-        throw new Error('生成成功但未返回报告ID');
+      if (!result.success) {
+        throw new Error(result.error || '生成失败');
       }
+
+      // 跳转到商业指导书页面，使用返回的ideaId
+      const guideUrl = `/business-plan?reportId=${result.data.reportId || result.data.ideaId}&ideaTitle=${encodeURIComponent(idea.title)}&source=business-plan-generator`;
+      window.open(guideUrl, '_blank');
 
     } catch (error) {
       console.error('生成商业指导书失败:', error);
