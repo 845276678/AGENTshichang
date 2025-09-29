@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useRouter } from 'next/navigation'
-import { useBiddingWebSocket } from '@/hooks/useBiddingWebSocket'
+import { useBiddingWebSocket, useBiddingWebSocketOriginal } from '@/hooks/useBiddingWebSocket'
 import { tokenStorage } from '@/lib/token-storage'
 import { useAuth } from '@/contexts/AuthContext'
 import EnhancedBiddingStage from './EnhancedBiddingStage'
@@ -412,7 +412,9 @@ export default function CreativeIdeaBidding({ ideaId }: CreativeIdeaBiddingProps
     hasSubmittedGuess,
     supportAgent,
     reactToDialogue
-  } = useBiddingWebSocket(sessionId)
+  } = process.env.NODE_ENV === 'production'
+    ? useBiddingWebSocketOriginal({ ideaId: sessionId })
+    : useBiddingWebSocket(sessionId)
 
   // 如果用户未登录或数据加载中，显示加载状态
   if (authLoading || !user) {
