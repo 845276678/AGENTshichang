@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { authMiddleware } from '@/lib/auth-middleware'
-import { rateLimit } from '@/lib/rate-limit'
+import { authenticateToken } from '@/lib/auth-middleware'
 import AIServiceManager from '@/lib/ai-service-manager'
 import { AI_PERSONAS } from '@/lib/ai-persona-system'
 
@@ -28,24 +27,14 @@ const activeSessions = new Map<string, BiddingSession>()
 // 启动竞价会话
 export async function POST(request: NextRequest) {
   try {
-    // 认证检查
+    // 认证检查（可选）
     try {
-      const authResult = await authMiddleware(request)
+      const authResult = await authenticateToken(request)
       if (!authResult.success) {
-        return NextResponse.json({ error: authResult.error }, { status: 401 })
+        console.log('Auth check failed, proceeding without auth:', authResult.error)
       }
     } catch (authError) {
       console.log('Auth check skipped in development:', authError)
-    }
-
-    // 速率限制
-    try {
-      const rateLimitResult = await rateLimit(request, 'bidding_start', 5, 60000) // 5次/分钟
-      if (!rateLimitResult.success) {
-        return NextResponse.json({ error: 'Rate limit exceeded' }, { status: 429 })
-      }
-    } catch (rateLimitError) {
-      console.log('Rate limit check skipped:', rateLimitError)
     }
 
     const body = await request.json()

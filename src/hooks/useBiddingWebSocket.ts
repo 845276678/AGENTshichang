@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, useCallback } from 'react'
 import { useAuth } from '@/hooks/useAuth'
+import { AI_PERSONAS, type AIMessage } from '@/lib/ai-persona-system'
 
 // 简化的 toast 函数
 const toast = {
@@ -294,21 +295,49 @@ export function useBiddingWebSocket(config: UseBiddingWebSocketConfig): BiddingW
       return false
     }
 
-    const sessionId = `session_${Date.now()}_${ideaId}`
+    try {
+      // 首先调用API启动真实AI竞价会话
+      const response = await fetch('/api/bidding', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          ideaId,
+          ideaContent: ideaContent.trim()
+        })
+      })
 
-    const success = sendMessage({
-      type: 'start_bidding',
-      payload: {
-        ideaContent: ideaContent.trim(),
-        sessionId
+      if (response.ok) {
+        const data = await response.json()
+        console.log('🎭 Real AI bidding session started:', data.sessionId)
+        toast.success('AI专家团队已就位，开始分析您的创意...')
+
+        // 发送WebSocket消息激活会话
+        const sessionId = data.sessionId
+        const success = sendMessage({
+          type: 'start_bidding',
+          payload: {
+            ideaContent: ideaContent.trim(),
+            sessionId
+          }
+        })
+
+        if (success) {
+          toast.info('正在启动AI竞价...')
+          return true
+        } else {
+          toast.error('启动失败，请检查网络连接')
+          return false
+        }
+      } else {
+        const error = await response.json()
+        toast.error(error.error || '启动AI竞价失败')
+        return false
       }
-    })
-
-    if (success) {
-      toast.info('正在启动AI竞价...')
-      return true
-    } else {
-      toast.error('启动失败，请检查网络连接')
+    } catch (error) {
+      console.error('Error starting real AI bidding:', error)
+      toast.error('网络错误，请重试')
       return false
     }
   }, [ideaId, sendMessage])

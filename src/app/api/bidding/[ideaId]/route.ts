@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { handleBiddingWebSocket } from '@/lib/websocket-mock-server';
+import { handleRealBiddingWebSocket } from '@/lib/real-ai-websocket-server';
 
 export async function GET(
   request: NextRequest,
@@ -8,13 +8,13 @@ export async function GET(
   try {
     const { ideaId } = params;
 
-    // 模拟WebSocket握手响应
+    // 使用真实AI WebSocket服务器
     // 在生产环境中，这里会升级到WebSocket协议
-    return handleBiddingWebSocket(request, ideaId);
+    return handleRealBiddingWebSocket(request, ideaId);
   } catch (error) {
-    console.error('WebSocket connection error:', error);
+    console.error('Real AI WebSocket connection error:', error);
     return NextResponse.json(
-      { error: 'Failed to establish WebSocket connection' },
+      { error: 'Failed to establish Real AI WebSocket connection' },
       { status: 500 }
     );
   }
