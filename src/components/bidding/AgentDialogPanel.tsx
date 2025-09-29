@@ -252,26 +252,9 @@ export const AgentDialogPanel: React.FC<AgentDialogPanelProps> = ({
       <div className="agent-avatar-section flex flex-col items-center mb-3">
         <div className="avatar-container relative w-16 h-16 mb-2">
           <MotionDiv className="agent-avatar relative">
-            <img
-              src={agent.avatar}
-              alt={agent.name}
-              className="w-full h-full rounded-full object-cover border-3 border-white shadow-lg"
-              onError={(e) => {
-                // 头像加载失败时的备用处理
-                const target = e.target as HTMLImageElement
-                target.style.display = 'none'
-                if (target.nextElementSibling) {
-                  (target.nextElementSibling as HTMLElement).style.display = 'flex'
-                }
-              }}
-            />
-
-            {/* 头像加载失败的备用显示 */}
-            <div
-              className="hidden w-full h-full rounded-full bg-gradient-to-br from-blue-400 to-purple-500 items-center justify-center text-white text-lg font-bold shadow-lg"
-              style={{ display: 'none' }}
-            >
-              {agent.name.charAt(0)}
+            {/* 使用emoji头像替代图片，避免加载问题 */}
+            <div className="w-full h-full rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-white text-2xl font-bold shadow-lg">
+              {agent.avatar}
             </div>
 
             {/* 状态指示器叠加层 */}

@@ -99,7 +99,9 @@ const nextConfig = {
   swcMinify: true,
   compress: true,
   compiler: {
-    removeConsole: process.env.NODE_ENV === 'production',
+    removeConsole: process.env.NODE_ENV === 'production' ? {
+      exclude: ['error', 'warn', 'info'] // 保留重要的日志信息
+    } : false,
   },
   webpack: (config, { isServer, dev }) => {
     if (!isServer) {

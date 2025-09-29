@@ -68,14 +68,17 @@ const handle = app.getRequestHandler();
 const activeConnections = new Map(); // 存储活跃的WebSocket连接
 
 function handleBiddingWebSocket(ws, ideaId, query) {
-  console.log(`WebSocket连接建立: ideaId=${ideaId}`);
+  console.log(`🔗 处理WebSocket连接: ideaId=${ideaId}`, {
+    query,
+    readyState: ws.readyState
+  });
 
   // 将连接存储到活跃连接中
   const connectionId = `${ideaId}_${Date.now()}`;
   activeConnections.set(connectionId, { ws, ideaId, connectedAt: Date.now() });
 
   // 发送初始状态
-  ws.send(JSON.stringify({
+  const initMessage = {
     type: 'session.init',
     payload: {
       connectionId,
@@ -88,7 +91,14 @@ function handleBiddingWebSocket(ws, ideaId, query) {
       messages: [],
       status: 'connected'
     }
-  }));
+  };
+
+  try {
+    ws.send(JSON.stringify(initMessage));
+    console.log(`📤 发送初始化消息给连接 ${connectionId}`);
+  } catch (error) {
+    console.error(`❌ 发送初始化消息失败:`, error);
+  }
 
   // 处理客户端消息
   ws.on('message', async (data) => {
@@ -126,8 +136,8 @@ function handleBiddingWebSocket(ws, ideaId, query) {
     }
   });
 
-  ws.on('close', () => {
-    console.log(`WebSocket连接关闭: ideaId=${ideaId}`);
+  ws.on('close', (code, reason) => {
+    console.log(`🔌 WebSocket连接关闭: ideaId=${ideaId}, code=${code}, reason=${reason}`);
     activeConnections.delete(connectionId);
 
     // 通知其他连接观众数量变化
@@ -135,9 +145,32 @@ function handleBiddingWebSocket(ws, ideaId, query) {
   });
 
   ws.on('error', (error) => {
-    console.error('WebSocket error:', error);
+    console.error('❌ WebSocket错误:', {
+      ideaId,
+      connectionId,
+      error: error.message,
+      stack: error.stack
+    });
     activeConnections.delete(connectionId);
   });
+
+  // 发送welcome消息确认连接
+  setTimeout(() => {
+    try {
+      if (ws.readyState === 1) { // WebSocket.OPEN
+        ws.send(JSON.stringify({
+          type: 'welcome',
+          payload: {
+            message: `欢迎连接AI竞价系统！ideaId: ${ideaId}`,
+            timestamp: Date.now()
+          }
+        }));
+        console.log(`👋 发送欢迎消息给连接 ${connectionId}`);
+      }
+    } catch (error) {
+      console.error('❌ 发送欢迎消息失败:', error);
+    }
+  }, 1000);
 }
 
 // 启动AI竞价
@@ -819,6 +852,23 @@ app.prepare().then(() => {
 
       const parsedUrl = parse(req.url, true);
 
+      // 添加WebSocket健康检查端点
+      if (req.url === '/api/websocket-status') {
+        res.setHeader('Content-Type', 'application/json; charset=utf-8');
+        const wsStatus = {
+          websocketServerRunning: !!wss,
+          activeConnections: activeConnections.size,
+          connectionsList: Array.from(activeConnections.keys()),
+          serverTime: new Date().toISOString(),
+          wsServerOptions: {
+            port: wss?.options?.port || 'inherited',
+            host: wss?.options?.host || 'inherited'
+          }
+        };
+        res.end(JSON.stringify(wsStatus, null, 2));
+        return;
+      }
+
       // Add request logging in production for debugging
       if (!dev) {
         console.log(`${new Date().toISOString()} ${req.method} ${req.url}`);
@@ -848,20 +898,26 @@ app.prepare().then(() => {
 
   wss.on('connection', (ws, req) => {
     const url = parse(req.url, true);
-    console.log(`WebSocket连接请求路径: ${url.pathname}`);
+    console.log(`🔌 WebSocket连接请求:`, {
+      path: url.pathname,
+      query: url.query,
+      host: req.headers.host,
+      origin: req.headers.origin,
+      userAgent: req.headers['user-agent']
+    });
 
     // 检查是否是竞价WebSocket路径
     if (url.pathname.startsWith('/api/bidding/')) {
       const pathParts = url.pathname.split('/');
       const ideaId = pathParts[pathParts.length - 1] || 'default';
 
-      console.log(`新的WebSocket连接: ideaId=${ideaId}`);
+      console.log(`✅ 接受WebSocket连接: ideaId=${ideaId}, path=${url.pathname}`);
 
       // 处理WebSocket连接
       handleBiddingWebSocket(ws, ideaId, url.query);
     } else {
-      console.log('非竞价WebSocket连接，关闭');
-      ws.close(1002, 'Path not supported');
+      console.warn(`❌ 拒绝WebSocket连接: 不支持的路径 ${url.pathname}`);
+      ws.close(1002, `Path not supported: ${url.pathname}`);
     }
   });
 

@@ -123,10 +123,10 @@ export function useBiddingWebSocket(config: UseBiddingWebSocketConfig): BiddingW
     try {
       setConnectionStatus('connecting')
 
-      // 构建WebSocket URL
+      // 构建WebSocket URL - 修复生产环境配置
       const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
       const host = process.env.NODE_ENV === 'production'
-        ? window.location.host
+        ? window.location.host  // 生产环境使用当前域名
         : 'localhost:8080'
       const wsUrl = `${protocol}//${host}/api/bidding/${ideaId}`
 
@@ -135,7 +135,9 @@ export function useBiddingWebSocket(config: UseBiddingWebSocketConfig): BiddingW
         host,
         wsUrl,
         environment: process.env.NODE_ENV,
-        ideaId
+        ideaId,
+        locationHost: window.location.host,
+        locationProtocol: window.location.protocol
       })
 
       console.log(`🔌 Connecting to WebSocket: ${wsUrl}`)
@@ -145,6 +147,7 @@ export function useBiddingWebSocket(config: UseBiddingWebSocketConfig): BiddingW
 
       ws.onopen = () => {
         console.log('✅ WebSocket connected successfully')
+        console.log('🔗 Connection established to:', wsUrl)
         setIsConnected(true)
         setConnectionStatus('connected')
 
@@ -153,14 +156,25 @@ export function useBiddingWebSocket(config: UseBiddingWebSocketConfig): BiddingW
           clearTimeout(reconnectTimeoutRef.current)
           reconnectTimeoutRef.current = null
         }
+
+        // 连接成功后立即启动竞价（如果有内容）
+        if (window.location.search.includes('autoStart=true')) {
+          console.log('🎭 Auto-starting bidding due to autoStart parameter')
+          setTimeout(() => {
+            const testContent = '测试AI竞价创意 - 智能家居控制系统'
+            startBidding(testContent)
+          }, 2000)
+        }
       }
 
       ws.onmessage = (event) => {
         try {
           const data = JSON.parse(event.data)
+          console.log('📨 WebSocket message received:', data.type, data)
           handleWebSocketMessage(data)
         } catch (error) {
-          console.error('Error parsing WebSocket message:', error)
+          console.error('❌ Error parsing WebSocket message:', error)
+          console.error('Raw message data:', event.data)
         }
       }
 
@@ -190,10 +204,11 @@ export function useBiddingWebSocket(config: UseBiddingWebSocketConfig): BiddingW
 
   // 处理WebSocket消息
   const handleWebSocketMessage = useCallback((data: any) => {
-    console.log('📨 Received WebSocket message:', data.type)
+    console.log('📨 Processing WebSocket message:', data.type, data)
 
     switch (data.type) {
       case 'session.init':
+        console.log('🔧 Initializing session:', data.payload)
         setSessionData(data.payload)
         setViewerCount(data.payload.viewerCount || 1)
         setCurrentPhase(data.payload.currentPhase || 'warmup')
@@ -202,6 +217,7 @@ export function useBiddingWebSocket(config: UseBiddingWebSocketConfig): BiddingW
 
       case 'ai_message':
         const newMessage = data.message
+        console.log('💬 New AI message:', newMessage.personaId, newMessage.content.substring(0, 50) + '...')
         setAiMessages(prev => [newMessage, ...prev.slice(0, 19)]) // 保留最新20条
         setActiveSpeaker(newMessage.personaId)
 
@@ -213,6 +229,7 @@ export function useBiddingWebSocket(config: UseBiddingWebSocketConfig): BiddingW
 
       case 'ai_bid':
         const bidMessage = data.message
+        console.log('💰 New AI bid:', bidMessage.personaId, bidMessage.bidValue)
         setAiMessages(prev => [bidMessage, ...prev.slice(0, 19)])
         setCurrentBids(data.currentBids || {})
         setActiveSpeaker(bidMessage.personaId)
@@ -223,6 +240,7 @@ export function useBiddingWebSocket(config: UseBiddingWebSocketConfig): BiddingW
         break
 
       case 'phase_change':
+        console.log('🔄 Phase changed:', data.phase)
         setCurrentPhase(data.phase)
         setTimeRemaining(getPhaseTimeRemaining(data.phase))
         toast.info(`进入${data.message}`)
@@ -237,16 +255,19 @@ export function useBiddingWebSocket(config: UseBiddingWebSocketConfig): BiddingW
         break
 
       case 'session_complete':
+        console.log('🎉 Session completed:', data.results)
         setCurrentPhase('result')
         setTimeRemaining(0)
         toast.success(`竞价完成！最高出价：${data.results.highestBid}元`)
         break
 
       case 'bidding_started':
+        console.log('🎭 Bidding started:', data.payload)
         toast.success(data.payload.message)
         break
 
       case 'session_update':
+        console.log('📊 Session update:', data.payload)
         toast.info(data.payload.message)
         break
 
@@ -259,15 +280,21 @@ export function useBiddingWebSocket(config: UseBiddingWebSocketConfig): BiddingW
         break
 
       case 'error':
+        console.error('🚨 WebSocket error:', data.payload)
         toast.error(data.payload.message)
         break
+
+      case 'welcome':
+        console.log('👋 Received welcome message:', data.payload);
+        toast.info(data.payload.message);
+        break;
 
       case 'pong':
         // 心跳响应，忽略
         break
 
       default:
-        console.log('Unknown message type:', data.type)
+        console.warn('❓ Unknown message type:', data.type, data)
     }
   }, [])
 

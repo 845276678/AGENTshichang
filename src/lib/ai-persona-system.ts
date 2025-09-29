@@ -17,7 +17,7 @@ export const AI_PERSONAS: AIPersona[] = [
   {
     id: 'tech-pioneer-alex',
     name: '科技先锋艾克斯',
-    avatar: '/avatars/艾克斯.png',
+    avatar: '🤖',  // 使用emoji避免图片加载问题
     personality: ['理性', '技术控', '逻辑思维', '创新导向'],
     specialty: '架构评估、算法优化、技术可行性分析',
     catchPhrase: '让数据说话，用技术改变世界！',
@@ -30,7 +30,7 @@ export const AI_PERSONAS: AIPersona[] = [
   {
     id: 'business-tycoon-wang',
     name: '商业大亨老王',
-    avatar: '/avatars/老王.png',
+    avatar: '💼',  // 使用emoji避免图片加载问题
     personality: ['结果导向', '商业敏锐', '决策果断', '盈利至上'],
     specialty: '盈利模型、风险评估、商业策略',
     catchPhrase: '商场如战场，只有赢家才能生存！',
@@ -43,7 +43,7 @@ export const AI_PERSONAS: AIPersona[] = [
   {
     id: 'artistic-lin',
     name: '文艺少女小琳',
-    avatar: '/avatars/小琳.png',
+    avatar: '🎨',  // 使用emoji避免图片加载问题
     personality: ['情感共鸣', '用户导向', '审美敏感', '人文关怀'],
     specialty: '用户体验、品牌故事、情感价值',
     catchPhrase: '好的创意要触动人心，让生活更美好~',
@@ -56,7 +56,7 @@ export const AI_PERSONAS: AIPersona[] = [
   {
     id: 'trend-master-allen',
     name: '趋势达人阿伦',
-    avatar: '/avatars/阿伦.png',
+    avatar: '📈',  // 使用emoji避免图片加载问题
     personality: ['营销天才', '社交达人', '热点嗅觉', '传播专家'],
     specialty: '传播策略、热点预测、社交营销',
     catchPhrase: '抓住风口，让创意火遍全网！',
@@ -69,7 +69,7 @@ export const AI_PERSONAS: AIPersona[] = [
   {
     id: 'scholar-li',
     name: '学者教授李博',
-    avatar: '/avatars/李博.png',
+    avatar: '👨‍🏫',  // 使用emoji避免图片加载问题
     personality: ['严谨权威', '理论深厚', '逻辑缜密', '学术专业'],
     specialty: '理论支撑、系统分析、学术验证',
     catchPhrase: '理论指导实践，学术成就未来。',
