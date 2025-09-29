@@ -11,6 +11,7 @@ const inter = Inter({
 })
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://aijiayuan.top'),
   title: {
     default: 'AI Agent Market - Discover, Deploy, and Monetize AI Agents',
     template: '%s | AI Agent Market'
@@ -26,19 +27,22 @@ export const metadata: Metadata = {
   ],
   authors: [{ name: 'AI Agent Market Team' }],
   creator: 'AI Agent Market',
+  other: {
+    'charset': 'utf-8'
+  },
   openGraph: {
     type: 'website',
-    locale: 'en_US',
-    url: 'https://aiagentmarket.com',
-    siteName: 'AI Agent Market',
-    title: 'AI Agent Market - Discover, Deploy, and Monetize AI Agents',
-    description: 'The world\'s largest marketplace for AI agents. Discover powerful AI agents, deploy them instantly, and monetize your own creations.',
+    locale: 'zh_CN',
+    url: 'https://aijiayuan.top',
+    siteName: 'AI创意家园',
+    title: 'AI创意家园 - 创意竞价与智能评估平台',
+    description: '全球领先的AI创意竞价平台，让AI专家为您的创意进行智能评估和竞价',
     images: [
       {
         url: '/og-image.png',
         width: 1200,
         height: 630,
-        alt: 'AI Agent Market'
+        alt: 'AI创意家园'
       }
     ]
   },

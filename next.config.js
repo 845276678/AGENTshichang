@@ -12,6 +12,11 @@ const nextConfig = {
   experimental: {
     serverComponentsExternalPackages: ['@prisma/client'],
   },
+  // 国际化配置，确保UTF-8编码支持
+  i18n: {
+    locales: ['zh-CN', 'en'],
+    defaultLocale: 'zh-CN',
+  },
   eslint: {
     ignoreDuringBuilds: true,
   },
@@ -38,6 +43,10 @@ const nextConfig = {
         source: '/(.*)',
         headers: [
           {
+            key: 'Content-Type',
+            value: 'text/html; charset=utf-8',
+          },
+          {
             key: 'X-Frame-Options',
             value: 'DENY',
           },
@@ -60,6 +69,15 @@ const nextConfig = {
           {
             key: 'Strict-Transport-Security',
             value: 'max-age=31536000; includeSubDomains',
+          },
+        ],
+      },
+      {
+        source: '/api/(.*)',
+        headers: [
+          {
+            key: 'Content-Type',
+            value: 'application/json; charset=utf-8',
           },
         ],
       },
@@ -91,7 +109,7 @@ const nextConfig = {
       };
     }
 
-    // 鐎瑰苯鍙忕粋浣烘暏閺傚洣娆㈢化鑽ょ埠閹殿偅寮?
+    // 优化开发环境的文件监控配置
     config.watchOptions = {
       ignored: [
         '**/node_modules/**',
@@ -108,7 +126,7 @@ const nextConfig = {
       poll: false,
     };
 
-    // 缁備胶鏁ら幍鈧張澶嬫瀮娴犲墎閮寸紒鐔虹处鐎?
+    // 禁用缓存以避免开发环境问题
     config.cache = false;
 
     return config;
