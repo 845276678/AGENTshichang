@@ -89,10 +89,32 @@ app.prepare().then(() => {
   });
 
   server.listen(port, hostname, (err) => {
-    if (err) throw err;
-    console.log(`> Ready on http://${hostname}:${port}`);
-    console.log(`> WebSocket server ready on ws://${hostname}:${port}/api/bidding`);
-    console.log(`> Environment: ${process.env.NODE_ENV}`);
-    console.log(`> Database: ${process.env.DATABASE_URL ? 'Connected' : 'Not configured'}`);
+    if (err) {
+      console.error('❌ Server failed to start:', err);
+      process.exit(1);
+    }
+    console.log(`✅ Server ready on http://${hostname}:${port}`);
+    console.log(`🔌 WebSocket server ready on ws://${hostname}:${port}/api/bidding`);
+    console.log(`🌍 Environment: ${process.env.NODE_ENV}`);
+    console.log(`💾 Database: ${process.env.DATABASE_URL ? 'Connected' : 'Not configured'}`);
+    console.log(`🔑 AI Services: DeepSeek(${process.env.DEEPSEEK_API_KEY ? '✅' : '❌'}), Zhipu(${process.env.ZHIPU_API_KEY ? '✅' : '❌'}), Dashscope(${process.env.DASHSCOPE_API_KEY ? '✅' : '❌'})`);
+    console.log(`📡 Health check: http://${hostname}:${port}/api/health`);
+  });
+
+  // 优雅关闭处理
+  process.on('SIGTERM', () => {
+    console.log('🛑 SIGTERM received, shutting down gracefully');
+    server.close(() => {
+      console.log('✅ Server closed');
+      process.exit(0);
+    });
+  });
+
+  process.on('SIGINT', () => {
+    console.log('🛑 SIGINT received, shutting down gracefully');
+    server.close(() => {
+      console.log('✅ Server closed');
+      process.exit(0);
+    });
   });
 });
