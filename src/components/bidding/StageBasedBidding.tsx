@@ -258,53 +258,62 @@ export default function StageBasedBidding({
   const { user } = useAuth()
   const router = useRouter()
 
+  const [sessionId, setSessionId] = useState<string | null>(null)
+
   // Auto-start if specified and has initial content
   useEffect(() => {
     if (autoStart && initialIdeaContent) {
       setSubmittedIdea(initialIdeaContent)
       setCurrentStage('bidding')
+      // 生成sessionId以启动真实AI
+      const newSessionId = `session_${Date.now()}_${ideaId}`
+      setSessionId(newSessionId)
     }
-  }, [autoStart, initialIdeaContent])
+  }, [autoStart, initialIdeaContent, ideaId])
 
-  // 模拟竞价阶段进度
-  useEffect(() => {
-    if (currentStage === 'bidding') {
-      const phases = [
-        { phase: 'warmup', duration: 5000, progress: 15 },
-        { phase: 'discussion', duration: 15000, progress: 45 },
-        { phase: 'bidding', duration: 10000, progress: 75 },
-        { phase: 'supplement', duration: 8000, progress: 90 },
-        { phase: 'result', duration: 2000, progress: 100 }
-      ]
+  // 移除模拟竞价阶段进度，让真实AI系统接管
+  // useEffect(() => {
+  //   if (currentStage === 'bidding') {
+  //     const phases = [
+  //       { phase: 'warmup', duration: 5000, progress: 15 },
+  //       { phase: 'discussion', duration: 15000, progress: 45 },
+  //       { phase: 'bidding', duration: 10000, progress: 75 },
+  //       { phase: 'supplement', duration: 8000, progress: 90 },
+  //       { phase: 'result', duration: 2000, progress: 100 }
+  //     ]
 
-      let phaseIndex = 0
-      const progressTimer = () => {
-        if (phaseIndex < phases.length) {
-          const currentPhase = phases[phaseIndex]
-          setBiddingPhase(currentPhase.phase)
-          setBiddingProgress(currentPhase.progress)
+  //     let phaseIndex = 0
+  //     const progressTimer = () => {
+  //       if (phaseIndex < phases.length) {
+  //         const currentPhase = phases[phaseIndex]
+  //         setBiddingPhase(currentPhase.phase)
+  //         setBiddingProgress(currentPhase.progress)
 
-          setTimeout(() => {
-            phaseIndex++
-            progressTimer()
-          }, currentPhase.duration)
-        }
-      }
+  //         setTimeout(() => {
+  //           phaseIndex++
+  //           progressTimer()
+  //         }, currentPhase.duration)
+  //       }
+  //     }
 
-      progressTimer()
-    }
-  }, [currentStage])
+  //     progressTimer()
+  //   }
+  // }, [currentStage])
 
   const handleIdeaSubmit = async (ideaContent: string) => {
     try {
       setIsSubmitting(true)
       setSubmittedIdea(ideaContent)
 
+      // 生成真实sessionId启动AI服务
+      const newSessionId = `session_${Date.now()}_${ideaId}`
+      setSessionId(newSessionId)
+
       // 模拟提交延迟
       await new Promise(resolve => setTimeout(resolve, 1000))
 
       setCurrentStage('bidding')
-      setBiddingPhase('warmup')
+      setBiddingPhase('warmup')  // 初始设为warmup，真实AI将接管
       setBiddingProgress(15)
     } catch (error) {
       console.error('Idea submission error:', error)
@@ -319,6 +328,7 @@ export default function StageBasedBidding({
     setSubmittedIdea('')
     setBiddingPhase('warmup')
     setBiddingProgress(0)
+    setSessionId(null) // 重置sessionId
   }
 
   const userCredits = user?.credits || 0
@@ -358,6 +368,7 @@ export default function StageBasedBidding({
             <UnifiedBiddingStage
               ideaContent={submittedIdea}
               ideaId={ideaId}
+              sessionId={sessionId}
             />
           </div>
         )}

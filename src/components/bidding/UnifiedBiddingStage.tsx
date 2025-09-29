@@ -23,7 +23,9 @@ import {
   Volume2,
   VolumeX,
   Eye,
-  EyeOff
+  EyeOff,
+  Trophy,
+  FileText
 } from 'lucide-react'
 
 // 简化组件替代motion - 避免生产环境错误
@@ -193,7 +195,55 @@ export default function UnifiedBiddingStage({
     return `${mins}:${secs.toString().padStart(2, '0')}`
   }
 
-  // 计算阶段进度
+  // 处理商业计划生成
+  const handleGenerateBusinessPlan = () => {
+    // 跳转到商业计划生成页面，传递竞价数据
+    const planData = {
+      ideaContent,
+      highestBid,
+      aiMessages: aiMessages.slice(0, 10), // 取前10条重要消息
+      supportedAgents: Array.from(supportedAgents),
+      currentBids
+    }
+
+    const query = new URLSearchParams({
+      source: 'ai-bidding',
+      data: encodeURIComponent(JSON.stringify(planData))
+    }).toString()
+
+    window.open(`/business-plan?${query}`, '_blank')
+  }
+
+  // 处理详细报告查看
+  const handleViewDetailedReport = () => {
+    // 生成详细报告数据
+    const reportData = {
+      ideaContent,
+      biddingResults: {
+        highestBid,
+        averageBid: Object.values(currentBids).length > 0
+          ? Object.values(currentBids).reduce((a, b) => a + b, 0) / Object.values(currentBids).length
+          : 0,
+        totalBids: Object.keys(currentBids).length,
+        currentBids
+      },
+      expertAnalysis: aiMessages.map(msg => ({
+        expert: AI_PERSONAS.find(p => p.id === msg.personaId)?.name || msg.personaId,
+        content: msg.content,
+        emotion: msg.emotion,
+        timestamp: msg.timestamp
+      })),
+      sessionStats: {
+        messagesCount: aiMessages.length,
+        supportCount: supportedAgents.size,
+        phase: currentPhase,
+        duration: Date.now() - (new Date().getTime())
+      }
+    }
+
+    console.log('🎯 Detailed bidding report:', reportData)
+    alert('详细报告功能开发中，数据已输出到控制台')
+  }
   const calculatePhaseProgress = (): number => {
     const phaseDurations: Record<string, number> = {
       'warmup': 180, 'discussion': 720, 'bidding': 1200, 'prediction': 240, 'result': 300
@@ -344,6 +394,74 @@ export default function UnifiedBiddingStage({
           ))}
         </div>
       </MotionDiv>
+
+      {/* 结果阶段 - 商业计划生成 */}
+      {currentPhase === BiddingPhase.RESULT_DISPLAY && (
+        <Card className="w-full max-w-4xl mx-auto border-2 border-green-200 bg-gradient-to-r from-green-50 to-blue-50">
+          <CardContent className="p-6">
+            <div className="text-center space-y-4">
+              <div className="flex items-center justify-center gap-2 mb-4">
+                <Trophy className="w-8 h-8 text-yellow-500" />
+                <h2 className="text-2xl font-bold text-gray-800">🎉 AI竞价完成！</h2>
+              </div>
+
+              <div className="bg-white p-4 rounded-lg shadow-md mb-6">
+                <h3 className="text-lg font-semibold mb-3">竞价结果摘要</h3>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-green-600">¥{highestBid}</div>
+                    <div className="text-gray-600">最高出价</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-blue-600">{Object.keys(currentBids).length}</div>
+                    <div className="text-gray-600">参与专家</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-purple-600">{aiMessages.length}</div>
+                    <div className="text-gray-600">专家评论</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-orange-600">{supportedAgents.size}</div>
+                    <div className="text-gray-600">获得支持</div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                <p className="text-lg text-gray-700">
+                  🎯 恭喜！您的创意已通过AI专家团队的全面评估和竞价
+                </p>
+                <p className="text-gray-600">
+                  基于专家讨论和竞价结果，系统将为您生成专业的商业计划书
+                </p>
+              </div>
+
+              <div className="flex flex-col sm:flex-row gap-4 justify-center mt-6">
+                <Button
+                  onClick={() => handleGenerateBusinessPlan()}
+                  className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-3 text-lg font-semibold rounded-full shadow-lg transform hover:scale-105 transition-all duration-200"
+                >
+                  <FileText className="w-5 h-5 mr-2" />
+                  生成商业计划书
+                </Button>
+
+                <Button
+                  variant="outline"
+                  onClick={() => handleViewDetailedReport()}
+                  className="border-2 border-blue-500 text-blue-600 hover:bg-blue-50 px-8 py-3 text-lg font-semibold rounded-full shadow-lg transform hover:scale-105 transition-all duration-200"
+                >
+                  <TrendingUp className="w-5 h-5 mr-2" />
+                  查看详细报告
+                </Button>
+              </div>
+
+              <div className="text-xs text-gray-500 mt-4">
+                💡 商业计划书将基于AI专家的讨论内容和出价分析自动生成
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* 设置面板 */}
       <AnimatePresence>
