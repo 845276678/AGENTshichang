@@ -120,6 +120,13 @@ export function useBiddingWebSocket(config: UseBiddingWebSocketConfig): BiddingW
       return // 已连接
     }
 
+    // 检查浏览器是否支持WebSocket
+    if (typeof window === 'undefined' || !window.WebSocket) {
+      console.error('❌ Browser does not support WebSocket');
+      setConnectionStatus('error');
+      return;
+    }
+
     try {
       setConnectionStatus('connecting')
 
@@ -142,10 +149,21 @@ export function useBiddingWebSocket(config: UseBiddingWebSocketConfig): BiddingW
 
       console.log(`🔌 Connecting to WebSocket: ${wsUrl}`)
 
+      // 创建WebSocket连接，添加错误处理
       const ws = new WebSocket(wsUrl)
       wsRef.current = ws
 
+      // 设置连接超时
+      const connectionTimeout = setTimeout(() => {
+        if (ws.readyState === WebSocket.CONNECTING) {
+          console.error('❌ WebSocket connection timeout');
+          ws.close();
+          setConnectionStatus('error');
+        }
+      }, 10000); // 10秒超时
+
       ws.onopen = () => {
+        clearTimeout(connectionTimeout);
         console.log('✅ WebSocket connected successfully')
         console.log('🔗 Connection established to:', wsUrl)
         setIsConnected(true)
@@ -179,19 +197,30 @@ export function useBiddingWebSocket(config: UseBiddingWebSocketConfig): BiddingW
       }
 
       ws.onclose = (event) => {
-        console.log('WebSocket connection closed:', event.code, event.reason)
+        clearTimeout(connectionTimeout);
+        console.log('🔌 WebSocket connection closed:', {
+          code: event.code,
+          reason: event.reason,
+          wasClean: event.wasClean
+        });
         setIsConnected(false)
         setConnectionStatus('disconnected')
         wsRef.current = null
 
         // 自动重连（如果不是正常关闭）
         if (event.code !== 1000 && autoConnect) {
+          console.log('🔄 Scheduling reconnection...');
           scheduleReconnect()
         }
       }
 
       ws.onerror = (error) => {
-        console.error('WebSocket error:', error)
+        clearTimeout(connectionTimeout);
+        console.error('❌ WebSocket error occurred:', {
+          error,
+          readyState: ws.readyState,
+          url: wsUrl
+        });
         setConnectionStatus('error')
       }
 
@@ -405,8 +434,31 @@ export function useBiddingWebSocket(config: UseBiddingWebSocketConfig): BiddingW
 
   // 初始化连接
   useEffect(() => {
-    if (autoConnect && ideaId) {
-      connectWebSocket()
+    // 确保在浏览器环境中且DOM已加载
+    if (typeof window === 'undefined') return;
+
+    const initConnection = () => {
+      if (autoConnect && ideaId) {
+        console.log('🚀 Initializing WebSocket connection...', { ideaId, autoConnect });
+        connectWebSocket()
+      }
+    };
+
+    // 如果文档已经加载完成，立即连接
+    if (document.readyState === 'complete') {
+      initConnection();
+    } else {
+      // 否则等待页面加载完成
+      const handleLoad = () => {
+        console.log('📄 Document loaded, starting WebSocket connection');
+        initConnection();
+      };
+      window.addEventListener('load', handleLoad);
+
+      // 清理函数
+      return () => {
+        window.removeEventListener('load', handleLoad);
+      };
     }
 
     // 心跳检测

@@ -893,7 +893,27 @@ app.prepare().then(() => {
 
   // 创建WebSocket服务器
   const wss = new WebSocketServer({
-    server
+    server,
+    perMessageDeflate: false, // 禁用压缩以避免Zeabur代理问题
+    clientTracking: true // 启用客户端跟踪
+  });
+
+  // 监听服务器的upgrade事件，确保WebSocket升级正确处理
+  server.on('upgrade', (request, socket, head) => {
+    console.log('🔄 HTTP升级到WebSocket:', {
+      url: request.url,
+      headers: request.headers
+    });
+
+    // 验证WebSocket升级请求
+    if (request.url.startsWith('/api/bidding/')) {
+      wss.handleUpgrade(request, socket, head, (ws) => {
+        wss.emit('connection', ws, request);
+      });
+    } else {
+      console.warn('❌ 拒绝WebSocket升级: 不支持的路径', request.url);
+      socket.destroy();
+    }
   });
 
   wss.on('connection', (ws, req) => {
