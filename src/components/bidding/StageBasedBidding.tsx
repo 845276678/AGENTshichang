@@ -78,7 +78,7 @@ const CreativeInputForm = ({
               5 位顶级 AI 专家即将为您的创意展开激烈竞价！
             </motion.p>
 
-            {/* 积分状态显示 */
+            {/* 积分状态显示 */}
             <motion.div
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
@@ -86,14 +86,14 @@ const CreativeInputForm = ({
               className="mt-6 flex items-center justify-center space-x-6"
             >
               <div className="bg-gradient-to-r from-yellow-400 via-orange-400 to-red-400 text-white px-6 py-3 rounded-full text-lg font-bold shadow-lg">
-                \ud83d\udcb0 \u5f53\u524d\u79ef\u5206: {userCredits}
+                💰 当前积分: {userCredits}
               </div>
               <div className={`px-6 py-3 rounded-full text-lg font-bold shadow-lg transition-all duration-300 ${
                 hasEnoughCredits
                   ? 'bg-gradient-to-r from-green-400 to-emerald-400 text-white'
                   : 'bg-gradient-to-r from-red-400 to-pink-400 text-white'
               }`}>
-                {hasEnoughCredits ? '\u2705 \u51c6\u5907\u5c31\u7eea' : `\u26a0\ufe0f \u9700\u8981 ${REQUIRED_CREDITS} \u79ef\u5206`}
+                {hasEnoughCredits ? '✅ 准备就绪' : `⚠️ 需要 ${REQUIRED_CREDITS} 积分`}
               </div>
             </motion.div>
           </div>
@@ -922,8 +922,3 @@ export default function CreativeIdeaBidding({ ideaId }: CreativeIdeaBiddingProps
     </div>
   )
 }
-
-
-
-
-
