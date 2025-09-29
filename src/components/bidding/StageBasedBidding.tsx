@@ -327,6 +327,9 @@ export default function CreativeIdeaBidding({ ideaId, autoStart = false, initial
       setSessionId(newSessionId)
       setShowForm(false)
 
+      // 启动真实的AI竞价
+      await startRealAIBidding(sanitizedContent, newSessionId)
+
       await new Promise(resolve => setTimeout(resolve, 2000))
       return true
     } catch (error) {
@@ -343,6 +346,51 @@ export default function CreativeIdeaBidding({ ideaId, autoStart = false, initial
       setIsStarting(false)
     }
   }, [adjustCredits, hasEnoughCredits])
+
+  // 启动真实的AI竞价
+  const startRealAIBidding = useCallback(async (ideaContent: string, sessionId: string) => {
+    try {
+      const token = getAccessToken()
+
+      console.log('🎭 Starting real AI bidding with content:', ideaContent.substring(0, 50) + '...')
+
+      const response = await fetch('/api/bidding', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          ideaId: loadedIdea?.id || ideaId,
+          ideaContent,
+          sessionId
+        })
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}))
+        throw new Error(errorData.error || `HTTP ${response.status}: Failed to start AI bidding`)
+      }
+
+      const result = await response.json()
+
+      if (result.success) {
+        console.log('✅ AI bidding started successfully:', result.sessionId)
+        setSessionId(result.sessionId)
+
+        // 显示成功消息
+        setTimeout(() => {
+          setError(null)
+        }, 1000)
+      } else {
+        throw new Error(result.error || 'Failed to start AI bidding session')
+      }
+
+    } catch (error) {
+      console.error('Error starting real AI bidding:', error)
+      throw error
+    }
+  }, [getAccessToken, loadedIdea, ideaId])
 
   // 如果用户未登录或数据加载中，显示加载状态
   if (authLoading || !user) {
@@ -433,12 +481,14 @@ export default function CreativeIdeaBidding({ ideaId, autoStart = false, initial
           </div>
         </div>
 
-        {/* 使用增强的竞价舞台组件 */}
+        {/* 使用增强的竞价舞台组件 - 集成真实AI */}
         <EnhancedBiddingStage
           ideaId={loadedIdea?.id || ideaId || 'demo-idea'}
+          sessionId={sessionId}
+          ideaContent={prefilledIdeaContent}
           messages={[]}
           currentBids={{}}
-          activeSpeaker="tech-pioneer-alex"
+          activeSpeaker={null}
           currentPhase="warmup"
           onSupportPersona={() => {}}
         />

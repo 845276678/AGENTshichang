@@ -60,48 +60,201 @@ try {
 const app = next({ dev, hostname: dev ? hostname : undefined, port });
 const handle = app.getRequestHandler();
 
-// WebSocket处理器
+// WebSocket处理器 - 真实AI交互版本
+const activeConnections = new Map(); // 存储活跃的WebSocket连接
+
 function handleBiddingWebSocket(ws, ideaId, query) {
   console.log(`WebSocket连接建立: ideaId=${ideaId}`);
+
+  // 将连接存储到活跃连接中
+  const connectionId = `${ideaId}_${Date.now()}`;
+  activeConnections.set(connectionId, { ws, ideaId, connectedAt: Date.now() });
 
   // 发送初始状态
   ws.send(JSON.stringify({
     type: 'session.init',
     payload: {
+      connectionId,
       ideaId,
       currentPhase: 'warmup',
-      timeRemaining: 120,
+      timeRemaining: 180,
       currentBids: {},
-      highestBid: 50,
-      viewerCount: 1,
-      messages: []
+      highestBid: 0,
+      viewerCount: activeConnections.size,
+      messages: [],
+      status: 'connected'
     }
   }));
 
   // 处理客户端消息
-  ws.on('message', (data) => {
+  ws.on('message', async (data) => {
     try {
       const message = JSON.parse(data.toString());
       console.log('收到客户端消息:', message.type);
 
-      // 简单回复确认
-      ws.send(JSON.stringify({
-        type: 'ack',
-        payload: { received: message.type, timestamp: Date.now() }
-      }));
+      switch (message.type) {
+        case 'start_bidding':
+          await handleStartBidding(ideaId, message.payload, ws);
+          break;
+
+        case 'support_persona':
+          await handleSupportPersona(ideaId, message.payload, ws);
+          break;
+
+        case 'submit_prediction':
+          await handleSubmitPrediction(ideaId, message.payload, ws);
+          break;
+
+        case 'ping':
+          ws.send(JSON.stringify({ type: 'pong', timestamp: Date.now() }));
+          break;
+
+        default:
+          console.log('未知消息类型:', message.type);
+      }
+
     } catch (error) {
       console.error('Failed to parse client message:', error);
+      ws.send(JSON.stringify({
+        type: 'error',
+        payload: { message: 'Invalid message format' }
+      }));
     }
   });
 
   ws.on('close', () => {
     console.log(`WebSocket连接关闭: ideaId=${ideaId}`);
+    activeConnections.delete(connectionId);
+
+    // 通知其他连接观众数量变化
+    broadcastViewerCount(ideaId);
   });
 
   ws.on('error', (error) => {
     console.error('WebSocket error:', error);
+    activeConnections.delete(connectionId);
   });
 }
+
+// 启动AI竞价
+async function handleStartBidding(ideaId, payload, ws) {
+  try {
+    console.log(`🎭 Starting AI bidding for idea: ${ideaId}`);
+
+    const { ideaContent, sessionId } = payload;
+
+    // 调用竞价API启动AI对话
+    const response = await fetch(`http://localhost:${port}/api/bidding`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        ideaId,
+        ideaContent,
+        sessionId: sessionId || `session_${Date.now()}`
+      })
+    });
+
+    if (response.ok) {
+      const result = await response.json();
+
+      // 通知客户端竞价已启动
+      ws.send(JSON.stringify({
+        type: 'bidding_started',
+        payload: {
+          sessionId: result.sessionId,
+          status: 'active',
+          message: 'AI竞价已启动，专家们正在分析您的创意...'
+        }
+      }));
+
+      // 广播给所有连接到此会话的客户端
+      broadcastToSession(ideaId, {
+        type: 'session_update',
+        payload: {
+          phase: 'warmup',
+          status: 'active',
+          message: 'AI专家团队开始评估创意'
+        }
+      });
+
+    } else {
+      throw new Error('Failed to start bidding session');
+    }
+
+  } catch (error) {
+    console.error('Error starting bidding:', error);
+    ws.send(JSON.stringify({
+      type: 'error',
+      payload: { message: 'Failed to start AI bidding' }
+    }));
+  }
+}
+
+// 支持AI角色
+async function handleSupportPersona(ideaId, payload, ws) {
+  const { personaId } = payload;
+  console.log(`👍 User supports persona: ${personaId}`);
+
+  // 广播支持信息
+  broadcastToSession(ideaId, {
+    type: 'persona_supported',
+    payload: {
+      personaId,
+      timestamp: Date.now()
+    }
+  });
+}
+
+// 提交预测
+async function handleSubmitPrediction(ideaId, payload, ws) {
+  const { prediction, confidence } = payload;
+  console.log(`🔮 User prediction: ${prediction}, confidence: ${confidence}`);
+
+  ws.send(JSON.stringify({
+    type: 'prediction_received',
+    payload: {
+      prediction,
+      confidence,
+      message: '预测已提交，等待最终结果...'
+    }
+  }));
+}
+
+// 广播给特定会话的所有连接
+function broadcastToSession(ideaId, data) {
+  let broadcastCount = 0;
+
+  activeConnections.forEach((connection, connectionId) => {
+    if (connection.ideaId === ideaId && connection.ws.readyState === 1) { // WebSocket.OPEN = 1
+      try {
+        connection.ws.send(JSON.stringify(data));
+        broadcastCount++;
+      } catch (error) {
+        console.error('Error broadcasting to connection:', error);
+        activeConnections.delete(connectionId);
+      }
+    }
+  });
+
+  console.log(`📡 Broadcasted to ${broadcastCount} connections for idea: ${ideaId}`);
+  return broadcastCount;
+}
+
+// 广播观众数量更新
+function broadcastViewerCount(ideaId) {
+  const viewerCount = Array.from(activeConnections.values())
+    .filter(conn => conn.ideaId === ideaId).length;
+
+  broadcastToSession(ideaId, {
+    type: 'viewer_count_update',
+    payload: { viewerCount }
+  });
+}
+
+// 导出广播函数供API使用
+global.broadcastToSession = broadcastToSession;
 
 app.prepare().then(() => {
   console.log('✅ Next.js app prepared successfully');

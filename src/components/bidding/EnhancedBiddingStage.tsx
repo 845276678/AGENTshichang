@@ -1,5 +1,3 @@
-'use client'
-
 import React, { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -15,7 +13,11 @@ import {
   Volume2,
   VolumeX,
   Palette,
-  Monitor
+  Monitor,
+  Wifi,
+  WifiOff,
+  Clock,
+  Users
 } from 'lucide-react'
 
 import AIPersonaSceneManager from './AIPersonaSceneManager'
@@ -27,24 +29,45 @@ import {
   type VisualEffectConfig
 } from '@/lib/visual-effects-config'
 import { AI_PERSONAS, type AIMessage } from '@/lib/ai-persona-system'
+import { useBiddingWebSocket } from '@/hooks/useBiddingWebSocket'
 
 interface EnhancedBiddingStageProps {
   ideaId: string
+  sessionId?: string | null
+  ideaContent?: string
   messages: AIMessage[]
   currentBids: Record<string, number>
-  activeSpeaker?: string
+  activeSpeaker?: string | null
   currentPhase: 'warmup' | 'discussion' | 'bidding' | 'prediction' | 'result'
   onSupportPersona: (personaId: string) => void
 }
 
 export default function EnhancedBiddingStage({
   ideaId,
-  messages,
-  currentBids,
-  activeSpeaker,
-  currentPhase,
+  sessionId,
+  ideaContent,
   onSupportPersona
 }: EnhancedBiddingStageProps) {
+  // 使用真实的WebSocket连接
+  const {
+    isConnected,
+    connectionStatus,
+    currentPhase,
+    timeRemaining,
+    viewerCount,
+    aiMessages,
+    activeSpeaker,
+    currentBids,
+    highestBid,
+    supportedPersona,
+    supportPersona,
+    startBidding,
+    reconnect
+  } = useBiddingWebSocket({
+    ideaId,
+    autoConnect: true
+  })
+
   // 视觉效果设置状态
   const [effectConfig, setEffectConfig] = useState<VisualEffectConfig>(() =>
     getRecommendedConfig(currentPhase)
@@ -53,6 +76,20 @@ export default function EnhancedBiddingStage({
   const [enableSound, setEnableSound] = useState<boolean>(false)
   const [showSettings, setShowSettings] = useState<boolean>(false)
   const [performanceMode, setPerformanceMode] = useState<boolean>(false)
+
+  // 自动启动AI竞价（如果有sessionId和内容）
+  useEffect(() => {
+    if (sessionId && ideaContent && isConnected && currentPhase === 'warmup') {
+      console.log('🎭 Auto-starting AI bidding with sessionId:', sessionId)
+
+      // 延迟启动以确保WebSocket连接稳定
+      const startTimer = setTimeout(() => {
+        startBidding(ideaContent)
+      }, 2000)
+
+      return () => clearTimeout(startTimer)
+    }
+  }, [sessionId, ideaContent, isConnected, currentPhase, startBidding])
 
   // 性能检查
   useEffect(() => {
@@ -103,7 +140,7 @@ export default function EnhancedBiddingStage({
 
   // 生成当前AI消息的动态强度
   const getDynamicIntensity = (personaId: string): number => {
-    const latestMessage = messages
+    const latestMessage = aiMessages
       .filter(msg => msg.personaId === personaId)
       .sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime())[0]
 
@@ -117,8 +154,86 @@ export default function EnhancedBiddingStage({
     )
   }
 
+  // 格式化时间显示
+  const formatTimeRemaining = (seconds: number): string => {
+    const mins = Math.floor(seconds / 60)
+    const secs = seconds % 60
+    return `${mins}:${secs.toString().padStart(2, '0')}`
+  }
+
+  // 获取阶段显示名称
+  const getPhaseDisplayName = (phase: string): string => {
+    const names: Record<string, string> = {
+      'warmup': '暖场介绍',
+      'discussion': '深度讨论',
+      'bidding': '激烈竞价',
+      'prediction': '价格预测',
+      'result': '结果揭晓'
+    }
+    return names[phase] || phase
+  }
+
   return (
     <div className="space-y-6">
+      {/* 连接状态和实时信息面板 */}
+      <Card className="border-2 border-dashed border-blue-200 bg-gradient-to-r from-blue-50 to-purple-50">
+        <CardContent className="p-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-4">
+              {/* 连接状态 */}
+              <div className="flex items-center space-x-2">
+                {isConnected ? (
+                  <>
+                    <Wifi className="w-5 h-5 text-green-500" />
+                    <span className="text-sm font-medium text-green-700">AI专家已连接</span>
+                  </>
+                ) : (
+                  <>
+                    <WifiOff className="w-5 h-5 text-red-500" />
+                    <span className="text-sm font-medium text-red-700">连接中...</span>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={reconnect}
+                      className="ml-2"
+                    >
+                      重连
+                    </Button>
+                  </>
+                )}
+              </div>
+
+              {/* 当前阶段 */}
+              <div className="flex items-center space-x-2">
+                <Eye className="w-5 h-5 text-blue-500" />
+                <span className="text-sm font-medium">当前阶段: {getPhaseDisplayName(currentPhase)}</span>
+              </div>
+
+              {/* 倒计时 */}
+              <div className="flex items-center space-x-2">
+                <Clock className="w-5 h-5 text-orange-500" />
+                <span className="text-sm font-medium">
+                  剩余时间: {formatTimeRemaining(timeRemaining)}
+                </span>
+              </div>
+
+              {/* 观众数量 */}
+              <div className="flex items-center space-x-2">
+                <Users className="w-5 h-5 text-purple-500" />
+                <span className="text-sm font-medium">观众: {viewerCount}</span>
+              </div>
+            </div>
+
+            {/* 最高出价 */}
+            <div className="flex items-center space-x-4">
+              <div className="bg-gradient-to-r from-yellow-400 to-orange-400 text-white px-4 py-2 rounded-full font-bold shadow-lg">
+                💰 最高出价: {highestBid}元
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
       {/* 效果控制面板 */}
       <Card className="border-dashed">
         <CardHeader className="pb-3">
@@ -254,14 +369,17 @@ export default function EnhancedBiddingStage({
               <div className="flex items-center gap-4 text-sm">
                 <div className="flex items-center gap-1">
                   <Eye className="w-4 h-4" />
-                  <span>当前阶段: {currentPhase}</span>
+                  <span>当前阶段: {getPhaseDisplayName(currentPhase)}</span>
                 </div>
                 <div className="flex items-center gap-1">
                   <Zap className="w-4 h-4" />
                   <span>活跃Speaker: {activeSpeaker ? AI_PERSONAS.find(p => p.id === activeSpeaker)?.name : '无'}</span>
                 </div>
                 <div className="flex items-center gap-1">
-                  <span>消息数: {messages.length}</span>
+                  <span>消息数: {aiMessages.length}</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <span>连接状态: {connectionStatus}</span>
                 </div>
               </div>
             </div>
@@ -269,7 +387,7 @@ export default function EnhancedBiddingStage({
         )}
       </Card>
 
-      {/* AI角色场景管理器 */}
+      {/* AI角色场景管理器 - 使用真实数据 */}
       <motion.div
         key={effectConfig.id}
         initial={{ opacity: 0 }}
@@ -277,10 +395,13 @@ export default function EnhancedBiddingStage({
         transition={{ duration: 0.5 }}
       >
         <AIPersonaSceneManager
-          messages={messages}
+          messages={aiMessages}
           currentBids={currentBids}
           activeSpeaker={activeSpeaker}
-          onSupportPersona={onSupportPersona}
+          onSupportPersona={(personaId) => {
+            supportPersona(personaId)
+            onSupportPersona(personaId)
+          }}
           effectStyle={effectConfig.id as any}
           enableDimming={effectConfig.effects.spotlight}
           enableFocusMode={effectConfig.effects.focusMode}
@@ -305,6 +426,7 @@ export default function EnhancedBiddingStage({
               <span>强度: {Math.round(customIntensity * 100)}%</span>
               <span>速度: {effectConfig.animations.speed}x</span>
               {enableSound && <span>🔊 音效已启用</span>}
+              {supportedPersona && <span>👍 支持: {AI_PERSONAS.find(p => p.id === supportedPersona)?.name}</span>}
             </div>
           </div>
         </CardContent>

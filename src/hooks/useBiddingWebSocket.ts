@@ -96,96 +96,288 @@ interface BiddingWebSocketReturn {
   submitPrediction: (prediction: number) => void
 }
 
-// 简化的useBiddingWebSocket hook，返回模拟数据避免连接错误
+// 真实的AI竞价WebSocket hook - 连接实际AI服务
 export function useBiddingWebSocket(config: UseBiddingWebSocketConfig): BiddingWebSocketReturn {
-  const [currentPhase, setCurrentPhase] = useState('discussion')
-  const [timeRemaining, setTimeRemaining] = useState(180) // 3分钟
-  const [viewerCount, setViewerCount] = useState(12)
+  const [isConnected, setIsConnected] = useState(false)
+  const [connectionStatus, setConnectionStatus] = useState('connecting')
+  const [currentPhase, setCurrentPhase] = useState('warmup')
+  const [timeRemaining, setTimeRemaining] = useState(180)
+  const [viewerCount, setViewerCount] = useState(0)
   const [supportedPersona, setSupportedPersona] = useState<string | null>(null)
   const [aiMessages, setAiMessages] = useState<AIMessage[]>([])
-  const [activeSpeaker, setActiveSpeaker] = useState<string | null>('tech-expert')
+  const [activeSpeaker, setActiveSpeaker] = useState<string | null>(null)
+  const [currentBids, setCurrentBids] = useState<Record<string, number>>({})
+  const [sessionData, setSessionData] = useState<any>(null)
 
-  // 模拟当前竞价数据
-  const [currentBids] = useState({
-    'tech-expert': 150,
-    'business-analyst': 130,
-    'creative-director': 120,
-    'trend-analyst': 140,
-    'research-scholar': 110
-  })
+  const wsRef = useRef<WebSocket | null>(null)
+  const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+  const { ideaId, autoConnect = true } = config
 
-  // 模拟实时数据更新
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setTimeRemaining(prev => Math.max(0, prev - 1))
-      setViewerCount(prev => prev + Math.floor(Math.random() * 3) - 1)
-    }, 1000)
+  // WebSocket连接逻辑
+  const connectWebSocket = useCallback(() => {
+    if (wsRef.current?.readyState === WebSocket.OPEN) {
+      return // 已连接
+    }
 
-    // 模拟阶段切换
-    const phaseTimer = setTimeout(() => {
-      if (currentPhase === 'discussion') {
-        setCurrentPhase('bidding')
-        setTimeRemaining(120)
-      } else if (currentPhase === 'bidding') {
-        setCurrentPhase('prediction')
-        setTimeRemaining(60)
-      } else if (currentPhase === 'prediction') {
+    try {
+      setConnectionStatus('connecting')
+
+      // 构建WebSocket URL
+      const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
+      const host = process.env.NODE_ENV === 'production'
+        ? window.location.host
+        : 'localhost:8080'
+      const wsUrl = `${protocol}//${host}/api/bidding/${ideaId}`
+
+      console.log(`🔌 Connecting to WebSocket: ${wsUrl}`)
+
+      const ws = new WebSocket(wsUrl)
+      wsRef.current = ws
+
+      ws.onopen = () => {
+        console.log('✅ WebSocket connected successfully')
+        setIsConnected(true)
+        setConnectionStatus('connected')
+
+        // 清除重连定时器
+        if (reconnectTimeoutRef.current) {
+          clearTimeout(reconnectTimeoutRef.current)
+          reconnectTimeoutRef.current = null
+        }
+      }
+
+      ws.onmessage = (event) => {
+        try {
+          const data = JSON.parse(event.data)
+          handleWebSocketMessage(data)
+        } catch (error) {
+          console.error('Error parsing WebSocket message:', error)
+        }
+      }
+
+      ws.onclose = (event) => {
+        console.log('WebSocket connection closed:', event.code, event.reason)
+        setIsConnected(false)
+        setConnectionStatus('disconnected')
+        wsRef.current = null
+
+        // 自动重连（如果不是正常关闭）
+        if (event.code !== 1000 && autoConnect) {
+          scheduleReconnect()
+        }
+      }
+
+      ws.onerror = (error) => {
+        console.error('WebSocket error:', error)
+        setConnectionStatus('error')
+      }
+
+    } catch (error) {
+      console.error('Failed to create WebSocket connection:', error)
+      setConnectionStatus('error')
+      scheduleReconnect()
+    }
+  }, [ideaId, autoConnect])
+
+  // 处理WebSocket消息
+  const handleWebSocketMessage = useCallback((data: any) => {
+    console.log('📨 Received WebSocket message:', data.type)
+
+    switch (data.type) {
+      case 'session.init':
+        setSessionData(data.payload)
+        setViewerCount(data.payload.viewerCount || 1)
+        setCurrentPhase(data.payload.currentPhase || 'warmup')
+        setTimeRemaining(data.payload.timeRemaining || 180)
+        break
+
+      case 'ai_message':
+        const newMessage = data.message
+        setAiMessages(prev => [newMessage, ...prev.slice(0, 19)]) // 保留最新20条
+        setActiveSpeaker(newMessage.personaId)
+
+        // 设置说话状态，3秒后清除
+        setTimeout(() => {
+          setActiveSpeaker(null)
+        }, 3000)
+        break
+
+      case 'ai_bid':
+        const bidMessage = data.message
+        setAiMessages(prev => [bidMessage, ...prev.slice(0, 19)])
+        setCurrentBids(data.currentBids || {})
+        setActiveSpeaker(bidMessage.personaId)
+
+        setTimeout(() => {
+          setActiveSpeaker(null)
+        }, 4000)
+        break
+
+      case 'phase_change':
+        setCurrentPhase(data.phase)
+        setTimeRemaining(getPhaseTimeRemaining(data.phase))
+        toast.info(`进入${data.message}`)
+        break
+
+      case 'viewer_count_update':
+        setViewerCount(data.payload.viewerCount)
+        break
+
+      case 'prediction_start':
+        toast.info(data.message)
+        break
+
+      case 'session_complete':
         setCurrentPhase('result')
         setTimeRemaining(0)
-      }
-    }, 180000) // 3分钟后切换
+        toast.success(`竞价完成！最高出价：${data.results.highestBid}元`)
+        break
 
-    return () => {
-      clearInterval(timer)
-      clearTimeout(phaseTimer)
+      case 'bidding_started':
+        toast.success(data.payload.message)
+        break
+
+      case 'session_update':
+        toast.info(data.payload.message)
+        break
+
+      case 'persona_supported':
+        toast.success(`您支持了 ${getPersonaName(data.payload.personaId)}`)
+        break
+
+      case 'prediction_received':
+        toast.success(data.payload.message)
+        break
+
+      case 'error':
+        toast.error(data.payload.message)
+        break
+
+      case 'pong':
+        // 心跳响应，忽略
+        break
+
+      default:
+        console.log('Unknown message type:', data.type)
     }
-  }, [currentPhase])
+  }, [])
 
-  // 模拟AI消息
-  useEffect(() => {
-    const messageTimer = setInterval(() => {
-      const speakers = ['tech-expert', 'business-analyst', 'creative-director']
-      const randomSpeaker = speakers[Math.floor(Math.random() * speakers.length)]
-      setActiveSpeaker(randomSpeaker)
+  // 自动重连
+  const scheduleReconnect = useCallback(() => {
+    if (reconnectTimeoutRef.current) return
 
-      const newMessage: AIMessage = {
-        id: Date.now().toString(),
-        personaId: randomSpeaker,
-        phase: currentPhase,
-        round: 1,
-        type: Math.random() > 0.7 ? 'bid' : 'speech',
-        content: `这是来自${randomSpeaker}的模拟消息内容...`,
-        emotion: 'confident',
-        timestamp: new Date(),
-        bidValue: Math.random() > 0.7 ? Math.floor(Math.random() * 50) + 100 : undefined
+    reconnectTimeoutRef.current = setTimeout(() => {
+      console.log('🔄 Attempting to reconnect WebSocket...')
+      connectWebSocket()
+    }, 3000) // 3秒后重连
+  }, [connectWebSocket])
+
+  // 发送WebSocket消息
+  const sendMessage = useCallback((message: any) => {
+    if (wsRef.current?.readyState === WebSocket.OPEN) {
+      try {
+        wsRef.current.send(JSON.stringify(message))
+        return true
+      } catch (error) {
+        console.error('Error sending WebSocket message:', error)
+        return false
       }
-
-      setAiMessages(prev => [newMessage, ...prev.slice(0, 9)])
-    }, 5000)
-
-    return () => clearInterval(messageTimer)
+    }
+    console.warn('WebSocket not connected, cannot send message')
+    return false
   }, [])
 
+  // 启动AI竞价
+  const startBidding = useCallback(async (ideaContent: string) => {
+    if (!ideaContent.trim()) {
+      toast.error('请输入创意内容')
+      return false
+    }
+
+    const sessionId = `session_${Date.now()}_${ideaId}`
+
+    const success = sendMessage({
+      type: 'start_bidding',
+      payload: {
+        ideaContent: ideaContent.trim(),
+        sessionId
+      }
+    })
+
+    if (success) {
+      toast.info('正在启动AI竞价...')
+      return true
+    } else {
+      toast.error('启动失败，请检查网络连接')
+      return false
+    }
+  }, [ideaId, sendMessage])
+
+  // Hook函数实现
   const sendReaction = useCallback((messageId: string, reactionType: string) => {
-    console.log('Reaction sent:', messageId, reactionType)
-    // 模拟反应发送
-  }, [])
+    sendMessage({
+      type: 'send_reaction',
+      payload: { messageId, reactionType }
+    })
+  }, [sendMessage])
 
   const supportPersona = useCallback((personaId: string) => {
     setSupportedPersona(personaId)
-    console.log('Supporting persona:', personaId)
-  }, [])
+    sendMessage({
+      type: 'support_persona',
+      payload: { personaId }
+    })
+  }, [sendMessage])
 
   const submitPrediction = useCallback((prediction: number) => {
-    console.log('Prediction submitted:', prediction)
-    // 模拟预测提交
-  }, [])
+    sendMessage({
+      type: 'submit_prediction',
+      payload: {
+        prediction,
+        confidence: 0.8 // 默认信心度
+      }
+    })
+  }, [sendMessage])
 
-  const highestBid = Math.max(...Object.values(currentBids))
+  // 初始化连接
+  useEffect(() => {
+    if (autoConnect && ideaId) {
+      connectWebSocket()
+    }
+
+    // 心跳检测
+    const heartbeatInterval = setInterval(() => {
+      if (wsRef.current?.readyState === WebSocket.OPEN) {
+        sendMessage({ type: 'ping' })
+      }
+    }, 30000) // 30秒心跳
+
+    return () => {
+      clearInterval(heartbeatInterval)
+      if (reconnectTimeoutRef.current) {
+        clearTimeout(reconnectTimeoutRef.current)
+      }
+      if (wsRef.current) {
+        wsRef.current.close(1000, 'Component unmounting')
+      }
+    }
+  }, [autoConnect, ideaId, connectWebSocket, sendMessage])
+
+  // 时间倒计时
+  useEffect(() => {
+    if (timeRemaining > 0 && currentPhase !== 'result') {
+      const timer = setTimeout(() => {
+        setTimeRemaining(prev => Math.max(0, prev - 1))
+      }, 1000)
+      return () => clearTimeout(timer)
+    }
+  }, [timeRemaining, currentPhase])
+
+  const highestBid = Math.max(...Object.values(currentBids), 0)
 
   return {
-    isConnected: true, // 始终显示为已连接以避免错误
-    connectionStatus: 'connected',
+    isConnected,
+    connectionStatus,
     currentPhase,
     timeRemaining,
     viewerCount,
@@ -196,8 +388,28 @@ export function useBiddingWebSocket(config: UseBiddingWebSocketConfig): BiddingW
     supportedPersona,
     sendReaction,
     supportPersona,
-    submitPrediction
+    submitPrediction,
+    // 额外的方法
+    startBidding,
+    reconnect: connectWebSocket
   }
+}
+
+// 辅助函数
+function getPhaseTimeRemaining(phase: string): number {
+  const times: Record<string, number> = {
+    'warmup': 180,      // 3分钟
+    'discussion': 300,  // 5分钟
+    'bidding': 180,     // 3分钟
+    'prediction': 120,  // 2分钟
+    'result': 0
+  }
+  return times[phase] || 60
+}
+
+function getPersonaName(personaId: string): string {
+  const persona = AI_PERSONAS.find(p => p.id === personaId)
+  return persona?.name || personaId
 }
 
 // 原来的WebSocket hook实现作为备用
