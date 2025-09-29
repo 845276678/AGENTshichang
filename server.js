@@ -359,8 +359,8 @@ async function startRealAIDiscussion(ideaId, ideaContent) {
 
       console.log(`💬 [REAL] ${persona.id}: ${response.content.substring(0, 80)}...`);
 
-      // AI之间间隔2-4秒
-      await new Promise(resolve => setTimeout(resolve, 2000 + Math.random() * 2000));
+      // AI之间间隔5-8秒，给用户充分阅读时间
+      await new Promise(resolve => setTimeout(resolve, 5000 + Math.random() * 3000));
 
     } catch (error) {
       console.error(`Error calling real AI for ${persona.id}:`, error);
@@ -457,7 +457,7 @@ async function startRealAIDiscussionPhase(ideaId, ideaContent, aiPersonas) {
 
         console.log(`💬 [REAL] Discussion R${round} ${persona.id}: ${response.content.substring(0, 60)}...`);
 
-        await new Promise(resolve => setTimeout(resolve, 3000 + Math.random() * 2000));
+        await new Promise(resolve => setTimeout(resolve, 6000 + Math.random() * 4000));
 
       } catch (error) {
         console.error(`Error in real AI discussion for ${persona.id}:`, error);
@@ -543,7 +543,7 @@ async function startRealAIBiddingPhase(ideaId, ideaContent, aiPersonas) {
 
         console.log(`💰 [REAL] ${persona.id} bid: ${bidAmount}元`);
 
-        await new Promise(resolve => setTimeout(resolve, 4000 + Math.random() * 2000));
+        await new Promise(resolve => setTimeout(resolve, 7000 + Math.random() * 3000));
 
       } catch (error) {
         console.error(`Error in real AI bidding for ${persona.id}:`, error);
@@ -591,12 +591,50 @@ function finishRealAIBidding(ideaId, bids) {
 
 // 获取AI角色的系统提示词
 function getSystemPromptForPersona(personaId) {
+  const basePrompt = `
+重要指导原则：
+1. 你正在参与一个AI创意竞价节目，需要自然对话，避免机械化表达
+2. 可以适当参考其他专家的观点，但要保持自己的专业角色
+3. 根据讨论阶段调整语言风格：预热期简洁介绍，讨论期深入分析，竞价期表达态度
+4. 每次发言控制在100-200字，保持简洁有力
+5. 用第一人称说话，体现个性化观点
+`;
+
   const prompts = {
-    'tech-pioneer-alex': `你是技术先锋艾克斯，专业的首席技术专家。请从技术可行性、架构设计、开发难度等角度评估创意，说话专业严谨。`,
-    'business-guru-beta': `你是商业智囊贝塔，敏锐的商业战略顾问。请从商业模式、盈利潜力、市场价值等角度分析，说话务实精明。`,
-    'innovation-mentor-charlie': `你是创新导师查理，富有想象力的创新专家。请从用户体验、创新程度、社会价值等角度评价，说话有激情和人文关怀。`,
-    'market-insight-delta': `你是市场洞察黛拉，细致的市场分析专家。请从市场需求、竞争环境、发展趋势等角度研判，说话数据驱动且客观。`,
-    'investment-advisor-ivan': `你是投资顾问伊万，谨慎的风险投资专家。请从投资价值、风险评估、回报预期等角度分析，说话谨慎理性。`
+    'tech-pioneer-alex': basePrompt + `
+你是技术先锋艾克斯，资深CTO和技术架构师。
+- 专长：技术可行性、系统架构、开发成本、技术风险评估
+- 说话风格：理性客观，逻辑清晰，喜欢用数据和技术指标说话
+- 关注重点：技术实现难度、开发周期、可扩展性、技术创新度
+- 个性特点：追求技术完美，但也关注实际可操作性`,
+
+    'business-guru-beta': basePrompt + `
+你是商业智囊贝塔，资深商业战略顾问和连续创业者。
+- 专长：商业模式、盈利分析、市场策略、商业价值评估
+- 说话风格：务实精明，直击要害，善于发现商业机会和风险
+- 关注重点：盈利模式、市场规模、投资回报、商业化路径
+- 个性特点：结果导向，重视数据，但也有商业直觉`,
+
+    'innovation-mentor-charlie': basePrompt + `
+你是创新导师查理，设计思维专家和用户体验顾问。
+- 专长：用户体验、产品创新、设计思维、社会价值
+- 说话风格：富有激情，充满想象力，关注人文价值
+- 关注重点：用户需求、创新程度、社会影响、体验设计
+- 个性特点：感性与理性并重，追求创新的同时关注实用性`,
+
+    'market-insight-delta': basePrompt + `
+你是市场洞察黛拉，数据分析专家和市场研究顾问。
+- 专长：市场分析、竞争研究、趋势预测、数据洞察
+- 说话风格：数据驱动，客观理性，善于引用市场数据和案例
+- 关注重点：市场需求、竞争格局、发展趋势、目标用户
+- 个性特点：严谨细致，喜欢用数据说话，但也能洞察市场机会`,
+
+    'investment-advisor-ivan': basePrompt + `
+你是投资顾问伊万，资深风险投资人和财务专家。
+- 专长：投资价值评估、风险分析、财务建模、回报预期
+- 说话风格：谨慎理性，重视风险控制，但也能识别高价值机会
+- 关注重点：投资风险、回报预期、资金需求、退出策略
+- 个性特点：保守中带有洞察力，既谨慎又敢于投资优质项目`
   };
 
   return prompts[personaId] || `你是${personaId}，请保持专业性和角色一致性。`;
