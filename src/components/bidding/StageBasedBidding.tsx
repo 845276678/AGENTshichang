@@ -363,6 +363,13 @@ export default function CreativeIdeaBidding({ ideaId, autoStart = false, initial
   const autoStartRequestedRef = useRef(false)
   const [loadedIdea, setLoadedIdea] = useState<{ id: string; title?: string; description: string; category?: string } | null>(null)
 
+  useEffect(() => {
+    if (initialIdeaContent) {
+      setPrefilledIdeaContent(initialIdeaContent)
+    }
+  }, [initialIdeaContent])
+
+
   const getAccessToken = useCallback(() => {
     const token = tokenStorage.getAccessToken()
     if (!token) {
@@ -463,42 +470,109 @@ export default function CreativeIdeaBidding({ ideaId, autoStart = false, initial
     timestamp: new Date(interaction.timestamp)
   }))
 
-  const handleStartBidding = async (ideaContent: string) => {
+  const handleStartBidding = useCallback(async (ideaContent: string) => {
     const REQUIRED_CREDITS = 50
+    const sanitizedContent = ideaContent.trim()
 
-    // 妫€鏌ョН鍒嗘槸鍚﹀厖瓒?
-    if (!hasEnoughCredits(REQUIRED_CREDITS)) {
-      setError('绉垎涓嶈冻锛屾棤娉曞弬涓庣珵浠?)
-      return
+    if (!sanitizedContent) {
+      setError('Please describe your idea in detail before starting the bidding.')
+      return false
     }
 
+    if (!hasEnoughCredits(REQUIRED_CREDITS)) {
+      setError('Not enough credits to enter the bidding stage.')
+      return false
+    }
+
+    setPrefilledIdeaContent(sanitizedContent)
     setIsStarting(true)
     setError(null)
 
     try {
-      // 鎵ｉ櫎绉垎
-      await adjustCredits(-REQUIRED_CREDITS, 'AI鍒涙剰绔炰环鍙備笌璐圭敤')
+      await adjustCredits(-REQUIRED_CREDITS, 'AI bidding entry fee')
 
-      // 鍒涘缓浼氳瘽ID
-      const newSessionId = `session-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+      const newSessionId = 'session-' + Date.now() + '-' + Math.random().toString(36).slice(2, 9)
       setSessionId(newSessionId)
-
-      // 妯℃嫙鍚姩寤惰繜
-      await new Promise(resolve => setTimeout(resolve, 2000))
       setShowForm(false)
+
+      await new Promise(resolve => setTimeout(resolve, 2000))
+      return true
     } catch (error) {
       console.error('Failed to start bidding:', error)
-      setError('鍚姩绔炰环澶辫触锛岀Н鍒嗗凡閫€杩?)
-      // 閫€杩樼Н鍒?
+      setShowForm(true)
+      setError(error instanceof Error ? error.message || 'Failed to start bidding. Credits were refunded.' : 'Failed to start bidding. Credits were refunded.')
       try {
-        await adjustCredits(REQUIRED_CREDITS, '绔炰环鍚姩澶辫触閫€娆?)
+        await adjustCredits(REQUIRED_CREDITS, 'Bidding launch refund')
       } catch (refundError) {
         console.error('Failed to refund credits:', refundError)
       }
+      return false
     } finally {
       setIsStarting(false)
     }
-  }
+  }, [adjustCredits, hasEnoughCredits])
+
+  useEffect(() => {
+    if (!autoStart || autoStartRequestedRef.current) {
+      return
+    }
+
+    if (!ideaId) {
+      return
+    }
+
+    autoStartRequestedRef.current = true
+    setShowForm(false)
+
+    const launch = async () => {
+      setIsAutoStarting(true)
+      try {
+        let ideaContent = (initialIdeaContent || '').trim()
+        let ideaDetails = loadedIdea
+
+        if (!ideaContent) {
+          const token = getAccessToken()
+          const response = await fetch(`/api/ideas/${ideaId}`, {
+            headers: {
+              Authorization: 'Bearer ' + token
+            }
+          })
+
+          if (!response.ok) {
+            throw new Error('Unable to load idea details. Please reload and try again.')
+          }
+
+          const data = await response.json()
+          ideaDetails = data?.idea ?? null
+          ideaContent = (ideaDetails?.description || '').trim()
+        }
+
+        if (!ideaContent) {
+          throw new Error('Idea description is missing. Please enter it manually before starting the bidding.')
+        }
+
+        if (ideaDetails) {
+          setLoadedIdea(ideaDetails)
+        } else {
+          setLoadedIdea({ id: ideaId, description: ideaContent })
+        }
+
+        setPrefilledIdeaContent(ideaContent)
+        const started = await handleStartBidding(ideaContent)
+        if (!started) {
+          setShowForm(true)
+        }
+      } catch (error) {
+        console.error('Automatic bidding launch failed:', error)
+        setShowForm(true)
+        setError(error instanceof Error ? error.message : 'Automatic bidding launch failed. Please start manually.')
+      } finally {
+        setIsAutoStarting(false)
+      }
+    }
+
+    launch()
+  }, [autoStart, getAccessToken, handleStartBidding, ideaId, initialIdeaContent, loadedIdea])
 
   const handleSupportPersona = async (personaId: string) => {
     const SUPPORT_COST = 10 // 鏀寔AI瑙掕壊鐨勭Н鍒嗘秷鑰?
@@ -593,7 +667,7 @@ export default function CreativeIdeaBidding({ ideaId, autoStart = false, initial
           'Authorization': `Bearer ${getAccessToken()}`
         },
         body: JSON.stringify({
-          ideaId: sessionId,
+          ideaId: loadedIdea?.id || sessionId,
           ideaContent: 'AI鍒涙剰绔炰环鑸炲彴绯荤粺', // 浣跨敤褰撳墠浼氳瘽鐨勫垱鎰忓唴瀹?
           biddingResults: currentBids,
           aiDialogue: aiInteractions
@@ -641,8 +715,9 @@ export default function CreativeIdeaBidding({ ideaId, autoStart = false, initial
         )}
         <CreativeInputForm
           onSubmit={handleStartBidding}
-          isLoading={isStarting}
+          isLoading={isStarting || isAutoStarting}
           userCredits={user.credits}
+          defaultContent={prefilledIdeaContent}
         />
       </div>
     )
@@ -742,7 +817,7 @@ export default function CreativeIdeaBidding({ ideaId, autoStart = false, initial
 
         {/* 浣跨敤澧炲己鐨勭珵浠疯垶鍙扮粍浠?*/}
         <EnhancedBiddingStage
-          ideaId="demo-idea"
+          ideaId={loadedIdea?.id || ideaId || 'demo-idea'}
           messages={aiMessages}
           currentBids={Object.fromEntries(
             AI_PERSONAS.map(persona => [
