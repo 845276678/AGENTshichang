@@ -34,13 +34,29 @@ class TokenStorage {
   }
 
   /**
-   * Get access token
+   * Get access token with fallback to legacy storage
    */
   getAccessToken(): string | null {
     if (!this.isClient) {return null;}
 
     try {
-      return localStorage.getItem(ACCESS_TOKEN_KEY);
+      // 首先检查标准位置
+      let token = localStorage.getItem(ACCESS_TOKEN_KEY);
+
+      // 如果没有找到，检查兼容性位置
+      if (!token) {
+        token = localStorage.getItem('access_token') || localStorage.getItem('auth_token');
+
+        // 如果在兼容性位置找到了token，迁移到标准位置
+        if (token) {
+          localStorage.setItem(ACCESS_TOKEN_KEY, token);
+          // 清理旧的位置
+          localStorage.removeItem('access_token');
+          localStorage.removeItem('auth_token');
+        }
+      }
+
+      return token;
     } catch (error) {
       console.error('Failed to get access token:', error);
       return null;
@@ -48,13 +64,28 @@ class TokenStorage {
   }
 
   /**
-   * Get refresh token
+   * Get refresh token with fallback to legacy storage
    */
   getRefreshToken(): string | null {
     if (!this.isClient) {return null;}
 
     try {
-      return localStorage.getItem(REFRESH_TOKEN_KEY);
+      // 首先检查标准位置
+      let token = localStorage.getItem(REFRESH_TOKEN_KEY);
+
+      // 如果没有找到，检查兼容性位置
+      if (!token) {
+        token = localStorage.getItem('refresh_token');
+
+        // 如果在兼容性位置找到了token，迁移到标准位置
+        if (token) {
+          localStorage.setItem(REFRESH_TOKEN_KEY, token);
+          // 清理旧的位置
+          localStorage.removeItem('refresh_token');
+        }
+      }
+
+      return token;
     } catch (error) {
       console.error('Failed to get refresh token:', error);
       return null;
@@ -76,15 +107,22 @@ class TokenStorage {
   }
 
   /**
-   * Clear all stored tokens
+   * Clear all stored tokens and user data
    */
   clearTokens(): void {
     if (!this.isClient) {return;}
 
     try {
+      // 清理标准位置
       localStorage.removeItem(ACCESS_TOKEN_KEY);
       localStorage.removeItem(REFRESH_TOKEN_KEY);
       localStorage.removeItem(USER_KEY);
+
+      // 清理兼容性位置
+      localStorage.removeItem('access_token');
+      localStorage.removeItem('refresh_token');
+      localStorage.removeItem('user_data');
+      localStorage.removeItem('auth_token');
     } catch (error) {
       console.error('Failed to clear tokens:', error);
     }
@@ -104,13 +142,27 @@ class TokenStorage {
   }
 
   /**
-   * Get stored user data
+   * Get stored user data with fallback to legacy storage
    */
   getUser(): any | null {
     if (!this.isClient) {return null;}
 
     try {
-      const userData = localStorage.getItem(USER_KEY);
+      // 首先检查标准位置
+      let userData = localStorage.getItem(USER_KEY);
+
+      // 如果没有找到，检查兼容性位置
+      if (!userData) {
+        userData = localStorage.getItem('user_data');
+
+        // 如果在兼容性位置找到了数据，迁移到标准位置
+        if (userData) {
+          localStorage.setItem(USER_KEY, userData);
+          // 清理旧的位置
+          localStorage.removeItem('user_data');
+        }
+      }
+
       return userData ? JSON.parse(userData) : null;
     } catch (error) {
       console.error('Failed to get user data:', error);

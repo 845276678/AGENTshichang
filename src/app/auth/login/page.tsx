@@ -6,58 +6,33 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { AuthBackground } from '@/components/auth/AuthBackground';
 import { LoginForm } from '@/components/auth/LoginForm';
 import { ForgotPasswordForm } from '@/components/auth/ForgotPasswordForm';
+import { useAuth } from '@/contexts/AuthContext';
 
 type AuthMode = 'login' | 'forgot-password';
 
 export default function LoginPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { login, isLoggingIn, error } = useAuth();
   const [mode, setMode] = useState<AuthMode>('login');
-  const [isLoading, setIsLoading] = useState(false);
   const [socialLoading, setSocialLoading] = useState<string | null>(null);
 
   // Get redirect URL from search params
   const redirectTo = searchParams?.get('redirect') || '/';
 
   const handleLogin = async (data: any) => {
-    setIsLoading(true);
     try {
-      // 调用真实登录API
-      const response = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email: data.email, // 修正：使用email而不是identifier
-          password: data.password,
-          rememberMe: data.rememberMe || false
-        })
+      await login({
+        email: data.email,
+        password: data.password,
+        rememberMe: data.rememberMe || false
       });
 
-      const result = await response.json();
-
-      if (!response.ok) {
-        throw new Error(result.message || result.error || '登录失败');
-      }
-
-      if (!result.success) {
-        throw new Error(result.message || '登录失败');
-      }
-
-      // 保存认证信息
-      const { user, token, refreshToken } = result.data;
-      localStorage.setItem('auth_token', token);
-      localStorage.setItem('refresh_token', refreshToken);
-      localStorage.setItem('user_data', JSON.stringify(user));
-
-      // 跳转到目标页面
-      window.location.href = redirectTo;
+      // 登录成功后跳转
+      router.push(redirectTo);
     } catch (error) {
       console.error('Login error:', error);
-      throw new Error(error instanceof Error ? error.message : '登录失败，请检查您的邮箱和密码');
-    } finally {
-      setIsLoading(false);
+      // 错误已经在AuthContext中处理，这里不需要额外处理
     }
   };
 
@@ -81,20 +56,17 @@ export default function LoginPage() {
   };
 
   const handleForgotPassword = async (data: any) => {
-    setIsLoading(true);
     try {
-      // TODO: Implement actual forgot password logic here
+      // TODO: 使用AuthContext的forgotPassword方法
       console.log('Forgot password data:', data);
-      
+
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1500));
-      
+
       // Success is handled by the form component
     } catch (error) {
       console.error('Forgot password error:', error);
       throw new Error('发送重置邮件失败，请稍后重试');
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -110,7 +82,7 @@ export default function LoginPage() {
             onSubmit={handleLogin}
             onSocialLogin={handleSocialLogin}
             onForgotPassword={() => handleModeChange('forgot-password')}
-            isLoading={isLoading}
+            isLoading={isLoggingIn}
             socialLoading={socialLoading}
           />
         );
@@ -119,7 +91,7 @@ export default function LoginPage() {
           <ForgotPasswordForm
             onSubmit={handleForgotPassword}
             onBackToLogin={() => handleModeChange('login')}
-            isLoading={isLoading}
+            isLoading={false}
           />
         );
       default:

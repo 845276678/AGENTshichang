@@ -6,8 +6,7 @@
 'use client';
 
 import React, { ReactNode, useEffect, useState } from 'react';
-import { AuthProvider as AuthContextProvider } from '@/contexts/AuthContext';
-import { useAuth } from '@/hooks/useAuth';
+import { AuthProvider as AuthContextProvider, useAuth } from '@/contexts/AuthContext';
 
 // Loading component for initial auth check
 const AuthLoading: React.FC = () => (
@@ -177,14 +176,14 @@ const AuthProviderInner: React.FC<AuthProviderInnerProps> = ({
       setShowWarning(false);
     } catch (error) {
       console.error('Failed to extend session:', error);
-      await auth.logoutWithRedirect('/auth/login');
+      await auth.logout();
     }
   };
 
   // Handle logout
   const handleLogout = async () => {
     setShowWarning(false);
-    await auth.logoutWithRedirect('/auth/login');
+    await auth.logout();
   };
 
   // Show loading component while initializing
@@ -212,6 +211,6 @@ const AuthProviderInner: React.FC<AuthProviderInnerProps> = ({
 };
 
 // Export convenience hook for accessing auth within the provider
-export { useAuth } from '@/hooks/useAuth';
+export { useAuth } from '@/contexts/AuthContext';
 
 export default AuthProvider;

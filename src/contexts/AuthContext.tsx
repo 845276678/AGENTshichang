@@ -298,8 +298,14 @@ export function AuthProvider({ children }: AuthProviderProps): JSX.Element {
       const response = await apiClient.login(credentials);
 
       if (response.success && response.data) {
-        const { user, tokens } = response.data;
-        
+        const { user, token, refreshToken } = response.data;
+
+        // 构造TokenPair格式
+        const tokens: TokenPair = {
+          accessToken: token,
+          refreshToken: refreshToken
+        };
+
         // Store tokens and user data
         tokenStorage.setTokens(tokens);
         tokenStorage.setUser(user);
