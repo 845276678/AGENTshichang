@@ -252,9 +252,24 @@ export const AgentDialogPanel: React.FC<AgentDialogPanelProps> = ({
       <div className="agent-avatar-section flex flex-col items-center mb-3">
         <div className="avatar-container relative w-16 h-16 mb-2">
           <MotionDiv className="agent-avatar relative">
-            {/* 使用emoji头像替代图片，避免加载问题 */}
-            <div className="w-full h-full rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-white text-2xl font-bold shadow-lg">
-              {agent.avatar}
+            {/* 使用真实头像图片 */}
+            <div className="w-full h-full rounded-full overflow-hidden shadow-lg">
+              <img
+                src={agent.avatar}
+                alt={agent.name}
+                className="w-full h-full object-cover"
+                onError={(e) => {
+                  // 如果图片加载失败，使用渐变背景和首字符
+                  const target = e.target as HTMLImageElement;
+                  target.style.display = 'none';
+                  const parent = target.parentElement;
+                  if (parent) {
+                    parent.innerHTML = `<div class="w-full h-full rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-white text-2xl font-bold">
+                      ${agent.name.charAt(0)}
+                    </div>`;
+                  }
+                }}
+              />
             </div>
 
             {/* 状态指示器叠加层 */}
@@ -385,15 +400,12 @@ export const AgentDialogPanel: React.FC<AgentDialogPanelProps> = ({
             }}
           >
             <span className="text-sm font-medium">¥</span>
-            <motion.span
+            <span
               className="text-sm font-bold"
               key={currentBid} // 重新动画当出价变化时
-              initial={{ scale: 1.2 }}
-              animate={{ scale: 1 }}
-              transition={{ duration: 0.3 }}
             >
               {currentBid || 0}
-            </motion.span>
+            </span>
           </MotionDiv>
 
           {/* 0出价特殊提示 */}
@@ -404,12 +416,9 @@ export const AgentDialogPanel: React.FC<AgentDialogPanelProps> = ({
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.5 }}
             >
-              <motion.span
-                animate={{ opacity: [0.6, 1, 0.6] }}
-                transition={{ duration: 2, repeat: Infinity }}
-              >
+              <span className="animate-pulse">
                 尚无溢价
-              </motion.span>
+              </span>
             </MotionDiv>
           )}
 
