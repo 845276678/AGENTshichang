@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Layout } from '@/components/layout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -67,6 +67,9 @@ export default function CreativeIdeaBidding({ ideaId }: CreativeIdeaBiddingProps
   const [isGeneratingGuide, setIsGeneratingGuide] = useState(false);
   const [guideProgress, setGuideProgress] = useState(0);
 
+  // 消息滚动引用
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
   // 视觉效果配置
   const [effectConfig, setEffectConfig] = useState(() => getRecommendedConfig(currentPhase));
   const [showEffectControls, setShowEffectControls] = useState(false);
@@ -88,6 +91,13 @@ export default function CreativeIdeaBidding({ ideaId }: CreativeIdeaBiddingProps
       setEffectConfig(newConfig);
     }
   }, [currentPhase, showEffectControls]);
+
+  // 当消息列表更新时，自动滚动到底部
+  useEffect(() => {
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [aiMessages]);
 
   // 用户互动处理
   const handleReaction = useCallback((messageId: string, reactionType: string) => {
@@ -430,7 +440,7 @@ export default function CreativeIdeaBidding({ ideaId }: CreativeIdeaBiddingProps
                 </Card>
               )}
               {/* 实时对话区域 */}
-              <Card className="h-96 flex flex-col">
+              <Card className="flex flex-col min-h-[600px]">
                 <CardHeader className="pb-3">
                   <CardTitle className="flex items-center gap-2">
                     <MessageCircle className="w-5 h-5" />
@@ -442,8 +452,8 @@ export default function CreativeIdeaBidding({ ideaId }: CreativeIdeaBiddingProps
                     )}
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="flex-1 overflow-hidden">
-                  <div className="h-full overflow-y-auto space-y-3">
+                <CardContent className="flex-1 flex flex-col min-h-0">
+                  <div className="flex-1 overflow-y-auto space-y-3 max-h-[450px] scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 messages-container">
                     <AnimatePresence mode="wait">
                       {aiMessages.slice(-8).map((message) => {
                         const persona = AI_PERSONAS.find(p => p.id === message.personaId);
@@ -518,6 +528,7 @@ export default function CreativeIdeaBidding({ ideaId }: CreativeIdeaBiddingProps
                         );
                       })}
                     </AnimatePresence>
+                    <div ref={messagesEndRef} />
                   </div>
                 </CardContent>
               </Card>

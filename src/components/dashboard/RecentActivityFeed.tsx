@@ -258,7 +258,7 @@ export function RecentActivityFeed() {
       </CardHeader>
       
       <CardContent className="p-0">
-        <div className="max-h-[400px] overflow-y-auto">
+        <div className="max-h-[400px] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
           {mockActivities.length > 0 ? (
             <div className="space-y-1">
               {mockActivities.map((activity, index) => (
