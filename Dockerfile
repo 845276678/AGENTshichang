@@ -6,8 +6,8 @@
 # 基础镜像 - 使用Node.js 18 Alpine
 FROM node:18-alpine AS base
 
-# 缓存破坏 - 强制完全重新构建 (修复autoStart和Prisma问题)
-RUN echo "Cache bust: 2025-09-29-19:30-AUTOSTART-PRISMA-FIX" > /tmp/cache_bust
+# 缓存破坏 - 强制完全重新构建 (修复502错误和配置文件)
+RUN echo "Cache bust: 2025-09-29-20:15-FIX-502-CONFIG" > /tmp/cache_bust
 
 # 安装系统依赖和时区数据
 RUN apk add --no-cache \
@@ -92,6 +92,10 @@ COPY --from=builder --chown=nextjs:nodejs /app/src ./src
 COPY --from=builder --chown=nextjs:nodejs /app/prisma ./prisma
 COPY --from=builder --chown=nextjs:nodejs /app/package.json ./package.json
 COPY --from=builder --chown=nextjs:nodejs /app/next.config.js ./next.config.js
+
+# 复制配置文件
+COPY --from=builder --chown=nextjs:nodejs /app/postcss.config.js ./postcss.config.js
+COPY --from=builder --chown=nextjs:nodejs /app/tailwind.config.js ./tailwind.config.js
 
 # 复制自定义服务器和健康检查
 COPY --from=builder --chown=nextjs:nodejs /app/server.js ./server.js
