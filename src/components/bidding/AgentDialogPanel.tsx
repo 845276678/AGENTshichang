@@ -231,8 +231,11 @@ export const AgentDialogPanel: React.FC<AgentDialogPanelProps> = ({
   currentBid,
   className = ''
 }) => {
-  const showBidInfo = currentBid !== undefined &&
-    (currentPhase === BiddingPhase.AGENT_BIDDING || currentPhase === BiddingPhase.USER_SUPPLEMENT)
+  const showBidInfo = currentBid !== undefined ||
+    currentPhase === 'bidding' ||
+    currentPhase === 'prediction' ||
+    currentPhase === BiddingPhase.AGENT_BIDDING ||
+    currentPhase === BiddingPhase.USER_SUPPLEMENT
 
   // const emotionAnimation = EMOTION_ANIMATIONS[state.emotion] || {} // 已移除动画
 
