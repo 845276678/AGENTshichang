@@ -9,8 +9,8 @@ if (process.env.NODE_ENV !== 'production') {
 
 /** @type   {import('next').NextConfig} */
 const nextConfig = {
-  // Enable standalone build for Docker deployment
-  output: 'standalone',
+  // 移除standalone模式，使用自定义server.js
+  // output: 'standalone',
   experimental: {
     serverComponentsExternalPackages: ['@prisma/client'],
   },

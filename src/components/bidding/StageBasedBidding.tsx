@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+
 import { useRouter } from 'next/navigation'
 import { useBiddingWebSocket, useBiddingWebSocketOriginal } from '@/hooks/useBiddingWebSocket'
 import { tokenStorage } from '@/lib/token-storage'
@@ -23,6 +24,13 @@ interface CreativeIdeaBiddingProps {
   autoStart?: boolean
   initialIdeaContent?: string
 }
+
+const MotionDiv = motion.div
+const MotionForm = motion.form
+const MotionH1 = motion.h1
+const MotionP = motion.p
+const MotionH3 = motion.h3
+
 
 // 创意输入表单组件 - 升级版
 const CreativeInputForm = ({

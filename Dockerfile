@@ -1,13 +1,13 @@
 # ==========================================
 # AI创意协作平台 - 生产级Docker配置
-# FORCE REBUILD: 2025-09-23-16:55:00-CRITICAL-FIX
+# CRITICAL FIX: 修复standalone与自定义server.js冲突
 # ==========================================
 
 # 基础镜像 - 使用Node.js 18 Alpine
 FROM node:18-alpine AS base
 
 # 缓存破坏 - 强制完全重新构建
-RUN echo "Cache bust: 2025-09-23-16:55:00" > /tmp/cache_bust
+RUN echo "Cache bust: 2025-09-29-custom-server" > /tmp/cache_bust
 
 # 安装系统依赖和时区数据
 RUN apk add --no-cache \
@@ -37,36 +37,34 @@ FROM base AS deps
 COPY package.json package-lock.json* ./
 COPY prisma ./prisma/
 
-# 安装生产依赖
-RUN npm ci --frozen-lockfile --legacy-peer-deps && \
-    npm cache clean --force
+# 安装生产依赖 (包含dev dependencies for Prisma)
+RUN npm ci --frozen-lockfile --legacy-peer-deps
 
 # ==========================================
 # 构建阶段
 # ==========================================
 FROM base AS builder
 
-# 复制依赖配置文件 (先复制 Prisma schema)
+# 复制依赖配置文件
 COPY package.json package-lock.json* ./
 COPY prisma ./prisma/
 
 # 安装全部依赖（包括开发依赖）
 RUN npm ci --frozen-lockfile --legacy-peer-deps
 
-# 在复制其他代码之前生成 Prisma 客户端（关键修复）
-# 使用library引擎类型避免binary文件问题
+# 生成 Prisma 客户端（关键修复）
 ENV PRISMA_CLI_QUERY_ENGINE_TYPE=library
 ENV PRISMA_CLIENT_ENGINE_TYPE=library
 RUN npx prisma generate
 
-# 现在复制其余源代码
+# 复制源代码
 COPY . .
 
-# 构建Next.js应用
+# 构建Next.js应用 (不使用standalone模式)
 RUN npm run build
 
 # ==========================================
-# 运行时阶段
+# 运行时阶段 - 使用自定义server.js
 # ==========================================
 FROM base AS runner
 
@@ -74,19 +72,22 @@ FROM base AS runner
 RUN mkdir -p /app/logs /app/uploads && \
     chown -R nextjs:nodejs /app
 
-# 复制生产依赖
-COPY --from=deps --chown=nextjs:nodejs /app/node_modules ./node_modules
+# 复制完整的node_modules (包含Prisma)
+COPY --from=builder --chown=nextjs:nodejs /app/node_modules ./node_modules
 
-# 复制构建产物
-COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
-COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+# 复制Next.js构建产物 (非standalone)
+COPY --from=builder --chown=nextjs:nodejs /app/.next ./.next
 COPY --from=builder --chown=nextjs:nodejs /app/public ./public
 
-# 复制Prisma文件
+# 复制应用文件
+COPY --from=builder --chown=nextjs:nodejs /app/src ./src
 COPY --from=builder --chown=nextjs:nodejs /app/prisma ./prisma
+COPY --from=builder --chown=nextjs:nodejs /app/package.json ./package.json
+COPY --from=builder --chown=nextjs:nodejs /app/next.config.js ./next.config.js
 
-# 复制健康检查文件
-COPY --from=builder --chown=nextjs:nodejs /app/healthcheck.js ./
+# 复制自定义服务器和健康检查
+COPY --from=builder --chown=nextjs:nodejs /app/server.js ./server.js
+COPY --from=builder --chown=nextjs:nodejs /app/healthcheck.js ./healthcheck.js
 
 # 设置权限
 RUN chown -R nextjs:nodejs /app
@@ -95,10 +96,11 @@ RUN chown -R nextjs:nodejs /app
 USER nextjs
 
 # 暴露端口
-EXPOSE 3000
+EXPOSE 4000
 
 # 环境变量
-ENV PORT=3000 \
+ENV PORT=4000 \
+    WEB_PORT=4000 \
     HOSTNAME="0.0.0.0" \
     PRISMA_CLI_QUERY_ENGINE_TYPE=library \
     PRISMA_CLIENT_ENGINE_TYPE=library
