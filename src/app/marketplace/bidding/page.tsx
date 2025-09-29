@@ -8,6 +8,7 @@ import { useSearchParams } from 'next/navigation'
 export default function MVPBiddingPage() {
   const searchParams = useSearchParams()
   const ideaId = searchParams.get('ideaId') || 'demo-idea-001'
+  const autoStart = searchParams.get('autoStart') === '1' || searchParams.get('autoStart')?.toLowerCase() === 'true'
 
-  return <StageBasedBidding ideaId={ideaId} />
+  return <StageBasedBidding ideaId={ideaId} autoStart={autoStart} />
 }

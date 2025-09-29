@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Layout } from '@/components/layout'
 import { useAuth } from '@/contexts/AuthContext'
@@ -37,6 +38,7 @@ import {
 } from 'lucide-react'
 
 export default function SubmitIdeaPage() {
+  const router = useRouter()
   const { user, isAuthenticated } = useAuth()
   const {
     canSubmitIdea,
@@ -50,6 +52,8 @@ export default function SubmitIdeaPage() {
   const [title, setTitle] = useState('')
   const [category, setCategory] = useState('')
   const [ideaScore, setIdeaScore] = useState(0)
+
+  const [isLaunchingBidding, setIsLaunchingBidding] = useState(false)
 
   // 竞价系统状态
   const [currentPhase, setCurrentPhase] = useState<'input' | 'bidding' | 'discussion' | 'completed'>('input')
@@ -112,16 +116,80 @@ export default function SubmitIdeaPage() {
   }, [ideaScore])
 
   // 启动竞价流程
-  const startBidding = () => {
-    if (!title || !idea || idea.length < 50) {
-      alert('请完整填写创意标题和详细描述（至少50字）后再启动竞价')
+  const launchBiddingStage = async (): Promise<'success' | 'handled' | 'legacy'> => {
+    const trimmedTitle = title.trim()
+    const trimmedIdea = idea.trim()
+
+    if (!trimmedTitle || !trimmedIdea || trimmedIdea.length < 50 || !category) {
+      alert('??????????????????50???????')
+      return 'handled'
+    }
+
+    if (!isAuthenticated) {
+      alert('??????????')
+      return 'handled'
+    }
+
+    const userCredits = user?.credits ?? 0
+    const submissionCheck = canSubmitIdea(userCredits)
+    if (!submissionCheck.canSubmit) {
+      alert(submissionCheck.reason || '????????')
+      return 'handled'
+    }
+
+    if (!submissionCheck.isFree) {
+      const confirmed = confirm(`???????? ${submissionCheck.cost} ?????????\n\n` + `?????${userCredits}\n` + `??????${userCredits - submissionCheck.cost} ??`)
+
+      if (!confirmed) {
+        return 'handled'
+      }
+    }
+
+    try {
+      setIsLaunchingBidding(true)
+
+      const response = await fetch('/api/ideas', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          title: trimmedTitle,
+          description: trimmedIdea,
+          category
+        })
+      })
+
+      const data = await response.json()
+
+      if (!response.ok || !data?.success) {
+        throw new Error(data?.error || '??????')
+      }
+
+      router.push(`/marketplace/bidding?ideaId=${encodeURIComponent(data.idea.id)}&autoStart=1`)
+      return 'success'
+    } catch (error) {
+      console.error('Failed to launch bidding stage:', error)
+      alert('?????????????' + (error instanceof Error ? error.message : '????'))
+      return 'handled'
+    } finally {
+      setIsLaunchingBidding(false)
+    }
+  }
+
+  const startBidding = async () => {
+    if (isLaunchingBidding) {
+      return
+    }
+
+    const result = await launchBiddingStage()
+    if (result !== 'legacy') {
       return
     }
 
     setCurrentPhase('bidding')
     setBiddingActive(true)
 
-    // 模拟实时竞价过程
     simulateRealTimeBidding()
   }
 
@@ -740,6 +808,7 @@ export default function SubmitIdeaPage() {
                                 onClick={startBidding}
                                 className="w-full h-14 text-lg bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
                                 disabled={
+                                  isLaunchingBidding ||
                                   !title ||
                                   !category ||
                                   idea.length < 50 ||
@@ -748,9 +817,23 @@ export default function SubmitIdeaPage() {
                                 }
                               >
                                 <div className="flex items-center gap-3">
-                                  <Rocket className="w-5 h-5" />
-                                  <span>启动AI竞价</span>
-                                  <ArrowRight className="w-5 h-5" />
+                                  {isLaunchingBidding ? (
+                                    <>
+                                      <motion.div
+                                        animate={{ rotate: 360 }}
+                                        transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+                                      >
+                                        <Brain className="w-5 h-5" />
+                                      </motion.div>
+                                      <span>{'????...'}</span>
+                                    </>
+                                  ) : (
+                                    <>
+                                      <Rocket className="w-5 h-5" />
+                                      <span>{'??AI??'}</span>
+                                      <ArrowRight className="w-5 h-5" />
+                                    </>
+                                  )}
                                 </div>
                               </Button>
                             )}

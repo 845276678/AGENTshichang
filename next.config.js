@@ -1,8 +1,10 @@
-// Load filesystem patches for Docker build compatibility
-try {
-  require('./scripts/fs-patch');
-} catch (error) {
-  console.warn('Warning: Could not load fs-patch, build may fail in Docker:', error.message);
+// Load filesystem patches for Docker build compatibility (disabled in production)
+if (process.env.NODE_ENV !== 'production') {
+  try {
+    require('./scripts/fs-patch');
+  } catch (error) {
+    console.warn('Warning: Could not load fs-patch:', error.message);
+  }
 }
 
 /** @type   {import('next').NextConfig} */

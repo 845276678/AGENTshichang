@@ -6,6 +6,33 @@ const { WebSocketServer } = require('ws');
 const dev = process.env.NODE_ENV !== 'production';
 const hostname = dev ? 'localhost' : '0.0.0.0';
 const port = process.env.PORT || process.env.WEB_PORT || 4000;
+
+console.log('🚀 Starting server...');
+console.log(`🌍 Environment: ${process.env.NODE_ENV}`);
+console.log(`🔌 Port: ${port}`);
+console.log(`🏠 Hostname: ${hostname}`);
+
+// 检查关键环境变量
+const requiredEnvs = ['DATABASE_URL', 'JWT_SECRET'];
+const missingEnvs = requiredEnvs.filter(env => !process.env[env]);
+if (missingEnvs.length > 0) {
+  console.error('❌ Missing required environment variables:', missingEnvs);
+  process.exit(1);
+}
+
+// 检查Prisma
+try {
+  console.log('🗄️  Checking Prisma...');
+  const { PrismaClient } = require('@prisma/client');
+  console.log('✅ Prisma Client loaded successfully');
+} catch (error) {
+  console.error('❌ Prisma Client failed to load:', error.message);
+  if (!dev) {
+    console.error('💡 Try running: npm run db:generate');
+    process.exit(1);
+  }
+}
+
 const app = next({ dev, hostname: dev ? hostname : undefined, port });
 const handle = app.getRequestHandler();
 
@@ -53,6 +80,8 @@ function handleBiddingWebSocket(ws, ideaId, query) {
 }
 
 app.prepare().then(() => {
+  console.log('✅ Next.js app prepared successfully');
+
   const server = createServer(async (req, res) => {
     try {
       const parsedUrl = parse(req.url, true);
@@ -117,4 +146,8 @@ app.prepare().then(() => {
       process.exit(0);
     });
   });
+}).catch((error) => {
+  console.error('❌ Failed to prepare Next.js app:', error);
+  console.error('💡 This might be a Prisma or configuration issue');
+  process.exit(1);
 });
