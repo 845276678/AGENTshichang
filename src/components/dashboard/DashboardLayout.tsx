@@ -240,18 +240,18 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
         <Header />
       </div>
 
-      <div className="flex h-screen lg:h-screen">
+      <div className="flex min-h-screen lg:min-h-screen">
         {/* Desktop Sidebar */}
         <Sidebar />
-        
+
         {/* Mobile Sidebar */}
-        <Sidebar 
-          isOpen={isMobileSidebarOpen} 
-          onClose={() => setIsMobileSidebarOpen(false)} 
+        <Sidebar
+          isOpen={isMobileSidebarOpen}
+          onClose={() => setIsMobileSidebarOpen(false)}
         />
 
         {/* Main Content */}
-        <div className="flex-1 flex flex-col overflow-hidden">
+        <div className="flex-1 flex flex-col min-h-0">
           {/* Mobile Header Bar */}
           <div className="lg:hidden border-b p-4 flex items-center justify-between bg-background">
             <Button
@@ -266,7 +266,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
           </div>
 
           {/* Content Area */}
-          <main className="flex-1 overflow-y-auto">
+          <main className="flex-1">
             <div className="container max-w-7xl mx-auto p-6 pb-16">
               {children}
             </div>
