@@ -193,11 +193,71 @@ export default function CreativeIdeaBidding({ ideaId, autoStart = false, initial
   const autoStartRequestedRef = useRef(false)
   const [loadedIdea, setLoadedIdea] = useState<{ id: string; title?: string; description: string; category?: string } | null>(null)
 
+  // Handle auto-loading of idea content from ideaId
+  useEffect(() => {
+    const loadIdeaContent = async () => {
+      if (ideaId && ideaId !== 'demo-idea-001' && !autoStartRequestedRef.current) {
+        try {
+          const token = getAccessToken()
+          const response = await fetch(`/api/ideas/${ideaId}`, {
+            headers: {
+              'Authorization': `Bearer ${token}`
+            }
+          })
+
+          if (response.ok) {
+            const data = await response.json()
+            if (data.idea) {
+              setLoadedIdea(data.idea)
+              setPrefilledIdeaContent(data.idea.description || data.idea.title || '')
+            }
+          }
+        } catch (error) {
+          console.error('Failed to load idea:', error)
+        }
+      }
+    }
+
+    loadIdeaContent()
+  }, [ideaId, getAccessToken])
+
+  // Handle initial content from props
   useEffect(() => {
     if (initialIdeaContent) {
       setPrefilledIdeaContent(initialIdeaContent)
     }
   }, [initialIdeaContent])
+
+  // Handle autoStart logic
+  useEffect(() => {
+    const handleAutoStart = async () => {
+      if (autoStart && !autoStartRequestedRef.current && user && !authLoading) {
+        autoStartRequestedRef.current = true
+        setIsAutoStarting(true)
+
+        // Wait for idea content to be loaded if we have an ideaId
+        const contentToUse = loadedIdea?.description || prefilledIdeaContent || initialIdeaContent
+
+        if (contentToUse) {
+          const success = await handleStartBidding(contentToUse)
+          if (!success) {
+            // Reset if auto-start failed
+            autoStartRequestedRef.current = false
+            setIsAutoStarting(false)
+          }
+        } else {
+          console.warn('Auto-start requested but no content available')
+          setError('自动启动失败：未找到创意内容')
+          autoStartRequestedRef.current = false
+          setIsAutoStarting(false)
+        }
+
+        setIsAutoStarting(false)
+      }
+    }
+
+    handleAutoStart()
+  }, [autoStart, user, authLoading, loadedIdea, prefilledIdeaContent, initialIdeaContent, handleStartBidding])
 
   const getAccessToken = useCallback(() => {
     const token = tokenStorage.getAccessToken()

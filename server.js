@@ -12,6 +12,9 @@ console.log(`🌍 Environment: ${process.env.NODE_ENV}`);
 console.log(`🔌 Port: ${port}`);
 console.log(`🏠 Hostname: ${hostname}`);
 
+// Comprehensive startup validation
+console.log('🔍 Running startup checks...');
+
 // 检查关键环境变量
 const requiredEnvs = ['DATABASE_URL', 'JWT_SECRET'];
 const missingEnvs = requiredEnvs.filter(env => !process.env[env]);
@@ -20,15 +23,36 @@ if (missingEnvs.length > 0) {
   process.exit(1);
 }
 
+// 检查Next.js构建文件
+const fs = require('fs');
+const path = require('path');
+
+const buildManifestPath = path.join(process.cwd(), '.next', 'build-manifest.json');
+if (!fs.existsSync(buildManifestPath)) {
+  console.error('❌ Next.js build manifest not found. Run `npm run build` first.');
+  process.exit(1);
+}
+
+console.log('✅ Build manifest found');
+
 // 检查Prisma
 try {
   console.log('🗄️  Checking Prisma...');
   const { PrismaClient } = require('@prisma/client');
   console.log('✅ Prisma Client loaded successfully');
+
+  // Test Prisma instantiation
+  const testPrisma = new PrismaClient();
+  console.log('✅ Prisma Client instantiated successfully');
+
+  // Don't connect here, just validate it can be created
+  testPrisma.$disconnect().catch(() => {}); // Ignore disconnect errors
+
 } catch (error) {
   console.error('❌ Prisma Client failed to load:', error.message);
   if (!dev) {
     console.error('💡 Try running: npm run db:generate');
+    console.error('💡 Or check DATABASE_URL configuration');
     process.exit(1);
   }
 }
@@ -84,12 +108,39 @@ app.prepare().then(() => {
 
   const server = createServer(async (req, res) => {
     try {
+      // Add CORS headers for better compatibility
+      res.setHeader('Access-Control-Allow-Origin', '*');
+      res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+      res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+
+      // Handle preflight requests
+      if (req.method === 'OPTIONS') {
+        res.writeHead(200);
+        res.end();
+        return;
+      }
+
       const parsedUrl = parse(req.url, true);
+
+      // Add request logging in production for debugging
+      if (!dev) {
+        console.log(`${new Date().toISOString()} ${req.method} ${req.url}`);
+      }
+
       await handle(req, res, parsedUrl);
     } catch (err) {
-      console.error('Error occurred handling', req.url, err);
-      res.statusCode = 500;
-      res.end('internal server error');
+      console.error('❌ Error occurred handling', req.url, err);
+
+      // Better error response
+      if (!res.headersSent) {
+        res.statusCode = 500;
+        res.setHeader('Content-Type', 'application/json');
+        res.end(JSON.stringify({
+          error: 'Internal Server Error',
+          message: dev ? err.message : 'An error occurred',
+          timestamp: new Date().toISOString()
+        }));
+      }
     }
   });
 

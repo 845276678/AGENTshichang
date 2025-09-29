@@ -6,8 +6,8 @@
 # 基础镜像 - 使用Node.js 18 Alpine
 FROM node:18-alpine AS base
 
-# 缓存破坏 - 强制完全重新构建 (修复standalone问题)
-RUN echo "Cache bust: 2025-09-29-17:45-FORCE-REBUILD" > /tmp/cache_bust
+# 缓存破坏 - 强制完全重新构建 (修复autoStart和Prisma问题)
+RUN echo "Cache bust: 2025-09-29-19:30-AUTOSTART-PRISMA-FIX" > /tmp/cache_bust
 
 # 安装系统依赖和时区数据
 RUN apk add --no-cache \
@@ -40,6 +40,11 @@ COPY prisma ./prisma/
 # 安装生产依赖 (包含dev dependencies for Prisma)
 RUN npm ci --frozen-lockfile --legacy-peer-deps
 
+# 生成 Prisma 客户端
+ENV PRISMA_CLI_QUERY_ENGINE_TYPE=library
+ENV PRISMA_CLIENT_ENGINE_TYPE=library
+RUN npx prisma generate
+
 # ==========================================
 # 构建阶段
 # ==========================================
@@ -62,6 +67,9 @@ COPY . .
 
 # 构建Next.js应用 (不使用standalone模式)
 RUN npm run build
+
+# 确保Prisma客户端在生产环境中可用
+RUN npx prisma generate
 
 # ==========================================
 # 运行时阶段 - 使用自定义server.js
