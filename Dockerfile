@@ -6,8 +6,8 @@
 # 基础镜像 - 使用Node.js 18 Alpine
 FROM node:18-alpine AS base
 
-# 缓存破坏 - 强制完全重新构建
-RUN echo "Cache bust: 2025-09-29-custom-server" > /tmp/cache_bust
+# 缓存破坏 - 强制完全重新构建 (修复standalone问题)
+RUN echo "Cache bust: 2025-09-29-17:45-FORCE-REBUILD" > /tmp/cache_bust
 
 # 安装系统依赖和时区数据
 RUN apk add --no-cache \
