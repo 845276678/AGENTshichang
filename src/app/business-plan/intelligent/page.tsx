@@ -36,14 +36,36 @@ import {
   Settings
 } from 'lucide-react'
 
-import type {
-  PracticalStageContext,
-  PracticalStageOutput,
-  PersonalizedRecommendations,
-  IdeaCharacteristics
-} from '@/types/business-plan'
+// Simplified types to avoid rendering issues
+type IdeaCharacteristics = {
+  category: string
+  technicalComplexity: string
+  fundingRequirement: string
+  competitionLevel: string
+  aiCapabilities: { [key: string]: boolean }
+}
 
-interface IntelligentStageView {
+type PersonalizedRecommendations = {
+  techStackRecommendations: any
+  researchChannels: any
+  offlineEvents: any
+  customizedTimeline: any
+  budgetPlan: any
+  teamRecommendations: any
+  riskAssessment: any
+  successMetrics: any
+  nextStepActions: any
+}
+
+type PracticalStageOutput = {
+  title: string
+  summary: string
+  keyInsights: string[]
+  nextSteps: string[]
+  confidenceBooster: string
+}
+
+type IntelligentStageView = {
   id: string
   name: string
   status: 'pending' | 'analyzing' | 'generating' | 'completed'
@@ -257,91 +279,95 @@ export default function IntelligentBusinessPlanPage() {
 
   return (
     <Layout>
-      <div className="container py-10 space-y-8">
-        {/* 头部介绍 */}
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="text-center space-y-4"
-        >
-          <div className="flex items-center justify-center gap-2 mb-2">
-            <Brain className="w-8 h-8 text-blue-600" />
-            <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-              智能化商业计划生成
-            </h1>
-          </div>
-          <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-            基于创意特征实时适配的5阶段商业计划框架，提供AI技术栈推荐、需求发现渠道、线下调研活动等个性化指导
-          </p>
-          <div className="flex flex-wrap items-center justify-center gap-2 mt-4">
-            <Badge variant="secondary" className="text-sm">
-              <Zap className="w-4 h-4 mr-1" />
-              实时适配
-            </Badge>
-            <Badge variant="secondary" className="text-sm">
-              <Target className="w-4 h-4 mr-1" />
-              个性化推荐
-            </Badge>
-            <Badge variant="secondary" className="text-sm">
-              <Rocket className="w-4 h-4 mr-1" />
-              90天聚焦
-            </Badge>
-          </div>
-        </motion.div>
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white">
+        <div className="container mx-auto px-4 py-10 space-y-8">
+          {/* 头部介绍 */}
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="text-center space-y-4"
+          >
+            <div className="flex items-center justify-center gap-2 mb-2">
+              <Brain className="w-8 h-8 text-blue-600" />
+              <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                智能化商业计划生成
+              </h1>
+            </div>
+            <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+              基于创意特征实时适配的5阶段商业计划框架，提供AI技术栈推荐、需求发现渠道、线下调研活动等个性化指导
+            </p>
+            <div className="flex flex-wrap items-center justify-center gap-2 mt-4">
+              <Badge variant="secondary" className="text-sm bg-blue-100 text-blue-800 border-blue-200">
+                <Zap className="w-4 h-4 mr-1" />
+                实时适配
+              </Badge>
+              <Badge variant="secondary" className="text-sm bg-green-100 text-green-800 border-green-200">
+                <Target className="w-4 h-4 mr-1" />
+                个性化推荐
+              </Badge>
+              <Badge variant="secondary" className="text-sm bg-purple-100 text-purple-800 border-purple-200">
+                <Rocket className="w-4 h-4 mr-1" />
+                90天聚焦
+              </Badge>
+            </div>
+          </motion.div>
 
-        {/* 创意输入区域 */}
-        <Card className="border-2 border-blue-100">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Lightbulb className="w-5 h-5 text-yellow-500" />
-              创意信息输入
-            </CardTitle>
-            <CardDescription>
-              输入您的创意，系统将实时分析特征并生成个性化推荐
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
+          {/* 创意输入区域 */}
+          <Card className="border-2 border-blue-100 bg-white shadow-lg rounded-lg">
+            <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-t-lg">
+              <CardTitle className="flex items-center gap-2 text-blue-900">
+                <Lightbulb className="w-5 h-5 text-yellow-500" />
+                创意信息输入
+              </CardTitle>
+              <CardDescription className="text-blue-700">
+                输入您的创意，系统将实时分析特征并生成个性化推荐
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4 p-6">
             <div className="grid gap-4 md:grid-cols-2">
               <div className="space-y-2">
-                <Label htmlFor="idea-title">创意标题</Label>
+                <Label htmlFor="idea-title" className="text-sm font-medium text-gray-700">创意标题</Label>
                 <Input
                   id="idea-title"
                   placeholder="例如：AI智能英语学习助手"
                   value={ideaTitle}
                   onChange={(e) => setIdeaTitle(e.target.value)}
+                  className="border-2 border-gray-200 focus:border-blue-500 bg-white rounded-md p-3"
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="user-location">所在城市</Label>
+                <Label htmlFor="user-location" className="text-sm font-medium text-gray-700">所在城市</Label>
                 <Input
                   id="user-location"
                   placeholder="北京"
                   value={userLocation}
                   onChange={(e) => setUserLocation(e.target.value)}
+                  className="border-2 border-gray-200 focus:border-blue-500 bg-white rounded-md p-3"
                 />
               </div>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="idea-description">详细描述</Label>
+              <Label htmlFor="idea-description" className="text-sm font-medium text-gray-700">详细描述</Label>
               <Textarea
                 id="idea-description"
                 placeholder="描述您的创意要解决什么问题，面向什么用户，如何创造价值..."
                 value={ideaDescription}
                 onChange={(e) => setIdeaDescription(e.target.value)}
                 rows={4}
-                className="resize-none"
+                className="resize-none border-2 border-gray-200 focus:border-blue-500 bg-white rounded-md p-3"
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="user-background">个人背景（可选）</Label>
+              <Label htmlFor="user-background" className="text-sm font-medium text-gray-700">个人背景（可选）</Label>
               <Input
                 id="user-background"
                 placeholder="例如：技术背景、行业经验、可用资源等"
                 value={userBackground}
                 onChange={(e) => setUserBackground(e.target.value)}
+                className="border-2 border-gray-200 focus:border-blue-500 bg-white rounded-md p-3"
               />
             </div>
           </CardContent>
@@ -355,11 +381,11 @@ export default function IntelligentBusinessPlanPage() {
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
             >
-              <Card className="border-blue-200 bg-blue-50">
-                <CardContent className="py-6">
+              <Card className="border-2 border-blue-200 bg-blue-50 shadow-lg rounded-lg">
+                <CardContent className="py-6 px-6">
                   <div className="flex items-center gap-3">
                     <Loader2 className="w-5 h-5 animate-spin text-blue-600" />
-                    <span className="text-sm text-blue-800">正在实时分析创意特征...</span>
+                    <span className="text-sm text-blue-800 font-medium">正在实时分析创意特征...</span>
                   </div>
                 </CardContent>
               </Card>
@@ -375,8 +401,8 @@ export default function IntelligentBusinessPlanPage() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
             >
-              <Card className="border-green-200 bg-green-50">
-                <CardHeader>
+              <Card className="border-2 border-green-200 bg-green-50 shadow-lg rounded-lg">
+                <CardHeader className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-t-lg">
                   <CardTitle className="flex items-center gap-2 text-green-800">
                     <CheckCircle className="w-5 h-5" />
                     创意特征分析完成
@@ -385,32 +411,35 @@ export default function IntelligentBusinessPlanPage() {
                     系统已识别您的创意特征，将据此生成个性化商业计划
                   </CardDescription>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="p-6">
                   <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-                    <div className="flex items-center gap-2">
-                      <Badge variant="outline" className="text-xs">行业</Badge>
+                    <div className="flex items-center gap-2 p-3 bg-white rounded-lg border border-green-200">
+                      <Badge variant="outline" className="text-xs bg-blue-50 text-blue-700 border-blue-200">行业</Badge>
                       <span className="text-sm font-medium">{ideaCharacteristics.category}</span>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <Badge variant="outline" className="text-xs">技术复杂度</Badge>
+                    <div className="flex items-center gap-2 p-3 bg-white rounded-lg border border-green-200">
+                      <Badge variant="outline" className="text-xs bg-orange-50 text-orange-700 border-orange-200">技术复杂度</Badge>
                       <span className="text-sm font-medium">{ideaCharacteristics.technicalComplexity}</span>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <Badge variant="outline" className="text-xs">资金需求</Badge>
+                    <div className="flex items-center gap-2 p-3 bg-white rounded-lg border border-green-200">
+                      <Badge variant="outline" className="text-xs bg-purple-50 text-purple-700 border-purple-200">资金需求</Badge>
                       <span className="text-sm font-medium">{ideaCharacteristics.fundingRequirement}</span>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <Badge variant="outline" className="text-xs">竞争程度</Badge>
+                    <div className="flex items-center gap-2 p-3 bg-white rounded-lg border border-green-200">
+                      <Badge variant="outline" className="text-xs bg-red-50 text-red-700 border-red-200">竞争程度</Badge>
                       <span className="text-sm font-medium">{ideaCharacteristics.competitionLevel}</span>
                     </div>
                   </div>
 
-                  <div className="mt-4">
-                    <div className="text-sm font-medium mb-2">AI能力需求:</div>
+                  <div className="mt-6 p-4 bg-gradient-to-r from-yellow-50 to-amber-50 rounded-lg border border-yellow-200">
+                    <div className="text-sm font-medium mb-3 flex items-center gap-2 text-yellow-800">
+                      <Lightbulb className="w-4 h-4" />
+                      AI能力需求识别:
+                    </div>
                     <div className="flex flex-wrap gap-2">
                       {Object.entries(ideaCharacteristics.aiCapabilities).map(([key, value]) =>
                         value && (
-                          <Badge key={key} variant="secondary" className="text-xs">
+                          <Badge key={key} variant="secondary" className="text-xs bg-yellow-100 text-yellow-800 border-yellow-300">
                             {getAICapabilityLabel(key)}
                           </Badge>
                         )
@@ -897,6 +926,7 @@ export default function IntelligentBusinessPlanPage() {
             </motion.div>
           )}
         </AnimatePresence>
+        </div>
       </div>
     </Layout>
   )
