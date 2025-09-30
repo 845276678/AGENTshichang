@@ -1,15 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
 
-// 强制动态渲染
-export const dynamic = 'force-dynamic';
 import { requireAdmin } from '@/lib/auth-helper'
 
-// 强制动态渲染
-export const dynamic = 'force-dynamic';
 import { prisma } from '@/lib/database'
 
 // 强制动态渲染
-export const dynamic = 'force-dynamic';
+export const dynamic = 'force-dynamic'
 
 // 获取用户列表
 export async function GET(request: NextRequest) {

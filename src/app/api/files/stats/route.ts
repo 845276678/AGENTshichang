@@ -1,19 +1,13 @@
 import { NextRequest } from 'next/server'
 
-// 强制动态渲染
-export const dynamic = 'force-dynamic';
 import FileStorageManager from '@/lib/storage'
 
-// 强制动态渲染
-export const dynamic = 'force-dynamic';
 import { verifyToken } from '@/lib/jwt'
 
-// 强制动态渲染
-export const dynamic = 'force-dynamic';
 import { createSuccessResponse, createErrorResponse, handleApiError } from '@/lib/errors'
 
 // 强制动态渲染
-export const dynamic = 'force-dynamic';
+export const dynamic = 'force-dynamic'
 
 // 获取存储统计
 export async function GET(request: NextRequest) {
