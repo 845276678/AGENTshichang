@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/database';
 import jwt from 'jsonwebtoken';
 
+// 强制动态渲染，因为需要读取请求头
+export const dynamic = 'force-dynamic';
+
 export async function GET(request: NextRequest) {
   try {
     console.log('🔍 获取用户信息API开始处理...');

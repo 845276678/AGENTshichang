@@ -1,8 +1,23 @@
 import { NextRequest, NextResponse } from 'next/server'
+
+// 强制动态渲染
+export const dynamic = 'force-dynamic';
 import { verifyToken } from '@/lib/auth'
+
+// 强制动态渲染
+export const dynamic = 'force-dynamic';
 import { ResearchReportService } from '@/lib/services/research-report.service'
+
+// 强制动态渲染
+export const dynamic = 'force-dynamic';
 import { transformReportToGuide, generateGuideMarkdown } from '@/lib/utils/transformReportToGuide'
+
+// 强制动态渲染
+export const dynamic = 'force-dynamic';
 import JSZip from 'jszip'
+
+// 强制动态渲染
+export const dynamic = 'force-dynamic';
 
 // 扩展报告类型以包含idea关系
 interface ReportWithIdea {

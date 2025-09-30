@@ -1,5 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
+
+// 强制动态渲染
+export const dynamic = 'force-dynamic';
 import { mockAgents, categories } from '@/lib/agents-mock-data'
+
+// 强制动态渲染
+export const dynamic = 'force-dynamic';
 
 // GET /api/search/suggestions - Get search suggestions based on query
 export async function GET(request: NextRequest) {

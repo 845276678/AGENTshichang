@@ -1,10 +1,19 @@
 import { NextRequest } from 'next/server'
+
+// 强制动态渲染
+export const dynamic = 'force-dynamic';
 import {
+
+// 强制动态渲染
+export const dynamic = 'force-dynamic';
   authenticateRequest,
   handleApiError,
   handleApiSuccess
 } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
+
+// 强制动态渲染
+export const dynamic = 'force-dynamic';
 
 export async function GET(request: NextRequest) {
   try {

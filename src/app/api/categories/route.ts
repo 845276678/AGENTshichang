@@ -1,5 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
+
+// 强制动态渲染
+export const dynamic = 'force-dynamic';
 import { categories, mockAgents } from '@/lib/agents-mock-data'
+
+// 强制动态渲染
+export const dynamic = 'force-dynamic';
 
 // GET /api/categories - Get all categories with agent counts
 export async function GET(request: NextRequest) {
