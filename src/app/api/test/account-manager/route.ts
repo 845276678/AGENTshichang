@@ -23,7 +23,7 @@ export async function POST(request: NextRequest) {
           passwordHash: hashedPassword,
           firstName: 'Test',
           lastName: 'User',
-          credits: 1000,
+          credits: 10000,
           status: 'ACTIVE'
         }
       })
@@ -32,11 +32,11 @@ export async function POST(request: NextRequest) {
       await prisma.creditTransaction.create({
         data: {
           userId: user.id,
-          amount: 1000,
+          amount: 10000,
           type: 'REGISTER_BONUS',
           description: '注册奖励',
           balanceBefore: 0,
-          balanceAfter: 1000
+          balanceAfter: 10000
         }
       })
 
