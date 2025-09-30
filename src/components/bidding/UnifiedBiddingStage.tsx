@@ -25,7 +25,8 @@ import {
   Eye,
   EyeOff,
   Trophy,
-  FileText
+  FileText,
+  Loader2
 } from 'lucide-react'
 
 // 简化组件替代motion - 避免生产环境错误
@@ -114,6 +115,7 @@ export default function UnifiedBiddingStage({
   const [enableSound, setEnableSound] = useState(false)
   const [showSettings, setShowSettings] = useState(false)
   const [compactMode, setCompactMode] = useState(false)
+  const [isCreatingPlan, setIsCreatingPlan] = useState(false)
 
   // 自动启动AI竞价
   useEffect(() => {
@@ -196,22 +198,129 @@ export default function UnifiedBiddingStage({
   }
 
   // 处理商业计划生成
-  const handleGenerateBusinessPlan = () => {
-    // 跳转到商业计划生成页面，传递竞价数据
-    const planData = {
-      ideaContent,
-      highestBid,
-      aiMessages: aiMessages.slice(0, 10), // 取前10条重要消息
-      supportedAgents: Array.from(supportedAgents),
-      currentBids
+  const handleGenerateBusinessPlan = async () => {
+    if (isCreatingPlan) return
+
+    const previewWindow = typeof window !== 'undefined' ? window.open('', '_blank') : null
+    if (!previewWindow) {
+      alert('浏览器阻止了新窗口，请允许弹窗后重试')
+      return
     }
 
-    const query = new URLSearchParams({
-      source: 'ai-bidding',
-      data: encodeURIComponent(JSON.stringify(planData))
-    }).toString()
+    previewWindow.document.write('<!doctype html><title>正在生成商业计划</title><body style="font-family: system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif; padding: 32px; line-height: 1.6; color: #1f2933; background: #f8fafc;"><h1 style="margin-bottom: 12px; font-size: 20px;">AI 正在整理商业计划...</h1><p style="margin: 0;">请稍候片刻，完成后将自动打开详细报告。</p></body>')
+    previewWindow.document.close()
 
-    window.open(`/business-plan?${query}`, '_blank')
+    setIsCreatingPlan(true)
+
+    try {
+      const normalizedBids: Record<string, number> = {}
+      Object.entries(currentBids || {}).forEach(([personaId, value]) => {
+        const bidNumber = typeof value === 'number' ? value : Number(value)
+        if (!Number.isNaN(bidNumber)) {
+          normalizedBids[personaId] = bidNumber
+        }
+      })
+
+      const bidEntries = Object.entries(normalizedBids)
+      let winningPersonaId: string | null = null
+      let winningBidValue = -Infinity
+      bidEntries.forEach(([personaId, bid]) => {
+        if (bid > winningBidValue) {
+          winningBidValue = bid
+          winningPersonaId = personaId
+        }
+      })
+
+      if (winningBidValue === -Infinity) {
+        winningBidValue = typeof highestBid === 'number' ? highestBid : 0
+      }
+
+      if (!winningPersonaId) {
+        const supported = Array.from(supportedAgents)
+        winningPersonaId = activeSpeaker || supported[0] || null
+      }
+
+      const winnerPersona = winningPersonaId
+        ? AI_PERSONAS.find(persona => persona.id === winningPersonaId)
+        : undefined
+      const winnerName = winnerPersona?.name || 'AI专家团队'
+
+      const averageBid = bidEntries.length > 0
+        ? bidEntries.reduce((total, [, bid]) => total + bid, 0) / bidEntries.length
+        : (typeof highestBid === 'number' ? highestBid : 0)
+
+      const toIsoString = (value: unknown): string => {
+        if (value instanceof Date) {
+          return value.toISOString()
+        }
+        const parsed = value ? new Date(value as string) : new Date()
+        return Number.isNaN(parsed.getTime()) ? new Date().toISOString() : parsed.toISOString()
+      }
+
+      const messagePayload = aiMessages.slice(0, 20).map(message => ({
+        id: message.id,
+        personaId: message.personaId,
+        phase: message.phase,
+        round: message.round,
+        type: message.type,
+        content: message.content,
+        emotion: message.emotion,
+        bidValue: message.bidValue,
+        timestamp: toIsoString(message.timestamp)
+      }))
+
+      const response = await fetch('/api/business-plan-session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ideaContent,
+          ideaId,
+          highestBid: winningBidValue,
+          averageBid,
+          finalBids: normalizedBids,
+          winner: winningPersonaId,
+          winnerName,
+          aiMessages: messagePayload,
+          supportedAgents: Array.from(supportedAgents),
+          currentBids: normalizedBids
+        })
+      })
+
+      if (!response.ok) {
+        let errorMessage = '生成商业计划会话失败，请稍后重试'
+        try {
+          const errorData = await response.json()
+          if (errorData?.error) {
+            errorMessage = errorData.error
+          }
+        } catch (parseError) {
+          console.error('Failed to parse business plan error:', parseError)
+        }
+        throw new Error(errorMessage)
+      }
+
+      const result = await response.json()
+      const sessionIdFromResponse: string | undefined = result?.sessionId
+      if (!sessionIdFromResponse) {
+        throw new Error('生成商业计划会话失败，请稍后重试')
+      }
+
+      try {
+        const url = new URL('/business-plan', window.location.origin)
+        url.searchParams.set('sessionId', sessionIdFromResponse)
+        url.searchParams.set('source', 'ai-bidding')
+        previewWindow.location.href = url.toString()
+      } catch (buildError) {
+        console.error('Failed to build business plan URL:', buildError)
+        previewWindow.location.href = `/business-plan?sessionId=${encodeURIComponent(sessionIdFromResponse)}&source=ai-bidding`
+      }
+    } catch (error) {
+      console.error('Failed to generate business plan:', error)
+      previewWindow.close()
+      alert(error instanceof Error ? error.message : '生成商业计划失败，请稍后重试')
+    } finally {
+      setIsCreatingPlan(false)
+    }
   }
 
   // 处理详细报告查看
@@ -438,11 +547,21 @@ export default function UnifiedBiddingStage({
 
               <div className="flex flex-col sm:flex-row gap-4 justify-center mt-6">
                 <Button
-                  onClick={() => handleGenerateBusinessPlan()}
-                  className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-3 text-lg font-semibold rounded-full shadow-lg transform hover:scale-105 transition-all duration-200"
+                  onClick={handleGenerateBusinessPlan}
+                  disabled={isCreatingPlan}
+                  className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-3 text-lg font-semibold rounded-full shadow-lg transform hover:scale-105 transition-all duration-200 disabled:opacity-80 disabled:hover:scale-100 disabled:cursor-not-allowed"
                 >
-                  <FileText className="w-5 h-5 mr-2" />
-                  生成商业计划书
+                  {isCreatingPlan ? (
+                    <>
+                      <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                      正在生成...
+                    </>
+                  ) : (
+                    <>
+                      <FileText className="w-5 h-5 mr-2" />
+                      生成商业计划书
+                    </>
+                  )}
                 </Button>
 
                 <Button
