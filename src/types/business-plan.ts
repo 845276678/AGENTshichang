@@ -68,4 +68,52 @@ export interface BusinessPlanStageConfig {
   estimatedTime: string
   deliverables: string[]
   dependencies: string[]
+  description?: string
+}
+
+// 导入智能适配相关类型
+export * from './intelligent-adaptation'
+
+// 实战阶段上下文
+export interface PracticalStageContext {
+  ideaTitle: string
+  ideaDescription: string
+  userGoals?: {
+    shortTerm: string[]
+    mediumTerm?: string[]
+    longTerm?: string[]
+    successMetrics: string[]
+  }
+  userBackground?: {
+    industry?: string
+    experience?: string[]
+    skills?: string[]
+    budget?: string
+    timeline?: string
+    location?: string
+  }
+  previousStagesOutput?: {
+    [stageId: string]: any
+  }
+}
+
+// 实战阶段输出
+export interface PracticalStageOutput {
+  title: string
+  summary: string
+  sections: Array<{
+    title: string
+    content: string
+    actionItems: string[]
+    timeframe: string
+  }>
+  keyInsights: string[]
+  nextSteps: string[]
+  confidenceBooster: string
+  adaptedRecommendations?: {
+    techStack?: any
+    researchChannels?: any
+    offlineEvents?: any
+    timeline?: any
+  }
 }

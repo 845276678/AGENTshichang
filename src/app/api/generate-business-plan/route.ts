@@ -151,6 +151,9 @@ async function processStagesInBackground(ideaId: string, userId?: string | null)
       return
     }
 
+    // 用于存储各阶段输出结果，供后续阶段使用
+    const previousStagesOutput: Record<string, any> = {}
+
     // 依次处理每个阶段
     for (let i = 0; i < state.stages.length; i++) {
       const stage = state.stages[i]
@@ -162,8 +165,11 @@ async function processStagesInBackground(ideaId: string, userId?: string | null)
         stage.startTime = new Date().toISOString()
         await saveGenerationState(state)
 
-        // 模拟生成过程（实际项目中这里调用AI服务）
-        await simulateStageGeneration(stage, state.scenario)
+        // 使用专业的阶段内容生成器
+        await generateStageContent(stage, state.scenario, previousStagesOutput)
+
+        // 将当前阶段输出添加到历史记录中
+        previousStagesOutput[stage.id] = stage.outputs
 
         // 更新为完成
         stage.status = 'completed'
@@ -172,7 +178,7 @@ async function processStagesInBackground(ideaId: string, userId?: string | null)
         await saveGenerationState(state)
 
         // 为了演示效果，每个阶段间隔一些时间
-        await new Promise(resolve => setTimeout(resolve, 2000))
+        await new Promise(resolve => setTimeout(resolve, 1000))
       }
     }
 
@@ -192,65 +198,60 @@ async function processStagesInBackground(ideaId: string, userId?: string | null)
   }
 }
 
-// 模拟阶段生成（实际项目中替换为真实AI生成）
-async function simulateStageGeneration(stage: any, scenario: any) {
-  // 模拟渐进式进度更新
-  for (let progress = 10; progress <= 90; progress += 20) {
-    stage.progress = progress
-    await new Promise(resolve => setTimeout(resolve, 500))
+// 使用专业的阶段内容生成器
+async function generateStageContent(stage: any, scenario: any, previousStagesOutput: Record<string, any>) {
+  const { StageContentGenerator } = await import('@/lib/business-plan/stage-content-generator')
+  const generator = new StageContentGenerator()
+
+  try {
+    // 构建生成上下文
+    const context = {
+      ideaTitle: scenario.ideaTitle || '创意项目',
+      ideaDescription: scenario.summary || '创意描述',
+      category: scenario.industry || 'GENERAL',
+      scenario: scenario,
+      previousStagesOutput: previousStagesOutput
+    }
+
+    // 模拟渐进式进度更新
+    for (let progress = 10; progress <= 80; progress += 20) {
+      stage.progress = progress
+      await new Promise(resolve => setTimeout(resolve, 800))
+    }
+
+    // 生成专业内容
+    const stageOutput = await generator.generateStageContent(stage, context)
+
+    stage.outputs = stageOutput.content
+    stage.insights = stageOutput.content.keyInsights
+    stage.recommendations = stageOutput.content.recommendations
+    stage.qualityScore = stageOutput.metadata.qualityScore
+    stage.aiProvider = stageOutput.metadata.aiProvider
+    stage.processingTime = stageOutput.metadata.processingTime
+
+    logger.info("Stage content generated successfully", {
+      stageId: stage.id,
+      qualityScore: stageOutput.metadata.qualityScore,
+      processingTime: stageOutput.metadata.processingTime
+    })
+
+  } catch (error) {
+    logger.error("Stage content generation failed", { stageId: stage.id }, error as Error)
+
+    // 降级到简化内容生成
+    stage.outputs = {
+      summary: `${stage.name}阶段分析完成`,
+      details: "详细分析结果已生成，包含关键洞察和建议",
+      nextSteps: "建议继续关注后续实施要点",
+      error: "内容生成遇到问题，已使用备用方案"
+    }
+
+    stage.insights = [
+      `${stage.name}的关键成功因素已识别`,
+      "建议重点关注用户反馈和市场验证",
+      "风险控制措施已制定完善"
+    ]
   }
-
-  // 根据阶段类型生成不同的输出内容
-  switch (stage.type) {
-    case 'market_analysis':
-      stage.outputs = {
-        marketSize: "目标市场规模约100亿元",
-        competitors: ["竞品A", "竞品B", "竞品C"],
-        opportunities: "市场空白点分析显示存在显著机会",
-        threats: "主要挑战来自技术门槛和用户接受度"
-      }
-      break
-
-    case 'business_model':
-      stage.outputs = {
-        revenueStreams: ["订阅收费", "交易佣金", "增值服务"],
-        costStructure: "主要成本包括技术开发、运营维护、市场推广",
-        valueProposition: "为用户提供高效便捷的AI驱动解决方案",
-        channels: ["官方网站", "应用商店", "合作伙伴"]
-      }
-      break
-
-    case 'technical_plan':
-      stage.outputs = {
-        architecture: "采用微服务架构，支持高并发和弹性扩展",
-        technology: ["React/Next.js", "Node.js", "MongoDB", "Redis"],
-        timeline: "预计6个月完成核心功能开发",
-        risks: "技术风险主要集中在AI算法优化和数据处理效率"
-      }
-      break
-
-    case 'financial_projection':
-      stage.outputs = {
-        revenue: "预计第一年营收500万元，第三年突破5000万元",
-        costs: "初期投入300万元，运营成本占营收的60%",
-        profit: "预计第二年实现盈亏平衡，第三年净利润率达到15%",
-        funding: "建议A轮融资1000万元用于产品开发和市场拓展"
-      }
-      break
-
-    default:
-      stage.outputs = {
-        summary: `${stage.name}阶段分析完成`,
-        details: "详细分析结果已生成，包含关键洞察和建议",
-        nextSteps: "建议继续关注后续实施要点"
-      }
-  }
-
-  stage.insights = [
-    `${stage.name}的关键成功因素已识别`,
-    "建议重点关注用户反馈和市场验证",
-    "风险控制措施已制定完善"
-  ]
 }
 
 // 根据商业计划阶段数据创建研究报告

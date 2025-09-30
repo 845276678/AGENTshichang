@@ -707,18 +707,18 @@ export default function BusinessPlanPage() {
   const featureHighlights = [
     {
       icon: Brain,
-      title: '多模型协同',
-      description: 'DeepSeek、通义千问、智谱 GLM 等模型分工协作，覆盖调研、评估与写作全流程。'
+      title: '智能适配引擎',
+      description: '基于创意特征实时分析，提供AI技术栈推荐、需求发现渠道、线下调研活动等个性化建议。'
     },
     {
       icon: FileText,
-      title: '专业结构',
-      description: '自动生成市场、财务、执行、风险等核心章节，符合投资人沟通习惯。'
+      title: '5阶段实战框架',
+      description: '目标澄清→市场分析→调研指导→90天计划→商业模式，每阶段基于创意特征量身定制。'
     },
     {
       icon: Share2,
-      title: '灵活交付',
-      description: '支持 PDF / Word / Markdown 多种格式导出，可在线分享落地指南。'
+      title: '90天聚焦执行',
+      description: '专注关键90天验证期，提供AI技术选型、用户发现、线下活动等具体可操作的实施方案。'
     }
   ]
 
@@ -760,10 +760,19 @@ export default function BusinessPlanPage() {
                   <Button
                     size="lg"
                     className="bg-white text-blue-600 hover:bg-white/90"
+                    onClick={() => router.push('/business-plan/intelligent')}
+                  >
+                    <Brain className="w-4 h-4 mr-2" />
+                    智能化生成（推荐）
+                  </Button>
+                  <Button
+                    size="lg"
+                    variant="outline"
+                    className="bg-white/10 text-white hover:bg-white/20 border-white/40"
                     onClick={() => router.push('/business-plan/v2')}
                   >
                     <Sparkles className="w-4 h-4 mr-2" />
-                    开始生成商业计划书
+                    标准版生成
                   </Button>
                   <Button
                     size="lg"
