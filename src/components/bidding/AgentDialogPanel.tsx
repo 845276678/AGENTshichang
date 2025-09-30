@@ -245,10 +245,10 @@ export const AgentDialogPanel: React.FC<AgentDialogPanelProps> = ({
         isActive ? 'ring-2 ring-blue-400 ring-opacity-50 shadow-2xl is-active' : ''
       } ${className}`}
       style={{
-        width: '260px',
-        height: '380px',
+        width: '100%',
         minWidth: '240px',
-        minHeight: '340px'
+        minHeight: '340px',
+        maxWidth: '320px'
       }}
     >
       {/* 1. 头像区域 */}
