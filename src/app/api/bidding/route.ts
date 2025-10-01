@@ -1,7 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { authenticateToken } from '@/lib/auth-middleware'
-import AIServiceManager from '@/lib/ai-service-manager'
+import AIServiceManager, { SYSTEM_PROMPTS } from '@/lib/ai-service-manager'
 import { AI_PERSONAS } from '@/lib/ai-persona-system'
+import {
+  generateBiddingRound,
+  generatePersonaComment,
+  calculatePersonaScore
+} from '@/lib/ai-persona-enhanced'
 
 // UTF-8编码响应助手函数
 function createUTF8Response(data: any, status: number = 200) {
@@ -430,20 +435,21 @@ async function runResultPhase(sessionId: string) {
   console.log(`🎉 Session ${sessionId} completed. Highest bid: ${highestBid}元`)
 }
 
-// 生成AI回应
+// 生成AI回应 - 使用真实AI服务
 async function generateAIResponse(personaId: string, ideaContent: string, context: any): Promise<any> {
   try {
-    // 根据人物选择对应的AI服务
+    // 根据角色ID映射到对应的AI服务提供商
     const providerMap: Record<string, string> = {
-      'tech-pioneer-alex': 'deepseek',
-      'business-guru-beta': 'zhipu',
-      'innovation-mentor-charlie': 'qwen',
-      'market-insight-delta': 'deepseek',
-      'investment-advisor-ivan': 'zhipu'
+      'business-tycoon-wang': 'zhipu',     // 老王使用智谱
+      'tech-pioneer-alex': 'deepseek',      // 艾克斯使用deepseek
+      'artistic-lin': 'zhipu',              // 小琳使用智谱
+      'trend-master-allen': 'qwen',         // 阿伦使用通义千问
+      'scholar-li': 'deepseek'              // 李博使用deepseek
     }
 
     const provider = providerMap[personaId] || 'deepseek'
 
+    // 构建对话上下文
     const dialogueContext = {
       idea: ideaContent,
       phase: context.phase,
@@ -453,28 +459,131 @@ async function generateAIResponse(personaId: string, ideaContent: string, contex
       sessionHistory: []
     }
 
+    // 根据阶段构建不同的用户提示
+    let userPrompt = ''
+
+    if (context.phase === 'warmup') {
+      userPrompt = `现在是暖场阶段。请按照你的角色人设，简短介绍你自己，并对这个创意"${ideaContent}"给出第一印象。
+要求：
+1. 用你的特色口头禅开场
+2. 保持你的说话风格（如东北话、中英夹杂等）
+3. 简单点评创意（50-100字）
+4. 体现你的个性特点`
+    } else if (context.phase === 'discussion') {
+      const previousSpeakers = context.context?.previousMessages?.slice(-3).map((m: any) => m.personaId) || []
+      userPrompt = `现在是深度讨论阶段第${context.round}轮。
+创意：${ideaContent}
+之前的发言者：${previousSpeakers.join(', ')}
+
+请从你的专业角度深入分析这个创意：
+1. 提出你最关心的1-2个问题
+2. 如果有你的"冲突对象"刚发言，要反驳他们
+3. 如果有你的"盟友"刚发言，可以支持他们
+4. 保持你的个性和说话风格
+5. 100-150字`
+    } else if (context.phase === 'bidding') {
+      const otherBids = Object.entries(context.context?.currentBids || {})
+        .filter(([id]) => id !== personaId)
+        .map(([id, bid]) => `${id}: ${bid}分`)
+        .join(', ')
+
+      userPrompt = `现在是评估打分阶段第${context.round}轮。
+创意：${ideaContent}
+其他人的评分：${otherBids || '暂无'}
+
+请给出你的评分（1-10分）并说明理由：
+1. 根据你的评估标准打分
+2. 如果冲突对象给了高分，你可能会给低分
+3. 如果盟友给了某个分数，你可能会趋同
+4. 用你的个性化语言解释评分理由
+5. 格式："我给X分，因为..."（100字左右）`
+    }
+
+    // 调用真实AI服务
     const response = await aiServiceManager.callSingleService({
       provider: provider as any,
       persona: personaId,
       context: dialogueContext,
       systemPrompt: getSystemPromptForPersona(personaId),
-      temperature: 0.7,
+      temperature: 0.8, // 提高一点温度让对话更生动
       maxTokens: 300
     })
 
-    return response
+    return {
+      content: response.content,
+      confidence: response.confidence || 0.85,
+      tokens_used: response.tokens_used || 100,
+      cost: response.cost || 0.002
+    }
 
   } catch (error) {
     console.error(`Error generating AI response for ${personaId}:`, error)
 
-    // 回退响应
-    const persona = AI_PERSONAS.find(p => p.id === personaId)
+    // 如果AI服务失败，使用增强版的备用响应
+    return generateFallbackResponse(personaId, ideaContent, context)
+  }
+}
+
+// 生成备用响应（当AI服务不可用时）
+function generateFallbackResponse(personaId: string, ideaContent: string, context: any): any {
+  const persona = AI_PERSONAS.find(p => p.id === personaId)
+  if (!persona) {
     return {
-      content: `我是${persona?.name || personaId}，很抱歉现在无法给出详细回应，但我对这个创意很感兴趣。让我仔细考虑一下...`,
+      content: '我需要仔细考虑一下这个创意...',
       confidence: 0.5,
       tokens_used: 30,
       cost: 0.001
     }
+  }
+
+  let content = ''
+
+  if (context.phase === 'warmup') {
+    content = generatePersonaIntro(persona, ideaContent)
+  } else if (context.phase === 'discussion') {
+    // 使用预设的讨论模板
+    const templates: Record<string, string[]> = {
+      'business-tycoon-wang': [
+        `哎呀妈呀，${ideaContent}这个想法有点意思，但能赚钱吗？我得好好算算账。`,
+        `做生意就一个字：赚！这个${ideaContent}的盈利模式在哪？别整虚的！`
+      ],
+      'tech-pioneer-alex': [
+        `Technically speaking，${ideaContent}的技术架构需要仔细设计，scalability是关键。`,
+        `${ideaContent}？Let me think... 技术实现不难，但要做好不容易。`
+      ],
+      'artistic-lin': [
+        `${ideaContent}让我想到了用户的真实需求，产品要有温度才能打动人心~`,
+        `这个创意很有潜力，但用户体验设计要特别用心，美是生产力！`
+      ],
+      'trend-master-allen': [
+        `家人们！${ideaContent}有爆点！Z世代肯定买单，流量密码被我找到了！`,
+        `${ideaContent}踩中热点了！小红书上这类内容超火的，分分钟10万+！`
+      ],
+      'scholar-li': [
+        `根据我的研究，${ideaContent}符合创新扩散理论，但要注意风险控制。`,
+        `让我们用学术的眼光看${ideaContent}，理论基础扎实但执行是关键。`
+      ]
+    }
+
+    const personaTemplates = templates[personaId] || [`${persona.catchPhrase}`]
+    content = personaTemplates[Math.floor(Math.random() * personaTemplates.length)]
+
+  } else if (context.phase === 'bidding') {
+    // 使用增强版的评分系统
+    const score = calculatePersonaScore(
+      persona,
+      ideaContent,
+      'general',
+      new Map(Object.entries(context.context?.currentBids || {}))
+    )
+    content = generatePersonaComment(persona, score, ideaContent, [])
+  }
+
+  return {
+    content: content || `我是${persona.name}，${persona.catchPhrase}`,
+    confidence: 0.7,
+    tokens_used: 50,
+    cost: 0.001
   }
 }
 
@@ -523,11 +632,11 @@ function extractBidAmount(content: string): number {
 
 function getSystemPromptForPersona(personaId: string): string {
   const prompts: Record<string, string> = {
-    'tech-pioneer-alex': `你是技术先锋艾克斯，一位经验丰富的首席技术专家。请从技术角度分析创意的可行性、复杂度和创新性。说话风格专业严谨。`,
-    'business-guru-beta': `你是商业智囊贝塔，一位敏锐的商业战略顾问。请从商业价值、市场潜力、盈利模式角度分析。说话风格务实精明。`,
-    'innovation-mentor-charlie': `你是创新导师查理，一位富有想象力的创新思维专家。请从创新程度、用户体验、社会影响角度分析。说话风格富有激情。`,
-    'market-insight-delta': `你是市场洞察师德尔塔，一位数据驱动的市场分析专家。请从市场需求、竞争环境、发展趋势角度分析。说话风格客观理性。`,
-    'investment-advisor-ivan': `你是投资顾问伊万，一位专业的投资评估专家。请从投资价值、风险评估、回报预期角度分析。说话风格谨慎专业。`
+    'business-tycoon-wang': SYSTEM_PROMPTS['business-tycoon-wang'] || '',
+    'tech-pioneer-alex': SYSTEM_PROMPTS['tech-pioneer-alex'] || '',
+    'artistic-lin': SYSTEM_PROMPTS['artistic-lin'] || '',
+    'trend-master-allen': SYSTEM_PROMPTS['trend-master-allen'] || '',
+    'scholar-li': SYSTEM_PROMPTS['scholar-li'] || ''
   }
 
   return prompts[personaId] || `你是${personaId}，请保持角色一致性，用专业且有个性的语言回应。`
