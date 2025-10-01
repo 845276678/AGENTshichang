@@ -2,6 +2,12 @@
 
 import React, { useState } from 'react'
 import { Layout } from '@/components/layout'
+import { RealtimeRecommendationDisplay } from '@/components/business-plan/RealtimeRecommendationDisplay'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Textarea } from '@/components/ui/textarea'
 import {
   Brain,
   Lightbulb,
@@ -10,15 +16,57 @@ import {
   Rocket,
   Sparkles,
   CheckCircle,
-  Loader2
+  Loader2,
+  ArrowRight,
+  TrendingUp
 } from 'lucide-react'
+import { motion } from 'framer-motion'
 
+// 类型定义
 type IdeaCharacteristics = {
   category: string
   technicalComplexity: string
   fundingRequirement: string
   competitionLevel: string
   aiCapabilities: { [key: string]: boolean }
+}
+
+type PersonalizedRecommendations = {
+  techStackRecommendations: {
+    beginner: {
+      primary: string
+      timeline: string
+      reason: string
+      cost: string
+    }
+  }
+  researchChannels: {
+    online: string[]
+    offline: string[]
+  }
+  offlineEvents: {
+    nationalEvents: Array<{
+      name: string
+      time: string
+      location: string
+      cost: string
+    }>
+    localEvents: string[]
+  }
+  customizedTimeline: {
+    month1: { focus: string }
+    month2: { focus: string }
+    month3: { focus: string }
+  }
+  budgetPlan: {
+    startupCosts: { total: number }
+    monthlyCosts: { total: number }
+    costOptimization: string[]
+  }
+  teamRecommendations: {
+    coreTeam: string[]
+    advisorTypes: string[]
+  }
 }
 
 export default function IntelligentBusinessPlanPage() {
@@ -28,11 +76,14 @@ export default function IntelligentBusinessPlanPage() {
   const [userBackground, setUserBackground] = useState('')
   const [analyzing, setAnalyzing] = useState(false)
   const [ideaCharacteristics, setIdeaCharacteristics] = useState<IdeaCharacteristics | null>(null)
+  const [personalizedRecommendations, setPersonalizedRecommendations] = useState<PersonalizedRecommendations | null>(null)
 
   const handleAnalyze = () => {
     setAnalyzing(true)
     setTimeout(() => {
       setAnalyzing(false)
+
+      // 设置创意特征
       setIdeaCharacteristics({
         category: '教育科技',
         technicalComplexity: '中等',
@@ -47,191 +98,227 @@ export default function IntelligentBusinessPlanPage() {
           automation: true
         }
       })
-    }, 2000)
-  }
 
-  const getAICapabilityLabel = (key: string): string => {
-    const labels = {
-      nlp: '自然语言处理',
-      cv: '计算机视觉',
-      ml: '机器学习',
-      recommendation: '推荐系统',
-      generation: '内容生成',
-      automation: '自动化'
-    }
-    return labels[key as keyof typeof labels] || key
+      // 设置个性化推荐
+      setPersonalizedRecommendations({
+        techStackRecommendations: {
+          beginner: {
+            primary: 'OpenAI API + Python Flask',
+            timeline: '1-2个月',
+            reason: '快速验证概念，成本低',
+            cost: '¥2000-5000/月'
+          }
+        },
+        researchChannels: {
+          online: [
+            '知乎教育话题社区调研',
+            '小红书学习方法内容分析',
+            '抖音教育类视频评论挖掘'
+          ],
+          offline: [
+            '北京高校学生访谈',
+            '海淀区教育机构实地调研',
+            '中关村创业咖啡馆交流'
+          ]
+        },
+        offlineEvents: {
+          nationalEvents: [
+            {
+              name: 'GET教育科技大会',
+              time: '每年11月',
+              location: '北京',
+              cost: '¥2000-3000'
+            }
+          ],
+          localEvents: [
+            '北京教育创新沙龙',
+            'AI教育技术交流会',
+            '创业者周末活动'
+          ]
+        },
+        customizedTimeline: {
+          month1: { focus: '用户调研与MVP开发' },
+          month2: { focus: '产品迭代与种子用户获取' },
+          month3: { focus: '商业模式验证与融资准备' }
+        },
+        budgetPlan: {
+          startupCosts: { total: 50000 },
+          monthlyCosts: { total: 15000 },
+          costOptimization: ['使用开源工具降低成本', '申请创业补贴', '共享办公空间']
+        },
+        teamRecommendations: {
+          coreTeam: ['全栈开发工程师', '教育产品经理', 'AI算法工程师'],
+          advisorTypes: ['教育行业专家', 'AI技术顾问']
+        }
+      })
+    }, 2000)
   }
 
   return (
     <Layout>
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white font-sans">
-        <div className="max-w-6xl mx-auto px-4 py-10">
-          {/* 头部 */}
-          <div className="text-center mb-12">
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+        <div className="container mx-auto px-4 py-8">
+          {/* 页面头部 */}
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-center mb-12"
+          >
             <div className="flex items-center justify-center gap-3 mb-6">
-              <Brain className="w-10 h-10 text-blue-600" />
-              <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+              <div className="p-3 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl">
+                <Brain className="w-8 h-8 text-white" />
+              </div>
+              <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
                 智能化商业计划生成
               </h1>
             </div>
-            <p className="text-xl text-gray-600 max-w-4xl mx-auto mb-6 leading-relaxed">
+            <p className="text-lg md:text-xl text-gray-600 max-w-4xl mx-auto mb-8">
               基于创意特征实时适配的5阶段商业计划框架，提供AI技术栈推荐、需求发现渠道、线下调研活动等个性化指导
             </p>
             <div className="flex flex-wrap items-center justify-center gap-3">
-              <div className="inline-flex items-center px-4 py-2 bg-blue-100 text-blue-800 border border-blue-200 rounded-full text-sm font-semibold">
-                <Zap className="w-4 h-4 mr-2" />
+              <div className="px-4 py-2 bg-blue-100 text-blue-700 rounded-full text-sm font-semibold flex items-center gap-2">
+                <Zap className="w-4 h-4" />
                 实时适配
               </div>
-              <div className="inline-flex items-center px-4 py-2 bg-green-100 text-green-800 border border-green-200 rounded-full text-sm font-semibold">
-                <Target className="w-4 h-4 mr-2" />
+              <div className="px-4 py-2 bg-green-100 text-green-700 rounded-full text-sm font-semibold flex items-center gap-2">
+                <Target className="w-4 h-4" />
                 个性化推荐
               </div>
-              <div className="inline-flex items-center px-4 py-2 bg-purple-100 text-purple-800 border border-purple-200 rounded-full text-sm font-semibold">
-                <Rocket className="w-4 h-4 mr-2" />
+              <div className="px-4 py-2 bg-purple-100 text-purple-700 rounded-full text-sm font-semibold flex items-center gap-2">
+                <Rocket className="w-4 h-4" />
                 90天聚焦
               </div>
+              <div className="px-4 py-2 bg-orange-100 text-orange-700 rounded-full text-sm font-semibold flex items-center gap-2">
+                <TrendingUp className="w-4 h-4" />
+                数据驱动
+              </div>
             </div>
-          </div>
+          </motion.div>
 
           {/* 输入表单 */}
-          <div className="bg-white border-2 border-blue-100 rounded-xl shadow-xl mb-8 overflow-hidden">
-            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 border-b border-gray-200">
-              <h3 className="flex items-center gap-3 text-blue-900 text-2xl font-semibold mb-2">
-                <Lightbulb className="w-6 h-6 text-yellow-500" />
-                创意信息输入
-              </h3>
-              <p className="text-blue-700 text-base">
-                输入您的创意，系统将实时分析特征并生成个性化推荐
-              </p>
-            </div>
-            <div className="p-8">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">创意标题</label>
-                  <input
-                    type="text"
-                    placeholder="例如：AI智能英语学习助手"
-                    value={ideaTitle}
-                    onChange={(e) => setIdeaTitle(e.target.value)}
-                    className="w-full border-2 border-gray-300 bg-white rounded-lg px-4 py-3 text-base focus:border-blue-600 focus:outline-none transition-colors"
-                  />
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+          >
+            <Card className="mb-8 border-2 shadow-xl">
+              <CardHeader className="bg-gradient-to-r from-blue-50 to-purple-50 border-b">
+                <CardTitle className="flex items-center gap-2 text-2xl">
+                  <Lightbulb className="w-6 h-6 text-yellow-500" />
+                  创意信息输入
+                </CardTitle>
+                <CardDescription className="text-base">
+                  输入您的创意，系统将实时分析特征并生成个性化推荐
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="p-6">
+                <div className="grid gap-6">
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="title">创意标题</Label>
+                      <Input
+                        id="title"
+                        placeholder="例如：AI智能英语学习助手"
+                        value={ideaTitle}
+                        onChange={(e) => setIdeaTitle(e.target.value)}
+                        className="w-full"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="location">所在城市</Label>
+                      <Input
+                        id="location"
+                        placeholder="北京"
+                        value={userLocation}
+                        onChange={(e) => setUserLocation(e.target.value)}
+                        className="w-full"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="description">详细描述</Label>
+                    <Textarea
+                      id="description"
+                      placeholder="描述您的创意要解决什么问题，面向什么用户，如何创造价值..."
+                      value={ideaDescription}
+                      onChange={(e) => setIdeaDescription(e.target.value)}
+                      className="min-h-[120px] w-full"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="background">个人背景（可选）</Label>
+                    <Input
+                      id="background"
+                      placeholder="例如：技术背景、行业经验、可用资源等"
+                      value={userBackground}
+                      onChange={(e) => setUserBackground(e.target.value)}
+                      className="w-full"
+                    />
+                  </div>
+
+                  <div className="flex justify-center pt-4">
+                    <Button
+                      onClick={handleAnalyze}
+                      disabled={analyzing || !ideaTitle || !ideaDescription}
+                      className="px-8 py-6 text-lg"
+                      size="lg"
+                    >
+                      {analyzing ? (
+                        <>
+                          <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                          分析中...
+                        </>
+                      ) : (
+                        <>
+                          <Sparkles className="mr-2 h-5 w-5" />
+                          开始分析创意
+                          <ArrowRight className="ml-2 h-5 w-5" />
+                        </>
+                      )}
+                    </Button>
+                  </div>
                 </div>
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">所在城市</label>
-                  <input
-                    type="text"
-                    placeholder="北京"
-                    value={userLocation}
-                    onChange={(e) => setUserLocation(e.target.value)}
-                    className="w-full border-2 border-gray-300 bg-white rounded-lg px-4 py-3 text-base focus:border-blue-600 focus:outline-none transition-colors"
-                  />
-                </div>
-              </div>
+              </CardContent>
+            </Card>
+          </motion.div>
 
-              <div className="mb-6">
-                <label className="block text-sm font-semibold text-gray-700 mb-2">详细描述</label>
-                <textarea
-                  placeholder="描述您的创意要解决什么问题，面向什么用户，如何创造价值..."
-                  value={ideaDescription}
-                  onChange={(e) => setIdeaDescription(e.target.value)}
-                  rows={4}
-                  className="w-full border-2 border-gray-300 bg-white rounded-lg px-4 py-3 text-base focus:border-blue-600 focus:outline-none transition-colors resize-vertical min-h-[120px]"
-                />
-              </div>
-
-              <div className="mb-8">
-                <label className="block text-sm font-semibold text-gray-700 mb-2">个人背景（可选）</label>
-                <input
-                  type="text"
-                  placeholder="例如：技术背景、行业经验、可用资源等"
-                  value={userBackground}
-                  onChange={(e) => setUserBackground(e.target.value)}
-                  className="w-full border-2 border-gray-300 bg-white rounded-lg px-4 py-3 text-base focus:border-blue-600 focus:outline-none transition-colors"
-                />
-              </div>
-
-              <div className="text-center">
-                <button
-                  onClick={handleAnalyze}
-                  disabled={analyzing}
-                  className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-4 rounded-xl text-base font-semibold shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {analyzing ? (
-                    <Loader2 className="w-5 h-5 animate-spin" />
-                  ) : (
-                    <Sparkles className="w-5 h-5" />
-                  )}
-                  {analyzing ? '分析中...' : '开始分析创意'}
-                </button>
-              </div>
-            </div>
-          </div>
-
-          {/* 分析状态 */}
+          {/* 分析中状态 */}
           {analyzing && (
-            <div className="bg-blue-50 border-2 border-blue-600 rounded-xl mb-8">
-              <div className="p-6 text-center">
-                <div className="flex items-center justify-center gap-3 mb-4">
-                  <Loader2 className="w-6 h-6 text-blue-600 animate-spin" />
-                  <span className="text-lg text-blue-800 font-semibold">
-                    正在实时分析创意特征...
-                  </span>
-                </div>
-                <p className="text-blue-700">
-                  AI正在分析您的创意，识别技术需求和市场特征
-                </p>
-              </div>
-            </div>
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+            >
+              <Card className="mb-8 border-2 border-blue-300 bg-blue-50/50">
+                <CardContent className="py-12">
+                  <div className="text-center">
+                    <Loader2 className="w-12 h-12 mx-auto mb-4 text-blue-600 animate-spin" />
+                    <h3 className="text-xl font-semibold text-blue-800 mb-2">
+                      正在实时分析创意特征...
+                    </h3>
+                    <p className="text-blue-600">
+                      AI正在分析您的创意，识别技术需求和市场特征
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
           )}
 
-          {/* 分析结果 */}
-          {ideaCharacteristics && !analyzing && (
-            <div className="bg-green-50 border-2 border-green-500 rounded-xl">
-              <div className="bg-gradient-to-r from-green-50 to-emerald-50 p-6 border-b border-gray-200">
-                <h3 className="flex items-center gap-3 text-green-800 text-2xl font-semibold mb-2">
-                  <CheckCircle className="w-6 h-6" />
-                  创意特征分析完成
-                </h3>
-                <p className="text-green-700 text-base">
-                  系统已识别您的创意特征，将据此生成个性化商业计划
-                </p>
-              </div>
-              <div className="p-8">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                  {[
-                    { label: '行业', value: ideaCharacteristics.category, bgColor: 'bg-blue-100', textColor: 'text-blue-800', borderColor: 'border-blue-200' },
-                    { label: '技术复杂度', value: ideaCharacteristics.technicalComplexity, bgColor: 'bg-orange-100', textColor: 'text-orange-800', borderColor: 'border-orange-200' },
-                    { label: '资金需求', value: ideaCharacteristics.fundingRequirement, bgColor: 'bg-purple-100', textColor: 'text-purple-800', borderColor: 'border-purple-200' },
-                    { label: '竞争程度', value: ideaCharacteristics.competitionLevel, bgColor: 'bg-red-100', textColor: 'text-red-800', borderColor: 'border-red-200' }
-                  ].map((item, index) => (
-                    <div key={index} className="flex items-center gap-3 p-4 bg-white rounded-lg border border-gray-200 shadow-sm">
-                      <span className={`text-xs ${item.bgColor} ${item.textColor} border ${item.borderColor} px-3 py-1 rounded-full font-semibold`}>
-                        {item.label}
-                      </span>
-                      <span className="text-sm font-semibold text-gray-700">
-                        {item.value}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-
-                <div className="p-5 bg-gradient-to-r from-yellow-50 to-amber-50 rounded-lg border border-yellow-200">
-                  <div className="text-base font-semibold mb-3 flex items-center gap-2 text-amber-800">
-                    <Lightbulb className="w-4 h-4" />
-                    AI能力需求识别:
-                  </div>
-                  <div className="flex flex-wrap gap-2">
-                    {Object.entries(ideaCharacteristics.aiCapabilities).map(([key, value]) =>
-                      value && (
-                        <span key={key} className="text-xs bg-yellow-100 text-amber-800 border border-yellow-300 px-3 py-1 rounded-full font-semibold">
-                          {getAICapabilityLabel(key)}
-                        </span>
-                      )
-                    )}
-                  </div>
-                </div>
-              </div>
-            </div>
+          {/* 分析结果展示 */}
+          {ideaCharacteristics && personalizedRecommendations && !analyzing && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 }}
+            >
+              <RealtimeRecommendationDisplay
+                ideaCharacteristics={ideaCharacteristics}
+                personalizedRecommendations={personalizedRecommendations}
+                isAnalyzing={false}
+              />
+            </motion.div>
           )}
         </div>
       </div>

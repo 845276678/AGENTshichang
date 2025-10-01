@@ -1,137 +1,125 @@
-import { NextRequest, NextResponse } from 'next/server'
+﻿import { NextRequest, NextResponse } from 'next/server'
+import { authenticateRequest, handleApiError } from '@/lib/auth'
+import { BusinessPlanSessionService } from '@/lib/business-plan/session-service'
+import { composeBusinessPlanGuide } from '@/lib/business-plan/content-composer'
+import type { BiddingSnapshot } from '@/lib/business-plan/types'
+import { BusinessPlanSource } from '@prisma/client'
 
-// 获取商业计划会话数据
+function buildSnapshot(body: any, userId?: string): BiddingSnapshot {
+  const ideaTitle = body.ideaTitle || body.ideaName || (body.ideaContent ? body.ideaContent.slice(0, 30) : '未命名创意')
+
+  return {
+    ideaId: body.ideaId,
+    ideaTitle,
+    source: body.source,
+    ideaDescription: body.ideaContent,
+    highestBid: typeof body.highestBid === 'number' ? body.highestBid : Number(body.highestBid) || 0,
+    averageBid: typeof body.averageBid === 'number' ? body.averageBid : Number(body.averageBid) || undefined,
+    finalBids: body.finalBids || body.currentBids || {},
+    winnerId: body.winner || body.winnerId,
+    winnerName: body.winnerName,
+    supportedAgents: Array.isArray(body.supportedAgents) ? body.supportedAgents : [],
+    currentBids: body.currentBids || {},
+    aiMessages: body.aiMessages || [],
+    viewerCount: body.viewerCount || undefined
+  }
+}
+
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
     const sessionId = searchParams.get('sessionId')
+    const reportId = searchParams.get('reportId')
 
-    if (!sessionId) {
-      return NextResponse.json(
-        { error: 'Missing sessionId parameter' },
-        { status: 400 }
-      )
+    if (!sessionId && !reportId) {
+      return NextResponse.json({ success: false, error: 'Missing sessionId or reportId parameter' }, { status: 400 })
     }
 
-    // 从全局存储中获取会话数据
-    const businessPlanSessions = (global as any).businessPlanSessions
-    if (!businessPlanSessions || !businessPlanSessions.has(sessionId)) {
-      return NextResponse.json(
-        { error: 'Session not found or expired' },
-        { status: 404 }
-      )
+    if (reportId) {
+      const report = await BusinessPlanSessionService.getReportById(reportId)
+      if (!report) {
+        return NextResponse.json({ success: false, error: 'Report not found' }, { status: 404 })
+      }
+      return NextResponse.json({
+        success: true,
+        data: {
+          session: report.session,
+          report
+        }
+      })
     }
 
-    const sessionData = businessPlanSessions.get(sessionId)
+    const session = await BusinessPlanSessionService.getSessionWithReport(sessionId!)
+    if (!session) {
+      return NextResponse.json({ success: false, error: 'Session not found' }, { status: 404 })
+    }
 
-    // 检查会话是否过期（24小时）
-    const expirationTime = 24 * 60 * 60 * 1000 // 24小时
-    if (Date.now() - sessionData.timestamp > expirationTime) {
-      businessPlanSessions.delete(sessionId)
-      return NextResponse.json(
-        { error: 'Session expired' },
-        { status: 410 }
-      )
+    if (session.expiresAt && session.expiresAt.getTime() < Date.now()) {
+      return NextResponse.json({ success: false, error: 'Session expired' }, { status: 410 })
     }
 
     return NextResponse.json({
       success: true,
-      data: sessionData
+      data: {
+        session,
+        report: session.reports?.[0] ?? null
+      }
     })
-
   } catch (error) {
-    console.error('Error fetching business plan session:', error)
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    )
+    return handleApiError(error)
   }
 }
 
-// 创建商业计划会话数据
 export async function POST(request: NextRequest) {
   try {
+    const user = await authenticateRequest(request)
     const body = await request.json()
-    const {
-      ideaContent,
-      highestBid,
-      averageBid,
-      finalBids,
-      winner,
-      winnerName,
-      aiMessages,
-      supportedAgents,
-      currentBids,
-      ideaId
-    } = body
 
-    // 生成会话ID
-    const sessionId = `bp_${ideaId || 'manual'}_${Date.now()}`
+    if (!body || !body.ideaContent) {
+      return NextResponse.json({ success: false, error: '缺少必要的创意内容参数' }, { status: 400 })
+    }
 
-    // 存储会话数据
-    const businessPlanSessions = (global as any).businessPlanSessions || new Map()
-    ;(global as any).businessPlanSessions = businessPlanSessions
-
-    businessPlanSessions.set(sessionId, {
-      ideaContent,
-      highestBid,
-      averageBid,
-      finalBids,
-      winner,
-      winnerName,
-      aiMessages: aiMessages || [],
-      supportedAgents: supportedAgents || [],
-      currentBids,
-      timestamp: Date.now(),
-      ideaId
+    const snapshot = buildSnapshot(body, user.id)
+    const session = await BusinessPlanSessionService.createSession({
+      userId: user.id,
+      ideaId: body.ideaId,
+      source: (body.source as BusinessPlanSource) ?? BusinessPlanSource.AI_BIDDING,
+      snapshot
     })
 
-    console.log(`📋 Business plan session created via API: ${sessionId}`)
+    const { guide, metadata } = composeBusinessPlanGuide(snapshot)
+    const completion = await BusinessPlanSessionService.completeSession({
+      sessionId: session.id,
+      guide,
+      metadata: {
+        ...metadata,
+        source: (body.source as string) ?? 'ai-bidding'
+      }
+    })
 
     return NextResponse.json({
       success: true,
-      sessionId,
-      businessPlanUrl: `/business-plan?sessionId=${sessionId}&source=api`
+      sessionId: completion.session.id,
+      businessPlanUrl: `/business-plan?sessionId=${completion.session.id}&source=ai-bidding`,
+      reportId: completion.report.id
     })
-
   } catch (error) {
-    console.error('Error creating business plan session:', error)
-    return NextResponse.json(
-      { error: 'Failed to create session' },
-      { status: 500 }
-    )
+    return handleApiError(error)
   }
 }
 
-// 删除商业计划会话数据
 export async function DELETE(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
     const sessionId = searchParams.get('sessionId')
 
     if (!sessionId) {
-      return NextResponse.json(
-        { error: 'Missing sessionId parameter' },
-        { status: 400 }
-      )
+      return NextResponse.json({ success: false, error: 'Missing sessionId parameter' }, { status: 400 })
     }
 
-    const businessPlanSessions = (global as any).businessPlanSessions
-    if (businessPlanSessions && businessPlanSessions.has(sessionId)) {
-      businessPlanSessions.delete(sessionId)
-      console.log(`🗑️ Business plan session deleted: ${sessionId}`)
-    }
-
-    return NextResponse.json({
-      success: true,
-      message: 'Session deleted'
-    })
-
+    await BusinessPlanSessionService.deleteSession(sessionId)
+    return NextResponse.json({ success: true })
   } catch (error) {
-    console.error('Error deleting business plan session:', error)
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    )
+    return handleApiError(error)
   }
 }

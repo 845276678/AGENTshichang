@@ -61,14 +61,14 @@ export default function LandingCoachDisplay({
     }))
   }
 
-  // 获取置信度颜色
+  // 获取置信度颜�?
   const getConfidenceColor = (level: number) => {
     if (level >= 80) return 'text-green-600 bg-green-50 border-green-200'
     if (level >= 60) return 'text-yellow-600 bg-yellow-50 border-yellow-200'
     return 'text-red-600 bg-red-50 border-red-200'
   }
 
-  // 格式化阅读时间
+  // 格式化阅读时�?
   const formatReadTime = (minutes: number) => {
     if (minutes < 60) return `${minutes}分钟`
     const hours = Math.floor(minutes / 60)
@@ -83,7 +83,7 @@ export default function LandingCoachDisplay({
           <CardContent className="p-8 text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4" />
             <h3 className="text-lg font-semibold mb-2">正在生成落地指南...</h3>
-            <p className="text-muted-foreground">AI教练正在为您制定详细的实施方案</p>
+            <p className="text-muted-foreground">AI教练正在为您制定详细的实施方�?/p>
           </CardContent>
         </Card>
       </div>
@@ -108,10 +108,10 @@ export default function LandingCoachDisplay({
             {guide.metadata.ideaTitle}
           </h1>
           <p className="text-xl text-muted-foreground mb-6">
-            专业的创意落地指导方案
+            专业的创意落地指导方�?
           </p>
 
-          {/* 元数据信息 */}
+          {/* 元数据信�?*/}
           <div className="flex justify-center items-center gap-6 mb-8">
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <Clock className="w-4 h-4" />
@@ -126,7 +126,7 @@ export default function LandingCoachDisplay({
             </Badge>
           </div>
 
-          {/* AI犀利点评区域 */}
+          {/* AI犀利点评区�?*/}
           {guide.aiInsights && (
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -141,12 +141,12 @@ export default function LandingCoachDisplay({
                       <Eye className="w-5 h-5 text-white" />
                     </div>
                     <div>
-                      <h3 className="text-lg font-bold text-orange-900">AI犀利点评</h3>
-                      <p className="text-sm text-orange-700">基于{guide.metadata.source === 'marketplace' ? `竞价专家${guide.metadata.winner}` : '调研数据'}的专业洞察</p>
+                      <h3 className="text-lg font-bold text-orange-900">AI犀利点�?/h3>
+                      <p className="text-sm text-orange-700">基于{guide.metadata.source === 'marketplace' ? `竞价专家${guide.metadata.winner}` : '调研数据'}的专业洞�?/p>
                     </div>
                     <div className="ml-auto">
                       <Badge className={`${guide.aiInsights.overallAssessment.score >= 8 ? 'bg-green-500' : guide.aiInsights.overallAssessment.score >= 6 ? 'bg-yellow-500' : 'bg-red-500'} text-white`}>
-                        {guide.aiInsights.overallAssessment.score}/10分
+                        {guide.aiInsights.overallAssessment.score}/10�?
                       </Badge>
                     </div>
                   </div>
@@ -254,7 +254,7 @@ export default function LandingCoachDisplay({
                           </div>
                           <div className="grid md:grid-cols-2 gap-3 text-xs">
                             <div>
-                              <h6 className="font-medium text-green-700 mb-1">关键里程碑</h6>
+                              <h6 className="font-medium text-green-700 mb-1">关键里程�?/h6>
                               <ul className="space-y-1">
                                 {alert.criticalMilestones.map((milestone, idx) => (
                                   <li key={idx} className="text-green-600 flex items-start gap-1">
@@ -281,7 +281,7 @@ export default function LandingCoachDisplay({
                     </div>
                   </div>
 
-                  {/* 快速导航 */}
+                  {/* 快速导�?*/}
                   <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
                     <div className="flex items-center gap-2 mb-3">
                       <Compass className="w-5 h-5 text-gray-600" />
@@ -338,9 +338,9 @@ export default function LandingCoachDisplay({
           </div>
         </motion.div>
 
-        {/* 主要内容区 */}
+        {/* 主要内容�?*/}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3 bg-white/80 backdrop-blur-sm">
+          <TabsList className="grid w-full grid-cols-4 bg-white/80 backdrop-blur-sm">
             <TabsTrigger value="situation" className="flex items-center gap-2">
               <BarChart3 className="w-4 h-4" />
               现状认知
@@ -353,9 +353,13 @@ export default function LandingCoachDisplay({
               <TrendingUp className="w-4 h-4" />
               商业落地
             </TabsTrigger>
+            <TabsTrigger value="execution" className="flex items-center gap-2">
+              <Compass className="w-4 h-4" />
+              90天执�?
+            </TabsTrigger>
           </TabsList>
 
-          {/* 第一段：现状认知与方向确认 */}
+          {/* 第一段：现状认知与方向确�?*/}
           <TabsContent value="situation" className="space-y-6">
             <motion.div
               key="situation"
@@ -460,11 +464,11 @@ export default function LandingCoachDisplay({
 
                     <Separator />
 
-                    {/* 用户需求分析 */}
+                    {/* 用户需求分�?*/}
                     <div>
                       <h3 className="font-semibold text-lg mb-3 flex items-center gap-2">
                         <Users className="w-5 h-5 text-purple-500" />
-                        用户需求分析
+                        用户需求分�?
                       </h3>
                       <Card className="border-purple-200 bg-purple-50/50">
                         <CardContent className="p-4">
@@ -479,7 +483,7 @@ export default function LandingCoachDisplay({
                               <ul className="space-y-1">
                                 {guide.currentSituation.userNeeds.painPoints.map((pain, index) => (
                                   <li key={index} className="text-sm text-muted-foreground">
-                                    • {pain}
+                                    �?{pain}
                                   </li>
                                 ))}
                               </ul>
@@ -489,7 +493,7 @@ export default function LandingCoachDisplay({
                               <ul className="space-y-1">
                                 {guide.currentSituation.userNeeds.solutions.map((solution, index) => (
                                   <li key={index} className="text-sm text-muted-foreground">
-                                    • {solution}
+                                    �?{solution}
                                   </li>
                                 ))}
                               </ul>
@@ -518,7 +522,7 @@ export default function LandingCoachDisplay({
               </motion.div>
             </TabsContent>
 
-            {/* 第二段：MVP产品定义与验证计划 */}
+            {/* 第二段：MVP产品定义与验证计�?*/}
             <TabsContent value="mvp" className="space-y-6">
               <motion.div
                 key="mvp"
@@ -546,7 +550,7 @@ export default function LandingCoachDisplay({
                       <div className="grid gap-4">
                         <Card className="border-yellow-200 bg-yellow-50/50">
                           <CardContent className="p-4">
-                            <h4 className="font-medium mb-2">独特价值主张</h4>
+                            <h4 className="font-medium mb-2">独特价值主�?/h4>
                             <p className="text-sm text-muted-foreground">
                               {guide.mvpDefinition.productConcept.uniqueValue}
                             </p>
@@ -554,7 +558,7 @@ export default function LandingCoachDisplay({
                         </Card>
                         <Card className="border-green-200 bg-green-50/50">
                           <CardContent className="p-4">
-                            <h4 className="font-medium mb-2">最小可行范围</h4>
+                            <h4 className="font-medium mb-2">最小可行范�?/h4>
                             <p className="text-sm text-muted-foreground">
                               {guide.mvpDefinition.productConcept.minimumScope}
                             </p>
@@ -577,11 +581,11 @@ export default function LandingCoachDisplay({
 
                     <Separator />
 
-                    {/* 开发计划 */}
+                    {/* 开发计�?*/}
                     <div>
                       <h3 className="font-semibold text-lg mb-3 flex items-center gap-2">
                         <Settings className="w-5 h-5 text-blue-500" />
-                        开发计划
+                        开发计�?
                       </h3>
                       <div className="space-y-4">
                         {guide.mvpDefinition.developmentPlan.phases.map((phase, index) => (
@@ -593,10 +597,10 @@ export default function LandingCoachDisplay({
                               </div>
                               <div className="grid md:grid-cols-2 gap-4 text-sm">
                                 <div>
-                                  <h5 className="font-medium mb-1">交付物</h5>
+                                  <h5 className="font-medium mb-1">交付�?/h5>
                                   <ul className="space-y-1 text-muted-foreground">
                                     {phase.deliverables.map((deliverable, idx) => (
-                                      <li key={idx}>• {deliverable}</li>
+                                      <li key={idx}>�?{deliverable}</li>
                                     ))}
                                   </ul>
                                 </div>
@@ -604,7 +608,7 @@ export default function LandingCoachDisplay({
                                   <h5 className="font-medium mb-1">所需资源</h5>
                                   <ul className="space-y-1 text-muted-foreground">
                                     {phase.resources.map((resource, idx) => (
-                                      <li key={idx}>• {resource}</li>
+                                      <li key={idx}>�?{resource}</li>
                                     ))}
                                   </ul>
                                 </div>
@@ -649,7 +653,7 @@ export default function LandingCoachDisplay({
                       <Card className="border-red-200 bg-red-50/50">
                         <CardContent className="p-4">
                           <div className="mb-4">
-                            <h4 className="font-medium mb-2">验证时间线</h4>
+                            <h4 className="font-medium mb-2">验证时间�?/h4>
                             <p className="text-sm text-muted-foreground">
                               {guide.mvpDefinition.validationStrategy.timeline}
                             </p>
@@ -660,7 +664,7 @@ export default function LandingCoachDisplay({
                               <h5 className="font-medium mb-2">核心假设</h5>
                               <ul className="space-y-1 text-sm text-muted-foreground">
                                 {guide.mvpDefinition.validationStrategy.hypotheses.map((hyp, index) => (
-                                  <li key={index}>• {hyp}</li>
+                                  <li key={index}>�?{hyp}</li>
                                 ))}
                               </ul>
                             </div>
@@ -668,7 +672,7 @@ export default function LandingCoachDisplay({
                               <h5 className="font-medium mb-2">验证实验</h5>
                               <ul className="space-y-1 text-sm text-muted-foreground">
                                 {guide.mvpDefinition.validationStrategy.experiments.map((exp, index) => (
-                                  <li key={index}>• {exp}</li>
+                                  <li key={index}>�?{exp}</li>
                                 ))}
                               </ul>
                             </div>
@@ -676,7 +680,7 @@ export default function LandingCoachDisplay({
                               <h5 className="font-medium mb-2">成功指标</h5>
                               <ul className="space-y-1 text-sm text-muted-foreground">
                                 {guide.mvpDefinition.validationStrategy.successMetrics.map((metric, index) => (
-                                  <li key={index}>• {metric}</li>
+                                  <li key={index}>�?{metric}</li>
                                 ))}
                               </ul>
                             </div>
@@ -719,7 +723,7 @@ export default function LandingCoachDisplay({
                       {guide.businessExecution.title}
                     </CardTitle>
                     <CardDescription>
-                      制定可执行的商业化策略，确保创意成功转化为可盈利的业务
+                      制定可执行的商业化策略，确保创意成功转化为可盈利的业�?
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-6">
@@ -740,7 +744,7 @@ export default function LandingCoachDisplay({
                         </Card>
                         <Card className="border-blue-200 bg-blue-50/50">
                           <CardContent className="p-4">
-                            <h4 className="font-medium mb-2">扩展性</h4>
+                            <h4 className="font-medium mb-2">扩展�?/h4>
                             <p className="text-sm text-muted-foreground">
                               {guide.businessExecution.businessModel.scalability}
                             </p>
@@ -755,7 +759,7 @@ export default function LandingCoachDisplay({
                             <ul className="space-y-1">
                               {guide.businessExecution.businessModel.revenueStreams.map((stream, index) => (
                                 <li key={index} className="text-sm text-muted-foreground">
-                                  • {stream}
+                                  �?{stream}
                                 </li>
                               ))}
                             </ul>
@@ -767,7 +771,7 @@ export default function LandingCoachDisplay({
                             <ul className="space-y-1">
                               {guide.businessExecution.businessModel.costStructure.map((cost, index) => (
                                 <li key={index} className="text-sm text-muted-foreground">
-                                  • {cost}
+                                  �?{cost}
                                 </li>
                               ))}
                             </ul>
@@ -797,7 +801,7 @@ export default function LandingCoachDisplay({
                                   <h5 className="font-medium mb-1">阶段目标</h5>
                                   <ul className="space-y-1 text-muted-foreground">
                                     {phase.goals.map((goal, idx) => (
-                                      <li key={idx}>• {goal}</li>
+                                      <li key={idx}>�?{goal}</li>
                                     ))}
                                   </ul>
                                 </div>
@@ -805,7 +809,7 @@ export default function LandingCoachDisplay({
                                   <h5 className="font-medium mb-1">执行策略</h5>
                                   <ul className="space-y-1 text-muted-foreground">
                                     {phase.tactics.map((tactic, idx) => (
-                                      <li key={idx}>• {tactic}</li>
+                                      <li key={idx}>�?{tactic}</li>
                                     ))}
                                   </ul>
                                 </div>
@@ -822,7 +826,7 @@ export default function LandingCoachDisplay({
                             <ul className="space-y-1">
                               {guide.businessExecution.launchStrategy.marketingChannels.map((channel, index) => (
                                 <li key={index} className="text-sm text-muted-foreground">
-                                  • {channel}
+                                  �?{channel}
                                 </li>
                               ))}
                             </ul>
@@ -834,7 +838,7 @@ export default function LandingCoachDisplay({
                             <ul className="space-y-1">
                               {guide.businessExecution.launchStrategy.budgetAllocation.map((budget, index) => (
                                 <li key={index} className="text-sm text-muted-foreground">
-                                  • {budget}
+                                  �?{budget}
                                 </li>
                               ))}
                             </ul>
@@ -858,7 +862,7 @@ export default function LandingCoachDisplay({
                             <ul className="space-y-1">
                               {guide.businessExecution.operationalPlan.teamStructure.map((role, index) => (
                                 <li key={index} className="text-sm text-muted-foreground">
-                                  • {role}
+                                  �?{role}
                                 </li>
                               ))}
                             </ul>
@@ -870,7 +874,7 @@ export default function LandingCoachDisplay({
                             <ul className="space-y-1">
                               {guide.businessExecution.operationalPlan.processes.map((process, index) => (
                                 <li key={index} className="text-sm text-muted-foreground">
-                                  • {process}
+                                  �?{process}
                                 </li>
                               ))}
                             </ul>
@@ -882,7 +886,7 @@ export default function LandingCoachDisplay({
                             <ul className="space-y-1">
                               {guide.businessExecution.operationalPlan.infrastructure.map((infra, index) => (
                                 <li key={index} className="text-sm text-muted-foreground">
-                                  • {infra}
+                                  �?{infra}
                                 </li>
                               ))}
                             </ul>
@@ -894,7 +898,7 @@ export default function LandingCoachDisplay({
                             <ul className="space-y-1">
                               {guide.businessExecution.operationalPlan.riskManagement.map((risk, index) => (
                                 <li key={index} className="text-sm text-muted-foreground">
-                                  • {risk}
+                                  �?{risk}
                                 </li>
                               ))}
                             </ul>
@@ -921,6 +925,186 @@ export default function LandingCoachDisplay({
                 </Card>
               </motion.div>
             </TabsContent>
+            <TabsContent value="execution" className="space-y-6">
+              <motion.div
+                key="execution"
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.3 }}
+              >
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2 text-2xl">
+                      <Compass className="w-6 h-6 text-indigo-600" />
+                      90 天聚焦实战计�?
+                    </CardTitle>
+                    <CardDescription>
+                      {guide.executionPlan?.summary || '该计划将执行拆分为三大阶段，结合周度冲刺与正反馈机制确保快速试错�?}
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-6">
+                    <Alert className="bg-indigo-50 border-indigo-200 text-indigo-700">
+                      <AlertDescription>
+                        <div className="font-medium mb-1">使命陈述</div>
+                        <p className="text-sm leading-6">{guide.executionPlan?.mission}</p>
+                      </AlertDescription>
+                    </Alert>
+
+                    {/* 阶段拆解 */}
+                    <div>
+                      <h3 className="font-semibold text-lg mb-3 flex items-center gap-2">
+                        <Target className="w-5 h-5 text-blue-500" />
+                        阶段拆解
+                      </h3>
+                      <div className="grid md:grid-cols-3 gap-4">
+                        {guide.executionPlan?.phases?.map((phase, index) => (
+                          <Card key={index} className="border-blue-200 bg-blue-50/50">
+                            <CardContent className="p-4 space-y-3">
+                              <div className="flex items-center justify-between">
+                                <h4 className="font-medium">{phase.name}</h4>
+                                <Badge variant="outline">{phase.timeline}</Badge>
+                              </div>
+                              <p className="text-sm text-muted-foreground">聚焦：{phase.focus}</p>
+                              <div>
+                                <h5 className="text-xs font-semibold text-blue-600 mb-1">关键成果</h5>
+                                <ul className="space-y-1 text-xs text-muted-foreground">
+                                  {phase.keyOutcomes.map((item, idx) => (
+                                    <li key={idx}>�?{item}</li>
+                                  ))}
+                                </ul>
+                              </div>
+                              <div>
+                                <h5 className="text-xs font-semibold text-blue-600 mb-1">核心指标</h5>
+                                <ul className="space-y-1 text-xs text-muted-foreground">
+                                  {phase.metrics.map((item, idx) => (
+                                    <li key={idx}>�?{item}</li>
+                                  ))}
+                                </ul>
+                              </div>
+                            </CardContent>
+                          </Card>
+                        ))}
+                      </div>
+                    </div>
+
+                    <Separator />
+
+                    {/* 周度冲刺 */}
+                    <div>
+                      <h3 className="font-semibold text-lg mb-3 flex items-center gap-2">
+                        <Zap className="w-5 h-5 text-orange-500" />
+                        周度冲刺重点
+                      </h3>
+                      <div className="grid md:grid-cols-2 gap-4">
+                        {guide.executionPlan?.weeklySprints?.map((sprint, index) => (
+                          <Card key={index} className="border-orange-200 bg-orange-50/50">
+                            <CardContent className="p-4 space-y-2">
+                              <div className="flex items-center justify-between">
+                                <h4 className="font-medium">{sprint.name}</h4>
+                                <Badge variant="secondary">{sprint.focus}</Badge>
+                              </div>
+                              <div>
+                                <h5 className="text-xs font-semibold text-orange-600 mb-1">关键目标</h5>
+                                <ul className="space-y-1 text-xs text-muted-foreground">
+                                  {sprint.objectives.map((item, idx) => (
+                                    <li key={idx}>�?{item}</li>
+                                  ))}
+                                </ul>
+                              </div>
+                              <div>
+                                <h5 className="text-xs font-semibold text-orange-600 mb-1">反馈钩子</h5>
+                                <ul className="space-y-1 text-xs text-muted-foreground">
+                                  {sprint.feedbackHooks.map((item, idx) => (
+                                    <li key={idx}>�?{item}</li>
+                                  ))}
+                                </ul>
+                              </div>
+                            </CardContent>
+                          </Card>
+                        ))}
+                      </div>
+                    </div>
+
+                    <Separator />
+
+                    {/* 正反馈机�?*/}
+                    <div>
+                      <h3 className="font-semibold text-lg mb-3 flex items-center gap-2">
+                        <CheckCircle2 className="w-5 h-5 text-green-500" />
+                        正反馈机制与复盘
+                      </h3>
+                      <div className="grid md:grid-cols-2 gap-4">
+                        <Card className="border-green-200 bg-green-50/50">
+                          <CardContent className="p-4 space-y-2">
+                            <h4 className="font-medium mb-2">节奏与渠�?/h4>
+                            <p className="text-sm text-muted-foreground">
+                              {guide.executionPlan?.feedbackLoop.cadence?.join(' / ')}
+                            </p>
+                            <p className="text-sm text-muted-foreground">
+                              渠道：{guide.executionPlan?.feedbackLoop.channels?.join(' / ')}
+                            </p>
+                          </CardContent>
+                        </Card>
+                        <Card className="border-green-200 bg-green-50/50">
+                          <CardContent className="p-4 space-y-2">
+                            <h4 className="font-medium mb-2">决策闸口与工�?/h4>
+                            <p className="text-sm text-muted-foreground">
+                              决策闸口：{guide.executionPlan?.feedbackLoop.decisionGates?.join(' / ')}
+                            </p>
+                            <p className="text-sm text-muted-foreground">
+                              推荐工具：{guide.executionPlan?.feedbackLoop.tooling?.join(' / ')}
+                            </p>
+                          </CardContent>
+                        </Card>
+                      </div>
+                    </div>
+
+                    <Separator />
+
+                    <div className="grid md:grid-cols-2 gap-4">
+                      <Card className="border-purple-200 bg-purple-50/50">
+                        <CardContent className="p-4">
+                          <h4 className="font-medium mb-2">每日执行清单</h4>
+                          <ul className="space-y-1 text-sm text-muted-foreground">
+                            {guide.executionPlan?.dailyRoutines?.map((routine, index) => (
+                              <li key={index}>�?{routine}</li>
+                            ))}
+                          </ul>
+                        </CardContent>
+                      </Card>
+                      <Card className="border-slate-200 bg-slate-50/50">
+                        <CardContent className="p-4 space-y-3">
+                          <div>
+                            <h4 className="font-medium mb-1">每周复盘</h4>
+                            <ul className="space-y-1 text-sm text-muted-foreground">
+                              {guide.executionPlan?.reviewFramework.weekly?.map((item, index) => (
+                                <li key={index}>�?{item}</li>
+                              ))}
+                            </ul>
+                          </div>
+                          <div>
+                            <h4 className="font-medium mb-1">每月校准</h4>
+                            <ul className="space-y-1 text-sm text-muted-foreground">
+                              {guide.executionPlan?.reviewFramework.monthly?.map((item, index) => (
+                                <li key={index}>�?{item}</li>
+                              ))}
+                            </ul>
+                          </div>
+                          <div>
+                            <h4 className="font-medium mb-1">重点监控指标</h4>
+                            <ul className="space-y-1 text-sm text-muted-foreground">
+                              {guide.executionPlan?.reviewFramework.dataWatch?.map((item, index) => (
+                                <li key={index}>�?{item}</li>
+                              ))}
+                            </ul>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            </TabsContent>
         </Tabs>
 
         {/* 总结卡片 */}
@@ -932,14 +1116,14 @@ export default function LandingCoachDisplay({
           <Card className="bg-gradient-to-r from-blue-600 to-purple-600 text-white">
             <CardContent className="p-6">
               <div className="text-center">
-                <h3 className="text-xl font-bold mb-2">🎯 总结与下一步</h3>
+                <h3 className="text-xl font-bold mb-2">🎯 总结与下一�?/h3>
                 <p className="mb-4 opacity-90">
-                  基于当前分析，您的创意「{guide.metadata.ideaTitle}」具有
+                  基于当前分析，您的创意「{guide.metadata.ideaTitle}」具�?
                   <strong className="text-yellow-300"> {guide.metadata.confidenceLevel}% </strong>
-                  的市场可行性。
+                  的市场可行性�?
                 </p>
                 <p className="text-sm opacity-80">
-                  建议按照三个阶段循序渐进：现状认知 → MVP开发 → 商业化落地
+                  建议按照三个阶段循序渐进：现状认�?�?MVP开�?�?商业化落�?
                 </p>
               </div>
             </CardContent>
@@ -949,3 +1133,4 @@ export default function LandingCoachDisplay({
     </div>
   )
 }
+

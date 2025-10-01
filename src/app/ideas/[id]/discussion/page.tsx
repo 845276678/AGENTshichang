@@ -7,7 +7,6 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Textarea } from '@/components/ui/textarea'
-import { ScrollArea } from '@/components/ui/scroll-area'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import {
   ArrowLeft,
@@ -327,7 +326,7 @@ export default function IdeaDiscussionPage() {
         </Card>
 
         {/* 消息区域 */}
-        <Card className="flex flex-col h-[600px]">
+        <Card className="flex flex-col">
           <CardHeader className="border-b">
             <div className="flex items-center gap-2">
               <MessageCircle className="w-5 h-5" />
@@ -339,9 +338,8 @@ export default function IdeaDiscussionPage() {
           </CardHeader>
 
           {/* 消息列表 */}
-          <ScrollArea className="flex-1 p-4">
-            <div className="space-y-4">
-              <AnimatePresence>
+          <div className="p-4 space-y-4">
+            <AnimatePresence>
                 {discussion.messages.map((message, index) => {
                   const isUser = message.senderType === 'USER'
                   const isAI = message.senderType === 'AI_AGENT'
@@ -382,13 +380,13 @@ export default function IdeaDiscussionPage() {
                         </div>
 
                         <div
-                          className={`p-3 rounded-lg ${
+                          className={`p-4 rounded-xl border shadow-sm ${
                             isUser
-                              ? 'bg-blue-500 text-white'
-                              : 'bg-muted'
+                              ? 'bg-blue-500 text-white shadow-md'
+                              : 'bg-card text-foreground'
                           }`}
                         >
-                          <div className="whitespace-pre-wrap text-sm">
+                          <div className="whitespace-pre-wrap text-base leading-relaxed">
                             {message.content}
                           </div>
 
@@ -425,10 +423,9 @@ export default function IdeaDiscussionPage() {
                     </motion.div>
                   )
                 })}
-              </AnimatePresence>
-              <div ref={messagesEndRef} />
-            </div>
-          </ScrollArea>
+            </AnimatePresence>
+            <div ref={messagesEndRef} />
+          </div>
 
           {/* 输入区域 */}
           {!isCompleted && (

@@ -128,30 +128,29 @@ export default function CreativeIdeaBidding({ ideaId }: CreativeIdeaBiddingProps
 
   // 生成商业指导书处理函数
   const handleGenerateGuide = useCallback(async () => {
-    if (isGeneratingGuide) return;
+    if (isGeneratingGuide) {
+      return;
+    }
+
+    let progressTimer: ReturnType<typeof setInterval> | null = null;
 
     try {
       setIsGeneratingGuide(true);
-      setGuideProgress(0);
+      setGuideProgress(5);
 
-      // 模拟进度更新
-      const progressInterval = setInterval(() => {
-        setGuideProgress(prev => {
-          if (prev >= 90) {
-            clearInterval(progressInterval);
-            return 90;
-          }
-          return prev + Math.random() * 15;
-        });
-      }, 500);
+      const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+      const token = localStorage.getItem('access_token') || localStorage.getItem('auth.access_token');
+      if (token) {
+        headers.Authorization = `Bearer ${token}`;
+      }
 
-      // 调用生成商业计划书API
+      progressTimer = setInterval(() => {
+        setGuideProgress(prev => (prev >= 85 ? prev : Math.min(prev + 5, 85)));
+      }, 800);
+
       const response = await fetch('/api/generate-business-plan', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('access_token') || localStorage.getItem('auth.access_token')}`
-        },
+        headers,
         body: JSON.stringify({
           ideaData: {
             title: idea.title,
@@ -167,32 +166,64 @@ export default function CreativeIdeaBidding({ ideaId }: CreativeIdeaBiddingProps
         })
       });
 
-      clearInterval(progressInterval);
-      setGuideProgress(100);
-
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}))
+        const errorData = await response.json().catch(() => ({}));
         throw new Error(errorData.error || '生成商业指导书失败');
       }
 
       const result = await response.json();
 
-      if (!result.success) {
+      if (!result.success || !result.data) {
         throw new Error(result.error || '生成失败');
       }
 
-      // 跳转到商业指导书页面，使用返回的ideaId
-      const guideUrl = `/business-plan?reportId=${result.data.reportId || result.data.ideaId}&ideaTitle=${encodeURIComponent(idea.title)}&source=business-plan-generator`;
-      window.open(guideUrl, '_blank');
+      const generationIdeaId: string = result.data.ideaId;
+      let reportId: string | undefined = result.data.reportId;
 
+      setGuideProgress(prev => (prev < 70 ? 70 : prev));
+
+      if (!reportId && generationIdeaId) {
+        const pollHeaders: HeadersInit | undefined = token ? { Authorization: `Bearer ${token}` } : undefined;
+        const maxAttempts = 10;
+
+        for (let attempt = 0; attempt < maxAttempts; attempt++) {
+          await new Promise(resolve => setTimeout(resolve, 3000));
+
+          const statusResponse = await fetch(`/api/generate-business-plan?ideaId=${generationIdeaId}`, {
+            headers: pollHeaders,
+          });
+
+          if (statusResponse.ok) {
+            const statusResult = await statusResponse.json().catch(() => null);
+            reportId = statusResult?.data?.reportId;
+            if (reportId) {
+              break;
+            }
+          }
+
+          setGuideProgress(prev => Math.min(prev + 3, 90));
+        }
+      }
+
+      if (!reportId) {
+        throw new Error('生成报告超时，请稍后重试');
+      }
+
+      setGuideProgress(100);
+
+      const guideUrl = `/business-plan?reportId=${reportId}&source=business-plan-generator`;
+      window.open(guideUrl, '_blank', 'noopener,noreferrer');
     } catch (error) {
       console.error('生成商业指导书失败:', error);
-      alert('生成失败，请稍后重试');
+      alert(error instanceof Error ? error.message : '生成失败，请稍后重试');
     } finally {
+      if (progressTimer) {
+        clearInterval(progressTimer);
+      }
       setIsGeneratingGuide(false);
       setGuideProgress(0);
     }
-  }, [isGeneratingGuide, idea]);
+  }, [idea, isGeneratingGuide]);
 
   // 格式化时间显示
   const formatTimeRemaining = (seconds: number) => {

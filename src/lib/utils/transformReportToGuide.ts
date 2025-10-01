@@ -1,31 +1,67 @@
-// 调研报告转换为落地教练指南的工具函数
+﻿// 璋冪爺鎶ュ憡杞崲涓鸿惤鍦版暀缁冩寚鍗楃殑宸ュ叿鍑芥暟
 import { ResearchReport } from '@prisma/client'
 
-// 落地教练三段结构的数据类型
+// 钀藉湴鏁欑粌涓夋缁撴瀯鐨勬暟鎹被鍨?
+export interface ExecutionPlanPhase {
+  name: string
+  timeline: string
+  focus: string
+  keyOutcomes: string[]
+  metrics: string[]
+}
+
+export interface ExecutionPlanSprint {
+  name: string
+  focus: string
+  objectives: string[]
+  feedbackHooks: string[]
+}
+
+export interface ExecutionPlanFeedback {
+  cadence: string[]
+  channels: string[]
+  decisionGates: string[]
+  tooling: string[]
+}
+
+export interface ExecutionPlan {
+  mission: string
+  summary: string
+  phases: ExecutionPlanPhase[]
+  weeklySprints: ExecutionPlanSprint[]
+  feedbackLoop: ExecutionPlanFeedback
+  dailyRoutines: string[]
+  reviewFramework: {
+    weekly: string[]
+    monthly: string[]
+    dataWatch: string[]
+  }
+}
+
 export interface LandingCoachGuide {
-  // AI犀利点评机制
+  // AI鐘€鍒╃偣璇勬満鍒?
   aiInsights?: {
     overallAssessment: {
-      score: number // 0-10分
-      level: string // 项目潜力等级
-      summary: string // 一句话犀利点评
-      keyStrengths: string[] // 核心优势
-      criticalChallenges: string[] // 关键挑战
+      score: number // 0-10鍒?
+      level: string // 椤圭洰娼滃姏绛夌骇
+      summary: string // 涓€鍙ヨ瘽鐘€鍒╃偣璇?
+      keyStrengths: string[] // 鏍稿績浼樺娍
+      criticalChallenges: string[] // 鍏抽敭鎸戞垬
     }
     sustainabilityAnalysis: {
-      longTermViability: string // 长期可行性评估
-      persistenceFactors: string[] // 坚持成功的关键因素
-      riskMitigation: string[] // 风险缓解建议
+      longTermViability: string // 闀挎湡鍙鎬ц瘎浼?
+      persistenceFactors: string[] // 鍧氭寔鎴愬姛鐨勫叧閿洜绱?
+      riskMitigation: string[] // 椋庨櫓缂撹В寤鸿
     }
     stageAlerts: Array<{
-      stage: string // 阶段名称
-      timeline: string // 时间线
-      criticalMilestones: string[] // 关键里程碑
-      warningSignals: string[] // 预警信号
+      stage: string // 闃舵鍚嶇О
+      timeline: string // 鏃堕棿绾?
+      criticalMilestones: string[] // 鍏抽敭閲岀▼纰?
+      warningSignals: string[] // 棰勮淇″彿
     }>
   }
 
-  // 第一段：现状认知与方向确认
+  // 绗竴娈碉細鐜扮姸璁ょ煡涓庢柟鍚戠‘璁?
   currentSituation: {
     title: string
     summary: string
@@ -44,7 +80,7 @@ export interface LandingCoachGuide {
     actionItems: string[]
   }
 
-  // 第二段：MVP产品定义与验证计划
+  // 绗簩娈碉細MVP浜у搧瀹氫箟涓庨獙璇佽鍒?
   mvpDefinition: {
     title: string
     productConcept: {
@@ -71,7 +107,7 @@ export interface LandingCoachGuide {
     actionItems: string[]
   }
 
-  // 第三段：商业化落地与运营策略
+  // 绗笁娈碉細鍟嗕笟鍖栬惤鍦颁笌杩愯惀绛栫暐
   businessExecution: {
     title: string
     businessModel: {
@@ -99,7 +135,7 @@ export interface LandingCoachGuide {
     actionItems: string[]
   }
 
-  // 元数据
+  // 鍏冩暟鎹?
   metadata: {
     ideaTitle: string
     reportId?: string
@@ -113,105 +149,105 @@ export interface LandingCoachGuide {
   }
 }
 
-// 默认的落地教练模板
-const DEFAULT_COACH_TEMPLATE: LandingCoachGuide = {
+// 榛樿鐨勮惤鍦版暀缁冩ā鏉?
+export const BASE_LANDING_COACH_TEMPLATE: LandingCoachGuide = {
   currentSituation: {
-    title: "现状认知与方向确认",
-    summary: "正在分析您的创意在当前市场环境中的定位...",
-    keyInsights: ["市场机会识别中", "用户需求验证中", "竞争优势分析中"],
+    title: "鐜扮姸璁ょ煡涓庢柟鍚戠‘璁?,
+    summary: "姝ｅ湪鍒嗘瀽鎮ㄧ殑鍒涙剰鍦ㄥ綋鍓嶅競鍦虹幆澧冧腑鐨勫畾浣?..",
+    keyInsights: ["甯傚満鏈轰細璇嗗埆涓?, "鐢ㄦ埛闇€姹傞獙璇佷腑", "绔炰簤浼樺娍鍒嗘瀽涓?],
     marketReality: {
-      marketSize: "市场规模分析中...",
-      competition: "竞争态势评估中...",
-      opportunities: ["机会点识别中..."],
-      challenges: ["挑战识别中..."]
+      marketSize: "甯傚満瑙勬ā鍒嗘瀽涓?..",
+      competition: "绔炰簤鎬佸娍璇勪及涓?..",
+      opportunities: ["鏈轰細鐐硅瘑鍒腑..."],
+      challenges: ["鎸戞垬璇嗗埆涓?.."]
     },
     userNeeds: {
-      targetUsers: "目标用户画像构建中...",
-      painPoints: ["用户痛点分析中..."],
-      solutions: ["解决方案验证中..."]
+      targetUsers: "鐩爣鐢ㄦ埛鐢诲儚鏋勫缓涓?..",
+      painPoints: ["鐢ㄦ埛鐥涚偣鍒嗘瀽涓?.."],
+      solutions: ["瑙ｅ喅鏂规楠岃瘉涓?.."]
     },
-    actionItems: ["立即开始市场调研", "验证用户需求假设", "分析竞争对手策略"]
+    actionItems: ["绔嬪嵆寮€濮嬪競鍦鸿皟鐮?, "楠岃瘉鐢ㄦ埛闇€姹傚亣璁?, "鍒嗘瀽绔炰簤瀵规墜绛栫暐"]
   },
   mvpDefinition: {
-    title: "MVP产品定义与验证计划",
+    title: "MVP浜у搧瀹氫箟涓庨獙璇佽鍒?,
     productConcept: {
-      coreFeatures: ["核心功能定义中..."],
-      uniqueValue: "独特价值主张分析中...",
-      minimumScope: "最小可行产品范围规划中..."
+      coreFeatures: ["鏍稿績鍔熻兘瀹氫箟涓?.."],
+      uniqueValue: "鐙壒浠峰€间富寮犲垎鏋愪腑...",
+      minimumScope: "鏈€灏忓彲琛屼骇鍝佽寖鍥磋鍒掍腑..."
     },
     developmentPlan: {
       phases: [{
-        name: "原型开发阶段",
-        duration: "2-4周",
-        deliverables: ["产品原型", "用户反馈"],
-        resources: ["开发团队", "设计师"]
+        name: "鍘熷瀷寮€鍙戦樁娈?,
+        duration: "2-4鍛?,
+        deliverables: ["浜у搧鍘熷瀷", "鐢ㄦ埛鍙嶉"],
+        resources: ["寮€鍙戝洟闃?, "璁捐甯?]
       }],
-      techStack: ["技术栈选择分析中..."],
-      estimatedCost: "成本估算中..."
+      techStack: ["鎶€鏈爤閫夋嫨鍒嗘瀽涓?.."],
+      estimatedCost: "鎴愭湰浼扮畻涓?.."
     },
     validationStrategy: {
-      hypotheses: ["核心假设识别中..."],
-      experiments: ["验证实验设计中..."],
-      successMetrics: ["成功指标定义中..."],
-      timeline: "验证时间线规划中..."
+      hypotheses: ["鏍稿績鍋囪璇嗗埆涓?.."],
+      experiments: ["楠岃瘉瀹為獙璁捐涓?.."],
+      successMetrics: ["鎴愬姛鎸囨爣瀹氫箟涓?.."],
+      timeline: "楠岃瘉鏃堕棿绾胯鍒掍腑..."
     },
-    actionItems: ["定义核心功能", "构建最小原型", "设计验证实验"]
+    actionItems: ["瀹氫箟鏍稿績鍔熻兘", "鏋勫缓鏈€灏忓師鍨?, "璁捐楠岃瘉瀹為獙"]
   },
   businessExecution: {
-    title: "商业化落地与运营策略",
+    title: "鍟嗕笟鍖栬惤鍦颁笌杩愯惀绛栫暐",
     businessModel: {
-      revenueStreams: ["收入模式分析中..."],
-      costStructure: ["成本结构规划中..."],
-      pricingStrategy: "定价策略制定中...",
-      scalability: "扩展性评估中..."
+      revenueStreams: ["鏀跺叆妯″紡鍒嗘瀽涓?.."],
+      costStructure: ["鎴愭湰缁撴瀯瑙勫垝涓?.."],
+      pricingStrategy: "瀹氫环绛栫暐鍒跺畾涓?..",
+      scalability: "鎵╁睍鎬ц瘎浼颁腑..."
     },
     launchStrategy: {
       phases: [{
-        name: "软启动阶段",
-        timeline: "第1-2个月",
-        goals: ["获取早期用户", "收集反馈"],
-        tactics: ["小范围测试", "口碑传播"]
+        name: "杞惎鍔ㄩ樁娈?,
+        timeline: "绗?-2涓湀",
+        goals: ["鑾峰彇鏃╂湡鐢ㄦ埛", "鏀堕泦鍙嶉"],
+        tactics: ["灏忚寖鍥存祴璇?, "鍙ｇ浼犳挱"]
       }],
-      marketingChannels: ["营销渠道选择中..."],
-      budgetAllocation: ["预算分配规划中..."]
+      marketingChannels: ["钀ラ攢娓犻亾閫夋嫨涓?.."],
+      budgetAllocation: ["棰勭畻鍒嗛厤瑙勫垝涓?.."]
     },
     operationalPlan: {
-      teamStructure: ["团队结构设计中..."],
-      processes: ["业务流程规划中..."],
-      infrastructure: ["基础设施需求分析中..."],
-      riskManagement: ["风险管理策略制定中..."]
+      teamStructure: ["鍥㈤槦缁撴瀯璁捐涓?.."],
+      processes: ["涓氬姟娴佺▼瑙勫垝涓?.."],
+      infrastructure: ["鍩虹璁炬柦闇€姹傚垎鏋愪腑..."],
+      riskManagement: ["椋庨櫓绠＄悊绛栫暐鍒跺畾涓?.."]
     },
-    actionItems: ["制定商业模式", "设计启动策略", "建立运营体系"]
+    actionItems: ["鍒跺畾鍟嗕笟妯″紡", "璁捐鍚姩绛栫暐", "寤虹珛杩愯惀浣撶郴"]
   },
   metadata: {
-    ideaTitle: "创意项目",
+    ideaTitle: "鍒涙剰椤圭洰",
     generatedAt: new Date(),
     estimatedReadTime: 15,
-    implementationTimeframe: "3-6个月",
+    implementationTimeframe: "3-6涓湀",
     confidenceLevel: 75
   }
 }
 
 /**
- * 将调研报告转换为落地教练指南
- * @param report 调研报告数据
- * @returns 落地教练指南
+ * 灏嗚皟鐮旀姤鍛婅浆鎹负钀藉湴鏁欑粌鎸囧崡
+ * @param report 璋冪爺鎶ュ憡鏁版嵁
+ * @returns 钀藉湴鏁欑粌鎸囧崡
  */
 export function transformReportToGuide(report: any): LandingCoachGuide {
   try {
-    const guide: LandingCoachGuide = JSON.parse(JSON.stringify(DEFAULT_COACH_TEMPLATE))
+    const guide: LandingCoachGuide = JSON.parse(JSON.stringify(BASE_LANDING_COACH_TEMPLATE))
 
-    // 更新元数据
+    // 鏇存柊鍏冩暟鎹?
     if (report.idea) {
-      guide.metadata.ideaTitle = report.idea.title || "创意项目"
+      guide.metadata.ideaTitle = report.idea.title || "鍒涙剰椤圭洰"
     }
     guide.metadata.generatedAt = new Date(report.createdAt || Date.now())
 
-    // 第一段：现状认知与方向确认
+    // 绗竴娈碉細鐜扮姸璁ょ煡涓庢柟鍚戠‘璁?
     if (report.basicAnalysis) {
       const analysis = report.basicAnalysis
 
-      guide.currentSituation.summary = analysis.summary || analysis.marketOverview || "市场环境分析完成"
+      guide.currentSituation.summary = analysis.summary || analysis.marketOverview || "甯傚満鐜鍒嗘瀽瀹屾垚"
 
       if (analysis.keyInsights) {
         guide.currentSituation.keyInsights = Array.isArray(analysis.keyInsights)
@@ -221,100 +257,100 @@ export function transformReportToGuide(report: any): LandingCoachGuide {
 
       if (analysis.marketAnalysis) {
         guide.currentSituation.marketReality = {
-          marketSize: analysis.marketAnalysis.size || "市场规模：有待进一步调研",
-          competition: analysis.marketAnalysis.competition || "竞争格局：中等竞争强度",
-          opportunities: analysis.marketAnalysis.opportunities || ["市场机会识别中"],
-          challenges: analysis.marketAnalysis.challenges || ["挑战分析中"]
+          marketSize: analysis.marketAnalysis.size || "甯傚満瑙勬ā锛氭湁寰呰繘涓€姝ヨ皟鐮?,
+          competition: analysis.marketAnalysis.competition || "绔炰簤鏍煎眬锛氫腑绛夌珵浜夊己搴?,
+          opportunities: analysis.marketAnalysis.opportunities || ["甯傚満鏈轰細璇嗗埆涓?],
+          challenges: analysis.marketAnalysis.challenges || ["鎸戞垬鍒嗘瀽涓?]
         }
       }
 
       if (analysis.userAnalysis) {
         guide.currentSituation.userNeeds = {
-          targetUsers: analysis.userAnalysis.targetUsers || "目标用户群体分析中",
-          painPoints: analysis.userAnalysis.painPoints || ["用户痛点识别中"],
-          solutions: analysis.userAnalysis.solutions || ["解决方案优化中"]
+          targetUsers: analysis.userAnalysis.targetUsers || "鐩爣鐢ㄦ埛缇や綋鍒嗘瀽涓?,
+          painPoints: analysis.userAnalysis.painPoints || ["鐢ㄦ埛鐥涚偣璇嗗埆涓?],
+          solutions: analysis.userAnalysis.solutions || ["瑙ｅ喅鏂规浼樺寲涓?]
         }
       }
     }
 
-    // 第二段：MVP产品定义与验证计划
+    // 绗簩娈碉細MVP浜у搧瀹氫箟涓庨獙璇佽鍒?
     if (report.mvpGuidance) {
       const mvp = report.mvpGuidance
 
       if (mvp.productDefinition) {
         guide.mvpDefinition.productConcept = {
-          coreFeatures: mvp.productDefinition.coreFeatures || ["核心功能定义中"],
-          uniqueValue: mvp.productDefinition.uniqueValue || "独特价值主张确认中",
-          minimumScope: mvp.productDefinition.scope || "最小可行产品范围规划中"
+          coreFeatures: mvp.productDefinition.coreFeatures || ["鏍稿績鍔熻兘瀹氫箟涓?],
+          uniqueValue: mvp.productDefinition.uniqueValue || "鐙壒浠峰€间富寮犵‘璁や腑",
+          minimumScope: mvp.productDefinition.scope || "鏈€灏忓彲琛屼骇鍝佽寖鍥磋鍒掍腑"
         }
       }
 
       if (mvp.developmentPlan) {
         guide.mvpDefinition.developmentPlan = {
           phases: mvp.developmentPlan.phases || guide.mvpDefinition.developmentPlan.phases,
-          techStack: mvp.developmentPlan.techStack || ["技术选型分析中"],
-          estimatedCost: mvp.developmentPlan.budget || "成本预估：¥50,000 - ¥200,000"
+          techStack: mvp.developmentPlan.techStack || ["鎶€鏈€夊瀷鍒嗘瀽涓?],
+          estimatedCost: mvp.developmentPlan.budget || "鎴愭湰棰勪及锛毬?0,000 - 楼200,000"
         }
       }
 
       if (mvp.validationStrategy) {
         guide.mvpDefinition.validationStrategy = {
-          hypotheses: mvp.validationStrategy.hypotheses || ["核心假设验证中"],
-          experiments: mvp.validationStrategy.experiments || ["验证实验设计中"],
-          successMetrics: mvp.validationStrategy.metrics || ["成功指标确定中"],
-          timeline: mvp.validationStrategy.timeline || "4-8周验证周期"
+          hypotheses: mvp.validationStrategy.hypotheses || ["鏍稿績鍋囪楠岃瘉涓?],
+          experiments: mvp.validationStrategy.experiments || ["楠岃瘉瀹為獙璁捐涓?],
+          successMetrics: mvp.validationStrategy.metrics || ["鎴愬姛鎸囨爣纭畾涓?],
+          timeline: mvp.validationStrategy.timeline || "4-8鍛ㄩ獙璇佸懆鏈?
         }
       }
     }
 
-    // 第三段：商业化落地与运营策略
+    // 绗笁娈碉細鍟嗕笟鍖栬惤鍦颁笌杩愯惀绛栫暐
     if (report.businessModel) {
       const business = report.businessModel
 
       if (business.revenueModel) {
         guide.businessExecution.businessModel = {
-          revenueStreams: business.revenueModel.streams || ["收入来源分析中"],
-          costStructure: business.costStructure || ["成本结构规划中"],
-          pricingStrategy: business.pricingStrategy || "定价策略制定中",
-          scalability: business.scalability || "规模化潜力评估中"
+          revenueStreams: business.revenueModel.streams || ["鏀跺叆鏉ユ簮鍒嗘瀽涓?],
+          costStructure: business.costStructure || ["鎴愭湰缁撴瀯瑙勫垝涓?],
+          pricingStrategy: business.pricingStrategy || "瀹氫环绛栫暐鍒跺畾涓?,
+          scalability: business.scalability || "瑙勬ā鍖栨綔鍔涜瘎浼颁腑"
         }
       }
 
       if (business.launchPlan) {
         guide.businessExecution.launchStrategy = {
           phases: business.launchPlan.phases || guide.businessExecution.launchStrategy.phases,
-          marketingChannels: business.launchPlan.channels || ["营销渠道优化中"],
-          budgetAllocation: business.launchPlan.budget || ["预算分配规划中"]
+          marketingChannels: business.launchPlan.channels || ["钀ラ攢娓犻亾浼樺寲涓?],
+          budgetAllocation: business.launchPlan.budget || ["棰勭畻鍒嗛厤瑙勫垝涓?]
         }
       }
 
       if (business.operations) {
         guide.businessExecution.operationalPlan = {
-          teamStructure: business.operations.team || ["团队架构设计中"],
-          processes: business.operations.processes || ["流程标准化中"],
-          infrastructure: business.operations.infrastructure || ["基础设施需求分析中"],
-          riskManagement: business.operations.risks || ["风险控制策略制定中"]
+          teamStructure: business.operations.team || ["鍥㈤槦鏋舵瀯璁捐涓?],
+          processes: business.operations.processes || ["娴佺▼鏍囧噯鍖栦腑"],
+          infrastructure: business.operations.infrastructure || ["鍩虹璁炬柦闇€姹傚垎鏋愪腑"],
+          riskManagement: business.operations.risks || ["椋庨櫓鎺у埗绛栫暐鍒跺畾涓?]
         }
       }
     }
 
-    // 生成行动项目
-    guide.currentSituation.actionItems = generateActionItems("认知阶段", report)
-    guide.mvpDefinition.actionItems = generateActionItems("MVP阶段", report)
-    guide.businessExecution.actionItems = generateActionItems("商业化阶段", report)
+    // 鐢熸垚琛屽姩椤圭洰
+    guide.currentSituation.actionItems = generateActionItems("璁ょ煡闃舵", report)
+    guide.mvpDefinition.actionItems = generateActionItems("MVP闃舵", report)
+    guide.businessExecution.actionItems = generateActionItems("鍟嗕笟鍖栭樁娈?, report)
 
-    // 计算置信度
+    // 璁＄畻缃俊搴?
     guide.metadata.confidenceLevel = calculateConfidenceLevel(report)
 
     return guide
 
   } catch (error) {
-    console.error("转换调研报告到落地指南失败:", error)
+    console.error("杞崲璋冪爺鎶ュ憡鍒拌惤鍦版寚鍗楀け璐?", error)
     return {
-      ...DEFAULT_COACH_TEMPLATE,
+      ...BASE_LANDING_COACH_TEMPLATE,
       metadata: {
-        ...DEFAULT_COACH_TEMPLATE.metadata,
-        ideaTitle: report?.idea?.title || "创意项目",
+        ...BASE_LANDING_COACH_TEMPLATE.metadata,
+        ideaTitle: report?.idea?.title || "鍒涙剰椤圭洰",
         confidenceLevel: 30
       }
     }
@@ -322,214 +358,252 @@ export function transformReportToGuide(report: any): LandingCoachGuide {
 }
 
 /**
- * 根据阶段生成具体的行动项目
+ * 鏍规嵁闃舵鐢熸垚鍏蜂綋鐨勮鍔ㄩ」鐩?
  */
 function generateActionItems(stage: string, report: any): string[] {
   const baseActions = {
-    "认知阶段": [
-      "完成用户访谈5-10人，验证问题假设",
-      "分析3-5个直接竞争对手的产品特征",
-      "制定用户画像和使用场景地图",
-      "评估市场进入时机和竞争策略"
+    "璁ょ煡闃舵": [
+      "瀹屾垚鐢ㄦ埛璁胯皥5-10浜猴紝楠岃瘉闂鍋囪",
+      "鍒嗘瀽3-5涓洿鎺ョ珵浜夊鎵嬬殑浜у搧鐗瑰緛",
+      "鍒跺畾鐢ㄦ埛鐢诲儚鍜屼娇鐢ㄥ満鏅湴鍥?,
+      "璇勪及甯傚満杩涘叆鏃舵満鍜岀珵浜夌瓥鐣?
     ],
-    "MVP阶段": [
-      "构建产品原型并进行内部测试",
-      "招募20-50名早期测试用户",
-      "设计A/B测试验证核心假设",
-      "建立用户反馈收集和分析机制"
+    "MVP闃舵": [
+      "鏋勫缓浜у搧鍘熷瀷骞惰繘琛屽唴閮ㄦ祴璇?,
+      "鎷涘嫙20-50鍚嶆棭鏈熸祴璇曠敤鎴?,
+      "璁捐A/B娴嬭瘯楠岃瘉鏍稿績鍋囪",
+      "寤虹珛鐢ㄦ埛鍙嶉鏀堕泦鍜屽垎鏋愭満鍒?
     ],
-    "商业化阶段": [
-      "制定详细的商业计划和财务预测",
-      "建立销售和营销体系",
-      "设计用户获取和留存策略",
-      "制定扩张计划和融资方案"
+    "鍟嗕笟鍖栭樁娈?: [
+      "鍒跺畾璇︾粏鐨勫晢涓氳鍒掑拰璐㈠姟棰勬祴",
+      "寤虹珛閿€鍞拰钀ラ攢浣撶郴",
+      "璁捐鐢ㄦ埛鑾峰彇鍜岀暀瀛樼瓥鐣?,
+      "鍒跺畾鎵╁紶璁″垝鍜岃瀺璧勬柟妗?
     ]
   }
 
   return baseActions[stage] || [
-    "制定具体的执行计划",
-    "分配团队角色和责任",
-    "设定阶段性目标和检查点",
-    "建立风险监控和应对机制"
+    "鍒跺畾鍏蜂綋鐨勬墽琛岃鍒?,
+    "鍒嗛厤鍥㈤槦瑙掕壊鍜岃矗浠?,
+    "璁惧畾闃舵鎬х洰鏍囧拰妫€鏌ョ偣",
+    "寤虹珛椋庨櫓鐩戞帶鍜屽簲瀵规満鍒?
   ]
 }
 
 /**
- * 根据报告数据质量计算置信度
+ * 鏍规嵁鎶ュ憡鏁版嵁璐ㄩ噺璁＄畻缃俊搴?
  */
 function calculateConfidenceLevel(report: any): number {
-  let score = 30 // 基础分
+  let score = 30 // 鍩虹鍒?
 
-  // 基础分析质量
+  // 鍩虹鍒嗘瀽璐ㄩ噺
   if (report.basicAnalysis) {
     score += 20
     if (report.basicAnalysis.marketAnalysis) score += 10
     if (report.basicAnalysis.userAnalysis) score += 10
   }
 
-  // MVP指导质量
+  // MVP鎸囧璐ㄩ噺
   if (report.mvpGuidance) {
     score += 15
     if (report.mvpGuidance.developmentPlan) score += 10
   }
 
-  // 商业模式质量
+  // 鍟嗕笟妯″紡璐ㄩ噺
   if (report.businessModel) {
     score += 15
     if (report.businessModel.revenueModel) score += 10
   }
 
-  // 报告完成度
+  // 鎶ュ憡瀹屾垚搴?
   if (report.status === 'COMPLETED') score += 10
   if (report.progress >= 80) score += 5
 
-  return Math.min(score, 95) // 最高95分，留有改进空间
+  return Math.min(score, 95) // 鏈€楂?5鍒嗭紝鐣欐湁鏀硅繘绌洪棿
 }
 
 /**
- * 生成可下载的落地指南Markdown内容
+ * 鐢熸垚鍙笅杞界殑钀藉湴鎸囧崡Markdown鍐呭
  */
 export function generateGuideMarkdown(guide: LandingCoachGuide): string {
-  const markdown = `# ${guide.metadata.ideaTitle} - 创意落地指南
+  let markdown = `# ${guide.metadata.ideaTitle} - 鍒涙剰钀藉湴鎸囧崡
 
-> 生成时间：${guide.metadata.generatedAt.toLocaleDateString()}
-> 预计阅读时间：${guide.metadata.estimatedReadTime}分钟
-> 实施时间框架：${guide.metadata.implementationTimeframe}
-> 可行性评估：${guide.metadata.confidenceLevel}%
+> 鐢熸垚鏃堕棿锛?{guide.metadata.generatedAt.toLocaleDateString()}
+> 棰勮闃呰鏃堕棿锛?{guide.metadata.estimatedReadTime}鍒嗛挓
+> 瀹炴柦鏃堕棿妗嗘灦锛?{guide.metadata.implementationTimeframe}
+> 鍙鎬ц瘎浼帮細${guide.metadata.confidenceLevel}%
 
 ---
 
-## 📊 ${guide.currentSituation.title}
+## 馃搳 ${guide.currentSituation.title}
 
-### 核心洞察
+### 鏍稿績娲炲療
 ${guide.currentSituation.summary}
 
-**关键要点：**
+**鍏抽敭瑕佺偣锛?*
 ${guide.currentSituation.keyInsights.map(insight => `- ${insight}`).join('\n')}
 
-### 市场现实
-- **市场规模：** ${guide.currentSituation.marketReality.marketSize}
-- **竞争态势：** ${guide.currentSituation.marketReality.competition}
+### 甯傚満鐜板疄
+- **甯傚満瑙勬ā锛?* ${guide.currentSituation.marketReality.marketSize}
+- **绔炰簤鎬佸娍锛?* ${guide.currentSituation.marketReality.competition}
 
-**市场机会：**
+**甯傚満鏈轰細锛?*
 ${guide.currentSituation.marketReality.opportunities.map(opp => `- ${opp}`).join('\n')}
 
-**主要挑战：**
+**涓昏鎸戞垬锛?*
 ${guide.currentSituation.marketReality.challenges.map(challenge => `- ${challenge}`).join('\n')}
 
-### 用户需求分析
-- **目标用户：** ${guide.currentSituation.userNeeds.targetUsers}
+### 鐢ㄦ埛闇€姹傚垎鏋?
+- **鐩爣鐢ㄦ埛锛?* ${guide.currentSituation.userNeeds.targetUsers}
 
-**核心痛点：**
+**鏍稿績鐥涚偣锛?*
 ${guide.currentSituation.userNeeds.painPoints.map(pain => `- ${pain}`).join('\n')}
 
-**解决方案：**
+**瑙ｅ喅鏂规锛?*
 ${guide.currentSituation.userNeeds.solutions.map(solution => `- ${solution}`).join('\n')}
 
-### 🎯 立即行动项
+### 馃幆 绔嬪嵆琛屽姩椤?
 ${guide.currentSituation.actionItems.map((item, i) => `${i + 1}. ${item}`).join('\n')}
 
 ---
 
-## 🚀 ${guide.mvpDefinition.title}
+## 馃殌 ${guide.mvpDefinition.title}
 
-### 产品概念定义
-- **独特价值：** ${guide.mvpDefinition.productConcept.uniqueValue}
-- **最小范围：** ${guide.mvpDefinition.productConcept.minimumScope}
+### 浜у搧姒傚康瀹氫箟
+- **鐙壒浠峰€硷細** ${guide.mvpDefinition.productConcept.uniqueValue}
+- **鏈€灏忚寖鍥达細** ${guide.mvpDefinition.productConcept.minimumScope}
 
-**核心功能：**
+**鏍稿績鍔熻兘锛?*
 ${guide.mvpDefinition.productConcept.coreFeatures.map(feature => `- ${feature}`).join('\n')}
 
-### 开发计划
+### 寮€鍙戣鍒?
 ${guide.mvpDefinition.developmentPlan.phases.map(phase =>
   `**${phase.name}** (${phase.duration})
-- 交付物：${phase.deliverables.join('、')}
-- 所需资源：${phase.resources.join('、')}`
+- 浜や粯鐗╋細${phase.deliverables.join('銆?)}
+- 鎵€闇€璧勬簮锛?{phase.resources.join('銆?)}`
 ).join('\n\n')}
 
-- **技术栈：** ${guide.mvpDefinition.developmentPlan.techStack.join('、')}
-- **预估成本：** ${guide.mvpDefinition.developmentPlan.estimatedCost}
+- **鎶€鏈爤锛?* ${guide.mvpDefinition.developmentPlan.techStack.join('銆?)}
+- **棰勪及鎴愭湰锛?* ${guide.mvpDefinition.developmentPlan.estimatedCost}
 
-### 验证策略
-- **验证时间线：** ${guide.mvpDefinition.validationStrategy.timeline}
+### 楠岃瘉绛栫暐
+- **楠岃瘉鏃堕棿绾匡細** ${guide.mvpDefinition.validationStrategy.timeline}
 
-**核心假设：**
+**鏍稿績鍋囪锛?*
 ${guide.mvpDefinition.validationStrategy.hypotheses.map(hyp => `- ${hyp}`).join('\n')}
 
-**验证实验：**
+**楠岃瘉瀹為獙锛?*
 ${guide.mvpDefinition.validationStrategy.experiments.map(exp => `- ${exp}`).join('\n')}
 
-**成功指标：**
+**鎴愬姛鎸囨爣锛?*
 ${guide.mvpDefinition.validationStrategy.successMetrics.map(metric => `- ${metric}`).join('\n')}
 
-### 🎯 立即行动项
+### 馃幆 绔嬪嵆琛屽姩椤?
 ${guide.mvpDefinition.actionItems.map((item, i) => `${i + 1}. ${item}`).join('\n')}
 
 ---
 
-## 💼 ${guide.businessExecution.title}
+## 馃捈 ${guide.businessExecution.title}
 
-### 商业模式设计
-- **定价策略：** ${guide.businessExecution.businessModel.pricingStrategy}
-- **扩展性：** ${guide.businessExecution.businessModel.scalability}
+### 鍟嗕笟妯″紡璁捐
+- **瀹氫环绛栫暐锛?* ${guide.businessExecution.businessModel.pricingStrategy}
+- **鎵╁睍鎬э細** ${guide.businessExecution.businessModel.scalability}
 
-**收入来源：**
+**鏀跺叆鏉ユ簮锛?*
 ${guide.businessExecution.businessModel.revenueStreams.map(stream => `- ${stream}`).join('\n')}
 
-**成本结构：**
+**鎴愭湰缁撴瀯锛?*
 ${guide.businessExecution.businessModel.costStructure.map(cost => `- ${cost}`).join('\n')}
 
-### 启动策略
+### 鍚姩绛栫暐
 ${guide.businessExecution.launchStrategy.phases.map(phase =>
   `**${phase.name}** (${phase.timeline})
-- 目标：${phase.goals.join('、')}
-- 策略：${phase.tactics.join('、')}`
+- 鐩爣锛?{phase.goals.join('銆?)}
+- 绛栫暐锛?{phase.tactics.join('銆?)}`
 ).join('\n\n')}
 
-**营销渠道：**
+**钀ラ攢娓犻亾锛?*
 ${guide.businessExecution.launchStrategy.marketingChannels.map(channel => `- ${channel}`).join('\n')}
 
-**预算分配：**
+**棰勭畻鍒嗛厤锛?*
 ${guide.businessExecution.launchStrategy.budgetAllocation.map(budget => `- ${budget}`).join('\n')}
 
-### 运营规划
-**团队结构：**
+### 杩愯惀瑙勫垝
+**鍥㈤槦缁撴瀯锛?*
 ${guide.businessExecution.operationalPlan.teamStructure.map(role => `- ${role}`).join('\n')}
 
-**核心流程：**
+**鏍稿績娴佺▼锛?*
 ${guide.businessExecution.operationalPlan.processes.map(process => `- ${process}`).join('\n')}
 
-**基础设施：**
+**鍩虹璁炬柦锛?*
 ${guide.businessExecution.operationalPlan.infrastructure.map(infra => `- ${infra}`).join('\n')}
 
-**风险管理：**
+**椋庨櫓绠＄悊锛?*
 ${guide.businessExecution.operationalPlan.riskManagement.map(risk => `- ${risk}`).join('\n')}
 
-### 🎯 立即行动项
+### 馃幆 绔嬪嵆琛屽姩椤?
 ${guide.businessExecution.actionItems.map((item, i) => `${i + 1}. ${item}`).join('\n')}
 
 ---
 
-## 📈 总结与下一步
+## 馃搱 鎬荤粨涓庝笅涓€姝?
 
-基于当前分析，您的创意「${guide.metadata.ideaTitle}」具有 **${guide.metadata.confidenceLevel}%** 的市场可行性。
+鍩轰簬褰撳墠鍒嗘瀽锛屾偍鐨勫垱鎰忋€?{guide.metadata.ideaTitle}銆嶅叿鏈?**${guide.metadata.confidenceLevel}%** 鐨勫競鍦哄彲琛屾€с€?
 
-建议按照以下优先级推进：
+寤鸿鎸夌収浠ヤ笅浼樺厛绾ф帹杩涳細
 
-1. **第一阶段（现状认知）**：深入市场调研和用户验证
-2. **第二阶段（MVP开发）**：快速原型开发和市场测试
-3. **第三阶段（商业化）**：规模化运营和市场拓展
+1. **绗竴闃舵锛堢幇鐘惰鐭ワ級**锛氭繁鍏ュ競鍦鸿皟鐮斿拰鐢ㄦ埛楠岃瘉
+2. **绗簩闃舵锛圡VP寮€鍙戯級**锛氬揩閫熷師鍨嬪紑鍙戝拰甯傚満娴嬭瘯
+3. **绗笁闃舵锛堝晢涓氬寲锛?*锛氳妯″寲杩愯惀鍜屽競鍦烘嫇灞?
 
 ---
 
-*本指南由AI创意落地教练生成，建议结合实际情况调整执行方案。*
+*鏈寚鍗楃敱AI鍒涙剰钀藉湴鏁欑粌鐢熸垚锛屽缓璁粨鍚堝疄闄呮儏鍐佃皟鏁存墽琛屾柟妗堛€?
 `
 
+
+  if (guide.executionPlan) {
+    markdown += `
+
+## 🧭 90 天聚焦实战计划
+
+### 阶段拆解
+${guide.executionPlan.phases.map(phase => `**${phase.name}** (${phase.timeline})
+- 聚焦：${phase.focus}
+- 关键成果：${phase.keyOutcomes.join('、')}
+- 核心指标：${phase.metrics.join('、')}`).join('
+
+')}
+
+### 每周冲刺重点
+${guide.executionPlan.weeklySprints.map(sprint => `**${sprint.name}**
+- 当前聚焦：${sprint.focus}
+- 关键目标：${sprint.objectives.join('、')}
+- 反馈钩子：${sprint.feedbackHooks.join('、')}`).join('
+
+')}
+
+### 正反馈机制
+- 节奏安排：${guide.executionPlan.feedbackLoop.cadence.join(' / ')}
+- 数据与反馈渠道：${guide.executionPlan.feedbackLoop.channels.join(' / ')}
+- 决策闸口：${guide.executionPlan.feedbackLoop.decisionGates.join(' / ')}
+- 推荐工具：${guide.executionPlan.feedbackLoop.tooling.join(' / ')}
+
+### 每日执行清单
+${guide.executionPlan.dailyRoutines.map(item => `- ${item}`).join('
+')}
+
+### 复盘与度量框架
+- 每周复盘：${guide.executionPlan.reviewFramework.weekly.join('、')}
+- 每月校准：${guide.executionPlan.reviewFramework.monthly.join('、')}
+- 重点监控指标：${guide.executionPlan.reviewFramework.dataWatch.join('、')}
+`;
+  }
   return markdown
 }
 
 /**
- * 检查报告是否包含足够的数据用于生成指南
+ * 妫€鏌ユ姤鍛婃槸鍚﹀寘鍚冻澶熺殑鏁版嵁鐢ㄤ簬鐢熸垚鎸囧崡
  */
 export function validateReportForGuide(report: any): {
   isValid: boolean
@@ -540,23 +614,23 @@ export function validateReportForGuide(report: any): {
   const recommendations: string[] = []
 
   if (!report.basicAnalysis) {
-    missingFields.push("基础市场分析")
-    recommendations.push("补充市场环境和竞争分析")
+    missingFields.push("鍩虹甯傚満鍒嗘瀽")
+    recommendations.push("琛ュ厖甯傚満鐜鍜岀珵浜夊垎鏋?)
   }
 
   if (!report.mvpGuidance) {
-    missingFields.push("MVP产品指导")
-    recommendations.push("完善产品定义和开发计划")
+    missingFields.push("MVP浜у搧鎸囧")
+    recommendations.push("瀹屽杽浜у搧瀹氫箟鍜屽紑鍙戣鍒?)
   }
 
   if (!report.businessModel) {
-    missingFields.push("商业模式分析")
-    recommendations.push("制定商业化策略和运营方案")
+    missingFields.push("鍟嗕笟妯″紡鍒嗘瀽")
+    recommendations.push("鍒跺畾鍟嗕笟鍖栫瓥鐣ュ拰杩愯惀鏂规")
   }
 
   if (report.status !== 'COMPLETED') {
-    missingFields.push("报告生成状态")
-    recommendations.push("等待报告生成完成")
+    missingFields.push("鎶ュ憡鐢熸垚鐘舵€?)
+    recommendations.push("绛夊緟鎶ュ憡鐢熸垚瀹屾垚")
   }
 
   return {

@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
 import { Heart } from 'lucide-react'
 import { SpeakingIndicator, ThinkingIndicator, BiddingIndicator, WaitingIndicator } from './StatusIndicators'
-import type { AIPersona } from '@/lib/ai-persona-system'
+import type { AIPersona } from '@/lib/ai-persona-enhanced'
 
 // 简化组件替代motion - 避免生产环境错误
 const SimpleDiv = ({ children, className, style, ...props }: any) => (
@@ -321,10 +321,40 @@ export const AgentDialogPanel: React.FC<AgentDialogPanelProps> = ({
       <div className="agent-info-section text-center mb-3">
         <h4 className="agent-name text-sm font-semibold text-gray-800 mb-1 line-clamp-1">
           {agent.name}
+          {agent.age && <span className="text-xs text-gray-500 ml-1">({agent.age}岁)</span>}
         </h4>
+
+        {/* 背景信息 */}
+        {agent.background && (
+          <p className="text-xs text-gray-500 mb-1 line-clamp-2">
+            {agent.background}
+          </p>
+        )}
+
         <p className="agent-specialty text-xs text-gray-600 mb-2 line-clamp-2">
-          {agent.specialty}
+          专长：{agent.specialty}
         </p>
+
+        {/* 口头禅 */}
+        {agent.catchPhrase && (
+          <p className="text-xs italic text-blue-600 mb-2">
+            "{agent.catchPhrase}"
+          </p>
+        )}
+
+        {/* 关系标签 */}
+        <div className="flex gap-1 justify-center flex-wrap mb-2">
+          {agent.conflicts && agent.conflicts.length > 0 && (
+            <Badge variant="outline" className="text-xs bg-red-50 text-red-600">
+              易冲突：{agent.conflicts.length}人
+            </Badge>
+          )}
+          {agent.allies && agent.allies.length > 0 && (
+            <Badge variant="outline" className="text-xs bg-green-50 text-green-600">
+              盟友：{agent.allies.length}人
+            </Badge>
+          )}
+        </div>
 
         {/* 信心度指示器 */}
         {state.confidence > 0 && (

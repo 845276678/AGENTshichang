@@ -55,6 +55,7 @@ export default function BusinessPlanPage() {
   })
   const [guide, setGuide] = useState<LandingCoachGuide | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const displayIdeaTitle = guide?.metadata?.ideaTitle || ideaTitle || ''
 
   // 新增：从会话加载数据的函数
   const loadSessionData = async (sessionId: string) => {
@@ -64,141 +65,39 @@ export default function BusinessPlanPage() {
 
       setLoadingState({
         isLoading: true,
-        progress: 10,
-        stage: '正在获取竞价会话数据...'
+        progress: 15,
+        stage: '正在获取竞价摘要...'
       })
 
-      const response = await fetch(`/api/business-plan-session?sessionId=${sessionId}`)
+      const response = await fetch(`/api/business-plan-session?sessionId=${sessionId}`, {
+        cache: 'no-store'
+      })
 
-      if (!response.ok) {
-        if (response.status === 404) {
-          throw new Error('竞价会话不存在或已过期')
-        } else if (response.status === 410) {
-          throw new Error('竞价会话已过期，请重新发起竞价')
-        }
-        throw new Error('无法获取会话数据')
+      const payload = await response.json()
+      if (!response.ok || !payload.success) {
+        throw new Error(payload.error || '无法获取商业计划会话数据')
       }
 
-      const { data } = await response.json()
+      const report = payload.data?.report
 
-      setLoadingState({
-        isLoading: true,
-        progress: 30,
-        stage: `正在分析${data.winnerName}的专业建议...`
-      })
-
-      // 模拟分析AI专家建议
-      await new Promise(resolve => setTimeout(resolve, 2000))
-
-      setLoadingState({
-        isLoading: true,
-        progress: 60,
-        stage: '正在生成商业计划...'
-      })
-
-      // 模拟生成商业计划
-      await new Promise(resolve => setTimeout(resolve, 2000))
-
-      setLoadingState({
-        isLoading: true,
-        progress: 90,
-        stage: '正在整理最终报告...'
-      })
-
-      await new Promise(resolve => setTimeout(resolve, 1000))
-
-      // 基于会话数据生成guide
-      const mockGuide: LandingCoachGuide = {
-        metadata: {
-          ideaTitle: data.ideaContent || '用户创意',
-          reportId: sessionId,
-          generatedAt: new Date().toISOString(),
-          source: 'ai-bidding',
-          winningBid: data.highestBid,
-          winner: data.winnerName
-        },
-        // AI犀利点评 (基于实际竞价数据)
-        aiInsights: {
-          overallAssessment: {
-            score: data.highestBid > 400 ? 8.5 : data.highestBid > 200 ? 7.0 : 6.0,
-            level: data.highestBid > 400 ? '高潜力项目' : data.highestBid > 200 ? '中高潜力项目' : '中等潜力项目',
-            summary: `经过5位专业AI评估，您的创意获得了${data.highestBid}元的最高出价。${data.winnerName}认为此项目具备商业价值。`,
-            keyStrengths: [
-              '获得多位专业AI的认可和竞价',
-              '商业逻辑得到专业验证',
-              '具备一定的市场潜力'
-            ],
-            criticalChallenges: [
-              '需要进一步完善技术实现方案',
-              '市场竞争分析有待深入',
-              '商业模式需要详细论证'
-            ]
-          },
-          sustainabilityAnalysis: {
-            longTermViability: '基于AI专家评估，项目具备发展潜力',
-            persistenceFactors: [
-              '专业团队的持续投入',
-              '用户需求的准确把握',
-              '技术和商业的平衡发展'
-            ],
-            riskMitigation: [
-              '听取专业AI的建议和改进意见',
-              '分阶段实施，降低风险',
-              '持续优化产品和服务'
-            ]
-          }
-        },
-        businessModel: {
-          valueProposition: `基于AI专家分析的${data.ideaContent}`,
-          targetMarket: '待进一步调研确定',
-          revenueStreams: ['主要收入来源待定义'],
-          costStructure: {
-            fixed: ['人员成本', '技术开发成本'],
-            variable: ['运营成本', '市场推广成本']
-          }
-        },
-        implementationPlan: {
-          phases: [
-            {
-              name: '概念验证阶段',
-              duration: '1-3个月',
-              key_objectives: ['完善创意细节', '技术可行性验证', '初步市场调研'],
-              deliverables: ['详细产品规划', '技术架构设计', '市场分析报告']
-            }
-          ]
-        },
-        marketAnalysis: {
-          marketSize: {
-            total: '待调研',
-            addressable: '待分析',
-            penetrable: '待评估'
-          },
-          competitiveAnalysis: {
-            directCompetitors: [],
-            indirectCompetitors: [],
-            competitiveAdvantage: ['AI专家认可的创新方案']
-          }
-        },
-        financialProjections: {
-          assumptions: [
-            `基于${data.highestBid}元的专业估值`,
-            '需要详细的财务建模'
-          ],
-          projections: []
-        }
+      if (!report?.guide) {
+        setLoadingState({
+          isLoading: true,
+          progress: 60,
+          stage: '商业计划生成中，请稍候刷新'
+        })
+        return
       }
 
-      setGuide(mockGuide)
-
+      setGuide(report.guide as LandingCoachGuide)
       setLoadingState({
         isLoading: false,
         progress: 100,
-        stage: '商业计划已生成完成'
+        stage: '商业计划已生成'
       })
-
     } catch (error) {
-      console.error('Error loading session data:', error)
-      setError(error instanceof Error ? error.message : '加载会话数据失败')
+      console.error('加载商业计划会话失败:', error)
+      setError(error instanceof Error ? error.message : '加载商业计划失败')
       setLoadingState({
         isLoading: false,
         progress: 0,
@@ -212,415 +111,49 @@ export default function BusinessPlanPage() {
       setError(null)
       setGuide(null)
 
-      if (source === 'marketplace') {
-        // 来自marketplace的特殊处理流程
-        setLoadingState({
-          isLoading: true,
-          progress: 15,
-          stage: '正在分析竞价讨论内容...'
-        })
+      setLoadingState({
+        isLoading: true,
+        progress: 20,
+        stage: '正在获取商业计划报告...'
+      })
 
-        // 模拟分析竞价讨论
-        await new Promise(resolve => setTimeout(resolve, 2000))
+      const response = await fetch(`/api/business-plan-session?reportId=${targetReportId}`, {
+        cache: 'no-store'
+      })
 
-        setLoadingState({
-          isLoading: true,
-          progress: 35,
-          stage: `正在整合${winner}的专业建议...`
-        })
-
-        // 模拟整合AI专家建议
-        await new Promise(resolve => setTimeout(resolve, 2000))
-
-        setLoadingState({
-          isLoading: true,
-          progress: 60,
-          stage: '正在生成市场分析报告...'
-        })
-
-        // 模拟生成市场分析
-        await new Promise(resolve => setTimeout(resolve, 1500))
-
-        setLoadingState({
-          isLoading: true,
-          progress: 80,
-          stage: '正在完善商业模式设计...'
-        })
-
-        // 模拟完善商业模式
-        await new Promise(resolve => setTimeout(resolve, 1500))
-
-        setLoadingState({
-          isLoading: true,
-          progress: 95,
-          stage: '正在生成落地执行计划...'
-        })
-
-        // 模拟生成执行计划
-        await new Promise(resolve => setTimeout(resolve, 1000))
-
-        // 生成模拟的guide数据
-        const mockGuide: LandingCoachGuide = {
-          metadata: {
-            ideaTitle: ideaTitle || '智能家居语音控制系统',
-            reportId: targetReportId,
-            generatedAt: new Date().toISOString(),
-            source: 'marketplace',
-            winningBid: winningBid ? parseInt(winningBid) : 350,
-            winner: winner || '商业大亨老王'
-          },
-          // AI犀利点评
-          aiInsights: {
-            overallAssessment: {
-              score: 7.8,
-              level: '中高潜力项目',
-              summary: '这是一个技术驱动的智能家居项目，具备明确的商业价值，但需要在隐私保护和生态建设方面下功夫。',
-              keyStrengths: [
-                '技术方向符合未来趋势，语音交互已进入成熟期',
-                '隐私保护定位差异化明显，能形成竞争壁垒',
-                '智能家居市场增长强劲，用户接受度不断提升'
-              ],
-              criticalChallenges: [
-                '技术门槛高，需要顶级AI团队和持续投入',
-                '生态建设周期长，需要大量设备厂商合作',
-                '竞争激烈，与巨头正面竞争风险极大'
-              ]
-            },
-            sustainabilityAnalysis: {
-              longTermViability: '需要建立技术护城河和生态优势',
-              persistenceFactors: [
-                '核心技术持续创新能力',
-                '用户数据和使用习惯的积累',
-                '供应链和渠道合作伙伴关系',
-                '品牌认知度和用户信任度'
-              ],
-              riskMitigation: [
-                '避免与巨头正面竞争，专注细分市场',
-                '重视数据安全和隐私保护，建立信任优势',
-                '快速迭代产品，保持技术领先地位'
-              ]
-            },
-            stageAlerts: [
-              {
-                stage: 'MVP开发',
-                timeline: '0-6个月',
-                criticalMilestones: [
-                  '语音识别准确率达到95%以上',
-                  '至少支持20种主流智能设备',
-                  '完成隐私保护技术验证'
-                ],
-                warningSignals: [
-                  '技术指标未达预期，需及时调整技术路线',
-                  '用户测试反馈不佳，产品体验需大幅优化',
-                  '开发进度严重滞后，团队配置需要调整'
-                ]
-              },
-              {
-                stage: '市场验证',
-                timeline: '6-12个月',
-                criticalMilestones: [
-                  '获得1000+种子用户认可',
-                  '日活跃度保持在60%以上',
-                  '完成与3家以上设备厂商合作'
-                ],
-                warningSignals: [
-                  '用户增长停滞，产品市场匹配度存疑',
-                  '客户流失率超过30%，用户粘性不足',
-                  '合作伙伴响应冷淡，商业模式需要调整'
-                ]
-              },
-              {
-                stage: '规模化扩展',
-                timeline: '12-24个月',
-                criticalMilestones: [
-                  '月活用户突破10万',
-                  '实现正向现金流',
-                  '建立完整的生态系统'
-                ],
-                warningSignals: [
-                  '扩展成本过高，盈利模式不可持续',
-                  '技术架构无法支撑用户增长',
-                  '竞争对手推出类似产品，优势被削弱'
-                ]
-              }
-            ]
-          },
-          executiveSummary: {
-            vision: `基于AI竞价专家${winner}的建议，${ideaTitle}定位为下一代智能家居控制中心`,
-            keyInsights: [
-              '语音交互技术已达到商业化应用门槛',
-              '智能家居市场正处于快速增长期',
-              '用户对隐私保护要求日益提高',
-              '生态系统整合是核心竞争优势'
-            ],
-            successFactors: [
-              '技术先进性和稳定性',
-              '隐私保护机制',
-              '设备兼容性',
-              '用户体验优化'
-            ]
-          },
-          currentSituation: {
-            title: "现状认知与方向确认",
-            summary: "智能家居语音控制正成为下一个技术风口，隐私保护成为差异化关键。",
-            keyInsights: [
-              "语音交互技术日趋成熟，准确率已达商用标准",
-              "智能家居设备普及率快速提升，为语音控制创造需求",
-              "隐私保护成为用户关注焦点，本土化方案更受信任"
-            ],
-            marketReality: {
-              marketSize: "预计2024年全球智能家居市场规模达到4000亿人民币",
-              competition: "Amazon Alexa、Google Assistant占据国际市场，小爱同学等本土产品快速发展",
-              opportunities: [
-                "国产替代需求增长",
-                "隐私保护成为差异化优势",
-                "物联网设备普及率提升",
-                "5G技术推动智能家居升级"
-              ],
-              challenges: [
-                "技术门槛高，需要AI专业团队",
-                "生态建设周期长，需要设备厂商配合",
-                "与互联网巨头正面竞争",
-                "用户习惯迁移成本高"
-              ]
-            },
-            userNeeds: {
-              targetUsers: "注重隐私的科技爱好者、高端家庭用户、智慧社区",
-              painPoints: [
-                "现有产品隐私保护不足",
-                "设备兼容性差，无法统一控制",
-                "语音识别准确率有待提升",
-                "功能单一，智能化程度不高"
-              ],
-              solutions: [
-                "本地化语音处理，数据不上云",
-                "开放式接口，支持主流设备品牌",
-                "深度学习优化语音识别",
-                "AI场景化智能推荐"
-              ]
-            },
-            actionItems: [
-              "深入调研目标用户隐私保护需求",
-              "评估主流智能设备的接入难度",
-              "分析竞品的技术优劣势"
-            ]
-          },
-          mvpDefinition: {
-            title: "MVP产品定义与验证计划",
-            productConcept: {
-              uniqueValue: "国内首个完全本地化的智能家居语音控制中心，零数据上云",
-              minimumScope: "支持20种主流设备的语音控制，准确率达95%，响应时间<2秒",
-              coreFeatures: [
-                "离线语音识别引擎",
-                "多设备统一控制接口",
-                "隐私保护机制",
-                "智能场景推荐",
-                "设备状态监控"
-              ]
-            },
-            developmentPlan: {
-              phases: [
-                {
-                  name: "技术验证阶段",
-                  duration: "3个月",
-                  deliverables: ["语音识别原型", "设备接入demo", "隐私架构设计"],
-                  resources: ["AI算法工程师3人", "IoT开发工程师2人", "产品经理1人"]
-                },
-                {
-                  name: "MVP开发阶段",
-                  duration: "4个月",
-                  deliverables: ["完整产品原型", "用户测试版本", "技术文档"],
-                  resources: ["全栈开发团队8人", "UI/UX设计师2人", "测试工程师2人"]
-                }
-              ],
-              techStack: ["Python", "TensorFlow", "React Native", "Node.js", "Docker", "Redis"],
-              estimatedCost: "技术验证150万，MVP开发300万，总计450万"
-            },
-            validationStrategy: {
-              hypotheses: [
-                "用户对隐私保护的重视程度超过便利性",
-                "本地化语音处理技术可以达到云端效果",
-                "智能家居设备厂商愿意开放接口"
-              ],
-              experiments: [
-                "用户隐私敏感度调研",
-                "语音识别准确率对比测试",
-                "设备厂商合作意愿调研"
-              ],
-              successMetrics: [
-                "用户满意度>85%",
-                "语音识别准确率>95%",
-                "设备响应时间<2秒"
-              ],
-              timeline: "MVP完成后2个月内完成用户验证"
-            },
-            actionItems: [
-              "搭建技术团队，重点招聘AI算法专家",
-              "与潜在设备厂商建立初步合作意向",
-              "设计用户验证实验方案"
-            ]
-          },
-          businessExecution: {
-            title: "商业化落地与运营策略",
-            businessModel: {
-              revenueStreams: [
-                "硬件设备销售（控制中心硬件）",
-                "软件授权费用（设备厂商集成）",
-                "增值服务订阅（高级AI功能）",
-                "数据分析服务（匿名化使用数据）"
-              ],
-              costStructure: [
-                "研发成本：40%（持续技术投入）",
-                "制造成本：25%（硬件生产）",
-                "营销成本：20%（市场推广）",
-                "运营成本：15%（团队和运维）"
-              ],
-              pricingStrategy: "硬件499元起，软件授权按设备数量收费，增值服务月费29元",
-              scalability: "标准化API接口，可快速适配新设备；云端管理平台，支持大规模部署"
-            },
-            launchStrategy: {
-              phases: [
-                {
-                  name: "种子用户阶段",
-                  timeline: "前3个月",
-                  goals: ["获得100个种子用户", "收集产品反馈", "优化用户体验"],
-                  tactics: ["科技博主合作", "线下体验活动", "社交媒体推广"]
-                },
-                {
-                  name: "市场扩展阶段",
-                  timeline: "3-12个月",
-                  goals: ["月活用户1万+", "设备厂商合作", "建立销售渠道"],
-                  tactics: ["渠道代理商合作", "电商平台入驻", "技术博览会参展"]
-                }
-              ],
-              marketingChannels: [
-                "科技媒体报道",
-                "KOL合作推广",
-                "线下体验店",
-                "电商平台",
-                "技术社区"
-              ],
-              budgetAllocation: [
-                "渠道建设：40%",
-                "内容营销：30%",
-                "广告投放：20%",
-                "活动推广：10%"
-              ]
-            },
-            operationalPlan: {
-              teamStructure: [
-                "CEO/创始人",
-                "CTO/技术负责人",
-                "产品总监",
-                "AI算法团队（5人）",
-                "软硬件开发团队（8人）",
-                "市场营销团队（3人）",
-                "运营支持团队（2人）"
-              ],
-              processes: [
-                "敏捷开发流程，2周迭代周期",
-                "用户反馈收集和产品改进机制",
-                "设备厂商合作和接入流程",
-                "客户支持和售后服务体系"
-              ],
-              infrastructure: [
-                "云端设备管理平台",
-                "用户数据分析系统",
-                "自动化测试和部署平台",
-                "客户服务管理系统"
-              ],
-              riskManagement: [
-                "技术风险：建立技术专家顾问团",
-                "市场风险：多元化合作减少依赖",
-                "竞争风险：专注差异化优势建设",
-                "资金风险：分阶段融资降低压力"
-              ]
-            },
-            actionItems: [
-              "制定详细的商业模式画布",
-              "启动种子轮融资准备",
-              "建立核心团队和顾问团"
-            ]
-          },
-          metadata: {
-            ideaTitle: ideaTitle || '智能家居语音控制系统',
-            reportId: targetReportId,
-            generatedAt: new Date().toISOString(),
-            estimatedReadTime: 15,
-            implementationTimeframe: "12-18个月",
-            confidenceLevel: 78,
-            source: 'marketplace',
-            winningBid: winningBid ? parseInt(winningBid) : 350,
-            winner: winner || '商业大亨老王'
-          }
-        }
-
-        setGuide(mockGuide)
-        setLoadingState({
-          isLoading: false,
-          progress: 100,
-          stage: '商业计划书生成完成！'
-        })
-      } else {
-        // 原有的报告数据载入流程
-        setLoadingState({
-          isLoading: true,
-          progress: 20,
-          stage: '正在获取调研报告数据...'
-        })
-
-        const response = await fetch(`/api/research-reports/${targetReportId}`)
-        if (!response.ok) {
-          throw new Error('调研报告不存在或已被删除')
-        }
-
-        const report = await response.json()
-
-        setLoadingState({
-          isLoading: true,
-          progress: 50,
-          stage: '正在验证报告数据完整性...'
-        })
-
-        const validation = validateReportForGuide(report)
-        if (!validation.isValid) {
-          throw new Error(`报告数据不完整：${validation.missingFields.join('、')}`)
-        }
-
-        setLoadingState({
-          isLoading: true,
-          progress: 80,
-          stage: '正在生成落地指南...'
-        })
-
-        const coachGuide = transformReportToGuide(report)
-        setGuide(coachGuide)
-
-        setLoadingState({
-          isLoading: false,
-          progress: 100,
-          stage: '指南生成完成'
-        })
+      const payload = await response.json()
+      if (!response.ok || !payload.success) {
+        throw new Error(payload.error || '无法获取商业计划报告')
       }
-    } catch (loadError) {
-      console.error('载入报告数据失败:', loadError)
-      setError(loadError instanceof Error ? loadError.message : '载入失败，请稍后重试')
+
+      const report = payload.data?.report
+      if (!report?.guide) {
+        throw new Error('商业计划报告尚未生成或已被删除')
+      }
+
+      setGuide(report.guide as LandingCoachGuide)
+      setLoadingState({
+        isLoading: false,
+        progress: 100,
+        stage: '商业计划加载完成'
+      })
+    } catch (error) {
+      console.error('加载商业计划报告失败:', error)
+      setError(error instanceof Error ? error.message : '加载商业计划报告失败')
       setLoadingState({
         isLoading: false,
         progress: 0,
-        stage: '载入失败'
+        stage: '加载失败'
       })
     }
   }
 
   useEffect(() => {
-    // 优先处理会话ID（新的AI竞价流程）
     if (sessionId) {
       void loadSessionData(sessionId)
       return
     }
 
-    // 兼容旧的报告ID流程
     if (!reportId) {
       setGuide(null)
       setError(null)
@@ -674,15 +207,26 @@ export default function BusinessPlanPage() {
   }
 
   const handleShare = async () => {
-    if (!reportId || !ideaTitle) return
+    if (!reportId || !displayIdeaTitle) return
 
-    const shareUrl = `${window.location.origin}/business-plan?reportId=${reportId}&ideaTitle=${encodeURIComponent(ideaTitle)}`
+    const shareUrl = (() => {
+      try {
+        const url = new URL('/business-plan', window.location.origin)
+        url.searchParams.set('reportId', reportId)
+        if (source) {
+          url.searchParams.set('source', source)
+        }
+        return url.toString()
+      } catch {
+        return `${window.location.origin}/business-plan?reportId=${reportId}`
+      }
+    })()
 
     if (navigator.share) {
       try {
         await navigator.share({
-          title: `${ideaTitle} - 创意落地指南`,
-          text: `查看我的创意《${ideaTitle}》的专业落地指南`,
+          title: `${displayIdeaTitle || "AI 商业计划"} - 创意落地指南`,
+          text: `查看我的创意《${displayIdeaTitle || 'AI商业计划'}》的专业落地指南`,
           url: shareUrl
         })
       } catch {
@@ -699,8 +243,8 @@ export default function BusinessPlanPage() {
     }
   }
 
-  const heroTitle = ideaTitle ? `为《${ideaTitle}》生成商业计划书` : 'AI 商业计划生成中心'
-  const heroSubtitle = ideaTitle
+  const heroTitle = displayIdeaTitle ? `为《${displayIdeaTitle}》生成商业计划书` : 'AI 商业计划生成中心'
+  const heroSubtitle = displayIdeaTitle
     ? '系统检测到当前创意，选择合适的方式即可生成完整的商业计划书和落地指南。'
     : '整合调研、竞价与多模型能力，帮助你在几分钟内获得可执行的商业计划书。'
 
@@ -881,8 +425,8 @@ export default function BusinessPlanPage() {
               </CardTitle>
               <CardDescription>
                 {source === 'marketplace'
-                  ? `基于竞价结果为《${ideaTitle}》生成专业商业计划`
-                  : (ideaTitle ? `正在为《${ideaTitle}》生成创意落地指南` : '正在准备创意落地指南')
+                  ? `基于竞价结果为《${displayIdeaTitle}》生成专业商业计划`
+                  : (displayIdeaTitle ? `正在为《${displayIdeaTitle}》生成创意落地指南` : '正在准备创意落地指南')
                 }
               </CardDescription>
             </CardHeader>
