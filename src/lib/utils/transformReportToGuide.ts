@@ -1,7 +1,5 @@
-﻿// 璋冪爺鎶ュ憡杞崲涓鸿惤鍦版暀缁冩寚鍗楃殑宸ュ叿鍑芥暟
-import { ResearchReport } from '@prisma/client'
+﻿import type { ResearchReport } from '@prisma/client'
 
-// 钀藉湴鏁欑粌涓夋缁撴瀯鐨勬暟鎹被鍨?
 export interface ExecutionPlanPhase {
   name: string
   timeline: string
@@ -39,29 +37,26 @@ export interface ExecutionPlan {
 }
 
 export interface LandingCoachGuide {
-  // AI鐘€鍒╃偣璇勬満鍒?
   aiInsights?: {
     overallAssessment: {
-      score: number // 0-10鍒?
-      level: string // 椤圭洰娼滃姏绛夌骇
-      summary: string // 涓€鍙ヨ瘽鐘€鍒╃偣璇?
-      keyStrengths: string[] // 鏍稿績浼樺娍
-      criticalChallenges: string[] // 鍏抽敭鎸戞垬
+      score: number
+      level: string
+      summary: string
+      keyStrengths: string[]
+      criticalChallenges: string[]
     }
     sustainabilityAnalysis: {
-      longTermViability: string // 闀挎湡鍙鎬ц瘎浼?
-      persistenceFactors: string[] // 鍧氭寔鎴愬姛鐨勫叧閿洜绱?
-      riskMitigation: string[] // 椋庨櫓缂撹В寤鸿
+      longTermViability: string
+      persistenceFactors: string[]
+      riskMitigation: string[]
     }
     stageAlerts: Array<{
-      stage: string // 闃舵鍚嶇О
-      timeline: string // 鏃堕棿绾?
-      criticalMilestones: string[] // 鍏抽敭閲岀▼纰?
-      warningSignals: string[] // 棰勮淇″彿
+      stage: string
+      timeline: string
+      criticalMilestones: string[]
+      warningSignals: string[]
     }>
   }
-
-  // 绗竴娈碉細鐜扮姸璁ょ煡涓庢柟鍚戠‘璁?
   currentSituation: {
     title: string
     summary: string
@@ -79,8 +74,6 @@ export interface LandingCoachGuide {
     }
     actionItems: string[]
   }
-
-  // 绗簩娈碉細MVP浜у搧瀹氫箟涓庨獙璇佽鍒?
   mvpDefinition: {
     title: string
     productConcept: {
@@ -106,8 +99,6 @@ export interface LandingCoachGuide {
     }
     actionItems: string[]
   }
-
-  // 绗笁娈碉細鍟嗕笟鍖栬惤鍦颁笌杩愯惀绛栫暐
   businessExecution: {
     title: string
     businessModel: {
@@ -134,8 +125,7 @@ export interface LandingCoachGuide {
     }
     actionItems: string[]
   }
-
-  // 鍏冩暟鎹?
+  executionPlan?: ExecutionPlan
   metadata: {
     ideaTitle: string
     reportId?: string
@@ -149,462 +139,786 @@ export interface LandingCoachGuide {
   }
 }
 
-// 榛樿鐨勮惤鍦版暀缁冩ā鏉?
-export const BASE_LANDING_COACH_TEMPLATE: LandingCoachGuide = {
-  currentSituation: {
-    title: "鐜扮姸璁ょ煡涓庢柟鍚戠‘璁?,
-    summary: "姝ｅ湪鍒嗘瀽鎮ㄧ殑鍒涙剰鍦ㄥ綋鍓嶅競鍦虹幆澧冧腑鐨勫畾浣?..",
-    keyInsights: ["甯傚満鏈轰細璇嗗埆涓?, "鐢ㄦ埛闇€姹傞獙璇佷腑", "绔炰簤浼樺娍鍒嗘瀽涓?],
-    marketReality: {
-      marketSize: "甯傚満瑙勬ā鍒嗘瀽涓?..",
-      competition: "绔炰簤鎬佸娍璇勪及涓?..",
-      opportunities: ["鏈轰細鐐硅瘑鍒腑..."],
-      challenges: ["鎸戞垬璇嗗埆涓?.."]
-    },
-    userNeeds: {
-      targetUsers: "鐩爣鐢ㄦ埛鐢诲儚鏋勫缓涓?..",
-      painPoints: ["鐢ㄦ埛鐥涚偣鍒嗘瀽涓?.."],
-      solutions: ["瑙ｅ喅鏂规楠岃瘉涓?.."]
-    },
-    actionItems: ["绔嬪嵆寮€濮嬪競鍦鸿皟鐮?, "楠岃瘉鐢ㄦ埛闇€姹傚亣璁?, "鍒嗘瀽绔炰簤瀵规墜绛栫暐"]
-  },
-  mvpDefinition: {
-    title: "MVP浜у搧瀹氫箟涓庨獙璇佽鍒?,
-    productConcept: {
-      coreFeatures: ["鏍稿績鍔熻兘瀹氫箟涓?.."],
-      uniqueValue: "鐙壒浠峰€间富寮犲垎鏋愪腑...",
-      minimumScope: "鏈€灏忓彲琛屼骇鍝佽寖鍥磋鍒掍腑..."
-    },
-    developmentPlan: {
-      phases: [{
-        name: "鍘熷瀷寮€鍙戦樁娈?,
-        duration: "2-4鍛?,
-        deliverables: ["浜у搧鍘熷瀷", "鐢ㄦ埛鍙嶉"],
-        resources: ["寮€鍙戝洟闃?, "璁捐甯?]
-      }],
-      techStack: ["鎶€鏈爤閫夋嫨鍒嗘瀽涓?.."],
-      estimatedCost: "鎴愭湰浼扮畻涓?.."
-    },
-    validationStrategy: {
-      hypotheses: ["鏍稿績鍋囪璇嗗埆涓?.."],
-      experiments: ["楠岃瘉瀹為獙璁捐涓?.."],
-      successMetrics: ["鎴愬姛鎸囨爣瀹氫箟涓?.."],
-      timeline: "楠岃瘉鏃堕棿绾胯鍒掍腑..."
-    },
-    actionItems: ["瀹氫箟鏍稿績鍔熻兘", "鏋勫缓鏈€灏忓師鍨?, "璁捐楠岃瘉瀹為獙"]
-  },
-  businessExecution: {
-    title: "鍟嗕笟鍖栬惤鍦颁笌杩愯惀绛栫暐",
-    businessModel: {
-      revenueStreams: ["鏀跺叆妯″紡鍒嗘瀽涓?.."],
-      costStructure: ["鎴愭湰缁撴瀯瑙勫垝涓?.."],
-      pricingStrategy: "瀹氫环绛栫暐鍒跺畾涓?..",
-      scalability: "鎵╁睍鎬ц瘎浼颁腑..."
-    },
-    launchStrategy: {
-      phases: [{
-        name: "杞惎鍔ㄩ樁娈?,
-        timeline: "绗?-2涓湀",
-        goals: ["鑾峰彇鏃╂湡鐢ㄦ埛", "鏀堕泦鍙嶉"],
-        tactics: ["灏忚寖鍥存祴璇?, "鍙ｇ浼犳挱"]
-      }],
-      marketingChannels: ["钀ラ攢娓犻亾閫夋嫨涓?.."],
-      budgetAllocation: ["棰勭畻鍒嗛厤瑙勫垝涓?.."]
-    },
-    operationalPlan: {
-      teamStructure: ["鍥㈤槦缁撴瀯璁捐涓?.."],
-      processes: ["涓氬姟娴佺▼瑙勫垝涓?.."],
-      infrastructure: ["鍩虹璁炬柦闇€姹傚垎鏋愪腑..."],
-      riskManagement: ["椋庨櫓绠＄悊绛栫暐鍒跺畾涓?.."]
-    },
-    actionItems: ["鍒跺畾鍟嗕笟妯″紡", "璁捐鍚姩绛栫暐", "寤虹珛杩愯惀浣撶郴"]
-  },
-  metadata: {
-    ideaTitle: "鍒涙剰椤圭洰",
-    generatedAt: new Date(),
-    estimatedReadTime: 15,
-    implementationTimeframe: "3-6涓湀",
-    confidenceLevel: 75
+const clone = <T>(value: T): T => JSON.parse(JSON.stringify(value))
+
+const toText = (value: unknown, fallback: string): string => {
+  if (typeof value === 'string') {
+    const trimmed = value.trim()
+    return trimmed.length > 0 ? trimmed : fallback
   }
+  if (value === null || value === undefined) {
+    return fallback
+  }
+  return String(value)
 }
 
-/**
- * 灏嗚皟鐮旀姤鍛婅浆鎹负钀藉湴鏁欑粌鎸囧崡
- * @param report 璋冪爺鎶ュ憡鏁版嵁
- * @returns 钀藉湴鏁欑粌鎸囧崡
- */
-export function transformReportToGuide(report: any): LandingCoachGuide {
-  try {
-    const guide: LandingCoachGuide = JSON.parse(JSON.stringify(BASE_LANDING_COACH_TEMPLATE))
-
-    // 鏇存柊鍏冩暟鎹?
-    if (report.idea) {
-      guide.metadata.ideaTitle = report.idea.title || "鍒涙剰椤圭洰"
-    }
-    guide.metadata.generatedAt = new Date(report.createdAt || Date.now())
-
-    // 绗竴娈碉細鐜扮姸璁ょ煡涓庢柟鍚戠‘璁?
-    if (report.basicAnalysis) {
-      const analysis = report.basicAnalysis
-
-      guide.currentSituation.summary = analysis.summary || analysis.marketOverview || "甯傚満鐜鍒嗘瀽瀹屾垚"
-
-      if (analysis.keyInsights) {
-        guide.currentSituation.keyInsights = Array.isArray(analysis.keyInsights)
-          ? analysis.keyInsights
-          : [analysis.keyInsights]
-      }
-
-      if (analysis.marketAnalysis) {
-        guide.currentSituation.marketReality = {
-          marketSize: analysis.marketAnalysis.size || "甯傚満瑙勬ā锛氭湁寰呰繘涓€姝ヨ皟鐮?,
-          competition: analysis.marketAnalysis.competition || "绔炰簤鏍煎眬锛氫腑绛夌珵浜夊己搴?,
-          opportunities: analysis.marketAnalysis.opportunities || ["甯傚満鏈轰細璇嗗埆涓?],
-          challenges: analysis.marketAnalysis.challenges || ["鎸戞垬鍒嗘瀽涓?]
-        }
-      }
-
-      if (analysis.userAnalysis) {
-        guide.currentSituation.userNeeds = {
-          targetUsers: analysis.userAnalysis.targetUsers || "鐩爣鐢ㄦ埛缇や綋鍒嗘瀽涓?,
-          painPoints: analysis.userAnalysis.painPoints || ["鐢ㄦ埛鐥涚偣璇嗗埆涓?],
-          solutions: analysis.userAnalysis.solutions || ["瑙ｅ喅鏂规浼樺寲涓?]
-        }
-      }
-    }
-
-    // 绗簩娈碉細MVP浜у搧瀹氫箟涓庨獙璇佽鍒?
-    if (report.mvpGuidance) {
-      const mvp = report.mvpGuidance
-
-      if (mvp.productDefinition) {
-        guide.mvpDefinition.productConcept = {
-          coreFeatures: mvp.productDefinition.coreFeatures || ["鏍稿績鍔熻兘瀹氫箟涓?],
-          uniqueValue: mvp.productDefinition.uniqueValue || "鐙壒浠峰€间富寮犵‘璁や腑",
-          minimumScope: mvp.productDefinition.scope || "鏈€灏忓彲琛屼骇鍝佽寖鍥磋鍒掍腑"
-        }
-      }
-
-      if (mvp.developmentPlan) {
-        guide.mvpDefinition.developmentPlan = {
-          phases: mvp.developmentPlan.phases || guide.mvpDefinition.developmentPlan.phases,
-          techStack: mvp.developmentPlan.techStack || ["鎶€鏈€夊瀷鍒嗘瀽涓?],
-          estimatedCost: mvp.developmentPlan.budget || "鎴愭湰棰勪及锛毬?0,000 - 楼200,000"
-        }
-      }
-
-      if (mvp.validationStrategy) {
-        guide.mvpDefinition.validationStrategy = {
-          hypotheses: mvp.validationStrategy.hypotheses || ["鏍稿績鍋囪楠岃瘉涓?],
-          experiments: mvp.validationStrategy.experiments || ["楠岃瘉瀹為獙璁捐涓?],
-          successMetrics: mvp.validationStrategy.metrics || ["鎴愬姛鎸囨爣纭畾涓?],
-          timeline: mvp.validationStrategy.timeline || "4-8鍛ㄩ獙璇佸懆鏈?
-        }
-      }
-    }
-
-    // 绗笁娈碉細鍟嗕笟鍖栬惤鍦颁笌杩愯惀绛栫暐
-    if (report.businessModel) {
-      const business = report.businessModel
-
-      if (business.revenueModel) {
-        guide.businessExecution.businessModel = {
-          revenueStreams: business.revenueModel.streams || ["鏀跺叆鏉ユ簮鍒嗘瀽涓?],
-          costStructure: business.costStructure || ["鎴愭湰缁撴瀯瑙勫垝涓?],
-          pricingStrategy: business.pricingStrategy || "瀹氫环绛栫暐鍒跺畾涓?,
-          scalability: business.scalability || "瑙勬ā鍖栨綔鍔涜瘎浼颁腑"
-        }
-      }
-
-      if (business.launchPlan) {
-        guide.businessExecution.launchStrategy = {
-          phases: business.launchPlan.phases || guide.businessExecution.launchStrategy.phases,
-          marketingChannels: business.launchPlan.channels || ["钀ラ攢娓犻亾浼樺寲涓?],
-          budgetAllocation: business.launchPlan.budget || ["棰勭畻鍒嗛厤瑙勫垝涓?]
-        }
-      }
-
-      if (business.operations) {
-        guide.businessExecution.operationalPlan = {
-          teamStructure: business.operations.team || ["鍥㈤槦鏋舵瀯璁捐涓?],
-          processes: business.operations.processes || ["娴佺▼鏍囧噯鍖栦腑"],
-          infrastructure: business.operations.infrastructure || ["鍩虹璁炬柦闇€姹傚垎鏋愪腑"],
-          riskManagement: business.operations.risks || ["椋庨櫓鎺у埗绛栫暐鍒跺畾涓?]
-        }
-      }
-    }
-
-    // 鐢熸垚琛屽姩椤圭洰
-    guide.currentSituation.actionItems = generateActionItems("璁ょ煡闃舵", report)
-    guide.mvpDefinition.actionItems = generateActionItems("MVP闃舵", report)
-    guide.businessExecution.actionItems = generateActionItems("鍟嗕笟鍖栭樁娈?, report)
-
-    // 璁＄畻缃俊搴?
-    guide.metadata.confidenceLevel = calculateConfidenceLevel(report)
-
-    return guide
-
-  } catch (error) {
-    console.error("杞崲璋冪爺鎶ュ憡鍒拌惤鍦版寚鍗楀け璐?", error)
-    return {
-      ...BASE_LANDING_COACH_TEMPLATE,
-      metadata: {
-        ...BASE_LANDING_COACH_TEMPLATE.metadata,
-        ideaTitle: report?.idea?.title || "鍒涙剰椤圭洰",
-        confidenceLevel: 30
-      }
-    }
+const toList = (value: unknown, fallback: string[] = []): string[] => {
+  if (!value && value !== 0) {
+    return [...fallback]
   }
+
+  if (Array.isArray(value)) {
+    return value
+      .map(item => toText(item, ''))
+      .filter(item => item.length > 0)
+  }
+
+  const text = toText(value, '')
+  return text ? [text] : [...fallback]
 }
 
-/**
- * 鏍规嵁闃舵鐢熸垚鍏蜂綋鐨勮鍔ㄩ」鐩?
- */
-function generateActionItems(stage: string, report: any): string[] {
-  const baseActions = {
-    "璁ょ煡闃舵": [
-      "瀹屾垚鐢ㄦ埛璁胯皥5-10浜猴紝楠岃瘉闂鍋囪",
-      "鍒嗘瀽3-5涓洿鎺ョ珵浜夊鎵嬬殑浜у搧鐗瑰緛",
-      "鍒跺畾鐢ㄦ埛鐢诲儚鍜屼娇鐢ㄥ満鏅湴鍥?,
-      "璇勪及甯傚満杩涘叆鏃舵満鍜岀珵浜夌瓥鐣?
+const mergeLists = (base: string[], addition: string[]): string[] => {
+  const seen = new Set<string>()
+  const result: string[] = []
+  for (const item of [...base, ...addition]) {
+    const value = toText(item, '')
+    if (!value) continue
+    if (seen.has(value)) continue
+    seen.add(value)
+    result.push(value)
+  }
+  return result
+}
+const defaultExecutionPlan: ExecutionPlan = {
+  mission: 'Complete validation within 90 days.',
+  summary:
+    'Three focused phases keep learning loops fast, decisions evidence-based, and execution steady.',
+  phases: [
+    {
+      name: 'Phase 1 - Market Insight & Positioning',
+      timeline: 'Day 1 - Day 30',
+      focus: 'Interview target users, map competitors, and sharpen the value proposition.',
+      keyOutcomes: [
+        '15+ structured customer conversations',
+        'Competitive landscape map with differentiation notes',
+        'Draft positioning and value proposition statement'
+      ],
+      metrics: [
+        'Persona clarity score >= 80%',
+        'Top three pains confirmed by 60%+ of interviewees'
+      ]
+    },
+    {
+      name: 'Phase 2 - MVP Build & Validation',
+      timeline: 'Day 31 - Day 60',
+      focus: 'Translate insight into a focused MVP and validate core assumptions.',
+      keyOutcomes: [
+        'High-fidelity prototype and prioritised backlog',
+        'MVP v1.0 shipped to pilot cohort',
+        '30+ actionable pieces of usage feedback'
+      ],
+      metrics: [
+        'Critical feature completion >= 80%',
+        'Activation or task success rate >= 60%'
+      ]
+    },
+    {
+      name: 'Phase 3 - Go-to-Market & Operations',
+      timeline: 'Day 61 - Day 90',
+      focus: 'Prove commercial traction, document repeatable operations, and prepare scale levers.',
+      keyOutcomes: [
+        'Signed lighthouse customer or pilot renewal',
+        'Revenue or retention model validated',
+        'Documented operating and support playbooks'
+      ],
+      metrics: [
+        'Pilot retention >= 50%',
+        'Sales/marketing funnel conversion benchmarks defined'
+      ]
+    }
+  ],
+  weeklySprints: [
+    {
+      name: 'Sprint 1-2 · Insight Bootcamp',
+      focus: 'Collect real user evidence and frame opportunity areas.',
+      objectives: [
+        'Lock target persona and JTBD',
+        'Quantify top problems with lightweight survey',
+        'Map competitor promises versus gaps'
+      ],
+      feedbackHooks: ['Interview summaries', 'Problem ranking workshop', 'Competitor teardown notes']
+    },
+    {
+      name: 'Sprint 3-4 · Prototype & Signals',
+      focus: 'Prototype critical journeys and validate desirability quickly.',
+      objectives: [
+        'Build interactive prototype for main flows',
+        'Run hallway/usability tests with 5-7 users',
+        'Track qualitative sentiment and friction points'
+      ],
+      feedbackHooks: ['Prototype testing sessions', 'Usability scorecard', 'Design review playback']
+    },
+    {
+      name: 'Sprint 5-6 · MVP Launch',
+      focus: 'Ship the lean MVP and measure adoption with tight loops.',
+      objectives: [
+        'Release MVP to pilot group',
+        'Instrument analytics and feedback widgets',
+        'Run weekly retention and conversion reviews'
+      ],
+      feedbackHooks: ['Product analytics dashboard', 'Pilot check-in calls', 'Retention curve snapshot']
+    },
+    {
+      name: 'Sprint 7-9 · Growth Engine',
+      focus: 'Prove acquisition economics and stabilise operations.',
+      objectives: [
+        'Test at least two scalable acquisition channels',
+        'Define pricing and packaging experiment',
+        'Document onboarding and support SOPs'
+      ],
+      feedbackHooks: ['Channel experiment log', 'Pricing learning report', 'Support ticket review']
+    }
+  ],
+  feedbackLoop: {
+    cadence: ['Weekly discovery playback', 'Bi-weekly growth stand-up', 'Monthly strategy review'],
+    channels: ['User interviews', 'Product analytics', 'Revenue dashboard', 'Support pulse'],
+    decisionGates: ['Problem-solution fit validated', 'Healthy MVP retention', 'Scalable acquisition identified'],
+    tooling: ['Notion OS', 'Linear', 'Amplitude or Looker', 'Miro collaboration boards']
+  },
+  dailyRoutines: [
+    'Morning 15-minute KPI review and blockers sync',
+    'Daily user signal triage (feedback, tickets, analytics anomalies)',
+    'Time-boxed maker blocks for product or go-to-market experiments',
+    'End-of-day learning log capturing decisions and open questions'
+  ],
+  reviewFramework: {
+    weekly: [
+      'Outcome-focused team review (what moved, what stalled)',
+      'Customer signal debrief and next hypothesis selection',
+      'Risk register refresh with owners/actions'
     ],
-    "MVP闃舵": [
-      "鏋勫缓浜у搧鍘熷瀷骞惰繘琛屽唴閮ㄦ祴璇?,
-      "鎷涘嫙20-50鍚嶆棭鏈熸祴璇曠敤鎴?,
-      "璁捐A/B娴嬭瘯楠岃瘉鏍稿績鍋囪",
-      "寤虹珛鐢ㄦ埛鍙嶉鏀堕泦鍜屽垎鏋愭満鍒?
+    monthly: [
+      'North-star metric trajectory versus targets',
+      'Resource and budget health check',
+      'Strategic bet review and roadmap adjustments'
     ],
-    "鍟嗕笟鍖栭樁娈?: [
-      "鍒跺畾璇︾粏鐨勫晢涓氳鍒掑拰璐㈠姟棰勬祴",
-      "寤虹珛閿€鍞拰钀ラ攢浣撶郴",
-      "璁捐鐢ㄦ埛鑾峰彇鍜岀暀瀛樼瓥鐣?,
-      "鍒跺畾鎵╁紶璁″垝鍜岃瀺璧勬柟妗?
+    dataWatch: [
+      'Activation, retention, and referral funnel trends',
+      'Acquisition cost versus LTV indicators',
+      'Customer effort score and support load'
     ]
   }
-
-  return baseActions[stage] || [
-    "鍒跺畾鍏蜂綋鐨勬墽琛岃鍒?,
-    "鍒嗛厤鍥㈤槦瑙掕壊鍜岃矗浠?,
-    "璁惧畾闃舵鎬х洰鏍囧拰妫€鏌ョ偣",
-    "寤虹珛椋庨櫓鐩戞帶鍜屽簲瀵规満鍒?
-  ]
 }
 
-/**
- * 鏍规嵁鎶ュ憡鏁版嵁璐ㄩ噺璁＄畻缃俊搴?
- */
-function calculateConfidenceLevel(report: any): number {
-  let score = 30 // 鍩虹鍒?
+export const BASE_LANDING_COACH_TEMPLATE: LandingCoachGuide = {
+  aiInsights: {
+    overallAssessment: {
+      score: 8,
+      level: 'Promising',
+      summary: 'The idea resonates with a clearly underserved segment and shows early signs of viability.',
+      keyStrengths: [
+        'Clear customer pain with quantified urgency',
+        'Founding team insight and domain depth',
+        'Product vision aligns with measurable business outcomes'
+      ],
+      criticalChallenges: [
+        'Proof of willingness to pay is still limited',
+        'Operational readiness for scale remains untested',
+        'Team capacity must support parallel experiments'
+      ]
+    },
+    sustainabilityAnalysis: {
+      longTermViability: 'Balanced growth path if retention loops are prioritised and cost discipline maintained.',
+      persistenceFactors: [
+        'Close proximity to customers keeps insight fresh',
+        'Roadmap emphasises habit-forming value props',
+        'Early adopter community willing to co-create and advocate'
+      ],
+      riskMitigation: [
+        'Schedule quarterly roadmap and finance reviews',
+        'Create contingency plans for critical vendors',
+        'Document repeatable processes to avoid single points of failure'
+      ]
+    },
+    stageAlerts: [
+      {
+        stage: 'Discovery refinement',
+        timeline: 'Weeks 1-4',
+        criticalMilestones: [
+          'Validated top three customer pains',
+          'Persona and JTBD documented with evidence',
+          'Differentiated value proposition tested with interviews'
+        ],
+        warningSignals: [
+          'Interviews surface fragmented pains with low urgency',
+          'Competitors already solving core needs with solid adoption'
+        ]
+      },
+      {
+        stage: 'MVP & pilot',
+        timeline: 'Weeks 5-8',
+        criticalMilestones: [
+          'Pilot cohort onboarded and actively using MVP',
+          'Instrumentation in place for activation and retention signals',
+          'Qualitative feedback loop established with weekly cadence'
+        ],
+        warningSignals: [
+          'Pilot usage drops below 40% weekly active',
+          'No clear “aha” moment identified from user sessions'
+        ]
+      },
+      {
+        stage: 'Growth and operations',
+        timeline: 'Weeks 9-12',
+        criticalMilestones: [
+          'Repeatable acquisition channel with positive unit economics',
+          'Support and onboarding playbooks documented and tested',
+          'Pricing experiment validated with paying customers'
+        ],
+        warningSignals: [
+          'Acquisition costs climb without matching retention',
+          'Support load increases faster than team capacity',
+          'Cash runway drops below six months without plan to extend'
+        ]
+      }
+    ]
+  },
+  currentSituation: {
+    title: 'Current situation & alignment',
+    summary:
+      'We aligned the founding team around the market context, customer pains, and desired 90-day outcomes.',
+    keyInsights: [
+      'Market demand is concentrated in a niche willing to pay for speed and reliability',
+      'Economic buyers value demonstrable ROI within a quarter',
+      'A challenger narrative differentiates against legacy incumbents'
+    ],
+    marketReality: {
+      marketSize: 'Serviceable obtainable market estimated at $25M ARR within two years.',
+      competition: 'Legacy vendors optimise for compliance rather than agility; startups focus on DIY workflows.',
+      opportunities: [
+        'Customers frustrated by lengthy onboarding cycles and rigid contracts',
+        'Adjacent automation and analytics categories offer expansion paths'
+      ],
+      challenges: [
+        'Procurement cycles can stretch beyond 60 days',
+        'High-touch onboarding currently depends on founders'
+      ]
+    },
+    userNeeds: {
+      targetUsers: 'Operators in mid-market teams accountable for recurring execution under tight deadlines.',
+      painPoints: [
+        'Manual orchestration creates frequent hand-off delays',
+        'Limited visibility into performance and accountability',
+        'Tool sprawl results in duplicated effort and errors'
+      ],
+      solutions: [
+        'Automated workflow templates with guardrails',
+        'Real-time collaboration dashboard with alerts',
+        'Outcome tracking linked to customer SLAs'
+      ]
+    },
+    actionItems: [
+      'Refine persona messaging and circulate to GTM team',
+      'Build objection-handling guide from recent interviews',
+      'Run weekly customer roundtable to keep insight fresh'
+    ]
+  },
+  mvpDefinition: {
+    title: 'MVP value proposition',
+    productConcept: {
+      coreFeatures: [
+        'Template-driven workflow builder with guardrails',
+        'Collaboration timeline that highlights owners and blockers',
+        'Analytics module that surfaces bottlenecks and impact'
+      ],
+      uniqueValue: 'Deliver always-on execution visibility without adding management overhead.',
+      minimumScope: 'Focus on two core workflows and a single analytics dashboard for pilot accounts.'
+    },
+    developmentPlan: {
+      phases: [
+        {
+          name: 'Phase A · Prototype',
+          duration: '2 weeks',
+          deliverables: ['Clickable prototype', 'Usability testing notes'],
+          resources: ['Product design', 'Engineering lead']
+        },
+        {
+          name: 'Phase B · MVP build',
+          duration: '4 weeks',
+          deliverables: ['MVP v1.0', 'Instrumentation and logging', 'Pilot onboarding toolkit'],
+          resources: ['Core engineering squad', 'QA', 'Customer success lead']
+        },
+        {
+          name: 'Phase C · Pilot iteration',
+          duration: '3 weeks',
+          deliverables: ['Retention improvements', 'Support playbook v1', 'Pricing experiment assets'],
+          resources: ['Engineering', 'Customer success', 'Growth PMM']
+        }
+      ],
+      techStack: ['Next.js', 'Prisma/PostgreSQL', 'Trigger.dev for automation', 'Segment + Amplitude'],
+      estimatedCost: 'Approximately $45k including people cost and tooling subscriptions.'
+    },
+    validationStrategy: {
+      hypotheses: [
+        'Operators will adopt guided workflows if setup time is under 15 minutes',
+        'Real-time visibility reduces blocker resolution time by 30%',
+        'Economic buyers approve budget with ROI evidence within 60 days'
+      ],
+      experiments: [
+        'A/B onboarding flow test with pilot cohort',
+        'Resolution time tracking before and after platform adoption',
+        'Pricing and packaging interviews with economic buyers'
+      ],
+      successMetrics: [
+        'Activation within 7 days >= 70%',
+        'Weekly active operator ratio >= 60%',
+        'Net promoter score >= 30 by week 8'
+      ],
+      timeline: 'Hypotheses validated or revised by the end of week 8.'
+    },
+    actionItems: [
+      'Prioritise backlog by impact versus effort against hypotheses',
+      'Confirm pilot success criteria with customers before build completion',
+      'Set up analytics dashboards and qualitative feedback tags'
+    ]
+  },
+  businessExecution: {
+    title: 'Commercialisation & operations plan',
+    businessModel: {
+      revenueStreams: ['Subscription tiers based on workflow volume', 'Implementation services for enterprise tiers'],
+      costStructure: ['Core product squad', 'Customer success pods', 'Cloud infrastructure and tooling'],
+      pricingStrategy: 'Usage-based floor with expansion pricing tied to automated workflows.',
+      scalability: 'Modular architecture and playbooks enable regional pods without custom rebuilds.'
+    },
+    launchStrategy: {
+      phases: [
+        {
+          name: 'Launch wave 1',
+          timeline: 'Weeks 1-4',
+          goals: ['Secure three design partners', 'Publish thought leadership asset'],
+          tactics: ['Founder-led outreach', 'Industry roundtable', 'Co-marketing with integrators']
+        },
+        {
+          name: 'Launch wave 2',
+          timeline: 'Weeks 5-8',
+          goals: ['Activate referral program', 'Host live product workshop'],
+          tactics: ['Customer referral incentives', 'Partner webinar', 'Targeted paid experiments']
+        },
+        {
+          name: 'Launch wave 3',
+          timeline: 'Weeks 9-12',
+          goals: ['Scale inbound pipeline', 'Transition to repeatable sales motion'],
+          tactics: ['Content and SEO engine', 'SDR enablement kit', 'Lifecycle nurture sequences']
+        }
+      ],
+      marketingChannels: ['Founder-led outbound', 'Partner ecosystem', 'Content and community'],
+      budgetAllocation: ['40% demand generation', '35% customer success enablement', '25% product-led growth experiments']
+    },
+    operationalPlan: {
+      teamStructure: ['Core squad: PM, tech lead, three engineers, designer', 'Customer success pod (CSM + support)'],
+      processes: ['Weekly growth/product council', 'Incident response and post-mortem ritual', 'Quarterly roadmap + finance sync'],
+      infrastructure: ['Observability stack', 'CRM and success tools', 'Automation platform for workflows'],
+      riskManagement: ['Risk register with owners', 'Runway and burn-down tracker', 'Vendor redundancy plan']
+    },
+    actionItems: [
+      'Define hiring plan for the success pod once pilot conversion hits target',
+      'Document onboarding checklist with QA gates',
+      'Create shared scorecard for product, growth, and success teams'
+    ]
+  },
+  executionPlan: defaultExecutionPlan,
+  metadata: {
+    ideaTitle: 'New market idea',
+    generatedAt: new Date().toISOString(),
+    estimatedReadTime: 12,
+    implementationTimeframe: '90 days',
+    confidenceLevel: 70
+  }
+}
+const pickImplementationTimeframe = (report: any): string => {
+  const raw = toText(
+    report?.implementationTimeframe ??
+      report?.plan?.timeframe ??
+      report?.timeline ??
+      '',
+    ''
+  )
+  if (raw) return raw
+  const duration = Number(report?.executionPlan?.duration ?? report?.plan?.duration ?? 0)
+  if (!Number.isNaN(duration) && duration > 0) {
+    return `${duration} days`
+  }
+  return BASE_LANDING_COACH_TEMPLATE.metadata.implementationTimeframe
+}
 
-  // 鍩虹鍒嗘瀽璐ㄩ噺
-  if (report.basicAnalysis) {
-    score += 20
+const calculateConfidenceLevel = (report: any): number => {
+  let score = 40
+  if (report?.basicAnalysis) {
+    score += 15
     if (report.basicAnalysis.marketAnalysis) score += 10
     if (report.basicAnalysis.userAnalysis) score += 10
   }
-
-  // MVP鎸囧璐ㄩ噺
-  if (report.mvpGuidance) {
-    score += 15
-    if (report.mvpGuidance.developmentPlan) score += 10
+  if (report?.mvpGuidance) {
+    score += 10
+    if (report.mvpGuidance.developmentPlan) score += 5
   }
-
-  // 鍟嗕笟妯″紡璐ㄩ噺
-  if (report.businessModel) {
-    score += 15
-    if (report.businessModel.revenueModel) score += 10
+  if (report?.businessModel) {
+    score += 10
+    if (report.businessModel.revenueModel || report.businessModel.launchPlan) score += 5
   }
-
-  // 鎶ュ憡瀹屾垚搴?
-  if (report.status === 'COMPLETED') score += 10
-  if (report.progress >= 80) score += 5
-
-  return Math.min(score, 95) // 鏈€楂?5鍒嗭紝鐣欐湁鏀硅繘绌洪棿
+  if (report?.executionPlan) score += 10
+  if (report?.status === 'COMPLETED') score += 5
+  const progress = Number(report?.progress ?? 0)
+  if (!Number.isNaN(progress)) {
+    score += Math.min(progress / 5, 10)
+  }
+  return Math.max(25, Math.min(95, Math.round(score)))
 }
 
-/**
- * 鐢熸垚鍙笅杞界殑钀藉湴鎸囧崡Markdown鍐呭
- */
+const normaliseExecutionPlan = (plan: any): ExecutionPlan => {
+  if (!plan) return clone(defaultExecutionPlan)
+  const base = clone(defaultExecutionPlan)
+  return {
+    mission: toText(plan.mission, base.mission),
+    summary: toText(plan.summary, base.summary),
+    phases: Array.isArray(plan.phases) && plan.phases.length
+      ? plan.phases.map((phase: any, index: number) => ({
+          name: toText(phase.name, base.phases[index % base.phases.length].name),
+          timeline: toText(phase.timeline, base.phases[index % base.phases.length].timeline),
+          focus: toText(phase.focus, base.phases[index % base.phases.length].focus),
+          keyOutcomes: mergeLists(base.phases[index % base.phases.length].keyOutcomes, toList(phase.keyOutcomes)),
+          metrics: mergeLists(base.phases[index % base.phases.length].metrics, toList(phase.metrics))
+        }))
+      : base.phases,
+    weeklySprints: Array.isArray(plan.weeklySprints) && plan.weeklySprints.length
+      ? plan.weeklySprints.map((sprint: any, index: number) => ({
+          name: toText(sprint.name, base.weeklySprints[index % base.weeklySprints.length].name),
+          focus: toText(sprint.focus, base.weeklySprints[index % base.weeklySprints.length].focus),
+          objectives: mergeLists(base.weeklySprints[index % base.weeklySprints.length].objectives, toList(sprint.objectives)),
+          feedbackHooks: mergeLists(base.weeklySprints[index % base.weeklySprints.length].feedbackHooks, toList(sprint.feedbackHooks))
+        }))
+      : base.weeklySprints,
+    feedbackLoop: {
+      cadence: mergeLists(base.feedbackLoop.cadence, toList(plan.feedbackLoop?.cadence)),
+      channels: mergeLists(base.feedbackLoop.channels, toList(plan.feedbackLoop?.channels)),
+      decisionGates: mergeLists(base.feedbackLoop.decisionGates, toList(plan.feedbackLoop?.decisionGates)),
+      tooling: mergeLists(base.feedbackLoop.tooling, toList(plan.feedbackLoop?.tooling))
+    },
+    dailyRoutines: mergeLists(base.dailyRoutines, toList(plan.dailyRoutines)),
+    reviewFramework: {
+      weekly: mergeLists(base.reviewFramework.weekly, toList(plan.reviewFramework?.weekly)),
+      monthly: mergeLists(base.reviewFramework.monthly, toList(plan.reviewFramework?.monthly)),
+      dataWatch: mergeLists(base.reviewFramework.dataWatch, toList(plan.reviewFramework?.dataWatch))
+    }
+  }
+}
+export function transformReportToGuide(report: Partial<ResearchReport> & Record<string, any>): LandingCoachGuide {
+  const guide = clone(BASE_LANDING_COACH_TEMPLATE)
+
+  guide.metadata.ideaTitle = toText(
+    report?.idea?.title ?? report?.ideaTitle ?? report?.title,
+    guide.metadata.ideaTitle
+  )
+  guide.metadata.reportId = toText(report?.id ?? report?.reportId ?? '', '') || undefined
+  guide.metadata.generatedAt = new Date(report?.updatedAt ?? report?.createdAt ?? Date.now()).toISOString()
+  guide.metadata.estimatedReadTime = Number(report?.estimatedReadTime ?? guide.metadata.estimatedReadTime)
+  guide.metadata.implementationTimeframe = pickImplementationTimeframe(report)
+  guide.metadata.confidenceLevel = calculateConfidenceLevel(report)
+  if (report?.source) guide.metadata.source = String(report.source)
+  if (typeof report?.winningBid === 'number') guide.metadata.winningBid = report.winningBid
+  if (report?.winner) guide.metadata.winner = String(report.winner)
+
+  const analysis = report?.basicAnalysis ?? {}
+  guide.currentSituation.summary = toText(
+    analysis.summary ?? analysis.marketOverview,
+    guide.currentSituation.summary
+  )
+  guide.currentSituation.keyInsights = mergeLists(
+    guide.currentSituation.keyInsights,
+    toList(analysis.keyInsights)
+  )
+  const market = analysis.marketAnalysis ?? {}
+  guide.currentSituation.marketReality = {
+    marketSize: toText(market.size, guide.currentSituation.marketReality.marketSize),
+    competition: toText(market.competition, guide.currentSituation.marketReality.competition),
+    opportunities: mergeLists(guide.currentSituation.marketReality.opportunities, toList(market.opportunities)),
+    challenges: mergeLists(guide.currentSituation.marketReality.challenges, toList(market.challenges))
+  }
+  const user = analysis.userAnalysis ?? {}
+  guide.currentSituation.userNeeds = {
+    targetUsers: toText(user.targetUsers, guide.currentSituation.userNeeds.targetUsers),
+    painPoints: mergeLists(guide.currentSituation.userNeeds.painPoints, toList(user.painPoints)),
+    solutions: mergeLists(guide.currentSituation.userNeeds.solutions, toList(user.solutions))
+  }
+  guide.currentSituation.actionItems = mergeLists(
+    guide.currentSituation.actionItems,
+    toList(analysis.nextSteps ?? analysis.recommendations)
+  )
+
+  const mvp = report?.mvpGuidance ?? {}
+  const productDefinition = mvp.productDefinition ?? {}
+  guide.mvpDefinition.productConcept = {
+    coreFeatures: mergeLists(guide.mvpDefinition.productConcept.coreFeatures, toList(productDefinition.coreFeatures)),
+    uniqueValue: toText(productDefinition.uniqueValue, guide.mvpDefinition.productConcept.uniqueValue),
+    minimumScope: toText(productDefinition.scope, guide.mvpDefinition.productConcept.minimumScope)
+  }
+  const developmentPlan = mvp.developmentPlan ?? {}
+  guide.mvpDefinition.developmentPlan = {
+    phases: Array.isArray(developmentPlan.phases) && developmentPlan.phases.length
+      ? developmentPlan.phases.map((phase: any, index: number) => ({
+          name: toText(phase.name, guide.mvpDefinition.developmentPlan.phases[index % guide.mvpDefinition.developmentPlan.phases.length].name),
+          duration: toText(phase.duration, guide.mvpDefinition.developmentPlan.phases[index % guide.mvpDefinition.developmentPlan.phases.length].duration),
+          deliverables: mergeLists(
+            guide.mvpDefinition.developmentPlan.phases[index % guide.mvpDefinition.developmentPlan.phases.length].deliverables,
+            toList(phase.deliverables)
+          ),
+          resources: mergeLists(
+            guide.mvpDefinition.developmentPlan.phases[index % guide.mvpDefinition.developmentPlan.phases.length].resources,
+            toList(phase.resources)
+          )
+        }))
+      : guide.mvpDefinition.developmentPlan.phases,
+    techStack: mergeLists(guide.mvpDefinition.developmentPlan.techStack, toList(developmentPlan.techStack)),
+    estimatedCost: toText(
+      developmentPlan.budget ?? developmentPlan.estimatedCost,
+      guide.mvpDefinition.developmentPlan.estimatedCost
+    )
+  }
+  const validationStrategy = mvp.validationStrategy ?? {}
+  guide.mvpDefinition.validationStrategy = {
+    hypotheses: mergeLists(guide.mvpDefinition.validationStrategy.hypotheses, toList(validationStrategy.hypotheses)),
+    experiments: mergeLists(guide.mvpDefinition.validationStrategy.experiments, toList(validationStrategy.experiments)),
+    successMetrics: mergeLists(guide.mvpDefinition.validationStrategy.successMetrics, toList(validationStrategy.metrics ?? validationStrategy.successMetrics)),
+    timeline: toText(validationStrategy.timeline, guide.mvpDefinition.validationStrategy.timeline)
+  }
+  guide.mvpDefinition.actionItems = mergeLists(
+    guide.mvpDefinition.actionItems,
+    toList(mvp.nextSteps)
+  )
+
+  const business = report?.businessModel ?? {}
+  const revenueModel = business.revenueModel ?? {}
+  guide.businessExecution.businessModel = {
+    revenueStreams: mergeLists(guide.businessExecution.businessModel.revenueStreams, toList(revenueModel.streams ?? business.revenueStreams)),
+    costStructure: mergeLists(guide.businessExecution.businessModel.costStructure, toList(business.costStructure)),
+    pricingStrategy: toText(business.pricingStrategy, guide.businessExecution.businessModel.pricingStrategy),
+    scalability: toText(business.scalability, guide.businessExecution.businessModel.scalability)
+  }
+  const launchPlan = business.launchPlan ?? {}
+  guide.businessExecution.launchStrategy = {
+    phases: Array.isArray(launchPlan.phases) && launchPlan.phases.length
+      ? launchPlan.phases.map((phase: any, index: number) => ({
+          name: toText(phase.name, guide.businessExecution.launchStrategy.phases[index % guide.businessExecution.launchStrategy.phases.length].name),
+          timeline: toText(phase.timeline, guide.businessExecution.launchStrategy.phases[index % guide.businessExecution.launchStrategy.phases.length].timeline),
+          goals: mergeLists(guide.businessExecution.launchStrategy.phases[index % guide.businessExecution.launchStrategy.phases.length].goals, toList(phase.goals)),
+          tactics: mergeLists(guide.businessExecution.launchStrategy.phases[index % guide.businessExecution.launchStrategy.phases.length].tactics, toList(phase.tactics))
+        }))
+      : guide.businessExecution.launchStrategy.phases,
+    marketingChannels: mergeLists(guide.businessExecution.launchStrategy.marketingChannels, toList(launchPlan.channels ?? business.marketingChannels)),
+    budgetAllocation: mergeLists(guide.businessExecution.launchStrategy.budgetAllocation, toList(launchPlan.budget ?? business.budgetAllocation))
+  }
+  const operations = business.operations ?? {}
+  guide.businessExecution.operationalPlan = {
+    teamStructure: mergeLists(guide.businessExecution.operationalPlan.teamStructure, toList(operations.team ?? operations.teamStructure)),
+    processes: mergeLists(guide.businessExecution.operationalPlan.processes, toList(operations.processes)),
+    infrastructure: mergeLists(guide.businessExecution.operationalPlan.infrastructure, toList(operations.infrastructure)),
+    riskManagement: mergeLists(guide.businessExecution.operationalPlan.riskManagement, toList(operations.risks ?? operations.riskManagement))
+  }
+  guide.businessExecution.actionItems = mergeLists(
+    guide.businessExecution.actionItems,
+    toList(business.nextSteps)
+  )
+
+  if (report?.aiInsights) {
+    const insights = report.aiInsights
+    guide.aiInsights = {
+      overallAssessment: {
+        score: Number(insights.overallAssessment?.score ?? guide.aiInsights?.overallAssessment.score ?? 7),
+        level: toText(insights.overallAssessment?.level, guide.aiInsights?.overallAssessment.level ?? 'Promising'),
+        summary: toText(
+          insights.overallAssessment?.summary,
+          guide.aiInsights?.overallAssessment.summary ?? 'The concept shows healthy market pull with manageable execution risk.'
+        ),
+        keyStrengths: mergeLists(
+          guide.aiInsights?.overallAssessment.keyStrengths ?? [],
+          toList(insights.overallAssessment?.keyStrengths)
+        ),
+        criticalChallenges: mergeLists(
+          guide.aiInsights?.overallAssessment.criticalChallenges ?? [],
+          toList(insights.overallAssessment?.criticalChallenges)
+        )
+      },
+      sustainabilityAnalysis: {
+        longTermViability: toText(
+          insights.sustainabilityAnalysis?.longTermViability,
+          guide.aiInsights?.sustainabilityAnalysis.longTermViability ?? 'Balanced growth is achievable with disciplined execution.'
+        ),
+        persistenceFactors: mergeLists(
+          guide.aiInsights?.sustainabilityAnalysis.persistenceFactors ?? [],
+          toList(insights.sustainabilityAnalysis?.persistenceFactors)
+        ),
+        riskMitigation: mergeLists(
+          guide.aiInsights?.sustainabilityAnalysis.riskMitigation ?? [],
+          toList(insights.sustainabilityAnalysis?.riskMitigation)
+        )
+      },
+      stageAlerts: Array.isArray(insights.stageAlerts) && insights.stageAlerts.length
+        ? insights.stageAlerts
+        : guide.aiInsights?.stageAlerts ?? BASE_LANDING_COACH_TEMPLATE.aiInsights!.stageAlerts
+    }
+  }
+
+  guide.executionPlan = normaliseExecutionPlan(report?.executionPlan)
+
+  return guide
+}
 export function generateGuideMarkdown(guide: LandingCoachGuide): string {
-  let markdown = `# ${guide.metadata.ideaTitle} - 鍒涙剰钀藉湴鎸囧崡
+  const lines: string[] = []
+  const formatPercent = (value: number) => {
+    const percent = value > 1 ? value : value * 100
+    return `${Math.round(percent)}%`
+  }
 
-> 鐢熸垚鏃堕棿锛?{guide.metadata.generatedAt.toLocaleDateString()}
-> 棰勮闃呰鏃堕棿锛?{guide.metadata.estimatedReadTime}鍒嗛挓
-> 瀹炴柦鏃堕棿妗嗘灦锛?{guide.metadata.implementationTimeframe}
-> 鍙鎬ц瘎浼帮細${guide.metadata.confidenceLevel}%
+  lines.push(`# ${guide.metadata.ideaTitle} · Landing Coach Guide`)
+  lines.push(`Generated: ${new Date(guide.metadata.generatedAt).toLocaleString()}`)
+  lines.push(`Execution window: ${guide.metadata.implementationTimeframe}`)
+  lines.push(`Confidence: ${formatPercent(guide.metadata.confidenceLevel)}`)
+  if (guide.metadata.winner) {
+    lines.push(`Winning persona: ${guide.metadata.winner}`)
+  }
+  if (typeof guide.metadata.winningBid === 'number') {
+    lines.push(`Winning bid: ${guide.metadata.winningBid}`)
+  }
+  lines.push('')
 
----
+  lines.push('## 1. Current Situation & Alignment')
+  lines.push(`**Overview:** ${guide.currentSituation.summary}`)
+  if (guide.currentSituation.keyInsights.length) {
+    lines.push('**Key insights:**')
+    guide.currentSituation.keyInsights.forEach(item => lines.push(`- ${item}`))
+  }
+  lines.push('**Market reality:**')
+  lines.push(`- Market size: ${guide.currentSituation.marketReality.marketSize}`)
+  lines.push(`- Competitive landscape: ${guide.currentSituation.marketReality.competition}`)
+  if (guide.currentSituation.marketReality.opportunities.length) {
+    lines.push('  Opportunities:')
+  }
+  guide.currentSituation.marketReality.opportunities.forEach(item => lines.push(`  - ${item}`))
+  if (guide.currentSituation.marketReality.challenges.length) {
+    lines.push('  Challenges:')
+  }
+  guide.currentSituation.marketReality.challenges.forEach(item => lines.push(`  - ${item}`))
+  lines.push(`**Target users:** ${guide.currentSituation.userNeeds.targetUsers}`)
+  if (guide.currentSituation.userNeeds.painPoints.length) {
+    lines.push('  Pain points:')
+    guide.currentSituation.userNeeds.painPoints.forEach(item => lines.push(`  - ${item}`))
+  }
+  if (guide.currentSituation.userNeeds.solutions.length) {
+    lines.push('  Proposed solutions:')
+    guide.currentSituation.userNeeds.solutions.forEach(item => lines.push(`  - ${item}`))
+  }
+  if (guide.currentSituation.actionItems.length) {
+    lines.push('**Immediate actions:**')
+    guide.currentSituation.actionItems.forEach((item, idx) => lines.push(`${idx + 1}. ${item}`))
+  }
+  lines.push('')
 
-## 馃搳 ${guide.currentSituation.title}
+  lines.push('## 2. MVP Definition & Validation')
+  lines.push(`**Product focus:** ${guide.mvpDefinition.productConcept.uniqueValue}`)
+  if (guide.mvpDefinition.productConcept.coreFeatures.length) {
+    lines.push('**Core capabilities:**')
+    guide.mvpDefinition.productConcept.coreFeatures.forEach(item => lines.push(`- ${item}`))
+  }
+  lines.push(`**Minimum scope:** ${guide.mvpDefinition.productConcept.minimumScope}`)
+  if (guide.mvpDefinition.developmentPlan.phases.length) {
+    lines.push('**Development plan:**')
+    guide.mvpDefinition.developmentPlan.phases.forEach(phase => {
+      lines.push(`- ${phase.name} (${phase.duration})`)
+      lines.push(`  Deliverables: ${phase.deliverables.join(', ')}`)
+      if (phase.resources.length) {
+        lines.push(`  Resources: ${phase.resources.join(', ')}`)
+      }
+    })
+  }
+  lines.push(`**Tech stack:** ${guide.mvpDefinition.developmentPlan.techStack.join(', ')}`)
+  lines.push(`**Estimated cost:** ${guide.mvpDefinition.developmentPlan.estimatedCost}`)
+  if (guide.mvpDefinition.validationStrategy.hypotheses.length) {
+    lines.push('**Validation hypotheses:**')
+    guide.mvpDefinition.validationStrategy.hypotheses.forEach(item => lines.push(`- ${item}`))
+  }
+  if (guide.mvpDefinition.validationStrategy.experiments.length) {
+    lines.push('**Experiments:**')
+    guide.mvpDefinition.validationStrategy.experiments.forEach(item => lines.push(`- ${item}`))
+  }
+  if (guide.mvpDefinition.validationStrategy.successMetrics.length) {
+    lines.push('**Success metrics:**')
+    guide.mvpDefinition.validationStrategy.successMetrics.forEach(item => lines.push(`- ${item}`))
+  }
+  lines.push(`**Validation timeline:** ${guide.mvpDefinition.validationStrategy.timeline}`)
+  if (guide.mvpDefinition.actionItems.length) {
+    lines.push('**Near-term actions:**')
+    guide.mvpDefinition.actionItems.forEach((item, idx) => lines.push(`${idx + 1}. ${item}`))
+  }
+  lines.push('')
 
-### 鏍稿績娲炲療
-${guide.currentSituation.summary}
-
-**鍏抽敭瑕佺偣锛?*
-${guide.currentSituation.keyInsights.map(insight => `- ${insight}`).join('\n')}
-
-### 甯傚満鐜板疄
-- **甯傚満瑙勬ā锛?* ${guide.currentSituation.marketReality.marketSize}
-- **绔炰簤鎬佸娍锛?* ${guide.currentSituation.marketReality.competition}
-
-**甯傚満鏈轰細锛?*
-${guide.currentSituation.marketReality.opportunities.map(opp => `- ${opp}`).join('\n')}
-
-**涓昏鎸戞垬锛?*
-${guide.currentSituation.marketReality.challenges.map(challenge => `- ${challenge}`).join('\n')}
-
-### 鐢ㄦ埛闇€姹傚垎鏋?
-- **鐩爣鐢ㄦ埛锛?* ${guide.currentSituation.userNeeds.targetUsers}
-
-**鏍稿績鐥涚偣锛?*
-${guide.currentSituation.userNeeds.painPoints.map(pain => `- ${pain}`).join('\n')}
-
-**瑙ｅ喅鏂规锛?*
-${guide.currentSituation.userNeeds.solutions.map(solution => `- ${solution}`).join('\n')}
-
-### 馃幆 绔嬪嵆琛屽姩椤?
-${guide.currentSituation.actionItems.map((item, i) => `${i + 1}. ${item}`).join('\n')}
-
----
-
-## 馃殌 ${guide.mvpDefinition.title}
-
-### 浜у搧姒傚康瀹氫箟
-- **鐙壒浠峰€硷細** ${guide.mvpDefinition.productConcept.uniqueValue}
-- **鏈€灏忚寖鍥达細** ${guide.mvpDefinition.productConcept.minimumScope}
-
-**鏍稿績鍔熻兘锛?*
-${guide.mvpDefinition.productConcept.coreFeatures.map(feature => `- ${feature}`).join('\n')}
-
-### 寮€鍙戣鍒?
-${guide.mvpDefinition.developmentPlan.phases.map(phase =>
-  `**${phase.name}** (${phase.duration})
-- 浜や粯鐗╋細${phase.deliverables.join('銆?)}
-- 鎵€闇€璧勬簮锛?{phase.resources.join('銆?)}`
-).join('\n\n')}
-
-- **鎶€鏈爤锛?* ${guide.mvpDefinition.developmentPlan.techStack.join('銆?)}
-- **棰勪及鎴愭湰锛?* ${guide.mvpDefinition.developmentPlan.estimatedCost}
-
-### 楠岃瘉绛栫暐
-- **楠岃瘉鏃堕棿绾匡細** ${guide.mvpDefinition.validationStrategy.timeline}
-
-**鏍稿績鍋囪锛?*
-${guide.mvpDefinition.validationStrategy.hypotheses.map(hyp => `- ${hyp}`).join('\n')}
-
-**楠岃瘉瀹為獙锛?*
-${guide.mvpDefinition.validationStrategy.experiments.map(exp => `- ${exp}`).join('\n')}
-
-**鎴愬姛鎸囨爣锛?*
-${guide.mvpDefinition.validationStrategy.successMetrics.map(metric => `- ${metric}`).join('\n')}
-
-### 馃幆 绔嬪嵆琛屽姩椤?
-${guide.mvpDefinition.actionItems.map((item, i) => `${i + 1}. ${item}`).join('\n')}
-
----
-
-## 馃捈 ${guide.businessExecution.title}
-
-### 鍟嗕笟妯″紡璁捐
-- **瀹氫环绛栫暐锛?* ${guide.businessExecution.businessModel.pricingStrategy}
-- **鎵╁睍鎬э細** ${guide.businessExecution.businessModel.scalability}
-
-**鏀跺叆鏉ユ簮锛?*
-${guide.businessExecution.businessModel.revenueStreams.map(stream => `- ${stream}`).join('\n')}
-
-**鎴愭湰缁撴瀯锛?*
-${guide.businessExecution.businessModel.costStructure.map(cost => `- ${cost}`).join('\n')}
-
-### 鍚姩绛栫暐
-${guide.businessExecution.launchStrategy.phases.map(phase =>
-  `**${phase.name}** (${phase.timeline})
-- 鐩爣锛?{phase.goals.join('銆?)}
-- 绛栫暐锛?{phase.tactics.join('銆?)}`
-).join('\n\n')}
-
-**钀ラ攢娓犻亾锛?*
-${guide.businessExecution.launchStrategy.marketingChannels.map(channel => `- ${channel}`).join('\n')}
-
-**棰勭畻鍒嗛厤锛?*
-${guide.businessExecution.launchStrategy.budgetAllocation.map(budget => `- ${budget}`).join('\n')}
-
-### 杩愯惀瑙勫垝
-**鍥㈤槦缁撴瀯锛?*
-${guide.businessExecution.operationalPlan.teamStructure.map(role => `- ${role}`).join('\n')}
-
-**鏍稿績娴佺▼锛?*
-${guide.businessExecution.operationalPlan.processes.map(process => `- ${process}`).join('\n')}
-
-**鍩虹璁炬柦锛?*
-${guide.businessExecution.operationalPlan.infrastructure.map(infra => `- ${infra}`).join('\n')}
-
-**椋庨櫓绠＄悊锛?*
-${guide.businessExecution.operationalPlan.riskManagement.map(risk => `- ${risk}`).join('\n')}
-
-### 馃幆 绔嬪嵆琛屽姩椤?
-${guide.businessExecution.actionItems.map((item, i) => `${i + 1}. ${item}`).join('\n')}
-
----
-
-## 馃搱 鎬荤粨涓庝笅涓€姝?
-
-鍩轰簬褰撳墠鍒嗘瀽锛屾偍鐨勫垱鎰忋€?{guide.metadata.ideaTitle}銆嶅叿鏈?**${guide.metadata.confidenceLevel}%** 鐨勫競鍦哄彲琛屾€с€?
-
-寤鸿鎸夌収浠ヤ笅浼樺厛绾ф帹杩涳細
-
-1. **绗竴闃舵锛堢幇鐘惰鐭ワ級**锛氭繁鍏ュ競鍦鸿皟鐮斿拰鐢ㄦ埛楠岃瘉
-2. **绗簩闃舵锛圡VP寮€鍙戯級**锛氬揩閫熷師鍨嬪紑鍙戝拰甯傚満娴嬭瘯
-3. **绗笁闃舵锛堝晢涓氬寲锛?*锛氳妯″寲杩愯惀鍜屽競鍦烘嫇灞?
-
----
-
-*鏈寚鍗楃敱AI鍒涙剰钀藉湴鏁欑粌鐢熸垚锛屽缓璁粨鍚堝疄闄呮儏鍐佃皟鏁存墽琛屾柟妗堛€?
-`
-
+  lines.push('## 3. Business Model & Operations')
+  lines.push('**Business model:**')
+  lines.push(`- Revenue streams: ${guide.businessExecution.businessModel.revenueStreams.join(', ')}`)
+  lines.push(`- Cost structure: ${guide.businessExecution.businessModel.costStructure.join(', ')}`)
+  lines.push(`- Pricing strategy: ${guide.businessExecution.businessModel.pricingStrategy}`)
+  lines.push(`- Scalability: ${guide.businessExecution.businessModel.scalability}`)
+  if (guide.businessExecution.launchStrategy.phases.length) {
+    lines.push('**Launch plan:**')
+    guide.businessExecution.launchStrategy.phases.forEach(phase => {
+      lines.push(`- ${phase.name} (${phase.timeline})`)
+      lines.push(`  Goals: ${phase.goals.join(', ')}`)
+      if (phase.tactics.length) {
+        lines.push(`  Tactics: ${phase.tactics.join(', ')}`)
+      }
+    })
+  }
+  lines.push(`- Marketing channels: ${guide.businessExecution.launchStrategy.marketingChannels.join(', ')}`)
+  lines.push(`- Budget allocation: ${guide.businessExecution.launchStrategy.budgetAllocation.join(', ')}`)
+  lines.push('**Operations:**')
+  lines.push(`- Team structure: ${guide.businessExecution.operationalPlan.teamStructure.join(', ')}`)
+  lines.push(`- Processes: ${guide.businessExecution.operationalPlan.processes.join(', ')}`)
+  lines.push(`- Infrastructure: ${guide.businessExecution.operationalPlan.infrastructure.join(', ')}`)
+  lines.push(`- Risk management: ${guide.businessExecution.operationalPlan.riskManagement.join(', ')}`)
+  if (guide.businessExecution.actionItems.length) {
+    lines.push('**Operational priorities:**')
+    guide.businessExecution.actionItems.forEach((item, idx) => lines.push(`${idx + 1}. ${item}`))
+  }
+  lines.push('')
 
   if (guide.executionPlan) {
-    markdown += `
-
-## 🧭 90 天聚焦实战计划
-
-### 阶段拆解
-${guide.executionPlan.phases.map(phase => `**${phase.name}** (${phase.timeline})
-- 聚焦：${phase.focus}
-- 关键成果：${phase.keyOutcomes.join('、')}
-- 核心指标：${phase.metrics.join('、')}`).join('
-
-')}
-
-### 每周冲刺重点
-${guide.executionPlan.weeklySprints.map(sprint => `**${sprint.name}**
-- 当前聚焦：${sprint.focus}
-- 关键目标：${sprint.objectives.join('、')}
-- 反馈钩子：${sprint.feedbackHooks.join('、')}`).join('
-
-')}
-
-### 正反馈机制
-- 节奏安排：${guide.executionPlan.feedbackLoop.cadence.join(' / ')}
-- 数据与反馈渠道：${guide.executionPlan.feedbackLoop.channels.join(' / ')}
-- 决策闸口：${guide.executionPlan.feedbackLoop.decisionGates.join(' / ')}
-- 推荐工具：${guide.executionPlan.feedbackLoop.tooling.join(' / ')}
-
-### 每日执行清单
-${guide.executionPlan.dailyRoutines.map(item => `- ${item}`).join('
-')}
-
-### 复盘与度量框架
-- 每周复盘：${guide.executionPlan.reviewFramework.weekly.join('、')}
-- 每月校准：${guide.executionPlan.reviewFramework.monthly.join('、')}
-- 重点监控指标：${guide.executionPlan.reviewFramework.dataWatch.join('、')}
-`;
+    lines.push('## 4. 90-Day Execution Plan')
+    lines.push(`**Mission:** ${guide.executionPlan.mission}`)
+    lines.push(`**Summary:** ${guide.executionPlan.summary}`)
+    lines.push('### Phases')
+    guide.executionPlan.phases.forEach(phase => {
+      lines.push(`- ${phase.name} (${phase.timeline})`)
+      lines.push(`  Focus: ${phase.focus}`)
+      lines.push(`  Key outcomes: ${phase.keyOutcomes.join(', ')}`)
+      lines.push(`  Metrics: ${phase.metrics.join(', ')}`)
+    })
+    lines.push('### Weekly sprints')
+    guide.executionPlan.weeklySprints.forEach(sprint => {
+      lines.push(`- ${sprint.name}`)
+      lines.push(`  Focus: ${sprint.focus}`)
+      lines.push(`  Objectives: ${sprint.objectives.join(', ')}`)
+      lines.push(`  Feedback hooks: ${sprint.feedbackHooks.join(', ')}`)
+    })
+    lines.push('### Feedback loop')
+    lines.push(`- Cadence: ${guide.executionPlan.feedbackLoop.cadence.join(', ')}`)
+    lines.push(`- Channels: ${guide.executionPlan.feedbackLoop.channels.join(', ')}`)
+    lines.push(`- Decision gates: ${guide.executionPlan.feedbackLoop.decisionGates.join(', ')}`)
+    lines.push(`- Tooling: ${guide.executionPlan.feedbackLoop.tooling.join(', ')}`)
+    lines.push('### Daily routines')
+    guide.executionPlan.dailyRoutines.forEach(item => lines.push(`- ${item}`))
+    lines.push('### Reviews & metrics')
+    lines.push(`- Weekly review: ${guide.executionPlan.reviewFramework.weekly.join(', ')}`)
+    lines.push(`- Monthly calibration: ${guide.executionPlan.reviewFramework.monthly.join(', ')}`)
+    lines.push(`- Metrics to watch: ${guide.executionPlan.reviewFramework.dataWatch.join(', ')}`)
+    lines.push('')
   }
-  return markdown
-}
 
-/**
- * 妫€鏌ユ姤鍛婃槸鍚﹀寘鍚冻澶熺殑鏁版嵁鐢ㄤ簬鐢熸垚鎸囧崡
- */
+  lines.push('---')
+  lines.push(
+    'Note: Generated by the landing coach AI. Adjust to your context and validate with customer feedback and data before major investment.'
+  )
+
+  return lines.join('\n')
+}
 export function validateReportForGuide(report: any): {
   isValid: boolean
   missingFields: string[]
@@ -613,24 +927,23 @@ export function validateReportForGuide(report: any): {
   const missingFields: string[] = []
   const recommendations: string[] = []
 
-  if (!report.basicAnalysis) {
-    missingFields.push("鍩虹甯傚満鍒嗘瀽")
-    recommendations.push("琛ュ厖甯傚満鐜鍜岀珵浜夊垎鏋?)
+  if (!report?.basicAnalysis) {
+    missingFields.push('Market analysis')
+    recommendations.push('Add market size, competitive insight, and clear problem statements.')
   }
 
-  if (!report.mvpGuidance) {
-    missingFields.push("MVP浜у搧鎸囧")
-    recommendations.push("瀹屽杽浜у搧瀹氫箟鍜屽紑鍙戣鍒?)
+  if (!report?.mvpGuidance) {
+    missingFields.push('MVP definition and validation plan')
+    recommendations.push('Describe MVP scope, validation experiments, and success metrics.')
   }
 
-  if (!report.businessModel) {
-    missingFields.push("鍟嗕笟妯″紡鍒嗘瀽")
-    recommendations.push("鍒跺畾鍟嗕笟鍖栫瓥鐣ュ拰杩愯惀鏂规")
+  if (!report?.businessModel) {
+    missingFields.push('Business model and operations')
+    recommendations.push('Detail revenue model, cost structure, and go-to-market approach.')
   }
 
-  if (report.status !== 'COMPLETED') {
-    missingFields.push("鎶ュ憡鐢熸垚鐘舵€?)
-    recommendations.push("绛夊緟鎶ュ憡鐢熸垚瀹屾垚")
+  if (missingFields.length === 0 && !report?.executionPlan) {
+    recommendations.push('Add a 90-day execution plan so the team can operationalise the insights.')
   }
 
   return {
@@ -639,3 +952,5 @@ export function validateReportForGuide(report: any): {
     recommendations
   }
 }
+
+export default transformReportToGuide
