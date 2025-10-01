@@ -9,15 +9,10 @@ if (process.env.NODE_ENV !== 'production') {
 
 /** @type   {import('next').NextConfig} */
 const nextConfig = {
-  // 移除standalone模式，使用自定义server.js
-  // output: 'standalone',
+  // 启用 standalone 模式用于 Docker 部署
+  output: 'standalone',
   experimental: {
     serverComponentsExternalPackages: ['@prisma/client'],
-  },
-  // 国际化配置，确保UTF-8编码支持
-  i18n: {
-    locales: ['zh-CN', 'en'],
-    defaultLocale: 'zh-CN',
   },
   eslint: {
     ignoreDuringBuilds: true,
