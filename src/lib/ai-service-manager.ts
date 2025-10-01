@@ -38,7 +38,7 @@ const AI_SERVICE_CONFIG = {
     model: 'deepseek-chat',
     rateLimit: 100, // requests per minute
     costPerCall: 0.002, // 每次调用成本(元)
-    personas: ['tech-pioneer-alex', 'scholar-li'] // 艾克斯和李博使用deepseek
+    personas: ['tech-pioneer-alex', 'investment-advisor-ivan'] // 艾克斯和李博使用deepseek
   },
   zhipu: {
     name: 'zhipu' as const,
@@ -46,7 +46,7 @@ const AI_SERVICE_CONFIG = {
     model: 'glm-4',
     rateLimit: 60,
     costPerCall: 0.003,
-    personas: ['business-tycoon-wang', 'artistic-lin'] // 老王和小琳使用智谱
+    personas: ['business-guru-beta', 'innovation-mentor-charlie'] // 老王和小琳使用智谱
   },
   qwen: {
     name: 'qwen' as const,
@@ -54,13 +54,13 @@ const AI_SERVICE_CONFIG = {
     model: 'qwen-max',
     rateLimit: 80,
     costPerCall: 0.0025,
-    personas: ['trend-master-allen'] // 阿伦使用通义千问
+    personas: ['market-insight-delta'] // 阿伦使用通义千问
   }
 };
 
 // 系统提示词模板 - 使用增强版5个角色
 export const SYSTEM_PROMPTS = {
-  'business-tycoon-wang': `
+  'business-guru-beta': `
 你是老王，50岁，东北人，白手起家的商业大亨，从摆地摊做到上市公司老板。
 你的特点：
 - 背景：东北人，草根创业，实战派企业家
@@ -96,7 +96,7 @@ export const SYSTEM_PROMPTS = {
 4. 评分1-10分，技术创新性高给高分，技术含量低给低分
 `,
 
-  'artistic-lin': `
+  'innovation-mentor-charlie': `
 你是小琳，28岁，中央美院毕业，红点设计奖得主，理想主义者。
 你的特点：
 - 背景：艺术世家，中央美院视觉传达专业，获过国际设计大奖
@@ -114,7 +114,7 @@ export const SYSTEM_PROMPTS = {
 4. 评分1-10分，用户体验好且有温度给高分，纯逐利给低分
 `,
 
-  'trend-master-allen': `
+  'market-insight-delta': `
 你是阿伦，30岁，前字节跳动运营经理，现在做自媒体，百万粉丝博主。
 你的特点：
 - 背景：传媒大学毕业，在字节跳动做过爆款运营，现在是网红
@@ -132,7 +132,7 @@ export const SYSTEM_PROMPTS = {
 4. 评分1-10分，有爆款潜力给高分，太小众给低分
 `,
 
-  'scholar-li': `
+  'investment-advisor-ivan': `
 你是李博，45岁，清华教授，横跨经济学、心理学、社会学多个领域。
 你的特点：
 - 背景：清华大学终身教授，哈佛访问学者，多个领域专家

@@ -440,11 +440,11 @@ async function generateAIResponse(personaId: string, ideaContent: string, contex
   try {
     // 根据角色ID映射到对应的AI服务提供商
     const providerMap: Record<string, string> = {
-      'business-tycoon-wang': 'zhipu',     // 老王使用智谱
+      'business-guru-beta': 'zhipu',     // 老王使用智谱
       'tech-pioneer-alex': 'deepseek',      // 艾克斯使用deepseek
-      'artistic-lin': 'zhipu',              // 小琳使用智谱
-      'trend-master-allen': 'qwen',         // 阿伦使用通义千问
-      'scholar-li': 'deepseek'              // 李博使用deepseek
+      'innovation-mentor-charlie': 'zhipu',              // 小琳使用智谱
+      'market-insight-delta': 'qwen',         // 阿伦使用通义千问
+      'investment-advisor-ivan': 'deepseek'              // 李博使用deepseek
     }
 
     const provider = providerMap[personaId] || 'deepseek'
@@ -543,7 +543,7 @@ function generateFallbackResponse(personaId: string, ideaContent: string, contex
   } else if (context.phase === 'discussion') {
     // 使用预设的讨论模板
     const templates: Record<string, string[]> = {
-      'business-tycoon-wang': [
+      'business-guru-beta': [
         `哎呀妈呀，${ideaContent}这个想法有点意思，但能赚钱吗？我得好好算算账。`,
         `做生意就一个字：赚！这个${ideaContent}的盈利模式在哪？别整虚的！`
       ],
@@ -551,15 +551,15 @@ function generateFallbackResponse(personaId: string, ideaContent: string, contex
         `Technically speaking，${ideaContent}的技术架构需要仔细设计，scalability是关键。`,
         `${ideaContent}？Let me think... 技术实现不难，但要做好不容易。`
       ],
-      'artistic-lin': [
+      'innovation-mentor-charlie': [
         `${ideaContent}让我想到了用户的真实需求，产品要有温度才能打动人心~`,
         `这个创意很有潜力，但用户体验设计要特别用心，美是生产力！`
       ],
-      'trend-master-allen': [
+      'market-insight-delta': [
         `家人们！${ideaContent}有爆点！Z世代肯定买单，流量密码被我找到了！`,
         `${ideaContent}踩中热点了！小红书上这类内容超火的，分分钟10万+！`
       ],
-      'scholar-li': [
+      'investment-advisor-ivan': [
         `根据我的研究，${ideaContent}符合创新扩散理论，但要注意风险控制。`,
         `让我们用学术的眼光看${ideaContent}，理论基础扎实但执行是关键。`
       ]
@@ -573,7 +573,7 @@ function generateFallbackResponse(personaId: string, ideaContent: string, contex
     const score = calculatePersonaScore(
       persona,
       ideaContent,
-      'general',
+      'market',
       new Map(Object.entries(context.context?.currentBids || {}))
     )
     content = generatePersonaComment(persona, score, ideaContent, [])
@@ -632,11 +632,11 @@ function extractBidAmount(content: string): number {
 
 function getSystemPromptForPersona(personaId: string): string {
   const prompts: Record<string, string> = {
-    'business-tycoon-wang': SYSTEM_PROMPTS['business-tycoon-wang'] || '',
+    'business-guru-beta': SYSTEM_PROMPTS['business-guru-beta'] || '',
     'tech-pioneer-alex': SYSTEM_PROMPTS['tech-pioneer-alex'] || '',
-    'artistic-lin': SYSTEM_PROMPTS['artistic-lin'] || '',
-    'trend-master-allen': SYSTEM_PROMPTS['trend-master-allen'] || '',
-    'scholar-li': SYSTEM_PROMPTS['scholar-li'] || ''
+    'innovation-mentor-charlie': SYSTEM_PROMPTS['innovation-mentor-charlie'] || '',
+    'market-insight-delta': SYSTEM_PROMPTS['market-insight-delta'] || '',
+    'investment-advisor-ivan': SYSTEM_PROMPTS['investment-advisor-ivan'] || ''
   }
 
   return prompts[personaId] || `你是${personaId}，请保持角色一致性，用专业且有个性的语言回应。`
