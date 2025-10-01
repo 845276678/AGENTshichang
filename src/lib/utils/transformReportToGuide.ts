@@ -1,4 +1,4 @@
-﻿import type { ResearchReport } from '@prisma/client'
+import type { ResearchReport } from '@prisma/client'
 
 export interface ExecutionPlanPhase {
   name: string
@@ -229,7 +229,7 @@ const defaultExecutionPlan: ExecutionPlan = {
   ],
   weeklySprints: [
     {
-      name: 'Sprint 1-2 · Insight Bootcamp',
+      name: 'Sprint 1-2 - Insight Bootcamp',
       focus: 'Collect real user evidence and frame opportunity areas.',
       objectives: [
         'Lock target persona and JTBD',
@@ -239,7 +239,7 @@ const defaultExecutionPlan: ExecutionPlan = {
       feedbackHooks: ['Interview summaries', 'Problem ranking workshop', 'Competitor teardown notes']
     },
     {
-      name: 'Sprint 3-4 · Prototype & Signals',
+      name: 'Sprint 3-4 - Prototype & Signals',
       focus: 'Prototype critical journeys and validate desirability quickly.',
       objectives: [
         'Build interactive prototype for main flows',
@@ -249,7 +249,7 @@ const defaultExecutionPlan: ExecutionPlan = {
       feedbackHooks: ['Prototype testing sessions', 'Usability scorecard', 'Design review playback']
     },
     {
-      name: 'Sprint 5-6 · MVP Launch',
+      name: 'Sprint 5-6 - MVP Launch',
       focus: 'Ship the lean MVP and measure adoption with tight loops.',
       objectives: [
         'Release MVP to pilot group',
@@ -259,7 +259,7 @@ const defaultExecutionPlan: ExecutionPlan = {
       feedbackHooks: ['Product analytics dashboard', 'Pilot check-in calls', 'Retention curve snapshot']
     },
     {
-      name: 'Sprint 7-9 · Growth Engine',
+      name: 'Sprint 7-9 - Growth Engine',
       focus: 'Prove acquisition economics and stabilise operations.',
       objectives: [
         'Test at least two scalable acquisition channels',
@@ -354,7 +354,7 @@ export const BASE_LANDING_COACH_TEMPLATE: LandingCoachGuide = {
         ],
         warningSignals: [
           'Pilot usage drops below 40% weekly active',
-          'No clear “aha” moment identified from user sessions'
+          'No clear "aha" moment identified from user sessions'
         ]
       },
       {
@@ -427,19 +427,19 @@ export const BASE_LANDING_COACH_TEMPLATE: LandingCoachGuide = {
     developmentPlan: {
       phases: [
         {
-          name: 'Phase A · Prototype',
+          name: 'Phase A - Prototype',
           duration: '2 weeks',
           deliverables: ['Clickable prototype', 'Usability testing notes'],
           resources: ['Product design', 'Engineering lead']
         },
         {
-          name: 'Phase B · MVP build',
+          name: 'Phase B - MVP build',
           duration: '4 weeks',
           deliverables: ['MVP v1.0', 'Instrumentation and logging', 'Pilot onboarding toolkit'],
           resources: ['Core engineering squad', 'QA', 'Customer success lead']
         },
         {
-          name: 'Phase C · Pilot iteration',
+          name: 'Phase C - Pilot iteration',
           duration: '3 weeks',
           deliverables: ['Retention improvements', 'Support playbook v1', 'Pricing experiment assets'],
           resources: ['Engineering', 'Customer success', 'Growth PMM']
@@ -769,7 +769,7 @@ export function generateGuideMarkdown(guide: LandingCoachGuide): string {
     return `${Math.round(percent)}%`
   }
 
-  lines.push(`# ${guide.metadata.ideaTitle} · Landing Coach Guide`)
+  lines.push(`# ${guide.metadata.ideaTitle} - Landing Coach Guide`)
   lines.push(`Generated: ${new Date(guide.metadata.generatedAt).toLocaleString()}`)
   lines.push(`Execution window: ${guide.metadata.implementationTimeframe}`)
   lines.push(`Confidence: ${formatPercent(guide.metadata.confidenceLevel)}`)
