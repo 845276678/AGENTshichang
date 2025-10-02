@@ -286,39 +286,50 @@ async function handleIdeaSupplement(ideaId, payload, ws) {
 async function handleSubmitPrediction(ideaId, payload, ws) {
   const { prediction, confidence } = payload;
   console.log(` User prediction: ${prediction}, confidence: ${confidence}`);
+
   ws.send(JSON.stringify({
     type: 'prediction_received',
     payload: {
       prediction,
       confidence,
       message: "Session status update from the AI bidding system."
-    }
+    },
   }));
+}
+
+function broadcastToSession(ideaId, data) {
   let broadcastCount = 0;
+
   activeConnections.forEach((connection, connectionId) => {
-    if (connection.ideaId === ideaId && connection.ws.readyState === 1) { // WebSocket.OPEN = 1
+    if (connection.ideaId === ideaId && connection.ws.readyState === 1) {
       try {
         connection.ws.send(JSON.stringify(data));
-        broadcastCount++;
+        broadcastCount += 1;
       } catch (error) {
-        console.error('Error broadcasting to connection:', error);
+        console.error('Error broadcasting to connection:', {
+          ideaId,
+          connectionId,
+          error,
+        });
         activeConnections.delete(connectionId);
       }
     }
   });
-  console.log(` Broadcasted to ${broadcastCount} connections for idea: ${ideaId}`);
+
+  console.log(`Broadcasted to ${broadcastCount} connections for idea: ${ideaId}`);
   return broadcastCount;
 }
-// 
+
 function broadcastViewerCount(ideaId) {
   const viewerCount = Array.from(activeConnections.values())
     .filter(conn => conn.ideaId === ideaId).length;
+
   broadcastToSession(ideaId, {
     type: 'viewer_count_update',
-    payload: { viewerCount }
+    payload: { viewerCount },
   });
 }
-// PI
+
 global.broadcastToSession = broadcastToSession;
 // AIAPI?
 async function startRealAIDiscussion(ideaId, ideaContent) {
