@@ -109,7 +109,7 @@ function handleBiddingWebSocket(ws, ideaId, query) {
       console.error('Failed to parse client message:', error);
       ws.send(JSON.stringify({
         type: 'error',
-        payload: { message: 'Invalid message format' }
+        payload: { message: "Invalid message format" }
       }));
     }
   });
@@ -159,7 +159,7 @@ async function handleStartBidding(ideaId, payload, ws) {
       payload: {
         sessionId: sessionId || `session_${Date.now()}_${ideaId}`,
         status: 'active',
-        message: 'AI bidding session is now active.'
+        message: "AI bidding session is now active."
       }
     }));
     // ?
@@ -168,7 +168,7 @@ async function handleStartBidding(ideaId, payload, ws) {
       payload: {
         phase: 'warmup',
         status: 'active',
-        message: 'AI review panel has started evaluating the idea...'
+        message: "AI review panel has started evaluating the idea..."
       }
     });
     // AII
@@ -184,7 +184,7 @@ async function handleStartBidding(ideaId, payload, ws) {
     console.error('Error starting bidding:', error);
     ws.send(JSON.stringify({
       type: 'error',
-      payload: { message: 'Failed to start AI bidding' }
+      payload: { message: "Failed to start AI bidding" }
     }));
   }
 }
@@ -212,7 +212,7 @@ async function handleIdeaSupplement(ideaId, payload, ws) {
       content: supplementContent,
       round,
       timestamp: Date.now(),
-      message: 'AI experts are reviewing the supplemental idea details.'
+      message: "AI experts are reviewing the supplemental idea details."
     }
   });
   // I
@@ -291,7 +291,7 @@ async function handleSubmitPrediction(ideaId, payload, ws) {
     payload: {
       prediction,
       confidence,
-      message: 'Session status update from the AI bidding system.'
+      message: "Session status update from the AI bidding system."
     }
   }));
   let broadcastCount = 0;
@@ -418,7 +418,7 @@ async function startRealAIDiscussionPhase(ideaId, ideaContent, aiPersonas) {
     type: 'phase_change',
     phase: 'discussion',
     timestamp: Date.now(),
-    message: ''
+    message: ""
   });
   // I?
   let AIServiceManager;
@@ -478,7 +478,7 @@ async function startRealAIDiscussionPhase(ideaId, ideaContent, aiPersonas) {
       broadcastToSession(ideaId, {
         type: 'user_interaction_prompt',
         payload: {
-          message: 'Experts raised follow-up questions. Would you like to add more details?',
+          message: "Experts raised follow-up questions. Would you like to add more details?",
           promptType: 'idea_supplement',
           timeLimit: 60, // 60?
           round: round
@@ -500,7 +500,7 @@ async function startRealAIBiddingPhase(ideaId, ideaContent, aiPersonas) {
     type: 'phase_change',
     phase: 'bidding',
     timestamp: Date.now(),
-    message: 'AI bidding round completed. Generating insights summary...'
+    message: "AI bidding round completed. Generating insights summary..."
   });
   // I?
   let AIServiceManager;
@@ -817,7 +817,7 @@ function startSimulatedBidding(ideaId) {
     type: 'phase_change',
     phase: 'bidding',
     timestamp: Date.now(),
-    message: 'AI bidding round completed. Generating insights summary...'
+    message: "AI bidding round completed. Generating insights summary..."
   });
   const bids = {
     'tech-pioneer-alex': 150,
