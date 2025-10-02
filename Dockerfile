@@ -1,59 +1,93 @@
-# 使用 Node.js 20 官方镜像作为基础镜像
-FROM node:20-alpine AS base
+﻿# ==========================================
+# Base image (Node.js 18 on Alpine)
+FROM node:18-alpine AS base
 
-# 安装依赖阶段
-FROM base AS deps
-RUN apk add --no-cache libc6-compat
+# Cache bust to force a fresh build
+RUN echo "Cache bust: 2025-09-29-custom-server" > /tmp/cache_bust
+
+# Install system dependencies and timezone data
+RUN apk add --no-cache \
+    libc6-compat \
+    tzdata \
+    curl \
+    openssl \
+    && cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime \
+    && echo "Asia/Shanghai" > /etc/timezone
+
 WORKDIR /app
 
-# 复制依赖文件
-COPY package.json package-lock.json ./
+# Global environment variables
+ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
+
+# Create application user
+RUN addgroup --system --gid 1001 nodejs && \
+    adduser --system --uid 1001 nextjs
+
+# ==========================================
+# Dependency installation stage
+FROM base AS deps
+
+# Copy dependency manifests
+COPY package.json package-lock.json* ./
 COPY prisma ./prisma/
 
-# 安装依赖
-RUN npm ci --frozen-lockfile
+# Install production dependencies (includes Prisma dev requirements)
+RUN npm ci --frozen-lockfile --legacy-peer-deps
 
-# 构建阶段
+# ==========================================
 FROM base AS builder
 WORKDIR /app
-COPY --from=deps /app/node_modules ./node_modules
+
+# Copy dependency manifests
+COPY package.json package-lock.json* ./
+COPY prisma ./prisma/
+
+# Install all dependencies (including dev)
+RUN npm ci --frozen-lockfile --legacy-peer-deps
+
+# 复制应用文件
 COPY . .
 
-# 生成 Prisma 客户端
+# Generate Prisma client (critical fix)
 RUN npx prisma generate
 
-# 构建 Next.js 应用
-ENV NEXT_TELEMETRY_DISABLED 1
+# Build Next.js application (custom server, no standalone)
 RUN npm run build
-
-# 生产阶段
+# ==========================================
+# Runtime stage (serving via custom server.js)
 FROM base AS runner
+# Create application directory
+RUN mkdir -p /app/logs /app/uploads
 WORKDIR /app
+# Prepare Prisma engines for runtime
+ENV PRISMA_CLI_QUERY_ENGINE_TYPE=library
+ENV PRISMA_CLIENT_ENGINE_TYPE=library
+RUN npx prisma generate
 
-ENV NODE_ENV production
-ENV NEXT_TELEMETRY_DISABLED 1
+# Copy complete node_modules (including Prisma)
+COPY --from=builder --chown=nextjs:nodejs /app/node_modules ./node_modules
+# Copy Next.js build output (non-standalone)
+COPY --from=builder --chown=nextjs:nodejs /app/.next ./.next
+COPY --from=builder --chown=nextjs:nodejs /app/public ./public
 
-# 创建非 root 用户
-RUN addgroup --system --gid 1001 nodejs
-RUN adduser --system --uid 1001 nextjs
+# Copy custom server and health checks
+COPY --from=builder --chown=nextjs:nodejs /app/server.js ./server.js
+COPY --from=builder --chown=nextjs:nodejs /app/healthcheck.js ./healthcheck.js
+COPY --from=builder --chown=nextjs:nodejs /app/src ./src
+COPY --from=builder --chown=nextjs:nodejs /app/prisma ./prisma
+COPY --from=builder --chown=nextjs:nodejs /app/package.json ./package.json
+COPY --from=builder --chown=nextjs:nodejs /app/next.config.js ./next.config.js
 
-# 复制必要的文件
-COPY --from=builder /app/public ./public
-COPY --from=builder /app/.next/standalone ./
-COPY --from=builder /app/.next/static ./.next/static
-COPY --from=builder /app/prisma ./prisma
-
+# Generate Prisma client for runtime
+RUN npx prisma generate
 # 设置权限
 RUN chown -R nextjs:nodejs /app
-
+# 切换到非 root 用户
 USER nextjs
-
 # 暴露端口
 EXPOSE 8080
+# 环境变量
+ENV HOSTNAME="0.0.0.0"
 
-# 设置端口环境变量
-ENV PORT 8080
-ENV HOSTNAME "0.0.0.0"
-
-# 启动应用
 CMD ["node", "server.js"]

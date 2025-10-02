@@ -1,32 +1,45 @@
 import { NextRequest, NextResponse } from 'next/server'
 
 import { requireAdmin } from '@/lib/auth-helper'
-
 import { prisma } from '@/lib/database'
 
-// 强制动态渲染
+// ǿ�ƶ�̬��Ⱦ
 export const dynamic = 'force-dynamic'
 
-// 获取用户列表
+type AdminUserStatus = 'ACTIVE' | 'INACTIVE'
+type AdminUserRole = 'USER' | 'ADMIN' | 'MODERATOR'
+
+type PatchAction = 'activate' | 'deactivate' | 'changeRole' | 'updateCredits'
+
+interface PatchPayload {
+  userId?: string
+  action?: PatchAction
+  data?: {
+    role?: AdminUserRole
+    credits?: number
+  }
+}
+
+const isValidRole = (role: unknown): role is AdminUserRole =>
+  typeof role === 'string' && ['USER', 'ADMIN', 'MODERATOR'].includes(role)
+
 export async function GET(request: NextRequest) {
   try {
-    // 验证管理员权限
-    const authResult = await requireAdmin(request);
+    const authResult = await requireAdmin(request)
     if (!authResult.success) {
-      return NextResponse.json({ error: authResult.error }, { status: 401 });
+      return NextResponse.json({ error: authResult.error }, { status: 401 })
     }
 
     const { searchParams } = new URL(request.url)
-    const page = parseInt(searchParams.get('page') || '1')
-    const limit = parseInt(searchParams.get('limit') || '20')
-    const search = searchParams.get('search') || ''
-    const role = searchParams.get('role') || ''
-    const status = searchParams.get('status') || ''
+    const page = Number.parseInt(searchParams.get('page') ?? '1', 10)
+    const limit = Number.parseInt(searchParams.get('limit') ?? '20', 10)
+    const search = searchParams.get('search') ?? ''
+    const role = searchParams.get('role') ?? ''
+    const status = searchParams.get('status') ?? ''
 
-    const skip = (page - 1) * limit
+    const skip = Math.max(page - 1, 0) * limit
 
-    // 构建查询条件
-    const where: any = {}
+    const where: Record<string, unknown> = {}
 
     if (search) {
       where.OR = [
@@ -80,7 +93,6 @@ export async function GET(request: NextRequest) {
         totalPages: Math.ceil(totalCount / limit)
       }
     })
-
   } catch (error) {
     console.error('Get users error:', error)
     return NextResponse.json(
@@ -90,16 +102,15 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// 更新用户状态
 export async function PATCH(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions)
+    const authResult = await requireAdmin(request)
 
-    if (!session?.user || session.user.role !== 'ADMIN') {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    if (!authResult.success) {
+      return NextResponse.json({ error: authResult.error }, { status: 401 })
     }
 
-    const { userId, action, data } = await request.json()
+    const { userId, action, data }: PatchPayload = await request.json()
 
     if (!userId || !action) {
       return NextResponse.json(
@@ -108,32 +119,32 @@ export async function PATCH(request: NextRequest) {
       )
     }
 
-    let updateData: any = {}
+    const updateData: Record<string, unknown> = {}
 
     switch (action) {
       case 'activate':
-        updateData = { status: 'ACTIVE' }
+        updateData.status = 'ACTIVE' satisfies AdminUserStatus
         break
       case 'deactivate':
-        updateData = { status: 'INACTIVE' }
+        updateData.status = 'INACTIVE' satisfies AdminUserStatus
         break
       case 'changeRole':
-        if (!data.role || !['USER', 'ADMIN', 'MODERATOR'].includes(data.role)) {
+        if (!isValidRole(data?.role)) {
           return NextResponse.json(
             { error: 'Invalid role' },
             { status: 400 }
           )
         }
-        updateData = { role: data.role }
+        updateData.role = data.role
         break
       case 'updateCredits':
-        if (typeof data.credits !== 'number') {
+        if (typeof data?.credits !== 'number' || Number.isNaN(data.credits)) {
           return NextResponse.json(
             { error: 'Invalid credits amount' },
             { status: 400 }
           )
         }
-        updateData = { credits: data.credits }
+        updateData.credits = data.credits
         break
       default:
         return NextResponse.json(
@@ -160,7 +171,6 @@ export async function PATCH(request: NextRequest) {
       success: true,
       user: updatedUser
     })
-
   } catch (error) {
     console.error('Update user error:', error)
     return NextResponse.json(

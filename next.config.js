@@ -1,4 +1,4 @@
-// Load filesystem patches for Docker build compatibility (disabled in production)
+﻿// Load filesystem patches for Docker build compatibility (disabled in production)
 if (process.env.NODE_ENV !== 'production') {
   try {
     require('./scripts/fs-patch');
@@ -9,8 +9,7 @@ if (process.env.NODE_ENV !== 'production') {
 
 /** @type   {import('next').NextConfig} */
 const nextConfig = {
-  // 启用 standalone 模式用于 Docker 部署
-  output: 'standalone',
+  // 关闭 standalone 输出以避免与自定义 server.js 冲突
   experimental: {
     serverComponentsExternalPackages: ['@prisma/client'],
   },
@@ -91,7 +90,7 @@ const nextConfig = {
   compress: true,
   compiler: {
     removeConsole: process.env.NODE_ENV === 'production' ? {
-      exclude: ['error', 'warn', 'info'] // 保留重要的日志信息
+      exclude: ['error', 'warn', 'info'] // 淇濈暀閲嶈鐨勬棩蹇椾俊鎭?
     } : false,
   },
   webpack: (config, { isServer, dev }) => {
@@ -104,7 +103,7 @@ const nextConfig = {
       };
     }
 
-    // 优化开发环境的文件监控配置
+    // 浼樺寲寮€鍙戠幆澧冪殑鏂囦欢鐩戞帶閰嶇疆
     config.watchOptions = {
       ignored: [
         '**/node_modules/**',
@@ -121,7 +120,7 @@ const nextConfig = {
       poll: false,
     };
 
-    // 禁用缓存以避免开发环境问题
+    // 绂佺敤缂撳瓨浠ラ伩鍏嶅紑鍙戠幆澧冮棶棰?
     config.cache = false;
 
     return config;
