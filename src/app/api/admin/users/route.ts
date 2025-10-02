@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { requireAdmin } from '@/lib/auth-helper'
 import { prisma } from '@/lib/database'
 
-// «ø÷∆∂ØÃ¨‰÷»æ
+// Force dynamic rendering
 export const dynamic = 'force-dynamic'
 
 type AdminUserStatus = 'ACTIVE' | 'INACTIVE'
@@ -179,3 +179,4 @@ export async function PATCH(request: NextRequest) {
     )
   }
 }
+

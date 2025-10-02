@@ -63,7 +63,6 @@ WORKDIR /app
 # Prepare Prisma engines for runtime
 ENV PRISMA_CLI_QUERY_ENGINE_TYPE=library
 ENV PRISMA_CLIENT_ENGINE_TYPE=library
-RUN npx prisma generate
 
 # Copy complete node_modules (including Prisma)
 COPY --from=builder --chown=nextjs:nodejs /app/node_modules ./node_modules
