@@ -133,4 +133,4 @@ sequenceDiagram
 ## 部署提示
 - 部署前确保数据库迁移（含 `creditTransaction`、`BusinessPlan*` 表）已执行。
 - 若引入外部 LLM，需要考虑费用、超时、重试与缓存策略。
-- 默认仅支持 Markdown 导出，如需 PDF/Slides 需集成额外渲染服务。
+- 默认支持 Markdown 与 PDF 导出，如需 Slides 仍需集成额外渲染服务。

@@ -72,6 +72,11 @@
      5. 财务/指标 (`financialProjections`)
      6. 90 天实战计划（新增大模块，含周计划/里程碑/正反馈机制）
    - 提供导出按钮（PDF/Markdown），下载时走 `GET /api/business-plan-report/:id/export`。
+5. **导出 API**
+   - `GET /api/business-plan-report/:id/export` 需鉴权，确保请求用户与报告归属。
+   - 默认输出 Markdown；通过 `?format=pdf` 可生成 PDF，成功后写入 `BusinessPlanAudit`（action=`REPORT_EXPORTED`）。
+   - PDF 渲染基于 `@react-pdf/renderer`，接口已设置 `dynamic = "force-dynamic"` 以兼容 serverless 渲染。
+
 
 ### 3. practical-stage-generator 整合
 - **上下文输入**：`PracticalStageContext` 需要 `ideaDescription`、`userGoals`、`previousStagesOutput`；竞价输出中已有 `ideaContent`、`aiMessages`，可以映射：
@@ -120,3 +125,5 @@
 ---
 
 该方案整合了现有五大核心模块与 90 天实战/正反馈内容，同时覆盖后端持久化、AI 调度、前端展示和运维要求，可作为后续开发基线。请审阅后指示下一步。
+
+

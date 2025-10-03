@@ -173,4 +173,15 @@ export class BusinessPlanSessionService {
       }
     })
   }
+
+  static async recordAudit(entry: { sessionId: string; action: string; createdBy?: string; payload?: Prisma.JsonValue }) {
+    await prisma.businessPlanAudit.create({
+      data: {
+        sessionId: entry.sessionId,
+        action: entry.action,
+        payload: entry.payload,
+        createdBy: entry.createdBy ?? 'system'
+      }
+    })
+  }
 }

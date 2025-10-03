@@ -1,28 +1,69 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { prisma } from '@/lib/database'
+import { validateAIServices } from '@/lib/validate-env'
+
+export const dynamic = 'force-dynamic'
 
 export async function GET(request: NextRequest) {
+  const startTime = Date.now()
+  const checks: Record<string, { status: string; message?: string; latency?: number }> = {}
+
   try {
-    // 基础健康检查
-    const healthData = {
-      status: 'ok',
-      timestamp: new Date().toISOString(),
-      environment: process.env.NODE_ENV || 'development',
-      version: process.env.npm_package_version || '1.0.0',
-      database: process.env.DATABASE_URL ? 'configured' : 'not_configured',
-      services: {
-        deepseek: process.env.DEEPSEEK_API_KEY ? 'configured' : 'not_configured',
-        zhipu: process.env.ZHIPU_API_KEY ? 'configured' : 'not_configured',
-        dashscope: process.env.DASHSCOPE_API_KEY ? 'configured' : 'not_configured',
+    // 1. 检查数据库连接
+    const dbStart = Date.now()
+    try {
+      await prisma.$queryRaw`SELECT 1`
+      checks.database = {
+        status: 'healthy',
+        latency: Date.now() - dbStart
+      }
+    } catch (error) {
+      checks.database = {
+        status: 'unhealthy',
+        message: error instanceof Error ? error.message : 'Database connection failed'
       }
     }
 
-    return NextResponse.json(healthData, { status: 200 })
+    // 2. 检查AI服务配置
+    const aiServices = validateAIServices()
+    checks.aiServices = {
+      status: aiServices.available > 0 ? 'healthy' : 'degraded',
+      message: `${aiServices.available}/3 services configured (DeepSeek: ${aiServices.deepseek ? 'yes' : 'no'}, GLM: ${aiServices.zhipu ? 'yes' : 'no'}, Qwen: ${aiServices.qwen ? 'yes' : 'no'})`
+    }
+
+    // 3. 检查环境配置
+    const requiredEnvVars = ['DATABASE_URL', 'JWT_SECRET', 'NEXTAUTH_SECRET']
+    const missingVars = requiredEnvVars.filter(v => !process.env[v])
+    checks.environment = {
+      status: missingVars.length === 0 ? 'healthy' : 'unhealthy',
+      message: missingVars.length > 0 ? `Missing: ${missingVars.join(', ')}` : 'All required variables set'
+    }
+
+    // 4. 计算总体状态
+    const allChecks = Object.values(checks)
+    const hasUnhealthy = allChecks.some(c => c.status === 'unhealthy')
+    const hasDegraded = allChecks.some(c => c.status === 'degraded')
+
+    const overallStatus = hasUnhealthy ? 'unhealthy' : hasDegraded ? 'degraded' : 'healthy'
+    const statusCode = hasUnhealthy ? 503 : 200
+
+    return NextResponse.json({
+      status: overallStatus,
+      timestamp: new Date().toISOString(),
+      uptime: process.uptime(),
+      responseTime: Date.now() - startTime,
+      checks,
+      version: process.env.npm_package_version || 'unknown',
+      environment: process.env.NODE_ENV || 'unknown'
+    }, { status: statusCode })
+
   } catch (error) {
     return NextResponse.json({
-      status: 'error',
-      message: 'Health check failed',
-      timestamp: new Date().toISOString()
-    }, { status: 500 })
+      status: 'unhealthy',
+      timestamp: new Date().toISOString(),
+      error: error instanceof Error ? error.message : 'Health check failed',
+      checks
+    }, { status: 503 })
   }
 }
 

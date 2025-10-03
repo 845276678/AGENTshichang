@@ -35,11 +35,24 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ success: false, error: 'Missing sessionId or reportId parameter' }, { status: 400 })
     }
 
+    // 按reportId查询时不需要强制认证，但需要验证访问权限
     if (reportId) {
       const report = await BusinessPlanSessionService.getReportById(reportId)
       if (!report) {
         return NextResponse.json({ success: false, error: 'Report not found' }, { status: 404 })
       }
+
+      // 如果有认证用户，验证是否有权访问
+      try {
+        const user = await authenticateRequest(request)
+        if (report.userId !== user.id) {
+          return NextResponse.json({ success: false, error: 'Unauthorized to access this report' }, { status: 403 })
+        }
+      } catch (authError) {
+        // 未认证用户无法访问报告
+        return NextResponse.json({ success: false, error: 'Authentication required' }, { status: 401 })
+      }
+
       return NextResponse.json({
         success: true,
         data: {
@@ -49,13 +62,28 @@ export async function GET(request: NextRequest) {
       })
     }
 
+    // 按sessionId查询时验证用户权限
     const session = await BusinessPlanSessionService.getSessionWithReport(sessionId!)
     if (!session) {
       return NextResponse.json({ success: false, error: 'Session not found' }, { status: 404 })
     }
 
+    // 检查会话是否过期
     if (session.expiresAt && session.expiresAt.getTime() < Date.now()) {
       return NextResponse.json({ success: false, error: 'Session expired' }, { status: 410 })
+    }
+
+    // 如果会话有userId，验证访问权限
+    if (session.userId) {
+      try {
+        const user = await authenticateRequest(request)
+        if (session.userId !== user.id) {
+          return NextResponse.json({ success: false, error: 'Unauthorized to access this session' }, { status: 403 })
+        }
+      } catch (authError) {
+        // 未认证用户无法访问需要认证的会话
+        return NextResponse.json({ success: false, error: 'Authentication required' }, { status: 401 })
+      }
     }
 
     return NextResponse.json({

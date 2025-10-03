@@ -133,11 +133,10 @@ export function useBiddingWebSocket(config: UseBiddingWebSocketConfig): BiddingW
     try {
       setConnectionStatus('connecting')
 
-      // 构建WebSocket URL - 修复生产环境配置
+      // 构建WebSocket URL - 支持环境变量配置
       const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
-      const host = process.env.NODE_ENV === 'production'
-        ? window.location.host  // 生产环境使用当前域名
-        : 'localhost:8080'
+      // 优先使用环境变量配置的WebSocket host，否则使用当前页面host
+      const host = process.env.NEXT_PUBLIC_WS_HOST || window.location.host
       const wsUrl = `${protocol}//${host}/api/bidding/${ideaId}`
 
       console.log('🔗 WebSocket connection info:', {
