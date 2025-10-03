@@ -102,10 +102,18 @@ export class BusinessPlanSessionService {
         }
       })
 
+      // 确保有userId才能创建report
+      if (!session.userId) {
+        throw new Error('无法为匿名会话创建商业计划报告')
+      }
+
       const report = await tx.businessPlanReport.create({
         data: {
           session: {
             connect: { id: sessionId }
+          },
+          user: {
+            connect: { id: session.userId }
           },
           guide,
           metadata
