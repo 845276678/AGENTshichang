@@ -318,6 +318,14 @@ export function useBiddingWebSocket(config: UseBiddingWebSocketConfig): BiddingW
         toast.info(data.payload.message);
         break;
 
+      case 'user_interaction_prompt':
+        // 用户交互提示（如补充创意）
+        console.log('💡 User interaction prompt:', data.payload);
+        if (data.payload?.message) {
+          toast.info(data.payload.message);
+        }
+        break;
+
       case 'pong':
         // 心跳响应，忽略
         break

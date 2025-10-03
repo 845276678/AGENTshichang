@@ -273,6 +273,7 @@ export async function authenticateRequest(request: NextRequest): Promise<User> {
 // API错误处理
 export function handleApiError(error: any): NextResponse {
   console.error('API Error:', error)
+  console.error('Error stack:', error.stack)
 
   if (error.message.includes('用户') || error.message.includes('密码') || error.message.includes('邮箱')) {
     return NextResponse.json(
@@ -295,8 +296,14 @@ export function handleApiError(error: any): NextResponse {
     )
   }
 
+  // 开发环境下返回详细错误信息
+  const isDevelopment = process.env.NODE_ENV === 'development'
   return NextResponse.json(
-    { success: false, error: '服务器内部错误' } as ApiResponse,
+    {
+      success: false,
+      error: isDevelopment ? error.message : '服务器内部错误',
+      details: isDevelopment ? error.stack : undefined
+    } as ApiResponse,
     { status: 500 }
   )
 }
