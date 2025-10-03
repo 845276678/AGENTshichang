@@ -1,6 +1,14 @@
-// UTF-8?
-process.env.LANG = 'zh_CN.UTF-8'
-process.env.LC_ALL = 'zh_CN.UTF-8'
+// Load environment variables from .env.local
+require('dotenv').config({ path: '.env.local' });
+
+// Set UTF-8 encoding
+if (process.platform === 'win32') {
+  process.stdout.setDefaultEncoding('utf8');
+  process.stderr.setDefaultEncoding('utf8');
+}
+process.env.LANG = 'zh_CN.UTF-8';
+process.env.LC_ALL = 'zh_CN.UTF-8';
+
 const { createServer } = require('http');
 const { parse } = require('url');
 const next = require('next');
