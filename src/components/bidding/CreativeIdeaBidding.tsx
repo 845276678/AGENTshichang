@@ -17,6 +17,7 @@ import { AI_PERSONAS, DISCUSSION_PHASES, type AIPersona, type AIMessage, type Bi
 import { useBiddingWebSocket } from '@/hooks/useBiddingWebSocket';
 import AIPersonaSceneManager from './AIPersonaSceneManager';
 import { getRecommendedConfig, calculateDynamicIntensity } from '@/lib/visual-effects-config';
+import { tokenStorage } from '@/lib/token-storage';
 
 interface CreativeIdeaBiddingProps {
   ideaId: string;
@@ -139,7 +140,7 @@ export default function CreativeIdeaBidding({ ideaId }: CreativeIdeaBiddingProps
       setGuideProgress(5);
 
       const headers: Record<string, string> = { 'Content-Type': 'application/json' };
-      const token = localStorage.getItem('access_token') || localStorage.getItem('auth.access_token');
+      const token = tokenStorage.getAccessToken();
       if (token) {
         headers.Authorization = `Bearer ${token}`;
       }

@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { useAuth } from '@/hooks/useAuth';
+import { tokenStorage } from '@/lib/token-storage';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -52,7 +53,7 @@ export function DailyCheckIn() {
     if (!isAuthenticated) return;
 
     try {
-      const token = localStorage.getItem('auth_token'); // 修正了token key
+      const token = tokenStorage.getAccessToken();
       if (!token) return;
 
       const response = await fetch('/api/checkin', {
@@ -102,7 +103,7 @@ export function DailyCheckIn() {
     setIsClaimingReward(true);
 
     try {
-      const token = localStorage.getItem('auth_token'); // 修正了token key
+      const token = tokenStorage.getAccessToken();
       if (!token) {
         throw new Error('未找到认证令牌');
       }
@@ -130,9 +131,11 @@ export function DailyCheckIn() {
         }));
 
         // 更新用户积分（如果可能）
-        const currentUser = JSON.parse(localStorage.getItem('user_data') || '{}'); // 修正了用户数据key
-        currentUser.credits = checkInResult.newBalance;
-        localStorage.setItem('user_data', JSON.stringify(currentUser)); // 修正了用户数据key
+        const currentUser = tokenStorage.getUser();
+        if (currentUser) {
+          currentUser.credits = checkInResult.newBalance;
+          tokenStorage.setUser(currentUser);
+        }
 
         // 显示奖励动画
         setClaimedCredits(checkInResult.creditsEarned);
