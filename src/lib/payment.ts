@@ -113,26 +113,40 @@ export default class PaymentManager {
       // 计算积分（1元 = 10积分）
       const credits = Math.floor(amount * 10)
 
-      // 更新用户积分
-      await prisma.user.update({
-        where: { id: userId },
-        data: {
-          credits: {
-            increment: credits
-          }
-        }
-      })
+      // 使用事务确保数据一致性
+      await prisma.$transaction(async (tx) => {
+        // 获取当前用户积分
+        const user = await tx.user.findUnique({
+          where: { id: userId },
+          select: { credits: true }
+        })
 
-      // 记录积分交易
-      await prisma.creditTransaction.create({
-        data: {
-          userId,
-          amount: credits,
-          type: 'PAYMENT',
-          description: `充值获得 ${credits} 积分`,
-          balanceBefore: 0, // 这里应该查询当前余额
-          balanceAfter: credits
+        if (!user) {
+          throw new Error('用户不存在')
         }
+
+        const balanceBefore = user.credits
+        const balanceAfter = balanceBefore + credits
+
+        // 更新用户积分
+        await tx.user.update({
+          where: { id: userId },
+          data: {
+            credits: balanceAfter
+          }
+        })
+
+        // 记录积分交易
+        await tx.creditTransaction.create({
+          data: {
+            userId,
+            amount: credits,
+            type: 'PURCHASE',
+            description: `充值获得 ${credits} 积分`,
+            balanceBefore,
+            balanceAfter
+          }
+        })
       })
     } catch (error) {
       console.error('更新用户积分失败:', error)
