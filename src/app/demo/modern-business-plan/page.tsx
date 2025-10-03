@@ -24,36 +24,82 @@ const mockIdeaData = {
 
 export default function ModernBusinessPlanDemo() {
   const {
-    stages,
-    setIdeaData,
-    startGeneration,
     isGenerating,
-    overallProgress,
-    selectedVersions
+    progress,
+    startGeneration,
+    stopGeneration,
+    setProgress
   } = useBusinessPlanGeneration()
 
   const [showModernView, setShowModernView] = useState(false)
-
-  useEffect(() => {
-    setIdeaData(mockIdeaData)
-  }, [setIdeaData])
+  const [hasGenerated, setHasGenerated] = useState(false)
 
   const handleStartGeneration = async () => {
     try {
-      await startGeneration()
+      startGeneration()
+      setProgress(0)
+
+      // 模拟生成过程
+      const interval = setInterval(() => {
+        setProgress((prev) => {
+          if (prev >= 100) {
+            clearInterval(interval)
+            stopGeneration()
+            setHasGenerated(true)
+            return 100
+          }
+          return prev + 10
+        })
+      }, 300)
     } catch (error) {
       console.error('Generation failed:', error)
+      stopGeneration()
     }
   }
 
-  // 获取有版本的章节
-  const completedVersions = stages
-    .filter(stage => stage.versions.length > 0)
-    .map(stage => {
-      const versionId = selectedVersions[stage.id] || stage.versions[0]?.id
-      return stage.versions.find(v => v.id === versionId) || stage.versions[0]
-    })
-    .filter(Boolean)
+  // 模拟完成的章节数据
+  const mockCompletedVersions = hasGenerated ? [
+    {
+      id: 'stage-1',
+      stageId: 'market-analysis',
+      content: {
+        title: '市场分析与机会',
+        summary: 'AI教育市场正在快速增长，个性化学习需求强烈',
+        keyPoints: ['市场规模超过500亿', '年增长率达30%', '技术成熟度高'],
+        fullContent: '详细的市场分析内容...'
+      }
+    },
+    {
+      id: 'stage-2',
+      stageId: 'product-strategy',
+      content: {
+        title: '产品策略',
+        summary: '打造24/7智能学习助手，提供个性化辅导',
+        keyPoints: ['核心功能设计', '用户体验优化', '技术架构选型'],
+        fullContent: '详细的产品策略内容...'
+      }
+    },
+    {
+      id: 'stage-3',
+      stageId: 'business-model',
+      content: {
+        title: '商业模式',
+        summary: 'SaaS订阅制+增值服务的混合模式',
+        keyPoints: ['订阅收入', '企业服务', '内容授权'],
+        fullContent: '详细的商业模式内容...'
+      }
+    }
+  ] : []
+
+  const completedVersions = mockCompletedVersions
+  const overallProgress = progress
+  const stages = [
+    { id: 'stage-1', name: '市场分析', status: hasGenerated ? 'completed' : 'pending', progress: hasGenerated ? 100 : 0 },
+    { id: 'stage-2', name: '产品策略', status: hasGenerated ? 'completed' : 'pending', progress: hasGenerated ? 100 : 0 },
+    { id: 'stage-3', name: '商业模式', status: hasGenerated ? 'completed' : 'pending', progress: hasGenerated ? 100 : 0 },
+    { id: 'stage-4', name: '运营计划', status: 'pending', progress: 0 },
+    { id: 'stage-5', name: '财务规划', status: 'pending', progress: 0 }
+  ]
 
   // 转换数据为现代化格式
   const mockPlanData = {

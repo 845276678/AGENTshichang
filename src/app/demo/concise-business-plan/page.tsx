@@ -20,19 +20,15 @@ const mockIdeaData = {
 
 export default function ConciseBusinessPlanDemo() {
   const {
-    stages,
-    setIdeaData,
-    startGeneration,
     isGenerating,
-    overallProgress,
-    selectedVersions
+    progress,
+    startGeneration,
+    stopGeneration,
+    setProgress
   } = useBusinessPlanGeneration()
 
   const [expandedChapters, setExpandedChapters] = useState<Set<string>>(new Set())
-
-  useEffect(() => {
-    setIdeaData(mockIdeaData)
-  }, [setIdeaData])
+  const [hasGenerated, setHasGenerated] = useState(false)
 
   const handleToggleChapter = (stageId: string) => {
     const newExpanded = new Set(expandedChapters)
@@ -46,20 +42,127 @@ export default function ConciseBusinessPlanDemo() {
 
   const handleStartGeneration = async () => {
     try {
-      await startGeneration()
+      startGeneration()
+      setProgress(0)
+
+      // 模拟生成过程
+      const interval = setInterval(() => {
+        setProgress((prev) => {
+          if (prev >= 100) {
+            clearInterval(interval)
+            stopGeneration()
+            setHasGenerated(true)
+            return 100
+          }
+          return prev + 10
+        })
+      }, 500)
     } catch (error) {
       console.error('Generation failed:', error)
+      stopGeneration()
     }
   }
 
-  // 获取有版本的章节
-  const completedVersions = stages
-    .filter(stage => stage.versions.length > 0)
-    .map(stage => {
-      const versionId = selectedVersions[stage.id] || stage.versions[0]?.id
-      return stage.versions.find(v => v.id === versionId) || stage.versions[0]
-    })
-    .filter(Boolean)
+  // 模拟完成的版本数据
+  const mockCompletedVersions = hasGenerated ? [
+    {
+      id: 'stage-1',
+      stageId: 'market-analysis',
+      content: {
+        title: '市场分析与机会',
+        summary: 'AI教育市场正在快速增长，个性化学习需求强烈。市场规模超过500亿，年增长率达30%，技术成熟度高。',
+        keyPoints: ['市场规模超过500亿人民币', '年增长率保持在30%以上', '技术成熟度已达商用水平', '用户付费意愿强烈'],
+        coreContent: {
+          summary: 'AI教育市场处于快速增长期，具有巨大潜力',
+          keyPoints: ['市场规模大', '增长迅速', '技术成熟'],
+          visualData: {
+            metrics: [
+              { label: '市场规模', value: '500亿+', trend: 'up' },
+              { label: '年增长率', value: '30%', trend: 'up' },
+              { label: '用户满意度', value: '85%', trend: 'stable' }
+            ]
+          },
+          actionItems: ['深入调研目标用户群体', '分析竞争对手定位', '确定差异化优势']
+        },
+        expandableContent: {
+          fullAnalysis: '中国AI教育市场正经历快速发展期。根据艾瑞咨询数据，2023年在线教育市场规模已达5000亿人民币...',
+          detailedSections: [
+            { title: '市场规模', content: '详细的市场规模分析...' },
+            { title: '竞争态势', content: '主要竞争对手分析...' }
+          ],
+          references: ['艾瑞咨询报告2023', 'IDC教育科技报告']
+        }
+      }
+    },
+    {
+      id: 'stage-2',
+      stageId: 'product-strategy',
+      content: {
+        title: '产品策略',
+        summary: '打造24/7智能学习助手，提供个性化辅导。核心功能包括智能答疑、学习路径规划、进度追踪等。',
+        keyPoints: ['24/7在线答疑服务', '个性化学习路径', '智能进度追踪', '家长实时监控'],
+        coreContent: {
+          summary: '以AI技术为核心，提供全方位个性化学习服务',
+          keyPoints: ['核心功能设计完善', '用户体验优先', '技术架构稳定'],
+          visualData: {
+            metrics: [
+              { label: '核心功能', value: '8个', trend: 'up' },
+              { label: '响应时间', value: '<2s', trend: 'up' },
+              { label: '准确率', value: '92%', trend: 'up' }
+            ]
+          },
+          actionItems: ['完成MVP功能开发', '用户体验测试', '技术架构优化']
+        },
+        expandableContent: {
+          fullAnalysis: '产品将采用大语言模型作为核心技术，结合知识图谱和学习分析...',
+          detailedSections: [
+            { title: '核心功能', content: '智能答疑、路径规划等详细说明...' },
+            { title: '技术选型', content: 'GPT-4、向量数据库等技术栈...' }
+          ],
+          references: ['教育AI技术白皮书', '用户需求调研报告']
+        }
+      }
+    },
+    {
+      id: 'stage-3',
+      stageId: 'business-model',
+      content: {
+        title: '商业模式',
+        summary: 'SaaS订阅制+增值服务的混合模式。提供基础版、标准版、高级版三个层级，满足不同用户需求。',
+        keyPoints: ['订阅制收入', '增值服务收费', '企业版授权', 'B2B2C模式'],
+        coreContent: {
+          summary: '多元化收入模式，确保可持续发展',
+          keyPoints: ['订阅收入稳定', '增值空间大', '规模效应明显'],
+          visualData: {
+            metrics: [
+              { label: 'ARPU', value: '¥199/月', trend: 'up' },
+              { label: '续费率', value: '75%', trend: 'up' },
+              { label: 'LTV/CAC', value: '3.5x', trend: 'up' }
+            ]
+          },
+          actionItems: ['完善定价策略', '建立销售渠道', '优化转化漏斗']
+        },
+        expandableContent: {
+          fullAnalysis: '采用三层订阅模式：基础版（¥99/月）、标准版（¥199/月）、高级版（¥399/月）...',
+          detailedSections: [
+            { title: '定价策略', content: '详细的定价层级说明...' },
+            { title: '收入预测', content: '未来三年收入预测模型...' }
+          ],
+          references: ['SaaS定价策略分析', '教育行业付费意愿研究']
+        }
+      }
+    }
+  ] : []
+
+  const completedVersions = mockCompletedVersions
+  const overallProgress = progress
+  const stages = [
+    { id: 'stage-1', name: '市场分析' },
+    { id: 'stage-2', name: '产品策略' },
+    { id: 'stage-3', name: '商业模式' },
+    { id: 'stage-4', name: '运营计划' },
+    { id: 'stage-5', name: '财务规划' }
+  ]
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">

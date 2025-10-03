@@ -1,6 +1,7 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
+import { useSearchParams } from 'next/navigation'
 import { Layout } from '@/components/layout'
 import { RealtimeRecommendationDisplay } from '@/components/business-plan/RealtimeRecommendationDisplay'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -8,6 +9,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
+import { Badge } from '@/components/ui/badge'
 import {
   Brain,
   Lightbulb,
@@ -18,7 +20,8 @@ import {
   CheckCircle,
   Loader2,
   ArrowRight,
-  TrendingUp
+  TrendingUp,
+  FileCheck
 } from 'lucide-react'
 import { motion } from 'framer-motion'
 
@@ -70,6 +73,14 @@ type PersonalizedRecommendations = {
 }
 
 export default function IntelligentBusinessPlanPage() {
+  const searchParams = useSearchParams()
+
+  // 从URL参数获取创意信息
+  const ideaTitleParam = searchParams.get('ideaTitle')
+  const ideaDescParam = searchParams.get('ideaDescription')
+  const ideaCategoryParam = searchParams.get('category')
+  const fromBidding = searchParams.get('from') === 'bidding'
+
   const [ideaTitle, setIdeaTitle] = useState('')
   const [ideaDescription, setIdeaDescription] = useState('')
   const [userLocation, setUserLocation] = useState('北京')
@@ -77,6 +88,16 @@ export default function IntelligentBusinessPlanPage() {
   const [analyzing, setAnalyzing] = useState(false)
   const [ideaCharacteristics, setIdeaCharacteristics] = useState<IdeaCharacteristics | null>(null)
   const [personalizedRecommendations, setPersonalizedRecommendations] = useState<PersonalizedRecommendations | null>(null)
+
+  // 从竞价页面导入创意时自动填充
+  useEffect(() => {
+    if (ideaTitleParam) {
+      setIdeaTitle(decodeURIComponent(ideaTitleParam))
+    }
+    if (ideaDescParam) {
+      setIdeaDescription(decodeURIComponent(ideaDescParam))
+    }
+  }, [ideaTitleParam, ideaDescParam])
 
   const handleAnalyze = () => {
     setAnalyzing(true)
@@ -194,6 +215,36 @@ export default function IntelligentBusinessPlanPage() {
               </div>
             </div>
           </motion.div>
+
+          {/* 从竞价导入的提示 */}
+          {fromBidding && (
+            <motion.div
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mb-6"
+            >
+              <Card className="border-2 border-green-300 bg-green-50">
+                <CardContent className="py-4">
+                  <div className="flex items-start gap-3">
+                    <FileCheck className="w-6 h-6 text-green-600 mt-0.5" />
+                    <div className="flex-1">
+                      <h3 className="font-semibold text-green-900 mb-1">
+                        ✅ 已从竞价页面导入创意
+                      </h3>
+                      <p className="text-sm text-green-700">
+                        系统已自动填充您的创意信息,您可以继续编辑或直接开始分析生成个性化商业计划书
+                      </p>
+                    </div>
+                    {ideaCategoryParam && (
+                      <Badge className="bg-green-600 text-white">
+                        {ideaCategoryParam}
+                      </Badge>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+          )}
 
           {/* 输入表单 */}
           <motion.div
