@@ -25,17 +25,45 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { BusinessPlanProgressTracker } from './BusinessPlanProgressTracker'
 import { useBusinessPlanGeneration } from '@/stores/useBusinessPlanGeneration'
 
-interface BusinessPlanGenerationWorkspaceProps {
-  ideaData: {
-    id: string
-    title: string
-    description: string
-    category: string
-    tags: string[]
-    submittedBy: string
+interface IdeaData {
+  id: string
+  title: string
+  description: string
+  category: string
+  tags: string[]
+  submittedBy: string
+}
+
+interface BusinessPlan {
+  id: string
+  title: string
+  sections: Array<{
+    stageId: string
+    content: {
+      title: string
+      summary: string
+      fullContent: string
+    }
+  }>
+  metadata: {
+    totalCost: number
+    totalTime: number
+    aiProviders: string[]
   }
-  onComplete?: (plan: any) => void
-  onSave?: (draft: any) => void
+  createdAt: Date
+}
+
+interface DraftData {
+  ideaId: string
+  progress: number
+  stages: number
+  completed: number
+}
+
+interface BusinessPlanGenerationWorkspaceProps {
+  ideaData: IdeaData
+  onComplete?: (plan: BusinessPlan) => void
+  onSave?: (draft: DraftData) => void
 }
 
 export const BusinessPlanGenerationWorkspace: React.FC<BusinessPlanGenerationWorkspaceProps> = ({
@@ -258,7 +286,7 @@ export const BusinessPlanGenerationWorkspace: React.FC<BusinessPlanGenerationWor
 
           {/* 右侧：主内容 */}
           <div className="lg:col-span-3">
-            <Tabs value={activeTab} onValueChange={(value: any) => setActiveTab(value)} className="space-y-6">
+            <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as 'overview' | 'progress' | 'versions' | 'results')} className="space-y-6">
               <TabsList className="grid w-full grid-cols-4">
                 <TabsTrigger value="overview">概览</TabsTrigger>
                 <TabsTrigger value="progress">
@@ -319,12 +347,24 @@ export const BusinessPlanGenerationWorkspace: React.FC<BusinessPlanGenerationWor
   )
 }
 
+interface Stage {
+  id: string
+  name: string
+  status: 'pending' | 'in_progress' | 'completed' | 'error'
+}
+
+interface ErrorItem {
+  id: string
+  message: string
+  resolved: boolean
+}
+
 // 快速状态面板组件
 const QuickStatusPanel: React.FC<{
-  stages: any[]
+  stages: Stage[]
   currentStageIndex: number
   isGenerating: boolean
-  errors: any[]
+  errors: ErrorItem[]
 }> = ({ stages, currentStageIndex, isGenerating, errors }) => {
   const completedStages = stages.filter(s => s.status === 'completed').length
   const currentStage = stages[currentStageIndex]
@@ -369,8 +409,12 @@ const QuickStatusPanel: React.FC<{
   )
 }
 
+interface StageWithProvider extends Stage {
+  aiProvider: string
+}
+
 // AI服务商状态面板
-const AIProviderStatus: React.FC<{ stages: any[] }> = ({ stages }) => {
+const AIProviderStatus: React.FC<{ stages: StageWithProvider[] }> = ({ stages }) => {
   const providers = ['DEEPSEEK', 'ZHIPU', 'ALI']
   const providerStats = providers.map(provider => ({
     name: provider,
@@ -407,7 +451,7 @@ const AIProviderStatus: React.FC<{ stages: any[] }> = ({ stages }) => {
 // 导出面板组件
 const ExportPanel: React.FC<{
   onExport: (format: 'pdf' | 'docx' | 'html') => void
-  finalPlan: any
+  finalPlan: BusinessPlan
 }> = ({ onExport, finalPlan }) => {
   return (
     <Card className="border-green-200 bg-green-50">
@@ -454,10 +498,15 @@ const ExportPanel: React.FC<{
   )
 }
 
+interface OverviewStage extends Stage {
+  estimatedTime: string
+  aiProvider: string
+}
+
 // 概览面板组件
 const OverviewPanel: React.FC<{
-  ideaData: any
-  stages: any[]
+  ideaData: IdeaData
+  stages: OverviewStage[]
 }> = ({ ideaData, stages }) => {
   return (
     <div className="space-y-6">
@@ -494,12 +543,34 @@ const OverviewPanel: React.FC<{
   )
 }
 
+interface StageVersion {
+  id: string
+  version: number
+  aiProvider: string
+  content: {
+    title: string
+    summary: string
+  }
+  qualityScore: number
+  createdAt: Date
+}
+
+interface StageWithVersions extends Stage {
+  versions: StageVersion[]
+}
+
+interface FeedbackData {
+  rating: number
+  comments: string
+  improvements?: string[]
+}
+
 // 版本管理面板组件
 const VersionManagementPanel: React.FC<{
-  stages: any[]
+  stages: StageWithVersions[]
   selectedVersions: Record<string, string>
   onVersionSelect: (stageId: string, versionId: string) => void
-  onFeedbackSubmit: (versionId: string, feedback: any) => void
+  onFeedbackSubmit: (versionId: string, feedback: FeedbackData) => void
 }> = ({ stages, selectedVersions, onVersionSelect, onFeedbackSubmit }) => {
   return (
     <div className="space-y-6">
@@ -513,7 +584,7 @@ const VersionManagementPanel: React.FC<{
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {stage.versions.map((version: any) => (
+              {stage.versions.map((version) => (
                 <div
                   key={version.id}
                   className={`p-4 border rounded-lg cursor-pointer transition-all ${
@@ -545,7 +616,7 @@ const VersionManagementPanel: React.FC<{
 
 // 结果面板组件
 const ResultsPanel: React.FC<{
-  finalPlan: any
+  finalPlan: BusinessPlan
   onExport: (format: 'pdf' | 'docx' | 'html') => void
 }> = ({ finalPlan, onExport }) => {
   return (
@@ -610,7 +681,7 @@ const ResultsPanel: React.FC<{
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {finalPlan.sections.map((section: any, index: number) => (
+            {finalPlan.sections.map((section, index: number) => (
               <div key={section.stageId} className="flex items-center gap-4 p-4 border rounded-lg">
                 <Badge className="text-sm">{index + 1}</Badge>
                 <div className="flex-1">

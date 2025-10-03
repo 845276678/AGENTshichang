@@ -1,11 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server'
+import type { User } from '@/types/entities'
 
+// Request body type
+type RequestBody = Record<string, unknown> | FormData | string
 
 // Helper to create a Next.js request object for testing
 export function createTestRequest(
   method: string,
   url: string,
-  body?: any,
+  body?: RequestBody,
   headers?: Record<string, string>
 ): NextRequest {
   const requestInit: RequestInit = {
@@ -24,7 +27,7 @@ export function createTestRequest(
 }
 
 // Helper to extract response data
-export async function getResponseData(response: NextResponse) {
+export async function getResponseData<T = unknown>(response: NextResponse): Promise<T | string> {
   const text = await response.text()
   try {
     return JSON.parse(text)
@@ -167,7 +170,7 @@ export function cleanupApiMocks() {
 }
 
 // Mock user data
-export const mockUser = {
+export const mockUser: Partial<User> & { password: string } = {
   id: 'user-1',
   email: 'test@example.com',
   username: 'testuser',
@@ -185,7 +188,7 @@ export const mockUser = {
   lastLogin: new Date('2024-01-01'),
 }
 
-export const mockAdmin = {
+export const mockAdmin: typeof mockUser = {
   ...mockUser,
   id: 'admin-1',
   email: 'admin@example.com',
@@ -197,7 +200,8 @@ export const mockAdmin = {
 export class TestDatabase {
   static async seed() {
     // Seed test data
-    mockPrisma.user.findUnique.mockImplementation(({ where }) => {
+    mockPrisma.user.findUnique.mockImplementation((params: { where: { email?: string; id?: string } }) => {
+      const { where } = params
       if (where.email === mockUser.email || where.id === mockUser.id) {
         return Promise.resolve(mockUser)
       }
@@ -207,7 +211,8 @@ export class TestDatabase {
       return Promise.resolve(null)
     })
 
-    mockPrisma.user.findFirst.mockImplementation(({ where }) => {
+    mockPrisma.user.findFirst.mockImplementation((params: { where: { email?: string } }) => {
+      const { where } = params
       if (where.email === mockUser.email) {
         return Promise.resolve(mockUser)
       }
@@ -264,22 +269,38 @@ export function createMockFormData(files: Record<string, File>, fields: Record<s
   return formData
 }
 
+// Validation response types
+interface SuccessResponse<T = unknown> {
+  success: true
+  data?: T
+  message?: string
+}
+
+interface ErrorResponse {
+  success: false
+  error?: string
+  message?: string
+  errors?: unknown
+}
+
+type ApiResponse<T = unknown> = SuccessResponse<T> | ErrorResponse
+
 // Validation helpers
-export function expectSuccessResponse(response: any, data?: any) {
+export function expectSuccessResponse<T = unknown>(response: ApiResponse<T>, data?: T): void {
   expect(response.success).toBe(true)
   if (data !== undefined) {
     expect(response.data).toEqual(data)
   }
 }
 
-export function expectErrorResponse(response: any, message?: string, _status?: number) {
+export function expectErrorResponse(response: ApiResponse, message?: string, _status?: number): void {
   expect(response.success).toBe(false)
   if (message) {
     expect(response.message || response.error).toMatch(message)
   }
 }
 
-export function expectValidationError(response: any, field?: string) {
+export function expectValidationError(response: ApiResponse, field?: string): void {
   expect(response.success).toBe(false)
   expect(response.errors || response.message).toBeDefined()
   if (field) {

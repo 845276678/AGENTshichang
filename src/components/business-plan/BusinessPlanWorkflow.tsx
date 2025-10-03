@@ -7,17 +7,45 @@ import { BusinessPlanGenerationWorkspace } from './BusinessPlanGenerationWorkspa
 import { useBusinessPlanGeneration } from '@/stores/useBusinessPlanGeneration'
 import type { UserRequirements, RequirementAnalysis } from '@/stores/useBusinessPlanGeneration'
 
-interface BusinessPlanWorkflowProps {
-  ideaData: {
-    id: string
-    title: string
-    description: string
-    category: string
-    tags: string[]
-    submittedBy: string
+interface IdeaData {
+  id: string
+  title: string
+  description: string
+  category: string
+  tags: string[]
+  submittedBy: string
+}
+
+interface BusinessPlan {
+  id: string
+  title: string
+  sections: Array<{
+    stageId: string
+    content: {
+      title: string
+      summary: string
+      fullContent: string
+    }
+  }>
+  metadata: {
+    totalCost: number
+    totalTime: number
+    aiProviders: string[]
   }
-  onComplete?: (plan: any) => void
-  onSave?: (draft: any) => void
+  createdAt: Date
+}
+
+interface DraftData {
+  ideaId: string
+  progress: number
+  stages: number
+  completed: number
+}
+
+interface BusinessPlanWorkflowProps {
+  ideaData: IdeaData
+  onComplete?: (plan: BusinessPlan) => void
+  onSave?: (draft: DraftData) => void
 }
 
 export const BusinessPlanWorkflow: React.FC<BusinessPlanWorkflowProps> = ({
@@ -58,11 +86,11 @@ export const BusinessPlanWorkflow: React.FC<BusinessPlanWorkflowProps> = ({
     setWorkflowStage('generation')
   }
 
-  const handleWorkflowComplete = (plan: any) => {
+  const handleWorkflowComplete = (plan: BusinessPlan) => {
     onComplete?.(plan)
   }
 
-  const handleSaveDraft = (draft: any) => {
+  const handleSaveDraft = (draft: DraftData) => {
     onSave?.(draft)
   }
 

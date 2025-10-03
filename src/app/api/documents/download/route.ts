@@ -1,18 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server'
-
 import { verifyToken } from '@/lib/auth'
-
 import { ResearchReportService } from '@/lib/services/research-report.service'
-
-import { transformReportToGuide, generateGuideMarkdown } from '@/lib/utils/transformReportToGuide'
-
+import { transformReportToGuide, generateGuideMarkdown, type LandingCoachGuide } from '@/lib/utils/transformReportToGuide'
 import JSZip from 'jszip'
+import type { ResearchReport, User, Idea } from '@/types/entities'
 
 // 强制动态渲染
 export const dynamic = 'force-dynamic'
 
 // 扩展报告类型以包含idea关系
-interface ReportWithIdea {
+interface ReportWithIdea extends Partial<ResearchReport> {
   id: string
   userId: string
   status: string
@@ -25,11 +22,65 @@ interface ReportWithIdea {
     category: string
     tags: string[]
   }
-  basicAnalysis: any
-  researchMethods: any
-  dataSources: any
-  mvpGuidance: any
-  businessModel: any
+  basicAnalysis?: {
+    summary?: string
+    marketAnalysis?: {
+      size?: string
+      competition?: string
+      opportunities?: string[] | string
+      challenges?: string[] | string
+    }
+    userAnalysis?: {
+      targetUsers?: string
+      painPoints?: string[] | string
+      solutions?: string[] | string
+    }
+  }
+  researchMethods?: {
+    primary?: string
+    secondary?: string
+    dataCollection?: string
+  }
+  dataSources?: {
+    primary?: string[] | string
+    secondary?: string[] | string
+    reliability?: string
+  }
+  mvpGuidance?: {
+    productDefinition?: {
+      coreFeatures?: string[] | string
+      uniqueValue?: string
+      scope?: string
+    }
+    developmentPlan?: {
+      phases?: Array<{
+        name: string
+        duration: string
+        deliverables: string[]
+      }>
+      techStack?: string[] | string
+      estimatedCost?: string
+    }
+    validationStrategy?: {
+      hypotheses?: string[] | string
+      experiments?: string[] | string
+      metrics?: string[] | string
+      timeline?: string
+    }
+  }
+  businessModel?: {
+    revenueModel?: {
+      streams?: string[] | string
+    }
+    costStructure?: string[] | string
+    pricingStrategy?: string
+    scalability?: string
+    operations?: {
+      team?: string[] | string
+      processes?: string[] | string
+      infrastructure?: string[] | string
+    }
+  }
   summary: string | null
 }
 
@@ -172,7 +223,7 @@ export async function GET(request: NextRequest) {
 /**
  * 生成调研报告的Markdown内容
  */
-async function generateReportMarkdown(report: any): Promise<string> {
+async function generateReportMarkdown(report: ReportWithIdea): Promise<string> {
   const idea = report.idea
   const markdown = `# ${idea?.title || '创意项目'} - 调研报告
 
@@ -239,7 +290,8 @@ ${report.summary || '本调研报告基于AI分析生成，为创意项目的商
 /**
  * 格式化分析部分
  */
-function formatAnalysisSection(analysis: any): string {
+function formatAnalysisSection(analysis: ReportWithIdea['basicAnalysis']): string {
+  if (!analysis) return '基础分析数据不完整'
   if (typeof analysis === 'string') return analysis
 
   let content = ''
@@ -257,7 +309,7 @@ function formatAnalysisSection(analysis: any): string {
       const opportunities = Array.isArray(analysis.marketAnalysis.opportunities)
         ? analysis.marketAnalysis.opportunities
         : [analysis.marketAnalysis.opportunities]
-      opportunities.forEach((opp: string) => content += `  - ${opp}\n`)
+      opportunities.forEach((opp) => content += `  - ${opp}\n`)
     }
     content += '\n'
   }
@@ -270,7 +322,7 @@ function formatAnalysisSection(analysis: any): string {
       const painPoints = Array.isArray(analysis.userAnalysis.painPoints)
         ? analysis.userAnalysis.painPoints
         : [analysis.userAnalysis.painPoints]
-      painPoints.forEach((pain: string) => content += `  - ${pain}\n`)
+      painPoints.forEach((pain) => content += `  - ${pain}\n`)
     }
     content += '\n'
   }
@@ -281,7 +333,8 @@ function formatAnalysisSection(analysis: any): string {
 /**
  * 格式化研究方法部分
  */
-function formatResearchMethodsSection(methods: any): string {
+function formatResearchMethodsSection(methods: ReportWithIdea['researchMethods']): string {
+  if (!methods) return '研究方法数据不完整'
   if (typeof methods === 'string') return methods
 
   let content = '### 研究方法论\n\n'
@@ -304,13 +357,14 @@ function formatResearchMethodsSection(methods: any): string {
 /**
  * 格式化数据来源部分
  */
-function formatDataSourcesSection(sources: any): string {
+function formatDataSourcesSection(sources: ReportWithIdea['dataSources'] | string[] | undefined): string {
+  if (!sources) return '数据来源信息不完整'
   if (typeof sources === 'string') return sources
 
   let content = '### 数据来源清单\n\n'
 
   if (Array.isArray(sources)) {
-    sources.forEach((source, index) => {
+    sources.forEach((source: string, index: number) => {
       content += `${index + 1}. ${source}\n`
     })
   } else if (sources.primary || sources.secondary) {
@@ -324,7 +378,8 @@ function formatDataSourcesSection(sources: any): string {
 /**
  * 格式化MVP指导部分
  */
-function formatMVPGuidanceSection(mvp: any): string {
+function formatMVPGuidanceSection(mvp: ReportWithIdea['mvpGuidance']): string {
+  if (!mvp) return 'MVP指导数据不完整'
   if (typeof mvp === 'string') return mvp
 
   let content = ''
@@ -336,7 +391,7 @@ function formatMVPGuidanceSection(mvp: any): string {
       const features = Array.isArray(mvp.productDefinition.coreFeatures)
         ? mvp.productDefinition.coreFeatures
         : [mvp.productDefinition.coreFeatures]
-      features.forEach(feature => content += `- ${feature}\n`)
+      features.forEach((feature: string) => content += `- ${feature}\n`)
     }
     if (mvp.productDefinition.uniqueValue) {
       content += `\n**独特价值：** ${mvp.productDefinition.uniqueValue}\n`
@@ -348,12 +403,12 @@ function formatMVPGuidanceSection(mvp: any): string {
     content += `### 开发计划\n`
     if (mvp.developmentPlan.phases) {
       content += `**开发阶段：**\n`
-      mvp.developmentPlan.phases.forEach((phase, index) => {
+      mvp.developmentPlan.phases.forEach((phase: { name?: string; duration?: string }, index: number) => {
         content += `${index + 1}. ${phase.name || `阶段${index + 1}`} (${phase.duration || 'N/A'})\n`
       })
     }
-    if (mvp.developmentPlan.budget) {
-      content += `\n**预算估算：** ${mvp.developmentPlan.budget}\n`
+    if (mvp.developmentPlan.estimatedCost) {
+      content += `\n**预算估算：** ${mvp.developmentPlan.estimatedCost}\n`
     }
     content += '\n'
   }
@@ -364,7 +419,8 @@ function formatMVPGuidanceSection(mvp: any): string {
 /**
  * 格式化商业模式部分
  */
-function formatBusinessModelSection(business: any): string {
+function formatBusinessModelSection(business: ReportWithIdea['businessModel']): string {
+  if (!business) return '商业模式数据不完整'
   if (typeof business === 'string') return business
 
   let content = ''
@@ -375,7 +431,7 @@ function formatBusinessModelSection(business: any): string {
       const streams = Array.isArray(business.revenueModel.streams)
         ? business.revenueModel.streams
         : [business.revenueModel.streams]
-      streams.forEach(stream => content += `- ${stream}\n`)
+      streams.forEach((stream: string) => content += `- ${stream}\n`)
     }
     content += '\n'
   }
@@ -385,7 +441,7 @@ function formatBusinessModelSection(business: any): string {
     const costs = Array.isArray(business.costStructure)
       ? business.costStructure
       : [business.costStructure]
-    costs.forEach(cost => content += `- ${cost}\n`)
+    costs.forEach((cost: string) => content += `- ${cost}\n`)
     content += '\n'
   }
 
@@ -399,20 +455,21 @@ function formatBusinessModelSection(business: any): string {
 /**
  * 生成行动清单文档
  */
-function generateActionItemsList(guide: any): string {
+function generateActionItemsList(guide: LandingCoachGuide): string {
   return `# 创意落地行动清单
 
 ## 📊 第一阶段：现状认知与方向确认
 
-${guide.currentSituation.actionItems.map((item, index) => `${index + 1}. ${item}`).join('\n')}
+${guide.currentSituation.actionItems.map((item: string, index: number) => `${index + 1}. ${item}`).join('\n')}
 
-## 🚀 第二阶段：MVP产品定义与验证
+## 🚀 第二阶段：M
+VP产品定义与验证
 
-${guide.mvpDefinition.actionItems.map((item, index) => `${index + 1}. ${item}`).join('\n')}
+${guide.mvpDefinition.actionItems.map((item: string, index: number) => `${index + 1}. ${item}`).join('\n')}
 
 ## 💼 第三阶段：商业化落地与运营
 
-${guide.businessExecution.actionItems.map((item, index) => `${index + 1}. ${item}`).join('\n')}
+${guide.businessExecution.actionItems.map((item: string, index: number) => `${index + 1}. ${item}`).join('\n')}
 
 ---
 
@@ -423,7 +480,7 @@ ${guide.businessExecution.actionItems.map((item, index) => `${index + 1}. ${item
 /**
  * 生成项目时间线文档
  */
-function generateProjectTimeline(guide: any): string {
+function generateProjectTimeline(guide: LandingCoachGuide): string {
   return `# ${guide.metadata.ideaTitle} - 项目实施时间线
 
 ## 总体时间框架
@@ -438,7 +495,7 @@ function generateProjectTimeline(guide: any): string {
 - 确定产品方向
 
 ### 主要活动
-${guide.currentSituation.actionItems.map(item => `- ${item}`).join('\n')}
+${guide.currentSituation.actionItems.map((item: string) => `- ${item}`).join('\n')}
 
 ## 阶段二：MVP产品定义与验证 (第3-4个月)
 
@@ -448,7 +505,7 @@ ${guide.currentSituation.actionItems.map(item => `- ${item}`).join('\n')}
 - 验证核心假设
 
 ### 主要活动
-${guide.mvpDefinition.actionItems.map(item => `- ${item}`).join('\n')}
+${guide.mvpDefinition.actionItems.map((item: string) => `- ${item}`).join('\n')}
 
 ## 阶段三：商业化落地与运营 (第5-6个月)
 
@@ -458,7 +515,7 @@ ${guide.mvpDefinition.actionItems.map(item => `- ${item}`).join('\n')}
 - 实现收入增长
 
 ### 主要活动
-${guide.businessExecution.actionItems.map(item => `- ${item}`).join('\n')}
+${guide.businessExecution.actionItems.map((item: string) => `- ${item}`).join('\n')}
 
 ---
 

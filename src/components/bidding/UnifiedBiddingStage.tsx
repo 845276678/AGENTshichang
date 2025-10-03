@@ -9,6 +9,7 @@ import { type AIMessage } from '@/lib/ai-persona-system'
 import { useBiddingWebSocket } from '@/hooks/useBiddingWebSocket'
 import { useAgentStates, PhasePermissionManager } from '@/hooks/useAgentStates'
 import { agentStateManager } from '@/services/AgentStateManager'
+import { tokenStorage } from '@/lib/token-storage'
 
 // Import our new components
 import { AgentDialogPanel, BiddingPhase, type AgentState } from './AgentDialogPanel'
@@ -46,6 +47,7 @@ interface UnifiedBiddingStageProps {
   sessionId?: string | null
   ideaContent?: string
   onSupportPersona?: (personaId: string) => void
+  onPhaseChange?: (phase: string) => void
   className?: string
 }
 
@@ -67,6 +69,7 @@ export default function UnifiedBiddingStage({
   sessionId,
   ideaContent,
   onSupportPersona,
+  onPhaseChange,
   className = ''
 }: UnifiedBiddingStageProps) {
   // WebSocket连接状态
@@ -91,6 +94,13 @@ export default function UnifiedBiddingStage({
 
   // 映射阶段
   const currentPhase = mapWebSocketPhase(wsPhase)
+
+  // 通知父组件阶段变化
+  useEffect(() => {
+    if (onPhaseChange && wsPhase) {
+      onPhaseChange(wsPhase)
+    }
+  }, [wsPhase, onPhaseChange])
 
   // Agent状态管理
   const {
@@ -272,7 +282,10 @@ export default function UnifiedBiddingStage({
 
       const response = await fetch('/api/business-plan-session', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${tokenStorage.getAccessToken()}`
+        },
         body: JSON.stringify({
           ideaContent,
           ideaId,

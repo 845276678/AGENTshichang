@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/database'
 import { getUserFromToken } from '@/lib/auth-helper'
+import type { Idea, User } from '@/types/entities'
+import type { CreateDiscussionInput } from '@/lib/validators'
 
 export async function POST(req: NextRequest) {
   try {
@@ -10,7 +12,8 @@ export async function POST(req: NextRequest) {
     }
     const user = authResult.user
 
-    const { ideaId } = await req.json()
+    const body = await req.json() as CreateDiscussionInput
+    const { ideaId } = body
 
     if (!ideaId) {
       return NextResponse.json({ error: '创意ID不能为空' }, { status: 400 })
@@ -143,10 +146,28 @@ export async function GET(req: NextRequest) {
   }
 }
 
+// AI专家定义
+interface AIAgent {
+  type: string
+  name: string
+  expertise: string[]
+  personality: string
+  focus: string[]
+  categories: string[]
+  score: number
+}
+
+// 初始分析结果
+interface InitialAnalysis {
+  content: string
+  analysisData: Record<string, unknown>
+  suggestions: string[]
+}
+
 // 智能专家匹配算法
-async function selectOptimalAgent(idea: any, userId: string) {
+async function selectOptimalAgent(idea: Idea, userId: string): Promise<{ type: string; name: string }> {
   // 5个核心AI专家定义
-  const agents = [
+  const agents: AIAgent[] = [
     {
       type: 'tech',
       name: '科技艾克斯',
@@ -278,7 +299,7 @@ async function getUserDiscussionHistory(userId: string) {
 }
 
 // 计算用户对特定专家类型的偏好
-function calculateHistoryPreference(history: any[], agentType: string) {
+function calculateHistoryPreference(history: Array<{ aiAgentType: string; messages: unknown[] }>, agentType: string): number {
   if (history.length === 0) return 0
 
   const sameTypeDiscussions = history.filter(d => d.aiAgentType === agentType)
@@ -289,7 +310,7 @@ function calculateHistoryPreference(history: any[], agentType: string) {
 }
 
 // 分析创意复杂度
-function analyzeIdeaComplexity(idea: any) {
+function analyzeIdeaComplexity(idea: Pick<Idea, 'title' | 'description'>): { technical: number; commercial: number; theoretical: number } {
   const content = `${idea.title} ${idea.description}`.toLowerCase()
 
   // 技术复杂度指标
@@ -318,14 +339,19 @@ function analyzeIdeaComplexity(idea: any) {
 }
 
 // 记录专家选择结果用于算法优化
-async function logAgentSelection(ideaId: string, userId: string, allAgents: any[], selectedType: string) {
+async function logAgentSelection(
+  ideaId: string,
+  userId: string,
+  allAgents: AIAgent[],
+  selectedType: string
+): Promise<void> {
   try {
     // 这里可以记录到数据库或日志系统，用于后续算法优化
     console.log('专家匹配记录:', {
       ideaId,
       userId,
       selectedAgent: selectedType,
-      allScores: allAgents.map(a => ({ type: a.type, score: a.score })),
+      allScores: allAgents.map((a: AIAgent) => ({ type: a.type, score: a.score })),
       timestamp: new Date().toISOString()
     })
 
@@ -345,7 +371,7 @@ async function logAgentSelection(ideaId: string, userId: string, allAgents: any[
 }
 
 // AI初始分析生成函数
-async function generateInitialAnalysis(idea: any) {
+async function generateInitialAnalysis(idea: Pick<Idea, 'title' | 'category'>): Promise<InitialAnalysis> {
   // 这里可以调用实际的AI服务，暂时用模拟数据
   const analysisTemplates = {
     'TECH': {

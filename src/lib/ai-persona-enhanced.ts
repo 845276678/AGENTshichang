@@ -136,4 +136,4 @@ export function generateBiddingRound(context: PersonaBidContext): PersonaBidResu
   })
 }
 
-export { AI_PERSONAS }
+export { AI_PERSONAS, type AIPersona }

@@ -25,23 +25,33 @@ interface CreativeIdeaBiddingProps {
   initialIdeaContent?: string
 }
 
+interface ComponentProps {
+  children: React.ReactNode
+  className?: string
+  style?: React.CSSProperties
+}
+
+interface FormProps extends ComponentProps {
+  onSubmit?: (e: React.FormEvent) => void
+}
+
 // 简化的无动画组件，避免framer-motion导致的初始化问题
-const SimpleDiv = ({ children, className, style, ...props }: any) => (
+const SimpleDiv = ({ children, className, style, ...props }: ComponentProps) => (
   <div className={className} style={style} {...props}>{children}</div>
 )
-const SimpleForm = ({ children, className, style, onSubmit, ...props }: any) => (
+const SimpleForm = ({ children, className, style, onSubmit, ...props }: FormProps) => (
   <form className={className} style={style} onSubmit={onSubmit} {...props}>{children}</form>
 )
-const SimpleH1 = ({ children, className, style, ...props }: any) => (
+const SimpleH1 = ({ children, className, style, ...props }: ComponentProps) => (
   <h1 className={className} style={style} {...props}>{children}</h1>
 )
-const SimpleP = ({ children, className, style, ...props }: any) => (
+const SimpleP = ({ children, className, style, ...props }: ComponentProps) => (
   <p className={className} style={style} {...props}>{children}</p>
 )
-const SimpleH3 = ({ children, className, style, ...props }: any) => (
+const SimpleH3 = ({ children, className, style, ...props }: ComponentProps) => (
   <h3 className={className} style={style} {...props}>{children}</h3>
 )
-const SimplePresence = ({ children }: any) => <>{children}</>
+const SimplePresence = ({ children }: { children: React.ReactNode }) => <>{children}</>;
 
 // 使用简化组件替代motion组件
 const MotionDiv = SimpleDiv
@@ -51,6 +61,8 @@ const MotionP = SimpleP
 const MotionH3 = SimpleH3
 const AnimatePresence = SimplePresence
 
+type SubmitResult = Promise<void | boolean> | void | boolean
+
 // 创意输入表单组件 - 升级版
 const CreativeInputForm = ({
   onSubmit,
@@ -58,7 +70,7 @@ const CreativeInputForm = ({
   userCredits,
   defaultContent
 }: {
-  onSubmit: (idea: string) => Promise<void | boolean> | void | boolean
+  onSubmit: (idea: string) => SubmitResult
   isLoading: boolean
   userCredits: number
   defaultContent?: string
@@ -253,12 +265,13 @@ export default function StageBasedBidding({
   const [currentStage, setCurrentStage] = useState<'input' | 'bidding'>('input')
   const [submittedIdea, setSubmittedIdea] = useState<string>('')
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [biddingPhase, setBiddingPhase] = useState<string>('warmup')
-  const [biddingProgress, setBiddingProgress] = useState<number>(15)
+  const [sessionId, setSessionId] = useState<string | null>(null)
   const { user } = useAuth()
   const router = useRouter()
 
-  const [sessionId, setSessionId] = useState<string | null>(null)
+  // 用于同步WebSocket阶段的ref
+  const wsPhaseRef = useRef<string>('warmup')
+  const [displayPhase, setDisplayPhase] = useState<string>('warmup')
 
   // Auto-start if specified and has initial content
   useEffect(() => {
@@ -313,8 +326,7 @@ export default function StageBasedBidding({
       await new Promise(resolve => setTimeout(resolve, 1000))
 
       setCurrentStage('bidding')
-      setBiddingPhase('warmup')  // 初始设为warmup，真实AI将接管
-      setBiddingProgress(15)
+      setDisplayPhase('warmup')  // 初始设为warmup，真实AI将接管
     } catch (error) {
       console.error('Idea submission error:', error)
       alert('提交失败，请重试')
@@ -326,8 +338,7 @@ export default function StageBasedBidding({
   const handleBackToInput = () => {
     setCurrentStage('input')
     setSubmittedIdea('')
-    setBiddingPhase('warmup')
-    setBiddingProgress(0)
+    setDisplayPhase('warmup')
     setSessionId(null) // 重置sessionId
   }
 
@@ -361,14 +372,18 @@ export default function StageBasedBidding({
             </div>
 
             <BiddingProgressIndicator
-              currentPhase={biddingPhase}
-              progress={biddingProgress}
+              currentPhase={displayPhase}
+              progress={0}
             />
 
             <UnifiedBiddingStage
               ideaContent={submittedIdea}
               ideaId={ideaId}
               sessionId={sessionId}
+              onPhaseChange={(phase) => {
+                // 接收来自UnifiedBiddingStage的阶段更新
+                setDisplayPhase(phase)
+              }}
             />
           </div>
         )}

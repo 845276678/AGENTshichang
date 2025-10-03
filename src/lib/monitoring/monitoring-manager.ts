@@ -25,7 +25,7 @@ interface LogEntry {
   timestamp: Date
   level: LogLevel
   message: string
-  context?: Record<string, any>
+  context?: Record<string, unknown>
   error?: Error
   trace?: string
   userId?: string
@@ -66,7 +66,7 @@ interface AlertRule {
 
 interface AlertAction {
   type: 'email' | 'webhook' | 'slack'
-  config: Record<string, any>
+  config: Record<string, unknown>
 }
 
 // 监控管理器
@@ -128,7 +128,7 @@ export class MonitoringManager {
   private log(
     level: LogLevel,
     message: string,
-    context?: Record<string, any>,
+    context?: Record<string, unknown>,
     error?: Error,
     component: string = 'system'
   ): void {
@@ -278,12 +278,12 @@ export class MonitoringManager {
   }
 
   // 性能装饰器
-  measurePerformance<T extends (...args: any[]) => Promise<any>>(
+  measurePerformance<T extends (...args: unknown[]) => Promise<unknown>>(
     fn: T,
     metricName: string,
-    getLabels?: (...args: any[]) => Record<string, string>
+    getLabels?: (...args: unknown[]) => Record<string, string>
   ): T {
-    return (async (...args: any[]) => {
+    return (async (...args: unknown[]) => {
       const labels = getLabels?.(...args) || {}
       const trackerId = this.startTimer(metricName, labels)
 
@@ -313,7 +313,11 @@ export class MonitoringManager {
     version: string
   }> {
     const startTime = Date.now()
-    const checks: Record<string, any> = {}
+    const checks: Record<string, {
+      status: 'pass' | 'fail'
+      message?: string
+      responseTime?: number
+    }> = {}
 
     // 数据库检查
     try {
@@ -490,7 +494,7 @@ export class MonitoringManager {
     }
   }
 
-  private sendEmailAlert(config: any, rule: AlertRule, metric: MetricData): void {
+  private sendEmailAlert(config: Record<string, unknown>, rule: AlertRule, metric: MetricData): void {
     // 实际实现中应集成邮件服务
     this.info('Email alert sent', {
       recipients: config.recipients,
@@ -499,7 +503,7 @@ export class MonitoringManager {
     })
   }
 
-  private sendWebhookAlert(config: any, rule: AlertRule, metric: MetricData): void {
+  private sendWebhookAlert(config: Record<string, unknown>, rule: AlertRule, metric: MetricData): void {
     // 实际实现中应发送HTTP请求
     this.info('Webhook alert sent', {
       url: config.url,
@@ -513,7 +517,7 @@ export class MonitoringManager {
     })
   }
 
-  private sendSlackAlert(config: any, rule: AlertRule, metric: MetricData): void {
+  private sendSlackAlert(config: Record<string, unknown>, rule: AlertRule, metric: MetricData): void {
     // 实际实现中应调用Slack API
     this.info('Slack alert sent', {
       channel: config.channel,
@@ -612,8 +616,10 @@ export class MonitoringManager {
     this.gauge('uptime_seconds', process.uptime())
 
     // 活跃句柄数
-    this.gauge('active_handles', (process as any)._getActiveHandles()?.length || 0)
-    this.gauge('active_requests', (process as any)._getActiveRequests()?.length || 0)
+    const activeHandles = (process as NodeJS.Process & { _getActiveHandles?: () => unknown[] })._getActiveHandles?.()?.length || 0
+    this.gauge('active_handles', activeHandles)
+    const activeRequests = (process as NodeJS.Process & { _getActiveRequests?: () => unknown[] })._getActiveRequests?.()?.length || 0
+    this.gauge('active_requests', activeRequests)
   }
 
   // ==================== 查询接口 ====================

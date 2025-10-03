@@ -52,6 +52,30 @@ const app = next({ dev, hostname: dev ? hostname : undefined, port });
 const handle = app.getRequestHandler();
 // WebSocket?- AI
 const activeConnections = new Map(); // ebSocket
+
+function broadcastToSession(ideaId, data) {
+  let broadcastCount = 0;
+
+  activeConnections.forEach((connection, connectionId) => {
+    if (connection.ideaId === ideaId && connection.ws.readyState === 1) {
+      try {
+        connection.ws.send(JSON.stringify(data));
+        broadcastCount += 1;
+      } catch (error) {
+        console.error('Error broadcasting to connection:', {
+          ideaId,
+          connectionId,
+          error,
+        });
+        activeConnections.delete(connectionId);
+      }
+    }
+  });
+
+  console.log('Broadcasted to ' + broadcastCount + ' connections for idea: ' + ideaId);
+  return broadcastCount;
+}
+
 function handleBiddingWebSocket(ws, ideaId, query) {
   console.log(` WebSocket: ideaId=${ideaId}`, {
     query,
@@ -287,37 +311,22 @@ async function handleSubmitPrediction(ideaId, payload, ws) {
   const { prediction, confidence } = payload;
   console.log(` User prediction: ${prediction}, confidence: ${confidence}`);
 
-  ws.send(JSON.stringify({
+  const data = {
     type: 'prediction_received',
     payload: {
       prediction,
       confidence,
       message: "Session status update from the AI bidding system."
     },
-  }));
-}
+  };
 
-function broadcastToSession(ideaId, data) {
-  let broadcastCount = 0;
+  try {
+    ws.send(JSON.stringify(data));
+  } catch (error) {
+    console.error('Failed to acknowledge prediction to sender:', error);
+  }
 
-  activeConnections.forEach((connection, connectionId) => {
-    if (connection.ideaId === ideaId && connection.ws.readyState === 1) {
-      try {
-        connection.ws.send(JSON.stringify(data));
-        broadcastCount += 1;
-      } catch (error) {
-        console.error('Error broadcasting to connection:', {
-          ideaId,
-          connectionId,
-          error,
-        });
-        activeConnections.delete(connectionId);
-      }
-    }
-  });
-
-  console.log(`Broadcasted to ${broadcastCount} connections for idea: ${ideaId}`);
-  return broadcastCount;
+  return broadcastToSession(ideaId, data);
 }
 
 function broadcastViewerCount(ideaId) {

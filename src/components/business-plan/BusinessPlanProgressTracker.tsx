@@ -67,6 +67,12 @@ interface ContentVersion {
   qualityScore: number
 }
 
+interface FeedbackData {
+  rating: number
+  comments: string
+  improvements?: string[]
+}
+
 interface BusinessPlanProgressTrackerProps {
   stages: GenerationStage[]
   currentStageIndex: number
@@ -74,7 +80,7 @@ interface BusinessPlanProgressTrackerProps {
   isGenerating: boolean
   onStagePreview: (stageId: string) => void
   onVersionSelect: (stageId: string, versionId: string) => void
-  onFeedbackSubmit: (versionId: string, feedback: any) => void
+  onFeedbackSubmit: (versionId: string, feedback: FeedbackData) => void
 }
 
 // AI服务商配置
@@ -245,7 +251,7 @@ const StageTimelineItem: React.FC<{
   onToggle: () => void
   onPreview: (stageId: string) => void
   onVersionSelect: (stageId: string, versionId: string) => void
-  onFeedbackSubmit: (versionId: string, feedback: any) => void
+  onFeedbackSubmit: (versionId: string, feedback: FeedbackData) => void
 }> = ({ stage, index, isActive, isExpanded, onToggle, onPreview, onVersionSelect, onFeedbackSubmit }) => {
   const provider = AI_PROVIDERS[stage.aiProvider]
 
@@ -369,7 +375,7 @@ const StageExpandedContent: React.FC<{
   stage: GenerationStage
   onPreview: (stageId: string) => void
   onVersionSelect: (stageId: string, versionId: string) => void
-  onFeedbackSubmit: (versionId: string, feedback: any) => void
+  onFeedbackSubmit: (versionId: string, feedback: FeedbackData) => void
 }> = ({ stage, onPreview, onVersionSelect, onFeedbackSubmit }) => {
   return (
     <div className="space-y-4">
@@ -467,7 +473,7 @@ const StageExpandedContent: React.FC<{
 const VersionCard: React.FC<{
   version: ContentVersion
   onSelect: () => void
-  onFeedback: (versionId: string, feedback: any) => void
+  onFeedback: (versionId: string, feedback: FeedbackData) => void
 }> = ({ version, onSelect, onFeedback }) => {
   const [showFeedback, setShowFeedback] = useState(false)
 
@@ -539,7 +545,7 @@ const VersionCard: React.FC<{
 // 快速反馈表单
 const QuickFeedbackForm: React.FC<{
   versionId: string
-  onSubmit: (versionId: string, feedback: any) => void
+  onSubmit: (versionId: string, feedback: FeedbackData) => void
 }> = ({ versionId, onSubmit }) => {
   const [rating, setRating] = useState(0)
   const [comments, setComments] = useState('')
@@ -593,7 +599,7 @@ const StageDetailPanel: React.FC<{
   stage: GenerationStage
   onClose: () => void
   onVersionSelect: (stageId: string, versionId: string) => void
-  onFeedbackSubmit: (versionId: string, feedback: any) => void
+  onFeedbackSubmit: (versionId: string, feedback: FeedbackData) => void
 }> = ({ stage, onClose, onVersionSelect, onFeedbackSubmit }) => {
   return (
     <motion.div

@@ -2,6 +2,7 @@
 
 import React, { Suspense, lazy } from 'react'
 import { useSearchParams } from 'next/navigation'
+import { Header } from '@/components/layout/Header'
 
 // 使用React.lazy而不是next/dynamic来避免Next.js特定的问题
 const StageBasedBidding = lazy(() =>
@@ -72,8 +73,11 @@ function BiddingPageContent() {
 // 重构后的创意竞价页面 - 使用React.lazy减少初始化问题
 export default function MVPBiddingPage() {
   return (
-    <Suspense fallback={<LoadingComponent />}>
-      <BiddingPageContent />
-    </Suspense>
+    <>
+      <Header />
+      <Suspense fallback={<LoadingComponent />}>
+        <BiddingPageContent />
+      </Suspense>
+    </>
   )
 }

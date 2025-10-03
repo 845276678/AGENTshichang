@@ -13,6 +13,13 @@ import {
   CreativeDNA,
   CreativeAgent
 } from '@/types'
+
+type ThinkingStyle = 'LOGICAL' | 'INTUITIVE' | 'EXPERIMENTAL' | 'INTEGRATIVE'
+type CreativityType = 'BREAKTHROUGH' | 'IMPROVEMENT' | 'SYNTHESIS' | 'APPLICATION'
+type CollaborationStyle = 'LEADER' | 'COLLABORATOR' | 'SUPPORTER' | 'INDEPENDENT'
+type InnovationPreference = 'TECHNICAL' | 'ARTISTIC' | 'BUSINESS' | 'SOCIAL'
+type RiskTolerance = 'LOW' | 'MEDIUM' | 'HIGH'
+type ComplexityPreference = 'SIMPLE' | 'MODERATE' | 'COMPLEX'
 import {
   Brain,
   Target,
@@ -167,20 +174,20 @@ const calculateCompatibility = (userDNA: CreativeDNA, agent: CreativeAgent): num
   factors += 25
 
   // 协作风格兼容性 (20%)
-  const collaborationCompatibility = {
+  const collaborationCompatibility: Record<CollaborationStyle, CollaborationStyle[]> = {
     LEADER: ['SUPPORTER', 'COLLABORATOR'],
     COLLABORATOR: ['COLLABORATOR', 'LEADER'],
     SUPPORTER: ['LEADER', 'COLLABORATOR'],
     INDEPENDENT: ['INDEPENDENT', 'SUPPORTER']
   }
 
-  if (collaborationCompatibility[userDNA.collaborationStyle]?.includes(agent.personality.traits[0] as any)) {
+  if (collaborationCompatibility[userDNA.collaborationStyle]?.includes(agent.personality.traits[0] as CollaborationStyle)) {
     score += 20
   }
   factors += 20
 
   // 复杂度匹配 (15%)
-  const complexityMatch = {
+  const complexityMatch: Record<ComplexityPreference, boolean> = {
     SIMPLE: agent.cognitionStyle.informationProcessing === 'SEQUENTIAL',
     MODERATE: agent.cognitionStyle.informationProcessing === 'CONTEXTUAL',
     COMPLEX: agent.cognitionStyle.informationProcessing === 'PARALLEL'
@@ -192,7 +199,7 @@ const calculateCompatibility = (userDNA: CreativeDNA, agent: CreativeAgent): num
   factors += 15
 
   // 风险偏好匹配 (10%)
-  const riskMatch = {
+  const riskMatch: Record<RiskTolerance, boolean> = {
     LOW: agent.cognitionStyle.decisionMakingStyle === 'CONSERVATIVE',
     MEDIUM: agent.cognitionStyle.decisionMakingStyle === 'DATA_DRIVEN',
     HIGH: agent.cognitionStyle.decisionMakingStyle === 'RISK_TOLERANT'
@@ -255,12 +262,12 @@ export const CreativeDNAAnalysis: React.FC<CreativeDNAAnalysisProps> = ({
 
   const completeAssessment = () => {
     const dna: CreativeDNA = {
-      dominantThinkingStyle: answers['1'] as any,
-      creativityType: answers['2'] as any,
-      collaborationStyle: answers['3'] as any,
-      innovationPreference: answers['4'] as any,
-      riskTolerance: answers['5'] as any,
-      complexityPreference: answers['6'] as any,
+      dominantThinkingStyle: answers['1'] as ThinkingStyle,
+      creativityType: answers['2'] as CreativityType,
+      collaborationStyle: answers['3'] as CollaborationStyle,
+      innovationPreference: answers['4'] as InnovationPreference,
+      riskTolerance: answers['5'] as RiskTolerance,
+      complexityPreference: answers['6'] as ComplexityPreference,
       lastAssessed: new Date(),
       confidence: 0.85
     }

@@ -1,6 +1,15 @@
 // Mock data fixtures for tests
+import type {
+  MockUser,
+  MockAgent,
+  MockCategory,
+  MockOrder,
+  MockReview,
+  MockPayment,
+  MockDataOverrides
+} from '../types'
 
-export const mockUsers = {
+export const mockUsers: Record<string, MockUser> = {
   user1: {
     id: '1',
     email: 'john@example.com',
@@ -30,7 +39,7 @@ export const mockUsers = {
   },
 }
 
-export const mockAgents = {
+export const mockAgents: Record<string, MockAgent> = {
   writingAssistant: {
     id: '1',
     name: 'AI Writing Assistant',
@@ -178,7 +187,7 @@ export const mockAgents = {
   },
 }
 
-export const mockCategories = [
+export const mockCategories: MockCategory[] = [
   {
     id: '1',
     name: 'Content Creation',
@@ -209,7 +218,7 @@ export const mockCategories = [
   },
 ]
 
-export const mockOrders = {
+export const mockOrders: Record<string, MockOrder> = {
   order1: {
     id: '1',
     userId: '1',
@@ -255,7 +264,7 @@ export const mockOrders = {
   },
 }
 
-export const mockReviews = [
+export const mockReviews: MockReview[] = [
   {
     id: '1',
     userId: '1',
@@ -285,7 +294,7 @@ export const mockReviews = [
   },
 ]
 
-export const mockPayments = {
+export const mockPayments: Record<string, MockPayment> = {
   successfulPayment: {
     id: 'pay_123456',
     amount: 2999,
@@ -308,22 +317,22 @@ export const mockPayments = {
 }
 
 // Helper functions to create mock data with overrides
-export const createMockUser = (overrides = {}) => ({
+export const createMockUser = (overrides: MockDataOverrides<MockUser> = {}): MockUser => ({
   ...mockUsers.user1,
   ...overrides,
 })
 
-export const createMockAgent = (overrides = {}) => ({
+export const createMockAgent = (overrides: MockDataOverrides<MockAgent> = {}): MockAgent => ({
   ...mockAgents.writingAssistant,
   ...overrides,
 })
 
-export const createMockOrder = (overrides = {}) => ({
+export const createMockOrder = (overrides: MockDataOverrides<MockOrder> = {}): MockOrder => ({
   ...mockOrders.order1,
   ...overrides,
 })
 
-export const createMockReview = (overrides = {}) => ({
+export const createMockReview = (overrides: MockDataOverrides<MockReview> = {}): MockReview => ({
   ...mockReviews[0],
   ...overrides,
 })
