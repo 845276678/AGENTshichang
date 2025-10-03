@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   Target,
@@ -706,7 +706,7 @@ const RequirementsAnalysisStep: React.FC<{
     { task: '完成分析报告...', duration: 700 }
   ]
 
-  React.useEffect(() => {
+  useEffect(() => {
     let currentStep = 0
     let accumulatedTime = 0
 

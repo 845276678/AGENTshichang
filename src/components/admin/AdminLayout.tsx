@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -289,12 +289,12 @@ export function AdminLayout({ children }: AdminLayoutProps) {
   const router = useRouter()
 
   // Check if user is authenticated and has admin role
-  React.useEffect(() => {
+  useEffect(() => {
     if (!isAuthenticated) {
       router.push('/auth/login')
       return
     }
-    
+
     // Check if user has admin or moderator role
     if (user?.role !== 'ADMIN' && user?.role !== 'MODERATOR') {
       router.push('/dashboard')

@@ -3,11 +3,16 @@
 
 import { WebSocket } from 'ws';
 import { AI_PERSONAS, PHASE_STRATEGIES } from './ai-persona-system';
+import { AIServiceManager, SYSTEM_PROMPTS } from './ai-service-manager';
+
+// 初始化AI服务管理器
+const aiServiceManager = new AIServiceManager();
 
 // 生产环境会话数据存储
 interface BiddingSession {
   id: string;
   ideaId: string;
+  ideaContent?: string; // 添加创意内容字段
   currentPhase: 'warmup' | 'discussion' | 'bidding' | 'prediction' | 'result';
   startTime: Date;
   phaseStartTime: Date;
@@ -128,8 +133,8 @@ function startPhaseDialogue(session: BiddingSession) {
   }, 2000);
 }
 
-// 生成AI对话
-function generateAIDialogue(session: BiddingSession, isPhaseStart = false) {
+// 生成AI对话 - 使用真实AI服务
+async function generateAIDialogue(session: BiddingSession, isPhaseStart = false) {
   const persona = AI_PERSONAS[Math.floor(Math.random() * AI_PERSONAS.length)];
 
   let content = '';
@@ -137,91 +142,168 @@ function generateAIDialogue(session: BiddingSession, isPhaseStart = false) {
   let emotion = 'neutral';
   let bidValue: number | undefined;
 
-  // 根据阶段生成不同内容
-  switch (session.currentPhase) {
-    case 'warmup':
-      content = generateWarmupMessage(persona, isPhaseStart);
-      emotion = 'excited';
-      break;
-    case 'discussion':
-      content = generateDiscussionMessage(persona, isPhaseStart);
-      emotion = 'confident';
-      break;
-    case 'bidding':
-      if (Math.random() > 0.7) {
-        type = 'bid';
-        const currentBid = session.currentBids[persona.id] || 50;
-        bidValue = currentBid + Math.floor(Math.random() * 30) + 10;
-        session.currentBids[persona.id] = bidValue;
-        session.highestBid = Math.max(session.highestBid, bidValue);
-        content = `出价 ${bidValue} 积分！${generateBiddingMessage(persona)}`;
-      } else {
-        content = generateBiddingMessage(persona);
-      }
-      emotion = 'excited';
-      break;
-    case 'prediction':
-      content = generatePredictionMessage(persona);
-      emotion = 'worried';
-      break;
-    case 'result':
-      content = generateResultMessage(persona);
-      emotion = 'happy';
-      break;
-  }
+  try {
+    // 构建对话上下文
+    const context = {
+      ideaContent: session.ideaContent || '未提供创意内容',
+      phase: session.currentPhase,
+      round: Math.floor(session.messages.length / 5) + 1,
+      previousContext: session.messages.slice(-3).map((m: any) => ({
+        personaId: m.personaId,
+        content: m.content
+      })),
+      isPhaseStart
+    };
 
-  const message = {
-    messageId: Date.now().toString() + Math.random(),
-    personaId: persona.id,
-    phase: session.currentPhase,
-    round: Math.floor(session.messages.length / 5) + 1,
-    content,
-    emotion,
-    bidValue,
-    timestamp: Date.now(),
-    cost: Math.random() * 0.02, // API成本
-    tokens: 50 + Math.floor(Math.random() * 100)
-  };
-
-  session.messages.push(message);
-  session.cost += message.cost || 0;
-
-  // 广播消息
-  if (type === 'bid') {
-    broadcastToSession(session, {
-      type: 'bid.placed',
-      payload: message
+    // 调用真实AI服务
+    const aiResponse = await aiServiceManager.callSingleService({
+      provider: persona.primaryModel as any,
+      persona: persona.id,
+      context,
+      systemPrompt: SYSTEM_PROMPTS[persona.id as keyof typeof SYSTEM_PROMPTS] || '',
+      temperature: 0.7,
+      maxTokens: 200
     });
-  } else {
+
+    content = aiResponse.content;
+
+    // 根据阶段调整类型和情绪
+    switch (session.currentPhase) {
+      case 'warmup':
+        emotion = 'excited';
+        break;
+      case 'discussion':
+        emotion = 'confident';
+        break;
+      case 'bidding':
+        // 竞价阶段可能会出价
+        if (Math.random() > 0.7) {
+          type = 'bid';
+          const currentBid = session.currentBids[persona.id] || 50;
+          bidValue = currentBid + Math.floor(Math.random() * 30) + 10;
+          session.currentBids[persona.id] = bidValue;
+          session.highestBid = Math.max(session.highestBid, bidValue);
+          content = `出价 ${bidValue} 积分！${content}`;
+        }
+        emotion = 'excited';
+        break;
+      case 'prediction':
+        emotion = 'worried';
+        break;
+      case 'result':
+        emotion = 'happy';
+        break;
+    }
+
+    const message = {
+      messageId: Date.now().toString() + Math.random(),
+      personaId: persona.id,
+      phase: session.currentPhase,
+      round: context.round,
+      content,
+      emotion,
+      bidValue,
+      timestamp: Date.now(),
+      cost: aiResponse.cost,
+      tokens: aiResponse.tokens_used
+    };
+
+    session.messages.push(message);
+    session.cost += aiResponse.cost;
+
+    // 广播消息
+    if (type === 'bid') {
+      broadcastToSession(session, {
+        type: 'bid.placed',
+        payload: message
+      });
+    } else {
+      broadcastToSession(session, {
+        type: 'persona.speech',
+        payload: message
+      });
+    }
+
+    // 更新成本状态
+    broadcastToSession(session, {
+      type: 'cost.update',
+      payload: {
+        totalCost: session.cost,
+        thresholdReached: session.cost > 0.35
+      }
+    });
+  } catch (error) {
+    console.error('AI对话生成失败:', error);
+    // 失败时使用备用模板
+    content = generateFallbackMessage(persona, session.currentPhase, isPhaseStart);
+
+    const message = {
+      messageId: Date.now().toString() + Math.random(),
+      personaId: persona.id,
+      phase: session.currentPhase,
+      round: Math.floor(session.messages.length / 5) + 1,
+      content,
+      emotion,
+      bidValue,
+      timestamp: Date.now(),
+      cost: 0,
+      tokens: 0
+    };
+
+    session.messages.push(message);
+
     broadcastToSession(session, {
       type: 'persona.speech',
       payload: message
     });
   }
-
-  // 更新成本状态
-  broadcastToSession(session, {
-    type: 'cost.update',
-    payload: {
-      totalCost: session.cost,
-      thresholdReached: session.cost > 0.35
-    }
-  });
 }
 
-// AI消息生成函数
-function generateWarmupMessage(persona: any, isPhaseStart: boolean): string {
+// AI消息生成函数 - 备用模板(当AI服务失败时使用)
+function generateFallbackMessage(persona: any, phase: string, isPhaseStart: boolean): string {
   if (isPhaseStart) {
-    return `大家好！我是${persona.name}，很高兴参与这次创意竞价！${persona.catchPhrase}`;
+    return `大家好！我是${persona.name},很高兴参与这次创意竞价！${persona.catchPhrase}`;
   }
 
-  const templates = [
-    `这个创意很有潜力，我从${persona.specialty}的角度来分析...`,
-    `让我先了解一下创意的核心价值点`,
-    `${persona.catchPhrase}`,
-    `基于我的经验，这类项目通常需要考虑...`
-  ];
-  return templates[Math.floor(Math.random() * templates.length)];
+  const templates: Record<string, string[]> = {
+    warmup: [
+      `这个创意很有潜力，我从${persona.specialty}的角度来分析...`,
+      `让我先了解一下创意的核心价值点`,
+      `${persona.catchPhrase}`,
+      `基于我的经验，这类项目通常需要考虑...`
+    ],
+    discussion: [
+      `我想了解一下技术实现的可行性如何？`,
+      `目标用户群体定位是否清晰？`,
+      `商业模式的核心竞争优势在哪里？`,
+      `市场规模和竞争格局怎样？`,
+      `这个创意的差异化价值体现在哪？`
+    ],
+    bidding: [
+      `基于我的专业判断，这个创意值得投入！`,
+      `我看好这个项目的潜力！`,
+      `这个方向很有前景！`,
+      `值得继续深入探索！`
+    ],
+    prediction: [
+      `我预测最终价格会在...`,
+      `根据讨论情况，估值应该...`,
+      `综合各方面因素考虑...`
+    ],
+    result: [
+      `恭喜！这是个不错的结果！`,
+      `期待看到项目的后续发展！`,
+      `很高兴能参与这次竞价！`
+    ]
+  };
+
+  const phaseTemplates = templates[phase] || templates.warmup;
+  return phaseTemplates[Math.floor(Math.random() * phaseTemplates.length)];
+}
+
+// 保留旧的模板函数作为兼容
+function generateWarmupMessage(persona: any, isPhaseStart: boolean): string {
+  return generateFallbackMessage(persona, 'warmup', isPhaseStart);
 }
 
 function generateDiscussionMessage(persona: any, isPhaseStart: boolean): string {
@@ -370,6 +452,52 @@ export function handleBiddingWebSocket(ws: WebSocket, ideaId: string, query: any
 // 处理客户端消息
 function handleClientMessage(session: BiddingSession, ws: WebSocket, message: any) {
   switch (message.type) {
+    case 'start.bidding':
+      // 开始竞价 - 接收创意内容
+      if (message.payload && message.payload.ideaContent) {
+        session.ideaContent = message.payload.ideaContent;
+        console.log('收到创意内容:', session.ideaContent);
+
+        // 确认启动
+        ws.send(JSON.stringify({
+          type: 'bidding.started',
+          payload: {
+            ideaId: session.ideaId,
+            phase: session.currentPhase,
+            timestamp: Date.now()
+          }
+        }));
+
+        // 立即开始第一轮AI对话
+        generateAIDialogue(session, true);
+      }
+      break;
+
+    case 'user.supplement':
+      // 处理用户补充创意
+      if (message.payload && message.payload.content) {
+        const supplementContent = message.payload.content;
+        console.log('收到用户补充:', supplementContent);
+
+        // 将补充内容添加到创意内容中
+        session.ideaContent = (session.ideaContent || '') + '\n\n用户补充：' + supplementContent;
+
+        // 广播补充已接收
+        broadcastToSession(session, {
+          type: 'user.supplement.received',
+          payload: {
+            content: supplementContent,
+            timestamp: Date.now()
+          }
+        });
+
+        // 触发新一轮AI讨论
+        setTimeout(() => {
+          generateAIDialogue(session);
+        }, 1000);
+      }
+      break;
+
     case 'user.reaction':
       // 处理用户反应
       broadcastToSession(session, {

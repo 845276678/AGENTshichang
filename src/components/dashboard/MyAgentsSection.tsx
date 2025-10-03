@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useMemo } from 'react'
 import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -247,7 +247,7 @@ export function MyAgentsSection() {
   const [sortBy, setSortBy] = useState<'lastUsed' | 'usage' | 'rating' | 'name'>('lastUsed')
 
   // Filter and sort agents
-  const filteredAndSortedAgents = React.useMemo(() => {
+  const filteredAndSortedAgents = useMemo(() => {
     const filtered = agents.filter(agent => {
       const matchesSearch = agent.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
                            agent.description.toLowerCase().includes(searchQuery.toLowerCase())
