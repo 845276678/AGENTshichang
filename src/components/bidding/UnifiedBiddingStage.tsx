@@ -31,14 +31,23 @@ import {
   FileText,
   Loader2,
   Send,
-  MessageSquarePlus
+  MessageSquarePlus,
+  AlertCircle
 } from 'lucide-react'
 
 // 简化组件替代motion - 避免生产环境错误
-const SimpleDiv = ({ children, className, style, ...props }: any) => (
+interface SimpleDivProps {
+  children: React.ReactNode
+  className?: string
+  style?: React.CSSProperties
+  [key: string]: any
+}
+
+const SimpleDiv = ({ children, className, style, ...props }: SimpleDivProps) => (
   <div className={className} style={style} {...props}>{children}</div>
 )
-const SimplePresence = ({ children }: any) => <>{children}</>
+
+const SimplePresence = ({ children }: { children: React.ReactNode }) => <>{children}</>
 
 // 使用简化组件替代motion组件
 const MotionDiv = SimpleDiv
@@ -89,6 +98,7 @@ export default function UnifiedBiddingStage({
     supportedPersona,
     supportPersona,
     startBidding,
+    sendSupplement,
     reconnect
   } = useBiddingWebSocket({
     ideaId,
@@ -136,10 +146,32 @@ export default function UnifiedBiddingStage({
   const [supplementHistory, setSupplementHistory] = useState<string[]>([])
   const [isSendingSupplement, setIsSendingSupplement] = useState(false)
 
-  // 自动启动AI竞价
+  // 计算消息信心度
+  const calculateMessageConfidence = useCallback((message: AIMessage): number => {
+    let confidence = 0.5
+
+    // 根据情绪调整
+    const emotionBonus: Record<string, number> = {
+      'confident': 0.3, 'excited': 0.2, 'happy': 0.1,
+      'neutral': 0, 'worried': -0.2, 'angry': -0.1
+    }
+    confidence += emotionBonus[message.emotion] || 0
+
+    // 根据出价调整
+    if (message.bidValue) {
+      if (message.bidValue > 50) confidence += 0.2
+      if (message.bidValue > 100) confidence += 0.1
+      if (message.bidValue === 0) confidence -= 0.3
+    }
+
+    return Math.max(0, Math.min(1, confidence))
+  }, [])
+
+  // 自动启动AI竞价 - 只在StageBasedBidding没有触发时执行
   useEffect(() => {
+    // 只有当sessionId存在且是新会话时才自动启动
     if (sessionId && ideaContent && isConnected && wsPhase === 'warmup') {
-      console.log('🎭 Auto-starting AI bidding with sessionId:', sessionId)
+      console.log('🎭 UnifiedBiddingStage auto-starting AI bidding with sessionId:', sessionId)
 
       const startTimer = setTimeout(() => {
         startBidding(ideaContent)
@@ -149,16 +181,25 @@ export default function UnifiedBiddingStage({
     }
   }, [sessionId, ideaContent, isConnected, wsPhase, startBidding])
 
-  // 处理AI消息更新Agent状态
+  // 处理AI消息更新Agent状态 - 优化性能
+  const processedMessages = useMemo(() => {
+    if (aiMessages.length === 0) return []
+
+    return aiMessages.map(msg => ({
+      ...msg,
+      confidence: calculateMessageConfidence(msg)
+    }))
+  }, [aiMessages, calculateMessageConfidence])
+
   useEffect(() => {
-    if (aiMessages.length > 0) {
-      const latestMessage = aiMessages[0] // 最新消息
+    if (processedMessages.length > 0) {
+      const latestMessage = processedMessages[0] // 最新消息
 
       // 更新对应Agent的状态
       const updates: Partial<AgentState> = {
         currentMessage: latestMessage.content,
         lastActivity: latestMessage.timestamp,
-        confidence: calculateMessageConfidence(latestMessage)
+        confidence: latestMessage.confidence
       }
 
       // 根据消息类型设置状态
@@ -173,11 +214,13 @@ export default function UnifiedBiddingStage({
       updateAgentState(latestMessage.personaId, updates)
 
       // 3秒后将说话状态重置为idle
-      setTimeout(() => {
+      const timeoutId = setTimeout(() => {
         updateAgentState(latestMessage.personaId, { phase: 'idle' })
       }, 3000)
+
+      return () => clearTimeout(timeoutId)
     }
-  }, [aiMessages, updateAgentState])
+  }, [processedMessages, updateAgentState])
 
   // 处理支持Agent
   const handleSupportAgent = (agentId: string) => {
@@ -200,46 +243,30 @@ export default function UnifiedBiddingStage({
 
     setIsSendingSupplement(true)
     try {
-      // 添加到历史记录
-      setSupplementHistory(prev => [...prev, userSupplement])
+      // 通过WebSocket发送补充内容给后端
+      const success = sendSupplement(userSupplement.trim())
 
-      // 这里应该调用WebSocket发送补充内容给后端
-      // TODO: 添加WebSocket发送逻辑
-      console.log('用户补充创意:', userSupplement)
-      console.log('补充次数:', supplementHistory.length + 1, '/ 3')
+      if (success) {
+        // 添加到历史记录
+        setSupplementHistory(prev => [...prev, userSupplement])
 
-      // 清空输入框
-      setUserSupplement('')
+        console.log('✅ 用户补充创意已发送:', userSupplement)
+        console.log('📊 补充次数:', supplementHistory.length + 1, '/ 3')
 
-      // 显示成功提示
-      alert(`补充成功！（${supplementHistory.length + 1}/3）`)
+        // 清空输入框
+        setUserSupplement('')
+
+        // 显示成功提示
+        alert(`补充成功！AI专家团队正在重新评估（${supplementHistory.length + 1}/3）`)
+      } else {
+        throw new Error('发送失败')
+      }
     } catch (error) {
-      console.error('补充失败:', error)
+      console.error('❌ 补充失败:', error)
       alert('补充失败，请重试')
     } finally {
       setIsSendingSupplement(false)
     }
-  }
-
-  // 计算消息信心度
-  const calculateMessageConfidence = (message: AIMessage): number => {
-    let confidence = 0.5
-
-    // 根据情绪调整
-    const emotionBonus: Record<string, number> = {
-      'confident': 0.3, 'excited': 0.2, 'happy': 0.1,
-      'neutral': 0, 'worried': -0.2, 'angry': -0.1
-    }
-    confidence += emotionBonus[message.emotion] || 0
-
-    // 根据出价调整
-    if (message.bidValue) {
-      if (message.bidValue > 50) confidence += 0.2
-      if (message.bidValue > 100) confidence += 0.1
-      if (message.bidValue === 0) confidence -= 0.3
-    }
-
-    return Math.max(0, Math.min(1, confidence))
   }
 
   // 格式化时间
@@ -362,15 +389,15 @@ export default function UnifiedBiddingStage({
         bidsCount: requestBody.biddingResults.totalBids
       })
 
-      // 跳转到商业计划生成进度页面，而不是打开新窗口
-      const params = new URLSearchParams({
-        ideaId,
-        ideaContent: ideaContent || '',
-        biddingData: JSON.stringify(requestBody)
-      })
+      // 使用 sessionStorage 存储数据,避免 URL 过长导致 HTTP 431 错误
+      sessionStorage.setItem('biddingData', JSON.stringify(requestBody))
+      sessionStorage.setItem('biddingIdeaId', ideaId)
+      sessionStorage.setItem('biddingIdeaContent', ideaContent || '')
 
-      // 使用路由跳转到进度页面
-      window.location.href = `/business-plan/generating?${params.toString()}`
+      console.log('💾 Data saved to sessionStorage, navigating to generation page...')
+
+      // 使用路由跳转到进度页面(不带数据参数)
+      window.location.href = `/business-plan/generating?ideaId=${encodeURIComponent(ideaId)}`
 
     } catch (error) {
       console.error('❌ Business plan generation error:', error)
@@ -430,6 +457,33 @@ export default function UnifiedBiddingStage({
 
   return (
     <div className={`unified-bidding-stage space-y-6 ${className}`}>
+      {/* 断连警告横幅 */}
+      {!isConnected && (
+        <Card className="border-2 border-red-500 bg-red-50">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <AlertCircle className="w-6 h-6 text-red-600 animate-pulse" />
+                <div>
+                  <h3 className="font-semibold text-red-800">WebSocket连接断开</h3>
+                  <p className="text-sm text-red-600">
+                    AI专家团队已离线，竞价数据可能无法实时更新。请检查网络连接后点击重连。
+                  </p>
+                </div>
+              </div>
+              <Button
+                variant="destructive"
+                onClick={reconnect}
+                className="ml-4"
+              >
+                <Loader2 className="w-4 h-4 mr-2" />
+                立即重连
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {/* 阶段状态栏 */}
       <PhaseStatusBar
         currentPhase={currentPhase}
@@ -443,24 +497,30 @@ export default function UnifiedBiddingStage({
         <CardContent className="p-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-6">
-              {/* 连接状态 */}
+              {/* 连接状态 - 增强版 */}
               <div className="flex items-center space-x-2">
                 {isConnected ? (
                   <>
                     <Wifi className="w-5 h-5 text-green-500" />
                     <span className="text-sm font-medium text-green-700">AI专家在线</span>
+                    <Badge variant="outline" className="text-xs text-green-600">
+                      {connectionStatus}
+                    </Badge>
                   </>
                 ) : (
                   <>
-                    <WifiOff className="w-5 h-5 text-red-500" />
-                    <span className="text-sm font-medium text-red-700">连接中...</span>
+                    <WifiOff className="w-5 h-5 text-red-500 animate-pulse" />
+                    <span className="text-sm font-medium text-red-700">
+                      {connectionStatus === 'connecting' ? '正在连接...' : '连接断开'}
+                    </span>
                     <Button
                       size="sm"
-                      variant="outline"
+                      variant="destructive"
                       onClick={reconnect}
-                      className="ml-2 text-xs"
+                      className="ml-2 text-xs animate-pulse"
                     >
-                      重连
+                      <Loader2 className="w-3 h-3 mr-1 animate-spin" />
+                      点击重连
                     </Button>
                   </>
                 )}

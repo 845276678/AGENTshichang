@@ -272,17 +272,34 @@ export default function StageBasedBidding({
   // 用于同步WebSocket阶段的ref
   const wsPhaseRef = useRef<string>('warmup')
   const [displayPhase, setDisplayPhase] = useState<string>('warmup')
+  const [biddingProgress, setBiddingProgress] = useState(0)
+
+  // 根据阶段计算进度百分比
+  useEffect(() => {
+    const progressMap: Record<string, number> = {
+      'input': 0,
+      'warmup': 15,
+      'discussion': 45,
+      'bidding': 75,
+      'supplement': 90,
+      'prediction': 90,
+      'decision': 95,
+      'result': 100
+    }
+    setBiddingProgress(progressMap[displayPhase] || 0)
+  }, [displayPhase])
 
   // Auto-start if specified and has initial content
   useEffect(() => {
-    if (autoStart && initialIdeaContent) {
+    if (autoStart && initialIdeaContent && !submittedIdea) {
+      console.log('🎯 StageBasedBidding auto-start triggered')
       setSubmittedIdea(initialIdeaContent)
       setCurrentStage('bidding')
       // 生成sessionId以启动真实AI
       const newSessionId = `session_${Date.now()}_${ideaId}`
       setSessionId(newSessionId)
     }
-  }, [autoStart, initialIdeaContent, ideaId])
+  }, [autoStart, initialIdeaContent, ideaId, submittedIdea])
 
   // 移除模拟竞价阶段进度，让真实AI系统接管
   // useEffect(() => {
@@ -373,7 +390,7 @@ export default function StageBasedBidding({
 
             <BiddingProgressIndicator
               currentPhase={displayPhase}
-              progress={0}
+              progress={biddingProgress}
             />
 
             <UnifiedBiddingStage

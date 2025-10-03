@@ -95,6 +95,9 @@ interface BiddingWebSocketReturn {
   sendReaction: (messageId: string, reactionType: string) => void
   supportPersona: (personaId: string) => void
   submitPrediction: (prediction: number) => void
+  sendSupplement: (supplementContent: string) => boolean
+  startBidding: (ideaContent: string) => Promise<boolean>
+  reconnect: () => void
 }
 
 // 真实的AI竞价WebSocket hook - 连接实际AI服务
@@ -440,6 +443,30 @@ export function useBiddingWebSocket(config: UseBiddingWebSocketConfig): BiddingW
     })
   }, [sendMessage])
 
+  // 发送用户补充内容
+  const sendSupplement = useCallback((supplementContent: string) => {
+    if (!supplementContent.trim()) {
+      toast.error('补充内容不能为空')
+      return false
+    }
+
+    const success = sendMessage({
+      type: 'user_supplement',
+      payload: {
+        content: supplementContent.trim(),
+        timestamp: Date.now()
+      }
+    })
+
+    if (success) {
+      toast.success('补充内容已发送给AI专家团队')
+      return true
+    } else {
+      toast.error('发送失败，请检查网络连接')
+      return false
+    }
+  }, [sendMessage])
+
   // 初始化连接
   useEffect(() => {
     // 确保在浏览器环境中且DOM已加载
@@ -513,6 +540,7 @@ export function useBiddingWebSocket(config: UseBiddingWebSocketConfig): BiddingW
     sendReaction,
     supportPersona,
     submitPrediction,
+    sendSupplement,
     // 额外的方法
     startBidding,
     reconnect: connectWebSocket

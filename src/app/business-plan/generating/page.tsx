@@ -22,14 +22,23 @@ function GeneratingContent() {
     const generateBusinessPlan = async () => {
       try {
         const ideaId = searchParams.get('ideaId')
-        const ideaContent = searchParams.get('ideaContent')
-        const biddingDataStr = searchParams.get('biddingData')
 
-        if (!biddingDataStr) {
-          throw new Error('缺少竞价数据')
+        // 优先从 sessionStorage 读取数据
+        const biddingDataStr = sessionStorage.getItem('biddingData')
+        const storedIdeaId = sessionStorage.getItem('biddingIdeaId')
+        const storedIdeaContent = sessionStorage.getItem('biddingIdeaContent')
+
+        // 如果 sessionStorage 中没有数据,尝试从 URL 参数获取(向后兼容)
+        const ideaContent = storedIdeaContent || searchParams.get('ideaContent')
+        const biddingData = biddingDataStr
+          ? JSON.parse(biddingDataStr)
+          : (searchParams.get('biddingData') ? JSON.parse(searchParams.get('biddingData')!) : null)
+
+        if (!biddingData) {
+          throw new Error('缺少竞价数据,请重新进行AI竞价')
         }
 
-        const biddingData = JSON.parse(biddingDataStr)
+        const finalIdeaId = ideaId || storedIdeaId || biddingData.ideaId
 
         // 步骤1: 准备数据
         setCurrentStep('正在准备竞价数据...')
@@ -53,7 +62,7 @@ function GeneratingContent() {
             'Authorization': `Bearer ${token}`
           },
           body: JSON.stringify({
-            ideaId: ideaId || biddingData.ideaId,
+            ideaId: finalIdeaId,
             ideaContent: ideaContent || biddingData.ideaContent,
             ...biddingData
           })
@@ -79,6 +88,11 @@ function GeneratingContent() {
         setStatus('success')
         setProgress(100)
         setCurrentStep('生成成功！')
+
+        // 清理 sessionStorage 数据
+        sessionStorage.removeItem('biddingData')
+        sessionStorage.removeItem('biddingIdeaId')
+        sessionStorage.removeItem('biddingIdeaContent')
 
         // 等待2秒后跳转
         setTimeout(() => {
