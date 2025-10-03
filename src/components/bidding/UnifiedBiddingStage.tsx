@@ -258,35 +258,9 @@ export default function UnifiedBiddingStage({
       return
     }
 
-    console.log('📝 Opening new window...')
-    const previewWindow = typeof window !== 'undefined' ? window.open('', '_blank') : null
-    if (!previewWindow) {
-      console.error('❌ Failed to open new window')
-      alert('浏览器阻止了新窗口，请允许弹窗后重试')
-      return
-    }
-
-    console.log('✅ New window opened successfully')
-
-    // 显示加载页面
-    previewWindow.document.write('<!doctype html><title>正在生成商业计划</title><body style="font-family: system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif; padding: 32px; line-height: 1.6; color: #1f2933; background: #f8fafc;"><h1 style="margin-bottom: 12px; font-size: 20px;">AI 正在整理商业计划...</h1><p style="margin: 0;">请稍候片刻，完成后将自动打开详细报告。</p><div id="status" style="margin-top: 20px; padding: 12px; background: #e3f2fd; border-radius: 8px; font-size: 14px;"></div></body>')
-    previewWindow.document.close()
-
-    const updateStatus = (message: string, isError = false) => {
-      console.log(`📊 Status update: ${message} (error: ${isError})`)
-      const statusDiv = previewWindow.document.getElementById('status')
-      if (statusDiv) {
-        statusDiv.textContent = message
-        statusDiv.style.background = isError ? '#ffebee' : '#e3f2fd'
-        statusDiv.style.color = isError ? '#c62828' : '#1565c0'
-      }
-    }
-
     setIsCreatingPlan(true)
-    console.log('🔄 isCreatingPlan set to true')
 
     try {
-      updateStatus('正在准备竞价数据...')
       console.log('📊 Starting business plan generation...')
       console.log('ideaContent:', ideaContent)
       console.log('ideaId:', ideaId)
@@ -338,106 +312,69 @@ export default function UnifiedBiddingStage({
         return Number.isNaN(parsed.getTime()) ? new Date().toISOString() : parsed.toISOString()
       }
 
-      const messagePayload = aiMessages.slice(0, 20).map(message => ({
-        id: message.id,
-        personaId: message.personaId,
-        phase: message.phase,
-        round: message.round,
-        type: message.type,
-        content: message.content,
-        emotion: message.emotion,
-        bidValue: message.bidValue,
-        timestamp: toIsoString(message.timestamp)
-      }))
+      const participantsData = aiMessages
+        .filter((msg, index, self) =>
+          index === self.findIndex(m => m.personaId === msg.personaId)
+        )
+        .map(msg => {
+          const p = AI_PERSONAS.find(persona => persona.id === msg.personaId)
+          return {
+            personaId: msg.personaId,
+            name: p?.name || msg.personaId,
+            specialty: p?.specialty || '',
+            bidAmount: normalizedBids[msg.personaId] || 0,
+            participated: true
+          }
+        })
 
       const requestBody = {
-        ideaContent,
         ideaId,
-        highestBid: winningBidValue,
-        averageBid,
-        finalBids: normalizedBids,
-        winner: winningPersonaId,
-        winnerName,
-        aiMessages: messagePayload,
-        supportedAgents: Array.from(supportedAgents),
-        currentBids: normalizedBids
-      }
-
-      console.log('📤 Sending request to /api/business-plan-session:', requestBody)
-      updateStatus('正在调用AI生成商业计划...')
-
-      const token = tokenStorage.getAccessToken()
-      if (!token) {
-        throw new Error('未找到认证令牌，请先登录')
-      }
-
-      const response = await fetch('/api/business-plan-session', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+        ideaContent: ideaContent || '未提供创意内容',
+        biddingResults: {
+          winningBid: Math.round(winningBidValue),
+          winningPersona: winningPersonaId,
+          winnerName,
+          averageBid: Math.round(averageBid * 100) / 100,
+          totalBids: bidEntries.length,
+          bids: normalizedBids,
+          participants: participantsData
         },
-        body: JSON.stringify(requestBody)
+        expertDiscussions: aiMessages.map(msg => ({
+          personaId: msg.personaId,
+          personaName: AI_PERSONAS.find(p => p.id === msg.personaId)?.name || msg.personaId,
+          content: msg.content || '',
+          emotion: msg.emotion || 'neutral',
+          bidValue: msg.bidValue,
+          timestamp: toIsoString(msg.timestamp)
+        })),
+        metadata: {
+          sessionDuration: Date.now() - (new Date().getTime()),
+          totalMessages: aiMessages.length,
+          supportCount: supportedAgents.size,
+          phase: currentPhase
+        }
+      }
+
+      console.log('📤 Request body prepared:', {
+        bodySize: JSON.stringify(requestBody).length,
+        ideaId,
+        messagesCount: requestBody.expertDiscussions.length,
+        bidsCount: requestBody.biddingResults.totalBids
       })
 
-      console.log('📥 Response status:', response.status, response.statusText)
+      // 跳转到商业计划生成进度页面，而不是打开新窗口
+      const params = new URLSearchParams({
+        ideaId,
+        ideaContent: ideaContent || '',
+        biddingData: JSON.stringify(requestBody)
+      })
 
-      if (!response.ok) {
-        let errorMessage = '生成商业计划会话失败，请稍后重试'
-        let errorDetails = ''
-        try {
-          const errorData = await response.json()
-          console.error('❌ API Error Response:', errorData)
-          if (errorData?.error) {
-            errorMessage = errorData.error
-          }
-          if (errorData?.details) {
-            errorDetails = errorData.details
-            console.error('Error details:', errorDetails)
-          }
-        } catch (parseError) {
-          console.error('Failed to parse error response:', parseError)
-        }
-        throw new Error(errorMessage)
-      }
+      // 使用路由跳转到进度页面
+      window.location.href = `/business-plan/generating?${params.toString()}`
 
-      const result = await response.json()
-      console.log('✅ Business plan session created:', result)
-
-      const sessionIdFromResponse: string | undefined = result?.sessionId
-      if (!sessionIdFromResponse) {
-        throw new Error('服务器未返回会话ID，生成失败')
-      }
-
-      updateStatus('商业计划已生成，正在跳转...')
-
-      try {
-        const url = new URL('/business-plan', window.location.origin)
-        url.searchParams.set('sessionId', sessionIdFromResponse)
-        url.searchParams.set('source', 'ai-bidding')
-        console.log('🔗 Redirecting to:', url.toString())
-        previewWindow.location.href = url.toString()
-      } catch (buildError) {
-        console.error('Failed to build business plan URL:', buildError)
-        previewWindow.location.href = `/business-plan?sessionId=${encodeURIComponent(sessionIdFromResponse)}&source=ai-bidding`
-      }
     } catch (error) {
-      console.error('❌ Failed to generate business plan:', error)
-      const errorMessage = error instanceof Error ? error.message : '生成商业计划失败，请稍后重试'
-
-      // 在新窗口中显示错误
-      updateStatus(`错误: ${errorMessage}`, true)
-      previewWindow.document.body.innerHTML += `
-        <div style="margin-top: 20px; padding: 16px; background: #ffebee; border-left: 4px solid #c62828; border-radius: 4px;">
-          <h2 style="margin: 0 0 8px 0; color: #c62828; font-size: 16px;">生成失败</h2>
-          <p style="margin: 0; color: #666;">${errorMessage}</p>
-          <button onclick="window.close()" style="margin-top: 12px; padding: 8px 16px; background: #c62828; color: white; border: none; border-radius: 4px; cursor: pointer;">关闭窗口</button>
-        </div>
-      `
-
-      // 主窗口也显示错误
-      alert(errorMessage)
-    } finally {
+      console.error('❌ Business plan generation error:', error)
+      alert(`生成失败: ${error instanceof Error ? error.message : '未知错误'}`)
       setIsCreatingPlan(false)
     }
   }
