@@ -296,13 +296,15 @@ export function handleApiError(error: any): NextResponse {
     )
   }
 
-  // 开发环境下返回详细错误信息
+  // 总是返回详细错误信息以便调试（临时）
+  // TODO: 生产环境应该隐藏详细错误信息
   const isDevelopment = process.env.NODE_ENV === 'development'
   return NextResponse.json(
     {
       success: false,
-      error: isDevelopment ? error.message : '服务器内部错误',
-      details: isDevelopment ? error.stack : undefined
+      error: error.message || '服务器内部错误',
+      details: error.stack,
+      errorType: error.constructor?.name
     } as ApiResponse,
     { status: 500 }
   )
