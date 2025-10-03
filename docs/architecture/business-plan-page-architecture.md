@@ -1,4 +1,4 @@
-# 商业计划书页面架构
+﻿# 商业计划书页面架构
 
 ## UI 布局概览
 - **BusinessPlanPage (`src/app/business-plan/page.tsx`)**：解析 `sessionId`、`reportId`、`source`、`winner`、`winningBid` 等参数，决定展示加载态/错误态或最终指南，并渲染顶部操作栏。
@@ -118,6 +118,12 @@ sequenceDiagram
 - 告警建议：会话失败率 >5% 警报；积分扣减失败 >10 次/小时需核查；平均生成时延 >10 秒需检查 LLM；报告查询 5xx >2% 需排查数据库或快照。
 - 日志与追踪：日志需包含 `sessionId`、`reportId`、脱敏后 `userId`；建议对 Prisma 调用与 `composeBusinessPlanGuide` 链路进行追踪。
 
+## 导出与分享
+- **导出形态**：前端 `LandingCoachDisplay` 默认提供 Markdown 导出能力；若集成 `GET /api/business-plan-report/:id/export` 接口，可扩展 PDF（@react-pdf/renderer / Puppeteer）等格式。
+- **下载流程**：用户点击导出 → 前端调用导出 API → 后端读取 `BusinessPlanReport.guide` 结构化数据 → 按所选模板生成目标格式 → 记录 `BusinessPlanAudit` 中的下载事件。
+- **转发/分享**：页面顶部提供分享链接或复制链接，支持携带 `sessionId`/`reportId` 参数进行查看；若启用外部分享需结合鉴权与过期策略。
+- **权限控制**：仅会话创建者或被授权用户可导出；API 校验用户身份与积分状态，避免非法下载。
+- **格式适配**：Markdown 适合快速查看编辑；PDF 便于正式交付；后续可拓展 Word/Slides 以满足多样化输出需求。
 ## 生成流水线
 1. 客户端调用 `POST /api/business-plan-session` 提交竞价快照。
 2. `composeBusinessPlanGuide` 生成章节、执行计划与关键指标。

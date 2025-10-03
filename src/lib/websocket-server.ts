@@ -36,7 +36,7 @@ function getOrCreateSession(ideaId: string): BiddingSession {
       currentPhase: 'warmup',
       startTime: new Date(),
       phaseStartTime: new Date(),
-      timeRemaining: 120, // 2分钟预热
+      timeRemaining: 60, // 1分钟预热
       participants: new Set(),
       currentBids: {},
       highestBid: 50,
@@ -76,13 +76,13 @@ function startSessionTimer(session: BiddingSession) {
         session.currentPhase = nextPhase;
         session.phaseStartTime = new Date();
 
-        // 设置下一阶段的时长
+        // 设置下一阶段的时长（调整为更合理的时间）
         const phaseDurations = {
-          warmup: 2 * 60,
-          discussion: 12 * 60,
-          bidding: 20 * 60,
-          prediction: 4 * 60,
-          result: 5 * 60
+          warmup: 1 * 60,      // 1分钟预热
+          discussion: 3 * 60,   // 3分钟讨论
+          bidding: 4 * 60,      // 4分钟竞价
+          prediction: 2 * 60,   // 2分钟用户补充
+          result: 2 * 60        // 2分钟结果展示
         };
 
         session.timeRemaining = phaseDurations[nextPhase];
