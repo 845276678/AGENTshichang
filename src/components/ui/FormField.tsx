@@ -1,6 +1,6 @@
 'use client';
 
-import React, { forwardRef } from 'react';
+import React, { forwardRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Eye, EyeOff, AlertCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -42,8 +42,8 @@ export const FormField = forwardRef<HTMLInputElement, FormFieldProps>(
     },
     ref
   ) => {
-    const [showPassword, setShowPassword] = React.useState(false);
-    const [isFocused, setIsFocused] = React.useState(false);
+    const [showPassword, setShowPassword] = useState(false);
+    const [isFocused, setIsFocused] = useState(false);
 
     const inputId = id || `input-${Math.random().toString(36).substr(2, 9)}`;
     const inputType = isPassword ? (showPassword ? 'text' : 'password') : type;

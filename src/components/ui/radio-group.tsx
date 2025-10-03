@@ -1,6 +1,7 @@
 'use client'
 
 import * as React from 'react'
+import { useState, useContext, createContext } from 'react'
 import { cn } from '@/lib/utils'
 
 export interface RadioGroupProps {
@@ -18,14 +19,14 @@ export interface RadioGroupItemProps {
   className?: string
 }
 
-const RadioGroupContext = React.createContext<{
+const RadioGroupContext = createContext<{
   value?: string
   onValueChange?: (value: string) => void
 }>({})
 
 export const RadioGroup = React.forwardRef<HTMLDivElement, RadioGroupProps>(
   ({ className, value, defaultValue, onValueChange, children, ...props }, ref) => {
-    const [internalValue, setInternalValue] = React.useState(defaultValue || '')
+    const [internalValue, setInternalValue] = useState(defaultValue || '')
     const currentValue = value !== undefined ? value : internalValue
 
     const handleValueChange = (newValue: string) => {
@@ -54,7 +55,7 @@ RadioGroup.displayName = 'RadioGroup'
 
 export const RadioGroupItem = React.forwardRef<HTMLInputElement, RadioGroupItemProps>(
   ({ className, value, id, disabled, ...props }, ref) => {
-    const context = React.useContext(RadioGroupContext)
+    const context = useContext(RadioGroupContext)
     const isChecked = context.value === value
 
     return (

@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 
 interface AccessibilityProps {
   children: React.ReactNode
@@ -151,9 +151,9 @@ export const useAnnouncements = () => {
 
 // 高对比度模式检测 Hook
 export const useHighContrast = () => {
-  const [isHighContrast, setIsHighContrast] = React.useState(false)
+  const [isHighContrast, setIsHighContrast] = useState(false)
 
-  React.useEffect(() => {
+  useEffect(() => {
     const mediaQuery = window.matchMedia('(prefers-contrast: high)')
     setIsHighContrast(mediaQuery.matches)
 
@@ -170,9 +170,9 @@ export const useHighContrast = () => {
 
 // 减少动画偏好检测 Hook
 export const useReducedMotion = () => {
-  const [prefersReducedMotion, setPrefersReducedMotion] = React.useState(false)
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false)
 
-  React.useEffect(() => {
+  useEffect(() => {
     const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)')
     setPrefersReducedMotion(mediaQuery.matches)
 

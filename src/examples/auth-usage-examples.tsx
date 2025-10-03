@@ -3,7 +3,7 @@
  * Complete examples showing how to use the authentication system
  */
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth, useRequireAuth, useRequireRole } from '@/hooks/useAuth';
 import { AuthProvider } from '@/components/auth/AuthProvider';
 import { ProtectedRoute, AdminRoute, VerifiedRoute } from '@/components/auth/ProtectedRoute';
@@ -33,8 +33,8 @@ export function AppWithAuth({ children }: { children: React.ReactNode }) {
 // Example 2: Login Page Component
 export function LoginPage() {
   const auth = useAuth();
-  const [email, setEmail] = React.useState('');
-  const [password, setPassword] = React.useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -171,8 +171,8 @@ export function AdminPage() {
 // Example 5: Profile Update Component
 export function ProfileUpdateForm() {
   const auth = useAuth();
-  const [username, setUsername] = React.useState(auth.user?.username || '');
-  const [bio, setBio] = React.useState(auth.user?.bio || '');
+  const [username, setUsername] = useState(auth.user?.username || '');
+  const [bio, setBio] = useState(auth.user?.bio || '');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -274,7 +274,7 @@ export const ProtectedDashboard = withAuth(DashboardPage, {
 export function SessionManager() {
   const auth = useAuth();
 
-  React.useEffect(() => {
+  useEffect(() => {
     // Listen for session warning events
     const handleSessionWarning = (event: CustomEvent) => {
       console.log('Session expiring in:', event.detail.expiresIn, 'ms');
