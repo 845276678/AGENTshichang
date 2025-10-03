@@ -4,6 +4,7 @@ import React, { useState, useEffect, useMemo } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
+import { Textarea } from '@/components/ui/textarea'
 import { AI_PERSONAS, type AIPersona } from '@/lib/ai-persona-enhanced'
 import { type AIMessage } from '@/lib/ai-persona-system'
 import { useBiddingWebSocket } from '@/hooks/useBiddingWebSocket'
@@ -28,7 +29,9 @@ import {
   EyeOff,
   Trophy,
   FileText,
-  Loader2
+  Loader2,
+  Send,
+  MessageSquarePlus
 } from 'lucide-react'
 
 // 简化组件替代motion - 避免生产环境错误
@@ -128,6 +131,11 @@ export default function UnifiedBiddingStage({
   const [compactMode, setCompactMode] = useState(false)
   const [isCreatingPlan, setIsCreatingPlan] = useState(false)
 
+  // 用户补充状态
+  const [userSupplement, setUserSupplement] = useState('')
+  const [supplementHistory, setSupplementHistory] = useState<string[]>([])
+  const [isSendingSupplement, setIsSendingSupplement] = useState(false)
+
   // 自动启动AI竞价
   useEffect(() => {
     if (sessionId && ideaContent && isConnected && wsPhase === 'warmup') {
@@ -177,6 +185,39 @@ export default function UnifiedBiddingStage({
       supportAgent(agentId)
       supportPersona(agentId)
       onSupportPersona?.(agentId)
+    }
+  }
+
+  // 处理用户补充创意
+  const handleSubmitSupplement = async () => {
+    if (!userSupplement.trim() || isSendingSupplement) return
+
+    // 检查是否已达上限
+    if (supplementHistory.length >= 3) {
+      alert('已达到补充上限（3次）')
+      return
+    }
+
+    setIsSendingSupplement(true)
+    try {
+      // 添加到历史记录
+      setSupplementHistory(prev => [...prev, userSupplement])
+
+      // 这里应该调用WebSocket发送补充内容给后端
+      // TODO: 添加WebSocket发送逻辑
+      console.log('用户补充创意:', userSupplement)
+      console.log('补充次数:', supplementHistory.length + 1, '/ 3')
+
+      // 清空输入框
+      setUserSupplement('')
+
+      // 显示成功提示
+      alert(`补充成功！（${supplementHistory.length + 1}/3）`)
+    } catch (error) {
+      console.error('补充失败:', error)
+      alert('补充失败，请重试')
+    } finally {
+      setIsSendingSupplement(false)
     }
   }
 
@@ -581,6 +622,90 @@ export default function UnifiedBiddingStage({
           ))}
         </div>
       </MotionDiv>
+
+      {/* 用户补充创意区域 - 在USER_SUPPLEMENT阶段显示 */}
+      {currentPhase === BiddingPhase.USER_SUPPLEMENT && (
+        <Card className="w-full max-w-4xl mx-auto border-2 border-blue-300 bg-gradient-to-r from-blue-50 to-purple-50">
+          <CardHeader className="pb-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <MessageSquarePlus className="w-6 h-6 text-blue-600" />
+                <CardTitle className="text-lg">补充您的创意</CardTitle>
+              </div>
+              <Badge variant="secondary" className="text-sm">
+                {supplementHistory.length} / 3 次
+              </Badge>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {/* 提示信息 */}
+              <div className="bg-blue-100 text-blue-800 p-3 rounded-lg text-sm">
+                <p>💡 根据AI专家的讨论，您可以进一步补充和完善您的创意描述（最多3次）</p>
+              </div>
+
+              {/* 历史补充记录 */}
+              {supplementHistory.length > 0 && (
+                <div className="space-y-2">
+                  <p className="text-sm font-medium text-gray-700">已提交的补充：</p>
+                  <div className="space-y-2">
+                    {supplementHistory.map((item, index) => (
+                      <div key={index} className="bg-white p-3 rounded-lg border border-gray-200 text-sm">
+                        <span className="font-medium text-gray-600">补充 {index + 1}：</span>
+                        <p className="mt-1 text-gray-700">{item}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* 输入框和提交按钮 */}
+              {supplementHistory.length < 3 && (
+                <div className="space-y-3">
+                  <Textarea
+                    value={userSupplement}
+                    onChange={(e) => setUserSupplement(e.target.value)}
+                    placeholder="请输入您要补充的内容...例如：目标用户群体、具体应用场景、技术实现方案等"
+                    className="min-h-[120px] resize-none"
+                    disabled={isSendingSupplement}
+                  />
+                  <div className="flex justify-between items-center">
+                    <p className="text-xs text-gray-500">
+                      {userSupplement.length > 0
+                        ? `已输入 ${userSupplement.length} 个字符`
+                        : '请详细描述您的补充内容'}
+                    </p>
+                    <Button
+                      onClick={handleSubmitSupplement}
+                      disabled={!userSupplement.trim() || isSendingSupplement}
+                      className="bg-blue-600 hover:bg-blue-700"
+                    >
+                      {isSendingSupplement ? (
+                        <>
+                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                          提交中...
+                        </>
+                      ) : (
+                        <>
+                          <Send className="w-4 h-4 mr-2" />
+                          提交补充 ({supplementHistory.length + 1}/3)
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                </div>
+              )}
+
+              {/* 已达上限提示 */}
+              {supplementHistory.length >= 3 && (
+                <div className="bg-green-100 text-green-800 p-3 rounded-lg text-sm">
+                  <p>✅ 您已完成所有3次补充，AI专家将基于您的完整描述给出最终评估</p>
+                </div>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* 结果阶段 - 商业计划生成 */}
       {currentPhase === BiddingPhase.RESULT_DISPLAY && (

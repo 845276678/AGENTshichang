@@ -241,8 +241,10 @@ export const AgentDialogPanel: React.FC<AgentDialogPanelProps> = ({
 
   return (
     <MotionDiv
-      className={`agent-panel-container relative bg-white rounded-2xl shadow-lg border border-gray-200 p-4 transition-all duration-300 ease-out hover:shadow-xl hover:-translate-y-1 ${
-        isActive ? 'ring-2 ring-blue-400 ring-opacity-50 shadow-2xl is-active' : ''
+      className={`agent-panel-container relative bg-white rounded-2xl shadow-lg border-2 p-4 transition-all duration-300 ease-out ${
+        isActive
+          ? 'ring-4 ring-blue-500 ring-opacity-70 shadow-2xl border-blue-500 bg-blue-50 is-active scale-105 z-10'
+          : 'border-gray-200 hover:shadow-xl hover:-translate-y-1'
       } ${className}`}
       style={{
         width: '100%',
@@ -250,6 +252,8 @@ export const AgentDialogPanel: React.FC<AgentDialogPanelProps> = ({
         minHeight: '340px',
         maxWidth: '320px'
       }}
+      animate={isActive ? 'active' : 'animate'}
+      whileHover={!isActive ? 'hover' : undefined}
     >
       {/* 1. 头像区域 */}
       <div className="agent-avatar-section flex flex-col items-center mb-3">
@@ -294,16 +298,26 @@ export const AgentDialogPanel: React.FC<AgentDialogPanelProps> = ({
               />
             </div>
 
-            {/* 活跃光环效果 */}
+            {/* 活跃光环效果 - 增强版 */}
             {isActive && (
-              <div
-                className="absolute -inset-1 rounded-full opacity-75 animate-pulse"
-                style={{
-                  background: 'conic-gradient(from 0deg, #3B82F6, #8B5CF6, #EC4899, #10B981, #F59E0B, #3B82F6)',
-                  zIndex: -1,
-                  animation: 'rotate 3s linear infinite'
-                }}
-              />
+              <>
+                <div
+                  className="absolute -inset-2 rounded-full opacity-90 animate-pulse"
+                  style={{
+                    background: 'conic-gradient(from 0deg, #3B82F6, #8B5CF6, #EC4899, #10B981, #F59E0B, #3B82F6)',
+                    zIndex: -1,
+                    animation: 'rotate 2s linear infinite, pulse 1.5s ease-in-out infinite'
+                  }}
+                />
+                <div
+                  className="absolute -inset-3 rounded-full opacity-40"
+                  style={{
+                    background: 'radial-gradient(circle, rgba(59,130,246,0.6) 0%, rgba(59,130,246,0) 70%)',
+                    zIndex: -2,
+                    animation: 'pulse 2s ease-in-out infinite'
+                  }}
+                />
+              </>
             )}
           </MotionDiv>
 

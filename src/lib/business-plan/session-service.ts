@@ -104,7 +104,9 @@ export class BusinessPlanSessionService {
 
       const report = await tx.businessPlanReport.create({
         data: {
-          sessionId,
+          session: {
+            connect: { id: sessionId }
+          },
           guide,
           metadata
         }
