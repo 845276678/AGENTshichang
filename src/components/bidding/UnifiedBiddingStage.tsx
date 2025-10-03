@@ -210,19 +210,29 @@ export default function UnifiedBiddingStage({
 
   // 处理商业计划生成
   const handleGenerateBusinessPlan = async () => {
-    if (isCreatingPlan) return
+    console.log('🚀 handleGenerateBusinessPlan called')
 
+    if (isCreatingPlan) {
+      console.log('⏸️ Already creating plan, skipping')
+      return
+    }
+
+    console.log('📝 Opening new window...')
     const previewWindow = typeof window !== 'undefined' ? window.open('', '_blank') : null
     if (!previewWindow) {
+      console.error('❌ Failed to open new window')
       alert('浏览器阻止了新窗口，请允许弹窗后重试')
       return
     }
+
+    console.log('✅ New window opened successfully')
 
     // 显示加载页面
     previewWindow.document.write('<!doctype html><title>正在生成商业计划</title><body style="font-family: system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif; padding: 32px; line-height: 1.6; color: #1f2933; background: #f8fafc;"><h1 style="margin-bottom: 12px; font-size: 20px;">AI 正在整理商业计划...</h1><p style="margin: 0;">请稍候片刻，完成后将自动打开详细报告。</p><div id="status" style="margin-top: 20px; padding: 12px; background: #e3f2fd; border-radius: 8px; font-size: 14px;"></div></body>')
     previewWindow.document.close()
 
     const updateStatus = (message: string, isError = false) => {
+      console.log(`📊 Status update: ${message} (error: ${isError})`)
       const statusDiv = previewWindow.document.getElementById('status')
       if (statusDiv) {
         statusDiv.textContent = message
@@ -232,6 +242,7 @@ export default function UnifiedBiddingStage({
     }
 
     setIsCreatingPlan(true)
+    console.log('🔄 isCreatingPlan set to true')
 
     try {
       updateStatus('正在准备竞价数据...')
