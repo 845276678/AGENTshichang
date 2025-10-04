@@ -267,13 +267,6 @@ export default function BusinessPlanPage() {
     }
   }
 
-
-    } catch (downloadError) {
-      console.error('下载失败:', downloadError)
-      alert('下载失败，请稍后重试')
-    }
-  }
-
   const handleShare = async () => {
     if (!reportId || !displayIdeaTitle) return
 
