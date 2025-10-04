@@ -38,7 +38,8 @@ interface LoadingState {
 
 export default function BusinessPlanPage() {
   const router = useRouter()
-  const searchParams = useSearchParams()\r\n  const { token, isInitialized } = useAuth()
+  const searchParams = useSearchParams()
+  const { token, isInitialized } = useAuth()
 
   // 支持新的会话ID参数和旧的报告参数
   const sessionId = searchParams.get('sessionId')
