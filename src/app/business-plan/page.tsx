@@ -242,11 +242,7 @@ export default function BusinessPlanPage() {
 
       // PDF/DOCX 格式需要登录
       if (!token) {
-        // 如果是匿名会话（从竞价来的），给出友好提示
-        if (source === 'ai-bidding' || sessionId) {
-          throw new Error('PDF/DOCX 下载需要登录。您可以先下载 Markdown 格式，或登录后下载完整版本。')
-        }
-        throw new Error('下载商业计划前需要登录，请先登录。')
+        throw new Error('PDF/DOCX 下载需要登录。您可以先下载 Markdown 格式，或登录后下载完整版本。')
       }
 
       const response = await fetch(

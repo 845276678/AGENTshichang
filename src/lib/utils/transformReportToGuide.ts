@@ -180,122 +180,122 @@ const mergeLists = (base: string[], addition: string[]): string[] => {
   return result
 }
 const defaultExecutionPlan: ExecutionPlan = {
-  mission: 'Complete validation within 90 days.',
+  mission: '在90天内完成验证。',
   summary:
-    'Three focused phases keep learning loops fast, decisions evidence-based, and execution steady.',
+    '三个聚焦阶段保持学习循环快速、决策基于证据、执行稳定。',
   phases: [
     {
-      name: 'Phase 1 - Market Insight & Positioning',
-      timeline: 'Day 1 - Day 30',
-      focus: 'Interview target users, map competitors, and sharpen the value proposition.',
+      name: '阶段1 - 市场洞察与定位',
+      timeline: '第1-30天',
+      focus: '访谈目标用户，分析竞争对手，明确价值主张。',
       keyOutcomes: [
-        '15+ structured customer conversations',
-        'Competitive landscape map with differentiation notes',
-        'Draft positioning and value proposition statement'
+        '完成15+次结构化客户访谈',
+        '绘制竞争格局图及差异化要点',
+        '起草定位和价值主张声明'
       ],
       metrics: [
-        'Persona clarity score >= 80%',
-        'Top three pains confirmed by 60%+ of interviewees'
+        '人物画像清晰度 >= 80%',
+        '前三大痛点得到60%+访谈者确认'
       ]
     },
     {
-      name: 'Phase 2 - MVP Build & Validation',
-      timeline: 'Day 31 - Day 60',
-      focus: 'Translate insight into a focused MVP and validate core assumptions.',
+      name: '阶段2 - MVP构建与验证',
+      timeline: '第31-60天',
+      focus: '将洞察转化为聚焦的MVP并验证核心假设。',
       keyOutcomes: [
-        'High-fidelity prototype and prioritised backlog',
-        'MVP v1.0 shipped to pilot cohort',
-        '30+ actionable pieces of usage feedback'
+        '高保真原型和优先级待办事项',
+        'MVP v1.0交付试点用户',
+        '收集30+条可执行的使用反馈'
       ],
       metrics: [
-        'Critical feature completion >= 80%',
-        'Activation or task success rate >= 60%'
+        '关键功能完成度 >= 80%',
+        '激活或任务成功率 >= 60%'
       ]
     },
     {
-      name: 'Phase 3 - Go-to-Market & Operations',
-      timeline: 'Day 61 - Day 90',
-      focus: 'Prove commercial traction, document repeatable operations, and prepare scale levers.',
+      name: '阶段3 - 市场推广与运营',
+      timeline: '第61-90天',
+      focus: '证明商业吸引力，记录可重复的运营流程，准备规模化杠杆。',
       keyOutcomes: [
-        'Signed lighthouse customer or pilot renewal',
-        'Revenue or retention model validated',
-        'Documented operating and support playbooks'
+        '签约标杆客户或试点续约',
+        '验证收入或留存模型',
+        '记录运营和支持手册'
       ],
       metrics: [
-        'Pilot retention >= 50%',
-        'Sales/marketing funnel conversion benchmarks defined'
+        '试点留存率 >= 50%',
+        '定义销售/营销漏斗转化基准'
       ]
     }
   ],
   weeklySprints: [
     {
-      name: 'Sprint 1-2 - Insight Bootcamp',
-      focus: 'Collect real user evidence and frame opportunity areas.',
+      name: '冲刺1-2 - 洞察训练营',
+      focus: '收集真实用户证据，框定机会领域。',
       objectives: [
-        'Lock target persona and JTBD',
-        'Quantify top problems with lightweight survey',
-        'Map competitor promises versus gaps'
+        '锁定目标人物画像和待完成任务',
+        '通过轻量级调查量化主要问题',
+        '对比竞争对手承诺与差距'
       ],
-      feedbackHooks: ['Interview summaries', 'Problem ranking workshop', 'Competitor teardown notes']
+      feedbackHooks: ['访谈总结', '问题优先级研讨会', '竞品拆解笔记']
     },
     {
-      name: 'Sprint 3-4 - Prototype & Signals',
-      focus: 'Prototype critical journeys and validate desirability quickly.',
+      name: '冲刺3-4 - 原型与信号',
+      focus: '快速原型化关键流程并验证可取性。',
       objectives: [
-        'Build interactive prototype for main flows',
-        'Run hallway/usability tests with 5-7 users',
-        'Track qualitative sentiment and friction points'
+        '为主要流程构建交互原型',
+        '与5-7位用户进行走廊/可用性测试',
+        '追踪定性情感和摩擦点'
       ],
-      feedbackHooks: ['Prototype testing sessions', 'Usability scorecard', 'Design review playback']
+      feedbackHooks: ['原型测试会议', '可用性记分卡', '设计评审回放']
     },
     {
-      name: 'Sprint 5-6 - MVP Launch',
-      focus: 'Ship the lean MVP and measure adoption with tight loops.',
+      name: '冲刺5-6 - MVP发布',
+      focus: '交付精益MVP并通过紧密循环衡量采用情况。',
       objectives: [
-        'Release MVP to pilot group',
-        'Instrument analytics and feedback widgets',
-        'Run weekly retention and conversion reviews'
+        '向试点小组发布MVP',
+        '部署分析和反馈工具',
+        '每周审查留存率和转化率'
       ],
-      feedbackHooks: ['Product analytics dashboard', 'Pilot check-in calls', 'Retention curve snapshot']
+      feedbackHooks: ['产品分析仪表板', '试点检查电话', '留存曲线快照']
     },
     {
-      name: 'Sprint 7-9 - Growth Engine',
-      focus: 'Prove acquisition economics and stabilise operations.',
+      name: '冲刺7-9 - 增长引擎',
+      focus: '证明获客经济性并稳定运营。',
       objectives: [
-        'Test at least two scalable acquisition channels',
-        'Define pricing and packaging experiment',
-        'Document onboarding and support SOPs'
+        '至少测试两个可扩展的获客渠道',
+        '定义定价和打包实验',
+        '记录入职和支持标准操作流程'
       ],
-      feedbackHooks: ['Channel experiment log', 'Pricing learning report', 'Support ticket review']
+      feedbackHooks: ['渠道实验日志', '定价学习报告', '支持工单审查']
     }
   ],
   feedbackLoop: {
-    cadence: ['Weekly discovery playback', 'Bi-weekly growth stand-up', 'Monthly strategy review'],
-    channels: ['User interviews', 'Product analytics', 'Revenue dashboard', 'Support pulse'],
-    decisionGates: ['Problem-solution fit validated', 'Healthy MVP retention', 'Scalable acquisition identified'],
-    tooling: ['Notion OS', 'Linear', 'Amplitude or Looker', 'Miro collaboration boards']
+    cadence: ['每周发现回放', '双周增长站立会', '月度战略审查'],
+    channels: ['用户访谈', '产品分析', '收入仪表板', '支持脉冲'],
+    decisionGates: ['问题-解决方案匹配验证', 'MVP健康留存', '可扩展获客识别'],
+    tooling: ['Notion OS', 'Linear', 'Amplitude 或 Looker', 'Miro 协作白板']
   },
   dailyRoutines: [
-    'Morning 15-minute KPI review and blockers sync',
-    'Daily user signal triage (feedback, tickets, analytics anomalies)',
-    'Time-boxed maker blocks for product or go-to-market experiments',
-    'End-of-day learning log capturing decisions and open questions'
+    '早晨15分钟KPI审查和阻碍同步',
+    '每日用户信号分类（反馈、工单、分析异常）',
+    '产品或市场推广实验的限时专注工作',
+    '结束一天学习日志记录决策和未决问题'
   ],
   reviewFramework: {
     weekly: [
-      'Outcome-focused team review (what moved, what stalled)',
-      'Customer signal debrief and next hypothesis selection',
-      'Risk register refresh with owners/actions'
+      '以结果为重点的团队审查（进展与停滞）',
+      '客户信号汇报和下一假设选择',
+      '风险登记册更新及责任人/行动'
     ],
     monthly: [
-      'North-star metric trajectory versus targets',
-      'Resource and budget health check',
-      'Strategic bet review and roadmap adjustments'
+      '北极星指标轨迹与目标对比',
+      '资源和预算健康检查',
+      '战略赌注审查和路线图调整'
     ],
     dataWatch: [
-      'Activation, retention, and referral funnel trends',
-      'Acquisition cost versus LTV indicators',
-      'Customer effort score and support load'
+      '激活、留存和推荐漏斗趋势',
+      '获客成本与LTV指标',
+      '客户努力分数和支持负荷'
     ]
   }
 }
@@ -304,224 +304,224 @@ export const BASE_LANDING_COACH_TEMPLATE: LandingCoachGuide = {
   aiInsights: {
     overallAssessment: {
       score: 8,
-      level: 'Promising',
-      summary: 'The idea resonates with a clearly underserved segment and shows early signs of viability.',
+      level: '有前景',
+      summary: '这个想法与明确的服务不足群体产生共鸣，并显示出早期可行性迹象。',
       keyStrengths: [
-        'Clear customer pain with quantified urgency',
-        'Founding team insight and domain depth',
-        'Product vision aligns with measurable business outcomes'
+        '明确的客户痛点，量化紧迫性',
+        '创始团队洞察力和领域深度',
+        '产品愿景与可衡量的业务成果一致'
       ],
       criticalChallenges: [
-        'Proof of willingness to pay is still limited',
-        'Operational readiness for scale remains untested',
-        'Team capacity must support parallel experiments'
+        '支付意愿的证明仍然有限',
+        '规模化的运营准备尚未测试',
+        '团队能力必须支持并行实验'
       ]
     },
     sustainabilityAnalysis: {
-      longTermViability: 'Balanced growth path if retention loops are prioritised and cost discipline maintained.',
+      longTermViability: '如果优先考虑留存循环并保持成本纪律，则实现平衡增长路径。',
       persistenceFactors: [
-        'Close proximity to customers keeps insight fresh',
-        'Roadmap emphasises habit-forming value props',
-        'Early adopter community willing to co-create and advocate'
+        '与客户的密切接触保持洞察新鲜',
+        '路线图强调习惯养成的价值主张',
+        '早期采用者社区愿意共创和倡导'
       ],
       riskMitigation: [
-        'Schedule quarterly roadmap and finance reviews',
-        'Create contingency plans for critical vendors',
-        'Document repeatable processes to avoid single points of failure'
+        '安排季度路线图和财务审查',
+        '为关键供应商创建应急计划',
+        '记录可重复的流程以避免单点故障'
       ]
     },
     stageAlerts: [
       {
-        stage: 'Discovery refinement',
-        timeline: 'Weeks 1-4',
+        stage: '发现完善',
+        timeline: '第1-4周',
         criticalMilestones: [
-          'Validated top three customer pains',
-          'Persona and JTBD documented with evidence',
-          'Differentiated value proposition tested with interviews'
+          '验证前三大客户痛点',
+          '以证据记录人物画像和待完成任务',
+          '通过访谈测试差异化价值主张'
         ],
         warningSignals: [
-          'Interviews surface fragmented pains with low urgency',
-          'Competitors already solving core needs with solid adoption'
+          '访谈显示碎片化的低紧迫性痛点',
+          '竞争对手已经通过可靠的采用解决核心需求'
         ]
       },
       {
-        stage: 'MVP & pilot',
-        timeline: 'Weeks 5-8',
+        stage: 'MVP与试点',
+        timeline: '第5-8周',
         criticalMilestones: [
-          'Pilot cohort onboarded and actively using MVP',
-          'Instrumentation in place for activation and retention signals',
-          'Qualitative feedback loop established with weekly cadence'
+          '试点群体入职并积极使用MVP',
+          '为激活和留存信号部署检测',
+          '建立每周节奏的定性反馈循环'
         ],
         warningSignals: [
-          'Pilot usage drops below 40% weekly active',
-          'No clear "aha" moment identified from user sessions'
+          '试点使用率降至每周活跃40%以下',
+          '从用户会话中没有识别出明确的"啊哈"时刻'
         ]
       },
       {
-        stage: 'Growth and operations',
-        timeline: 'Weeks 9-12',
+        stage: '增长与运营',
+        timeline: '第9-12周',
         criticalMilestones: [
-          'Repeatable acquisition channel with positive unit economics',
-          'Support and onboarding playbooks documented and tested',
-          'Pricing experiment validated with paying customers'
+          '具有正单位经济性的可重复获客渠道',
+          '记录并测试支持和入职手册',
+          '通过付费客户验证定价实验'
         ],
         warningSignals: [
-          'Acquisition costs climb without matching retention',
-          'Support load increases faster than team capacity',
-          'Cash runway drops below six months without plan to extend'
+          '获客成本攀升而留存率没有匹配',
+          '支持负载增长快于团队能力',
+          '现金跑道降至六个月以下，没有延长计划'
         ]
       }
     ]
   },
   currentSituation: {
-    title: 'Current situation & alignment',
+    title: '当前形势与校准',
     summary:
-      'We aligned the founding team around the market context, customer pains, and desired 90-day outcomes.',
+      '我们围绕市场背景、客户痛点和期望的90天成果对创始团队进行了校准。',
     keyInsights: [
-      'Market demand is concentrated in a niche willing to pay for speed and reliability',
-      'Economic buyers value demonstrable ROI within a quarter',
-      'A challenger narrative differentiates against legacy incumbents'
+      '市场需求集中在愿意为速度和可靠性付费的利基市场',
+      '经济买家重视在一个季度内的可证明投资回报率',
+      '挑战者叙事使其与传统巨头区分开来'
     ],
     marketReality: {
-      marketSize: 'Serviceable obtainable market estimated at $25M ARR within two years.',
-      competition: 'Legacy vendors optimise for compliance rather than agility; startups focus on DIY workflows.',
+      marketSize: '两年内可服务可获得市场预计为2500万美元年收入。',
+      competition: '传统供应商优化合规性而非敏捷性；初创公司专注于DIY工作流程。',
       opportunities: [
-        'Customers frustrated by lengthy onboarding cycles and rigid contracts',
-        'Adjacent automation and analytics categories offer expansion paths'
+        '客户对冗长的入职周期和刚性合同感到沮丧',
+        '相邻的自动化和分析类别提供扩展路径'
       ],
       challenges: [
-        'Procurement cycles can stretch beyond 60 days',
-        'High-touch onboarding currently depends on founders'
+        '采购周期可能超过60天',
+        '高接触入职目前依赖创始人'
       ]
     },
     userNeeds: {
-      targetUsers: 'Operators in mid-market teams accountable for recurring execution under tight deadlines.',
+      targetUsers: '中型团队中负责在紧迫截止日期下执行重复任务的运营人员。',
       painPoints: [
-        'Manual orchestration creates frequent hand-off delays',
-        'Limited visibility into performance and accountability',
-        'Tool sprawl results in duplicated effort and errors'
+        '手动编排造成频繁的交接延迟',
+        '对绩效和问责制的可见性有限',
+        '工具蔓延导致重复工作和错误'
       ],
       solutions: [
-        'Automated workflow templates with guardrails',
-        'Real-time collaboration dashboard with alerts',
-        'Outcome tracking linked to customer SLAs'
+        '带有护栏的自动化工作流模板',
+        '带警报的实时协作仪表板',
+        '与客户SLA相关的成果跟踪'
       ]
     },
     actionItems: [
-      'Refine persona messaging and circulate to GTM team',
-      'Build objection-handling guide from recent interviews',
-      'Run weekly customer roundtable to keep insight fresh'
+      '完善人物画像信息并传达给GTM团队',
+      '从最近的访谈中构建异议处理指南',
+      '举办每周客户圆桌会议以保持洞察新鲜'
     ]
   },
   mvpDefinition: {
-    title: 'MVP value proposition',
+    title: 'MVP价值主张',
     productConcept: {
       coreFeatures: [
-        'Template-driven workflow builder with guardrails',
-        'Collaboration timeline that highlights owners and blockers',
-        'Analytics module that surfaces bottlenecks and impact'
+        '带护栏的模板驱动工作流构建器',
+        '突出显示负责人和障碍的协作时间线',
+        '展示瓶颈和影响的分析模块'
       ],
-      uniqueValue: 'Deliver always-on execution visibility without adding management overhead.',
-      minimumScope: 'Focus on two core workflows and a single analytics dashboard for pilot accounts.'
+      uniqueValue: '在不增加管理开销的情况下提供持续的执行可见性。',
+      minimumScope: '专注于两个核心工作流和一个分析仪表板以供试点账户使用。'
     },
     developmentPlan: {
       phases: [
         {
-          name: 'Phase A - Prototype',
-          duration: '2 weeks',
-          deliverables: ['Clickable prototype', 'Usability testing notes'],
-          resources: ['Product design', 'Engineering lead']
+          name: '阶段A - 原型',
+          duration: '2周',
+          deliverables: ['可点击原型', '可用性测试笔记'],
+          resources: ['产品设计', '工程主管']
         },
         {
-          name: 'Phase B - MVP build',
-          duration: '4 weeks',
-          deliverables: ['MVP v1.0', 'Instrumentation and logging', 'Pilot onboarding toolkit'],
-          resources: ['Core engineering squad', 'QA', 'Customer success lead']
+          name: '阶段B - MVP构建',
+          duration: '4周',
+          deliverables: ['MVP v1.0', '检测和日志记录', '试点入职工具包'],
+          resources: ['核心工程小组', 'QA', '客户成功主管']
         },
         {
-          name: 'Phase C - Pilot iteration',
-          duration: '3 weeks',
-          deliverables: ['Retention improvements', 'Support playbook v1', 'Pricing experiment assets'],
-          resources: ['Engineering', 'Customer success', 'Growth PMM']
+          name: '阶段C - 试点迭代',
+          duration: '3周',
+          deliverables: ['留存改进', '支持手册v1', '定价实验资产'],
+          resources: ['工程', '客户成功', '增长PMM']
         }
       ],
-      techStack: ['Next.js', 'Prisma/PostgreSQL', 'Trigger.dev for automation', 'Segment + Amplitude'],
-      estimatedCost: 'Approximately $45k including people cost and tooling subscriptions.'
+      techStack: ['Next.js', 'Prisma/PostgreSQL', 'Trigger.dev 用于自动化', 'Segment + Amplitude'],
+      estimatedCost: '约45,000美元，包括人力成本和工具订阅。'
     },
     validationStrategy: {
       hypotheses: [
-        'Operators will adopt guided workflows if setup time is under 15 minutes',
-        'Real-time visibility reduces blocker resolution time by 30%',
-        'Economic buyers approve budget with ROI evidence within 60 days'
+        '如果设置时间少于15分钟，运营人员将采用引导式工作流',
+        '实时可见性可将障碍解决时间缩短30%',
+        '经济买家在60天内批准有ROI证据的预算'
       ],
       experiments: [
-        'A/B onboarding flow test with pilot cohort',
-        'Resolution time tracking before and after platform adoption',
-        'Pricing and packaging interviews with economic buyers'
+        '与试点群体进行A/B入职流程测试',
+        '平台采用前后的解决时间跟踪',
+        '与经济买家进行定价和打包访谈'
       ],
       successMetrics: [
-        'Activation within 7 days >= 70%',
-        'Weekly active operator ratio >= 60%',
-        'Net promoter score >= 30 by week 8'
+        '7天内激活率 >= 70%',
+        '每周活跃运营人员比率 >= 60%',
+        '第8周净推荐值 >= 30'
       ],
-      timeline: 'Hypotheses validated or revised by the end of week 8.'
+      timeline: '到第8周结束时验证或修改假设。'
     },
     actionItems: [
-      'Prioritise backlog by impact versus effort against hypotheses',
-      'Confirm pilot success criteria with customers before build completion',
-      'Set up analytics dashboards and qualitative feedback tags'
+      '根据影响与努力相对于假设优先处理待办事项',
+      '在构建完成前与客户确认试点成功标准',
+      '设置分析仪表板和定性反馈标签'
     ]
   },
   businessExecution: {
-    title: 'Commercialisation & operations plan',
+    title: '商业化与运营计划',
     businessModel: {
-      revenueStreams: ['Subscription tiers based on workflow volume', 'Implementation services for enterprise tiers'],
-      costStructure: ['Core product squad', 'Customer success pods', 'Cloud infrastructure and tooling'],
-      pricingStrategy: 'Usage-based floor with expansion pricing tied to automated workflows.',
-      scalability: 'Modular architecture and playbooks enable regional pods without custom rebuilds.'
+      revenueStreams: ['基于工作流量的订阅层级', '企业层级的实施服务'],
+      costStructure: ['核心产品小组', '客户成功团队', '云基础设施和工具'],
+      pricingStrategy: '基于使用量的基础价格，扩展定价与自动化工作流相关。',
+      scalability: '模块化架构和手册使区域团队无需自定义重建即可运作。'
     },
     launchStrategy: {
       phases: [
         {
-          name: 'Launch wave 1',
-          timeline: 'Weeks 1-4',
-          goals: ['Secure three design partners', 'Publish thought leadership asset'],
-          tactics: ['Founder-led outreach', 'Industry roundtable', 'Co-marketing with integrators']
+          name: '发布第1波',
+          timeline: '第1-4周',
+          goals: ['获得三个设计合作伙伴', '发布思想领导力资产'],
+          tactics: ['创始人主导的外展', '行业圆桌会议', '与集成商联合营销']
         },
         {
-          name: 'Launch wave 2',
-          timeline: 'Weeks 5-8',
-          goals: ['Activate referral program', 'Host live product workshop'],
-          tactics: ['Customer referral incentives', 'Partner webinar', 'Targeted paid experiments']
+          name: '发布第2波',
+          timeline: '第5-8周',
+          goals: ['激活推荐计划', '举办现场产品研讨会'],
+          tactics: ['客户推荐激励', '合作伙伴网络研讨会', '定向付费实验']
         },
         {
-          name: 'Launch wave 3',
-          timeline: 'Weeks 9-12',
-          goals: ['Scale inbound pipeline', 'Transition to repeatable sales motion'],
-          tactics: ['Content and SEO engine', 'SDR enablement kit', 'Lifecycle nurture sequences']
+          name: '发布第3波',
+          timeline: '第9-12周',
+          goals: ['扩大入站管道', '过渡到可重复的销售动作'],
+          tactics: ['内容和SEO引擎', 'SDR赋能工具包', '生命周期培育序列']
         }
       ],
-      marketingChannels: ['Founder-led outbound', 'Partner ecosystem', 'Content and community'],
-      budgetAllocation: ['40% demand generation', '35% customer success enablement', '25% product-led growth experiments']
+      marketingChannels: ['创始人主导的外展', '合作伙伴生态系统', '内容和社区'],
+      budgetAllocation: ['40% 需求生成', '35% 客户成功赋能', '25% 产品主导增长实验']
     },
     operationalPlan: {
-      teamStructure: ['Core squad: PM, tech lead, three engineers, designer', 'Customer success pod (CSM + support)'],
-      processes: ['Weekly growth/product council', 'Incident response and post-mortem ritual', 'Quarterly roadmap + finance sync'],
-      infrastructure: ['Observability stack', 'CRM and success tools', 'Automation platform for workflows'],
-      riskManagement: ['Risk register with owners', 'Runway and burn-down tracker', 'Vendor redundancy plan']
+      teamStructure: ['核心小组：PM、技术主管、三名工程师、设计师', '客户成功团队（CSM + 支持）'],
+      processes: ['每周增长/产品委员会', '事故响应和事后审查仪式', '季度路线图 + 财务同步'],
+      infrastructure: ['可观察性堆栈', 'CRM和成功工具', '工作流自动化平台'],
+      riskManagement: ['带负责人的风险登记册', '资金和消耗跟踪器', '供应商冗余计划']
     },
     actionItems: [
-      'Define hiring plan for the success pod once pilot conversion hits target',
-      'Document onboarding checklist with QA gates',
-      'Create shared scorecard for product, growth, and success teams'
+      '一旦试点转化达到目标，定义成功团队的招聘计划',
+      '记录带QA门的入职检查清单',
+      '为产品、增长和成功团队创建共享记分卡'
     ]
   },
   executionPlan: defaultExecutionPlan,
   metadata: {
-    ideaTitle: 'New market idea',
+    ideaTitle: '新市场想法',
     generatedAt: new Date().toISOString(),
     estimatedReadTime: 12,
-    implementationTimeframe: '90 days',
+    implementationTimeframe: '90天',
     confidenceLevel: 70
   }
 }
@@ -769,152 +769,152 @@ export function generateGuideMarkdown(guide: LandingCoachGuide): string {
     return `${Math.round(percent)}%`
   }
 
-  lines.push(`# ${guide.metadata.ideaTitle} - Landing Coach Guide`)
-  lines.push(`Generated: ${new Date(guide.metadata.generatedAt).toLocaleString()}`)
-  lines.push(`Execution window: ${guide.metadata.implementationTimeframe}`)
-  lines.push(`Confidence: ${formatPercent(guide.metadata.confidenceLevel)}`)
+  lines.push(`# ${guide.metadata.ideaTitle} - 落地教练指南`)
+  lines.push(`生成时间: ${new Date(guide.metadata.generatedAt).toLocaleString()}`)
+  lines.push(`执行周期: ${guide.metadata.implementationTimeframe}`)
+  lines.push(`可信度: ${formatPercent(guide.metadata.confidenceLevel)}`)
   if (guide.metadata.winner) {
-    lines.push(`Winning persona: ${guide.metadata.winner}`)
+    lines.push(`获胜专家: ${guide.metadata.winner}`)
   }
   if (typeof guide.metadata.winningBid === 'number') {
-    lines.push(`Winning bid: ${guide.metadata.winningBid}`)
+    lines.push(`获胜出价: ${guide.metadata.winningBid}`)
   }
   lines.push('')
 
-  lines.push('## 1. Current Situation & Alignment')
-  lines.push(`**Overview:** ${guide.currentSituation.summary}`)
+  lines.push('## 1. 当前形势与校准')
+  lines.push(`**概述:** ${guide.currentSituation.summary}`)
   if (guide.currentSituation.keyInsights.length) {
-    lines.push('**Key insights:**')
+    lines.push('**关键洞察:**')
     guide.currentSituation.keyInsights.forEach(item => lines.push(`- ${item}`))
   }
-  lines.push('**Market reality:**')
-  lines.push(`- Market size: ${guide.currentSituation.marketReality.marketSize}`)
-  lines.push(`- Competitive landscape: ${guide.currentSituation.marketReality.competition}`)
+  lines.push('**市场现状:**')
+  lines.push(`- 市场规模: ${guide.currentSituation.marketReality.marketSize}`)
+  lines.push(`- 竞争格局: ${guide.currentSituation.marketReality.competition}`)
   if (guide.currentSituation.marketReality.opportunities.length) {
-    lines.push('  Opportunities:')
+    lines.push('  机遇:')
   }
   guide.currentSituation.marketReality.opportunities.forEach(item => lines.push(`  - ${item}`))
   if (guide.currentSituation.marketReality.challenges.length) {
-    lines.push('  Challenges:')
+    lines.push('  挑战:')
   }
   guide.currentSituation.marketReality.challenges.forEach(item => lines.push(`  - ${item}`))
-  lines.push(`**Target users:** ${guide.currentSituation.userNeeds.targetUsers}`)
+  lines.push(`**目标用户:** ${guide.currentSituation.userNeeds.targetUsers}`)
   if (guide.currentSituation.userNeeds.painPoints.length) {
-    lines.push('  Pain points:')
+    lines.push('  痛点:')
     guide.currentSituation.userNeeds.painPoints.forEach(item => lines.push(`  - ${item}`))
   }
   if (guide.currentSituation.userNeeds.solutions.length) {
-    lines.push('  Proposed solutions:')
+    lines.push('  建议方案:')
     guide.currentSituation.userNeeds.solutions.forEach(item => lines.push(`  - ${item}`))
   }
   if (guide.currentSituation.actionItems.length) {
-    lines.push('**Immediate actions:**')
+    lines.push('**立即行动:**')
     guide.currentSituation.actionItems.forEach((item, idx) => lines.push(`${idx + 1}. ${item}`))
   }
   lines.push('')
 
-  lines.push('## 2. MVP Definition & Validation')
-  lines.push(`**Product focus:** ${guide.mvpDefinition.productConcept.uniqueValue}`)
+  lines.push('## 2. MVP定义与验证')
+  lines.push(`**产品重点:** ${guide.mvpDefinition.productConcept.uniqueValue}`)
   if (guide.mvpDefinition.productConcept.coreFeatures.length) {
-    lines.push('**Core capabilities:**')
+    lines.push('**核心功能:**')
     guide.mvpDefinition.productConcept.coreFeatures.forEach(item => lines.push(`- ${item}`))
   }
-  lines.push(`**Minimum scope:** ${guide.mvpDefinition.productConcept.minimumScope}`)
+  lines.push(`**最小范围:** ${guide.mvpDefinition.productConcept.minimumScope}`)
   if (guide.mvpDefinition.developmentPlan.phases.length) {
-    lines.push('**Development plan:**')
+    lines.push('**开发计划:**')
     guide.mvpDefinition.developmentPlan.phases.forEach(phase => {
       lines.push(`- ${phase.name} (${phase.duration})`)
-      lines.push(`  Deliverables: ${phase.deliverables.join(', ')}`)
+      lines.push(`  交付成果: ${phase.deliverables.join(', ')}`)
       if (phase.resources.length) {
-        lines.push(`  Resources: ${phase.resources.join(', ')}`)
+        lines.push(`  资源: ${phase.resources.join(', ')}`)
       }
     })
   }
-  lines.push(`**Tech stack:** ${guide.mvpDefinition.developmentPlan.techStack.join(', ')}`)
-  lines.push(`**Estimated cost:** ${guide.mvpDefinition.developmentPlan.estimatedCost}`)
+  lines.push(`**技术栈:** ${guide.mvpDefinition.developmentPlan.techStack.join(', ')}`)
+  lines.push(`**预估成本:** ${guide.mvpDefinition.developmentPlan.estimatedCost}`)
   if (guide.mvpDefinition.validationStrategy.hypotheses.length) {
-    lines.push('**Validation hypotheses:**')
+    lines.push('**验证假设:**')
     guide.mvpDefinition.validationStrategy.hypotheses.forEach(item => lines.push(`- ${item}`))
   }
   if (guide.mvpDefinition.validationStrategy.experiments.length) {
-    lines.push('**Experiments:**')
+    lines.push('**实验方案:**')
     guide.mvpDefinition.validationStrategy.experiments.forEach(item => lines.push(`- ${item}`))
   }
   if (guide.mvpDefinition.validationStrategy.successMetrics.length) {
-    lines.push('**Success metrics:**')
+    lines.push('**成功指标:**')
     guide.mvpDefinition.validationStrategy.successMetrics.forEach(item => lines.push(`- ${item}`))
   }
-  lines.push(`**Validation timeline:** ${guide.mvpDefinition.validationStrategy.timeline}`)
+  lines.push(`**验证时间线:** ${guide.mvpDefinition.validationStrategy.timeline}`)
   if (guide.mvpDefinition.actionItems.length) {
-    lines.push('**Near-term actions:**')
+    lines.push('**近期行动:**')
     guide.mvpDefinition.actionItems.forEach((item, idx) => lines.push(`${idx + 1}. ${item}`))
   }
   lines.push('')
 
-  lines.push('## 3. Business Model & Operations')
-  lines.push('**Business model:**')
-  lines.push(`- Revenue streams: ${guide.businessExecution.businessModel.revenueStreams.join(', ')}`)
-  lines.push(`- Cost structure: ${guide.businessExecution.businessModel.costStructure.join(', ')}`)
-  lines.push(`- Pricing strategy: ${guide.businessExecution.businessModel.pricingStrategy}`)
-  lines.push(`- Scalability: ${guide.businessExecution.businessModel.scalability}`)
+  lines.push('## 3. 商业模式与运营')
+  lines.push('**商业模式:**')
+  lines.push(`- 收入来源: ${guide.businessExecution.businessModel.revenueStreams.join(', ')}`)
+  lines.push(`- 成本结构: ${guide.businessExecution.businessModel.costStructure.join(', ')}`)
+  lines.push(`- 定价策略: ${guide.businessExecution.businessModel.pricingStrategy}`)
+  lines.push(`- 可扩展性: ${guide.businessExecution.businessModel.scalability}`)
   if (guide.businessExecution.launchStrategy.phases.length) {
-    lines.push('**Launch plan:**')
+    lines.push('**发布计划:**')
     guide.businessExecution.launchStrategy.phases.forEach(phase => {
       lines.push(`- ${phase.name} (${phase.timeline})`)
-      lines.push(`  Goals: ${phase.goals.join(', ')}`)
+      lines.push(`  目标: ${phase.goals.join(', ')}`)
       if (phase.tactics.length) {
-        lines.push(`  Tactics: ${phase.tactics.join(', ')}`)
+        lines.push(`  策略: ${phase.tactics.join(', ')}`)
       }
     })
   }
-  lines.push(`- Marketing channels: ${guide.businessExecution.launchStrategy.marketingChannels.join(', ')}`)
-  lines.push(`- Budget allocation: ${guide.businessExecution.launchStrategy.budgetAllocation.join(', ')}`)
-  lines.push('**Operations:**')
-  lines.push(`- Team structure: ${guide.businessExecution.operationalPlan.teamStructure.join(', ')}`)
-  lines.push(`- Processes: ${guide.businessExecution.operationalPlan.processes.join(', ')}`)
-  lines.push(`- Infrastructure: ${guide.businessExecution.operationalPlan.infrastructure.join(', ')}`)
-  lines.push(`- Risk management: ${guide.businessExecution.operationalPlan.riskManagement.join(', ')}`)
+  lines.push(`- 营销渠道: ${guide.businessExecution.launchStrategy.marketingChannels.join(', ')}`)
+  lines.push(`- 预算分配: ${guide.businessExecution.launchStrategy.budgetAllocation.join(', ')}`)
+  lines.push('**运营:**')
+  lines.push(`- 团队结构: ${guide.businessExecution.operationalPlan.teamStructure.join(', ')}`)
+  lines.push(`- 流程: ${guide.businessExecution.operationalPlan.processes.join(', ')}`)
+  lines.push(`- 基础设施: ${guide.businessExecution.operationalPlan.infrastructure.join(', ')}`)
+  lines.push(`- 风险管理: ${guide.businessExecution.operationalPlan.riskManagement.join(', ')}`)
   if (guide.businessExecution.actionItems.length) {
-    lines.push('**Operational priorities:**')
+    lines.push('**运营优先事项:**')
     guide.businessExecution.actionItems.forEach((item, idx) => lines.push(`${idx + 1}. ${item}`))
   }
   lines.push('')
 
   if (guide.executionPlan) {
-    lines.push('## 4. 90-Day Execution Plan')
-    lines.push(`**Mission:** ${guide.executionPlan.mission}`)
-    lines.push(`**Summary:** ${guide.executionPlan.summary}`)
-    lines.push('### Phases')
+    lines.push('## 4. 90天执行计划')
+    lines.push(`**使命:** ${guide.executionPlan.mission}`)
+    lines.push(`**总结:** ${guide.executionPlan.summary}`)
+    lines.push('### 阶段')
     guide.executionPlan.phases.forEach(phase => {
       lines.push(`- ${phase.name} (${phase.timeline})`)
-      lines.push(`  Focus: ${phase.focus}`)
-      lines.push(`  Key outcomes: ${phase.keyOutcomes.join(', ')}`)
-      lines.push(`  Metrics: ${phase.metrics.join(', ')}`)
+      lines.push(`  重点: ${phase.focus}`)
+      lines.push(`  关键成果: ${phase.keyOutcomes.join(', ')}`)
+      lines.push(`  指标: ${phase.metrics.join(', ')}`)
     })
-    lines.push('### Weekly sprints')
+    lines.push('### 每周冲刺')
     guide.executionPlan.weeklySprints.forEach(sprint => {
       lines.push(`- ${sprint.name}`)
-      lines.push(`  Focus: ${sprint.focus}`)
-      lines.push(`  Objectives: ${sprint.objectives.join(', ')}`)
-      lines.push(`  Feedback hooks: ${sprint.feedbackHooks.join(', ')}`)
+      lines.push(`  重点: ${sprint.focus}`)
+      lines.push(`  目标: ${sprint.objectives.join(', ')}`)
+      lines.push(`  反馈钩子: ${sprint.feedbackHooks.join(', ')}`)
     })
-    lines.push('### Feedback loop')
-    lines.push(`- Cadence: ${guide.executionPlan.feedbackLoop.cadence.join(', ')}`)
-    lines.push(`- Channels: ${guide.executionPlan.feedbackLoop.channels.join(', ')}`)
-    lines.push(`- Decision gates: ${guide.executionPlan.feedbackLoop.decisionGates.join(', ')}`)
-    lines.push(`- Tooling: ${guide.executionPlan.feedbackLoop.tooling.join(', ')}`)
-    lines.push('### Daily routines')
+    lines.push('### 反馈循环')
+    lines.push(`- 节奏: ${guide.executionPlan.feedbackLoop.cadence.join(', ')}`)
+    lines.push(`- 渠道: ${guide.executionPlan.feedbackLoop.channels.join(', ')}`)
+    lines.push(`- 决策关卡: ${guide.executionPlan.feedbackLoop.decisionGates.join(', ')}`)
+    lines.push(`- 工具: ${guide.executionPlan.feedbackLoop.tooling.join(', ')}`)
+    lines.push('### 日常例行')
     guide.executionPlan.dailyRoutines.forEach(item => lines.push(`- ${item}`))
-    lines.push('### Reviews & metrics')
-    lines.push(`- Weekly review: ${guide.executionPlan.reviewFramework.weekly.join(', ')}`)
-    lines.push(`- Monthly calibration: ${guide.executionPlan.reviewFramework.monthly.join(', ')}`)
-    lines.push(`- Metrics to watch: ${guide.executionPlan.reviewFramework.dataWatch.join(', ')}`)
+    lines.push('### 审查与指标')
+    lines.push(`- 每周审查: ${guide.executionPlan.reviewFramework.weekly.join(', ')}`)
+    lines.push(`- 月度校准: ${guide.executionPlan.reviewFramework.monthly.join(', ')}`)
+    lines.push(`- 关注指标: ${guide.executionPlan.reviewFramework.dataWatch.join(', ')}`)
     lines.push('')
   }
 
   lines.push('---')
   lines.push(
-    'Note: Generated by the landing coach AI. Adjust to your context and validate with customer feedback and data before major investment.'
+    '注意：由落地教练AI生成。在做出重大投资之前，请根据您的背景进行调整并通过客户反馈和数据进行验证。'
   )
 
   return lines.join('\n')
@@ -928,22 +928,22 @@ export function validateReportForGuide(report: any): {
   const recommendations: string[] = []
 
   if (!report?.basicAnalysis) {
-    missingFields.push('Market analysis')
-    recommendations.push('Add market size, competitive insight, and clear problem statements.')
+    missingFields.push('市场分析')
+    recommendations.push('添加市场规模、竞争洞察和明确的问题陈述。')
   }
 
   if (!report?.mvpGuidance) {
-    missingFields.push('MVP definition and validation plan')
-    recommendations.push('Describe MVP scope, validation experiments, and success metrics.')
+    missingFields.push('MVP定义和验证计划')
+    recommendations.push('描述MVP范围、验证实验和成功指标。')
   }
 
   if (!report?.businessModel) {
-    missingFields.push('Business model and operations')
-    recommendations.push('Detail revenue model, cost structure, and go-to-market approach.')
+    missingFields.push('商业模式和运营')
+    recommendations.push('详细说明收入模型、成本结构和市场推广方法。')
   }
 
   if (missingFields.length === 0 && !report?.executionPlan) {
-    recommendations.push('Add a 90-day execution plan so the team can operationalise the insights.')
+    recommendations.push('添加90天执行计划，以便团队能够将洞察付诸实践。')
   }
 
   return {
