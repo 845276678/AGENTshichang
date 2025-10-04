@@ -651,7 +651,9 @@ async function finishRealAIBidding(ideaId, ideaContent, bids) {
   // 调用API创建真正的商业计划会话和报告
   try {
     const fetch = (await import('node-fetch')).default;
-    const response = await fetch(`http://127.0.0.1:${process.env.PORT || 8080}/api/business-plan-session`, {
+    // 优先使用环境变量 API_BASE_URL，否则使用 127.0.0.1
+    const apiBaseUrl = process.env.API_BASE_URL || `http://127.0.0.1:${process.env.PORT || 8080}`;
+    const response = await fetch(`${apiBaseUrl}/api/business-plan-session`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -1004,7 +1006,9 @@ async function finishSimulatedBidding(ideaId, ideaContent, bids) {
   // 调用API创建真正的商业计划会话和报告（与真实竞价相同）
   try {
     const fetch = (await import('node-fetch')).default;
-    const response = await fetch(`http://127.0.0.1:${process.env.PORT || 8080}/api/business-plan-session`, {
+    // 优先使用环境变量 API_BASE_URL，否则使用 127.0.0.1
+    const apiBaseUrl = process.env.API_BASE_URL || `http://127.0.0.1:${process.env.PORT || 8080}`;
+    const response = await fetch(`${apiBaseUrl}/api/business-plan-session`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
