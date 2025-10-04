@@ -64,9 +64,9 @@ const BASE_GUIDE_TEMPLATE: BusinessPlanGuide = {
       timeline: "90天内分三步走：技术验证 → 用户验证 → 商业验证"
     },
     actionItems: [
-      "确定MVP范围和"必须有的"功能，其他的先放放",
-      "把协作和反馈工具搭起来",
-      "定好每周迭代节奏，谁负责什么"
+      '确定MVP范围和「必须有的」功能，其他的先放放',
+      '把协作和反馈工具搭起来',
+      '定好每周迭代节奏，谁负责什么'
     ]
   },
   businessExecution: {
