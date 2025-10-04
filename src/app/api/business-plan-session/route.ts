@@ -42,15 +42,20 @@ export async function GET(request: NextRequest) {
         return NextResponse.json({ success: false, error: 'Report not found' }, { status: 404 })
       }
 
-      // 如果有认证用户，验证是否有权访问
-      try {
-        const user = await authenticateRequest(request)
-        if (report.userId !== user.id) {
-          return NextResponse.json({ success: false, error: 'Unauthorized to access this report' }, { status: 403 })
+      // 如果报告有userId，验证是否有权访问
+      // 但允许刚创建的报告（5分钟内）免认证访问，以支持从竞价页面跳转
+      const isRecentReport = report.createdAt && (Date.now() - report.createdAt.getTime()) < 5 * 60 * 1000
+
+      if (report.userId && !isRecentReport) {
+        try {
+          const user = await authenticateRequest(request)
+          if (report.userId !== user.id) {
+            return NextResponse.json({ success: false, error: 'Unauthorized to access this report' }, { status: 403 })
+          }
+        } catch (authError) {
+          // 未认证用户无法访问报告
+          return NextResponse.json({ success: false, error: 'Authentication required' }, { status: 401 })
         }
-      } catch (authError) {
-        // 未认证用户无法访问报告
-        return NextResponse.json({ success: false, error: 'Authentication required' }, { status: 401 })
       }
 
       return NextResponse.json({
@@ -74,7 +79,10 @@ export async function GET(request: NextRequest) {
     }
 
     // 如果会话有userId，验证访问权限
-    if (session.userId) {
+    // 但允许刚创建的会话（5分钟内）免认证访问，以支持从竞价页面跳转
+    const isRecentSession = session.createdAt && (Date.now() - session.createdAt.getTime()) < 5 * 60 * 1000
+
+    if (session.userId && !isRecentSession) {
       try {
         const user = await authenticateRequest(request)
         if (session.userId !== user.id) {
