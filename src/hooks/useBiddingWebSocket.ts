@@ -177,6 +177,15 @@ export function useBiddingWebSocket(config: UseBiddingWebSocketConfig): BiddingW
           reconnectTimeoutRef.current = null
         }
 
+        // 发送 join 消息，让服务器知道我们要加入这个 idea 的会话
+        if (ideaId) {
+          console.log('📨 Sending join message for idea:', ideaId)
+          ws.send(JSON.stringify({
+            type: 'join',
+            ideaId: ideaId
+          }))
+        }
+
         // 连接成功后立即启动竞价（如果有内容）
         if (window.location.search.includes('autoStart=true')) {
           console.log('🎭 Auto-starting bidding due to autoStart parameter')
