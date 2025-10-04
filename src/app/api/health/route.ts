@@ -53,7 +53,9 @@ export async function GET(request: NextRequest) {
       uptime: process.uptime(),
       responseTime: Date.now() - startTime,
       checks,
-      version: process.env.npm_package_version || 'unknown',
+      version: process.env.NEXT_PUBLIC_APP_VERSION || process.env.npm_package_version || 'unknown',
+      gitCommit: process.env.NEXT_PUBLIC_GIT_COMMIT || 'unknown',
+      buildTime: process.env.NEXT_PUBLIC_BUILD_TIME || 'unknown',
       environment: process.env.NODE_ENV || 'unknown'
     }, { status: statusCode })
 
