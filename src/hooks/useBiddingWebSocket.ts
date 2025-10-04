@@ -290,6 +290,14 @@ export function useBiddingWebSocket(config: UseBiddingWebSocketConfig): BiddingW
         setCurrentPhase('result')
         setTimeRemaining(0)
         toast.success(`竞价完成！最高出价：${data.results.highestBid}元`)
+
+        // 自动跳转到商业计划页面
+        if (data.results?.businessPlanUrl) {
+          console.log('🚀 Auto-redirecting to business plan:', data.results.businessPlanUrl)
+          setTimeout(() => {
+            window.location.href = data.results.businessPlanUrl
+          }, 2000) // 延迟2秒让用户看到成功消息
+        }
         break
 
       case 'bidding_started':
