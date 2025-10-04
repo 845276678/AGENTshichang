@@ -1,4 +1,4 @@
-﻿import type { BusinessPlanGuide, BiddingSnapshot, BusinessPlanMetadata } from "./types"
+import type { BusinessPlanGuide, BiddingSnapshot, BusinessPlanMetadata } from "./types"
 
 const BASE_GUIDE_TEMPLATE: BusinessPlanGuide = {
   currentSituation: {

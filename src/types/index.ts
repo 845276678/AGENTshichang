@@ -1,4 +1,4 @@
-﻿// Core application types
+// Core application types
 export interface User {
   id: string
   email: string

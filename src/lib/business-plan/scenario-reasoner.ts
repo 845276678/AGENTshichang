@@ -1,4 +1,4 @@
-﻿import { randomUUID } from "crypto"
+import { randomUUID } from "crypto"
 
 import { logger } from "@/lib/logger"
 import redis from "@/lib/redis"

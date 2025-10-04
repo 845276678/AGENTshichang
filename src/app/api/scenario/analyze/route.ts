@@ -1,4 +1,4 @@
-﻿import { randomUUID } from "crypto"
+import { randomUUID } from "crypto"
 import { NextRequest, NextResponse } from "next/server"
 
 import { logger } from "@/lib/logger"

@@ -1,4 +1,4 @@
-﻿import redis from "@/lib/redis"
+import redis from "@/lib/redis"
 import { logger } from "@/lib/logger"
 import type { ScenarioOutput, BusinessPlanStageConfig } from "@/types/business-plan"
 

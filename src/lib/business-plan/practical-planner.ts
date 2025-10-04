@@ -1,4 +1,4 @@
-﻿import type { ExecutionPlan } from "./types"
+import type { ExecutionPlan } from "./types"
 import type { BiddingSnapshot } from "./types"
 import { resolveExecutionTemplate } from "./template-library"
 

@@ -1,4 +1,4 @@
-﻿import type { BusinessPlanGuide } from "./types"
+import type { BusinessPlanGuide } from "./types"
 import { generateGuideMarkdown } from "@/lib/utils/transformReportToGuide"
 
 type ExportFormat = 'markdown' | 'pdf'

@@ -1,4 +1,4 @@
-﻿// 鏂囦欢瀛樺偍绠＄悊妯″潡
+// 鏂囦欢瀛樺偍绠＄悊妯″潡
 import { prisma } from './database'
 
 export enum FileType {

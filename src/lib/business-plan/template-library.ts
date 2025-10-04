@@ -1,4 +1,4 @@
-﻿import type { ExecutionPlan } from "./types"
+import type { ExecutionPlan } from "./types"
 
 export interface ExecutionTemplateContext {
   ideaTitle: string

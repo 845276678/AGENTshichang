@@ -1,4 +1,4 @@
-﻿import type { AIMessage } from "@/lib/ai-persona-system"
+import type { AIMessage } from "@/lib/ai-persona-system"
 import type { LandingCoachGuide } from "@/lib/utils/transformReportToGuide"
 
 export interface ExecutionPlanPhase {

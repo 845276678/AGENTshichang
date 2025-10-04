@@ -1,4 +1,4 @@
-﻿import { NextRequest, NextResponse } from "next/server"
+import { NextRequest, NextResponse } from "next/server"
 import { authenticateRequest, handleApiError } from "@/lib/auth"
 import { BusinessPlanSessionService } from "@/lib/business-plan/session-service"
 import { exportBusinessPlanGuide, type BusinessPlanExportFormat } from "@/lib/business-plan/exporter"
