@@ -890,7 +890,7 @@ model BusinessPlanSession {
 model BusinessPlanReport {
   id        String   @id @default(cuid())
   sessionId String   @map("session_id")
-  userId    String   @map("user_id") // 添加用户ID字段
+  userId    String?  @map("user_id") // 改为可选，支持匿名会话
   guide     Json
   version   Int      @default(1)
   metadata  Json?
@@ -898,7 +898,7 @@ model BusinessPlanReport {
   updatedAt DateTime @updatedAt @map("updated_at")
 
   session BusinessPlanSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
-  user    User                @relation(fields: [userId], references: [id], onDelete: Cascade) // 添加用户关系
+  user    User?               @relation(fields: [userId], references: [id], onDelete: Cascade) // 改为可选关系
 
   @@map("business_plan_reports")
 }
