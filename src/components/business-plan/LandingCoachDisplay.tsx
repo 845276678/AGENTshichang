@@ -72,7 +72,7 @@ export default function LandingCoachDisplay({
         <Card className="w-80 text-center">
           <CardContent className="space-y-4 p-8">
             <Loader2 className="mx-auto h-10 w-10 animate-spin text-primary" />
-            <p className="text-sm text-muted-foreground">Compiling the landing coach guide...</p>
+            <p className="text-sm text-muted-foreground">正在生成落地指南...</p>
           </CardContent>
         </Card>
       </div>
@@ -95,28 +95,28 @@ export default function LandingCoachDisplay({
           </div>
           <div className="space-y-1">
             <h1 className="text-2xl font-bold">{guide.metadata.ideaTitle}</h1>
-            <p className="text-sm text-muted-foreground">Landing coach execution guide</p>
+            <p className="text-sm text-muted-foreground">落地执行指南</p>
           </div>
         </div>
 
         <div className="flex flex-wrap items-center gap-4">
-          {metaItem("Generated", new Date(guide.metadata.generatedAt).toLocaleString())}
-          {metaItem("Execution window", guide.metadata.implementationTimeframe)}
-          {metaItem("Estimated read", `${guide.metadata.estimatedReadTime} min`)}
+          {metaItem("生成时间", new Date(guide.metadata.generatedAt).toLocaleString())}
+          {metaItem("执行周期", guide.metadata.implementationTimeframe)}
+          {metaItem("预计阅读", `${guide.metadata.estimatedReadTime} 分钟`)}
           <Badge variant="secondary" className="text-base font-semibold">
-            Confidence: {guide.metadata.confidenceLevel}%
+            可信度: {guide.metadata.confidenceLevel}%
           </Badge>
         </div>
 
         <div className="flex flex-wrap gap-3">
           <Button onClick={() => onDownload?.("pdf")} variant="default">
-            <Download className="mr-2 h-4 w-4" /> Export PDF
+            <Download className="mr-2 h-4 w-4" /> 导出 PDF
           </Button>
           <Button onClick={() => onDownload?.("markdown")} variant="outline">
-            <Download className="mr-2 h-4 w-4" /> Export Markdown
+            <Download className="mr-2 h-4 w-4" /> 导出 Markdown
           </Button>
           <Button onClick={onShare} variant="ghost">
-            <Share2 className="mr-2 h-4 w-4" /> Share guide
+            <Share2 className="mr-2 h-4 w-4" /> 分享指南
           </Button>
         </div>
       </motion.header>
@@ -125,23 +125,22 @@ export default function LandingCoachDisplay({
         <Card className="border-primary/30 bg-primary/5">
           <CardHeader className="flex flex-col gap-3">
             <CardTitle className="flex items-center gap-2 text-lg">
-              <Lightbulb className="h-5 w-5 text-primary" /> AI perspective
+              <Lightbulb className="h-5 w-5 text-primary" /> AI 洞察
             </CardTitle>
             <CardDescription className="text-sm text-muted-foreground">
-              Fast summary from the landing coach agent collective.
+              来自落地教练智能体集群的快速总结。
             </CardDescription>
           </CardHeader>
           <CardContent className="grid gap-6 md:grid-cols-3">
             <div className="space-y-3">
               <div className="flex items-center gap-2">
                 <CheckCircle2 className="h-4 w-4 text-emerald-500" />
-                <span className="text-sm font-medium text-emerald-700">Overall assessment</span>
+                <span className="text-sm font-medium text-emerald-700">整体评估</span>
               </div>
               <div className="space-y-2 text-sm text-muted-foreground">
                 <p>{guide.aiInsights.overallAssessment.summary}</p>
                 <p>
-                  <strong>Score:</strong> {guide.aiInsights.overallAssessment.score} / 10 - level{' '}
-                  {guide.aiInsights.overallAssessment.level}
+                  <strong>评分:</strong> {guide.aiInsights.overallAssessment.score} / 10 - {guide.aiInsights.overallAssessment.level}级
                 </p>
               </div>
               {bulletList(guide.aiInsights.overallAssessment.keyStrengths)}
@@ -150,7 +149,7 @@ export default function LandingCoachDisplay({
             <div className="space-y-3">
               <div className="flex items-center gap-2">
                 <AlertTriangle className="h-4 w-4 text-amber-500" />
-                <span className="text-sm font-medium text-amber-700">Critical challenges</span>
+                <span className="text-sm font-medium text-amber-700">关键挑战</span>
               </div>
               {bulletList(guide.aiInsights.overallAssessment.criticalChallenges)}
             </div>
@@ -158,7 +157,7 @@ export default function LandingCoachDisplay({
             <div className="space-y-3">
               <div className="flex items-center gap-2">
                 <ClipboardList className="h-4 w-4 text-sky-500" />
-                <span className="text-sm font-medium text-sky-700">Sustainability check</span>
+                <span className="text-sm font-medium text-sky-700">可持续性检查</span>
               </div>
               <p className="text-sm text-muted-foreground">
                 {guide.aiInsights.sustainabilityAnalysis.longTermViability}
@@ -174,37 +173,37 @@ export default function LandingCoachDisplay({
 
       <Tabs defaultValue="situation" className="space-y-6">
         <TabsList>
-          <TabsTrigger value="situation">Current situation</TabsTrigger>
-          <TabsTrigger value="mvp">MVP plan</TabsTrigger>
-          <TabsTrigger value="business">Commercial plan</TabsTrigger>
-          {executionEnabled && <TabsTrigger value="execution">Execution plan</TabsTrigger>}
+          <TabsTrigger value="situation">当前形势</TabsTrigger>
+          <TabsTrigger value="mvp">MVP 计划</TabsTrigger>
+          <TabsTrigger value="business">商业计划</TabsTrigger>
+          {executionEnabled && <TabsTrigger value="execution">执行计划</TabsTrigger>}
         </TabsList>
 
         <TabsContent value="situation" className="space-y-6">
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-xl">
-                <BarChart3 className="h-5 w-5" /> Current situation & alignment
+                <BarChart3 className="h-5 w-5" /> 当前形势与校准
               </CardTitle>
               <CardDescription>{guide.currentSituation.summary}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid gap-4 md:grid-cols-2">
-                {infoBlock('Key insights', undefined, guide.currentSituation.keyInsights)}
-                {infoBlock('Market reality', undefined, [
-                  `Market size: ${guide.currentSituation.marketReality.marketSize}`,
-                  `Competitive landscape: ${guide.currentSituation.marketReality.competition}`
+                {infoBlock('关键洞察', undefined, guide.currentSituation.keyInsights)}
+                {infoBlock('市场现状', undefined, [
+                  `市场规模: ${guide.currentSituation.marketReality.marketSize}`,
+                  `竞争态势: ${guide.currentSituation.marketReality.competition}`
                 ])}
-                {infoBlock('Opportunities', undefined, guide.currentSituation.marketReality.opportunities)}
-                {infoBlock('Challenges', undefined, guide.currentSituation.marketReality.challenges)}
+                {infoBlock('机遇', undefined, guide.currentSituation.marketReality.opportunities)}
+                {infoBlock('挑战', undefined, guide.currentSituation.marketReality.challenges)}
               </div>
               <Separator />
               <div className="grid gap-4 md:grid-cols-2">
-                {infoBlock('Target users', guide.currentSituation.userNeeds.targetUsers, guide.currentSituation.userNeeds.painPoints)}
-                {infoBlock('Proposed solutions', undefined, guide.currentSituation.userNeeds.solutions)}
+                {infoBlock('目标用户', guide.currentSituation.userNeeds.targetUsers, guide.currentSituation.userNeeds.painPoints)}
+                {infoBlock('建议方案', undefined, guide.currentSituation.userNeeds.solutions)}
               </div>
               <Separator />
-              {infoBlock('Immediate actions', undefined, guide.currentSituation.actionItems)}
+              {infoBlock('立即行动', undefined, guide.currentSituation.actionItems)}
             </CardContent>
           </Card>
         </TabsContent>
@@ -213,29 +212,29 @@ export default function LandingCoachDisplay({
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-xl">
-                <Rocket className="h-5 w-5" /> MVP definition & validation
+                <Rocket className="h-5 w-5" /> MVP 定义与验证
               </CardTitle>
               <CardDescription>{guide.mvpDefinition.productConcept.uniqueValue}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              {infoBlock('Core capabilities', undefined, guide.mvpDefinition.productConcept.coreFeatures)}
+              {infoBlock('核心功能', undefined, guide.mvpDefinition.productConcept.coreFeatures)}
               <Separator />
               <div className="grid gap-4 md:grid-cols-2">
                 {infoBlock(
-                  'Development plan',
+                  '开发计划',
                   guide.mvpDefinition.developmentPlan.estimatedCost,
                   guide.mvpDefinition.developmentPlan.phases.map(phase => `${phase.name} (${phase.duration}): ${phase.deliverables.join(', ')}`)
                 )}
-                {infoBlock('Recommended tech stack', undefined, guide.mvpDefinition.developmentPlan.techStack)}
+                {infoBlock('推荐技术栈', undefined, guide.mvpDefinition.developmentPlan.techStack)}
               </div>
               <Separator />
-              {infoBlock('Validation approach', guide.mvpDefinition.validationStrategy.timeline, [
-                `Key hypotheses: ${guide.mvpDefinition.validationStrategy.hypotheses.join(', ')}`,
-                `Experiments: ${guide.mvpDefinition.validationStrategy.experiments.join(', ')}`,
-                `Success metrics: ${guide.mvpDefinition.validationStrategy.successMetrics.join(', ')}`
+              {infoBlock('验证方法', guide.mvpDefinition.validationStrategy.timeline, [
+                `关键假设: ${guide.mvpDefinition.validationStrategy.hypotheses.join(', ')}`,
+                `实验方案: ${guide.mvpDefinition.validationStrategy.experiments.join(', ')}`,
+                `成功指标: ${guide.mvpDefinition.validationStrategy.successMetrics.join(', ')}`
               ])}
               <Separator />
-              {infoBlock('Action items', undefined, guide.mvpDefinition.actionItems)}
+              {infoBlock('行动清单', undefined, guide.mvpDefinition.actionItems)}
             </CardContent>
           </Card>
         </TabsContent>
@@ -244,28 +243,28 @@ export default function LandingCoachDisplay({
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-xl">
-                <TrendingUp className="h-5 w-5" /> Business model & operations
+                <TrendingUp className="h-5 w-5" /> 商业模式与运营
               </CardTitle>
               <CardDescription>{guide.businessExecution.businessModel.pricingStrategy}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid gap-4 md:grid-cols-2">
-                {infoBlock('Revenue streams', undefined, guide.businessExecution.businessModel.revenueStreams)}
-                {infoBlock('Cost structure', undefined, guide.businessExecution.businessModel.costStructure)}
+                {infoBlock('收入来源', undefined, guide.businessExecution.businessModel.revenueStreams)}
+                {infoBlock('成本结构', undefined, guide.businessExecution.businessModel.costStructure)}
               </div>
               <Separator />
-              {infoBlock('Go-to-market phases', undefined, guide.businessExecution.launchStrategy.phases.map(
+              {infoBlock('市场推广阶段', undefined, guide.businessExecution.launchStrategy.phases.map(
                 phase => `${phase.name} (${phase.timeline}): ${phase.goals.join(', ')}`
               ))}
               <Separator />
               <div className="grid gap-4 md:grid-cols-2">
-                {infoBlock('Team & process readiness', undefined, guide.businessExecution.operationalPlan.teamStructure)}
-                {infoBlock('Infrastructure', undefined, guide.businessExecution.operationalPlan.infrastructure)}
+                {infoBlock('团队与流程准备', undefined, guide.businessExecution.operationalPlan.teamStructure)}
+                {infoBlock('基础设施', undefined, guide.businessExecution.operationalPlan.infrastructure)}
               </div>
               <Separator />
-              {infoBlock('Risk management', undefined, guide.businessExecution.operationalPlan.riskManagement)}
+              {infoBlock('风险管理', undefined, guide.businessExecution.operationalPlan.riskManagement)}
               <Separator />
-              {infoBlock('Action items', undefined, guide.businessExecution.actionItems)}
+              {infoBlock('行动清单', undefined, guide.businessExecution.actionItems)}
             </CardContent>
           </Card>
         </TabsContent>
@@ -275,27 +274,27 @@ export default function LandingCoachDisplay({
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-xl">
-                  <Compass className="h-5 w-5" /> 90-day execution plan
+                  <Compass className="h-5 w-5" /> 90天执行计划
                 </CardTitle>
                 <CardDescription>{guide.executionPlan.summary}</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                {infoBlock('Phase breakdown', undefined, guide.executionPlan.phases.map(
+                {infoBlock('阶段分解', undefined, guide.executionPlan.phases.map(
                   phase => `${phase.name} (${phase.timeline}): ${phase.focus}`
                 ))}
                 <Separator />
-                {infoBlock('Weekly sprints', undefined, guide.executionPlan.weeklySprints.map(
+                {infoBlock('每周冲刺', undefined, guide.executionPlan.weeklySprints.map(
                   sprint => `${sprint.name}: ${sprint.focus}`
                 ))}
                 <Separator />
-                {infoBlock('Feedback loop', undefined, [
-                  `Cadence: ${guide.executionPlan.feedbackLoop.cadence.join(' / ')}`,
-                  `Channels: ${guide.executionPlan.feedbackLoop.channels.join(' / ')}`,
-                  `Decision gates: ${guide.executionPlan.feedbackLoop.decisionGates.join(' / ')}`,
-                  `Tooling: ${guide.executionPlan.feedbackLoop.tooling.join(' / ')}`
+                {infoBlock('反馈循环', undefined, [
+                  `节奏: ${guide.executionPlan.feedbackLoop.cadence.join(' / ')}`,
+                  `渠道: ${guide.executionPlan.feedbackLoop.channels.join(' / ')}`,
+                  `决策关卡: ${guide.executionPlan.feedbackLoop.decisionGates.join(' / ')}`,
+                  `工具: ${guide.executionPlan.feedbackLoop.tooling.join(' / ')}`
                 ])}
                 <Separator />
-                {infoBlock('Daily routines', undefined, guide.executionPlan.dailyRoutines)}
+                {infoBlock('日常例行', undefined, guide.executionPlan.dailyRoutines)}
               </CardContent>
             </Card>
           </TabsContent>

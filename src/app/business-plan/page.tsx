@@ -250,7 +250,7 @@ export default function BusinessPlanPage() {
       }
 
       const response = await fetch(
-        `/api/documents/download?reportId=${sessionId || reportId}&format=${format}&type=guide`,
+        `/api/documents/download?${sessionId ? `sessionId=${sessionId}` : `reportId=${reportId}`}&format=${format}&type=guide`,
         {
           headers: {
             Authorization: `Bearer ${token}`
