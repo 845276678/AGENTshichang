@@ -1,21 +1,30 @@
-﻿# 文档总览
+﻿# 文档索引
 
-## 📚 核心方案
-- `../商业计划智能生成一体化方案.md`：端到端一体化方案，聚合智能适配、实战执行与系统架构。
-- `../智能化商业计划适配框架总结.md`：智能适配引擎与推荐规则详解。
-- `../5阶段实战商业计划框架完整设计.md`：从目标澄清到盈利闭环的五阶段方法论。
-- `../90天聚焦实战计划详解.md`：90 天技术、需求、商业验证执行节奏。
-- `../商业计划生成系统设计文档.md`：商业计划生成系统的架构与交互设计。
-- `../商业计划书9个阶段生成详解.md`：九阶段内容生成逻辑和交付物说明。
+本目录按照类型重新分组，保留主干说明文档，并将历史资料沉淀到 `archive/` 中。
 
-## 🧩 体系文档
-- `PLATFORM_FEATURES.md`：平台功能矩阵与商业计划生成入口概述。
-- `business-plan-integration.md`：商业计划模块与竞价、积分系统的协同说明。
-- `architecture/`：竞价页、商业计划页等架构设计细节。
+## 架构 Architecture
+- [`architecture/ai-agent-system.md`](architecture/ai-agent-system.md)：竞价舞台 + 商业计划整体架构概览。
+- [`architecture/ai-services-integration.md`](architecture/ai-services-integration.md)：当前接入的 DeepSeek/智谱/通义模型及调用策略。
+- 详细实现、技术方案参考 `architecture/*.md`。
 
-## ⚙️ 运维开发
-- `operations-monitoring.md`：监控指标与告警策略。
-- `production-deployment-guide.md`、`deployment-scripts.md`：部署流程与脚本。
-- `LOCAL_DEVELOPMENT_GUIDE.md`、`FRONTEND_DEVELOPMENT_GUIDE.md`：开发环境与前端规范。
+## 开发指南 Development Guides
+- [`guides/development/development-guide.md`](guides/development/development-guide.md)：研发节奏、前后端规范与本地环境要点。
+  - 历史细化文档存放于 `guides/development/archive/`。
 
-> 若有新文档，请同步更新本目录和项目根目录的“📄 文档导航”，保持索引一致。
+## 部署与交付 Deployment Guides
+- [`guides/deployment/deployment-guide.md`](guides/deployment/deployment-guide.md)：脚本、阿里云、Zeabur 方案与上线前检查。
+  - 详细步骤存于 `guides/deployment/archive/`。
+
+## 运维 Operations
+- [`operations/production-runbook.md`](operations/production-runbook.md)：环境巡检、监控指标与灾备要点。
+  - 旧版 checklist 位于 `operations/archive/`。
+
+## 事故 Incident Reports
+- [`incidents/2025-incident-dossier.md`](incidents/2025-incident-dossier.md)：2025-10 关键事件汇总与行动项。
+  - 原始复盘报告保留在 `incidents/archive/`。
+
+## 产品与参考
+- [`product/platform-features.md`](product/platform-features.md)：平台功能清单。
+- [`reference/database-schema.sql`](reference/database-schema.sql)：数据库结构。
+
+> 如需查阅完整历史记录，请直接访问各目录下的 `archive/` 文件夹。
