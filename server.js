@@ -633,11 +633,11 @@ async function startRealAIBiddingPhase(ideaId, ideaContent, aiPersonas) {
   }
   // 3
   setTimeout(() => {
-    finishRealAIBidding(ideaId, currentBids);
+    finishRealAIBidding(ideaId, ideaContent, currentBids);
   }, 3000);
 }
 // AI
-function finishRealAIBidding(ideaId, bids) {
+function finishRealAIBidding(ideaId, ideaContent, bids) {
   const highestBid = Math.max(...Object.values(bids));
   const avgBid = Object.values(bids).reduce((a, b) => a + b, 0) / Object.values(bids).length;
   // ?
@@ -648,7 +648,7 @@ function finishRealAIBidding(ideaId, bids) {
   // edis
   global.businessPlanSessions = global.businessPlanSessions || new Map();
   global.businessPlanSessions.set(businessPlanSessionId, {
-    ideaContent: '',
+    ideaContent: ideaContent || '',
     highestBid,
     averageBid: Math.round(avgBid),
     finalBids: bids,
