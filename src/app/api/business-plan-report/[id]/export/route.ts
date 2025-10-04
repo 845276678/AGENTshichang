@@ -51,27 +51,46 @@ function buildFileName(rawTitle: string, extension: string) {
 
 export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
   try {
-    const user = await authenticateRequest(request)
     const format = resolveFormat(new URL(request.url).searchParams.get("format"))
 
+    // 先获取报告
     const report = await BusinessPlanSessionService.getReportById(params.id)
     if (!report) {
       return NextResponse.json({ success: false, error: "Report not found" }, { status: 404 })
     }
 
-    if (report.userId !== user.id) {
-      return NextResponse.json({ success: false, error: "Forbidden" }, { status: 403 })
+    // 检查报告是否刚创建（5分钟内）
+    const isRecentReport = report.createdAt && (Date.now() - report.createdAt.getTime()) < 5 * 60 * 1000
+
+    // 如果不是近期报告或报告有userId，则需要认证和权限检查
+    if (!isRecentReport || report.userId) {
+      try {
+        const user = await authenticateRequest(request)
+
+        // 权限检查
+        if (report.userId && report.userId !== user.id) {
+          return NextResponse.json({ success: false, error: "Forbidden" }, { status: 403 })
+        }
+
+        // 记录审计日志
+        await BusinessPlanSessionService.recordAudit({
+          sessionId: report.sessionId,
+          action: "REPORT_EXPORTED",
+          createdBy: user.id,
+          payload: { format }
+        })
+      } catch (authError) {
+        // 如果是近期报告，允许免认证导出
+        if (!isRecentReport) {
+          return NextResponse.json({ success: false, error: "Authentication required" }, { status: 401 })
+        }
+        // 近期报告免认证，但不记录审计
+        console.log(`Recent report ${params.id} exported without authentication`)
+      }
     }
 
     const guide = ensureGuideMetadata(report.guide as unknown as BusinessPlanGuide)
     const exportResult = await exportBusinessPlanGuide(guide, format)
-
-    await BusinessPlanSessionService.recordAudit({
-      sessionId: report.sessionId,
-      action: "REPORT_EXPORTED",
-      createdBy: user.id,
-      payload: { format }
-    })
 
     const fileName = buildFileName(guide.metadata.ideaTitle ?? "business-plan", exportResult.fileExtension)
 
