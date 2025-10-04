@@ -241,6 +241,7 @@ export default function BusinessPlanPage() {
       }
 
       // PDF/DOCX 格式需要登录
+      console.log('Token状态:', { token: token ? '存在' : '不存在', tokenLength: token?.length })
       if (!token) {
         throw new Error('PDF/DOCX 下载需要登录。您可以先下载 Markdown 格式，或登录后下载完整版本。')
       }
@@ -255,7 +256,8 @@ export default function BusinessPlanPage() {
       )
 
       if (!response.ok) {
-        throw new Error('下载失败')
+        const errorData = await response.json().catch(() => ({}))
+        throw new Error(errorData.error || '下载失败')
       }
 
       const blob = await response.blob()
