@@ -438,29 +438,17 @@ async function runResultPhase(sessionId: string) {
 // 生成AI回应 - 使用真实AI服务
 async function generateAIResponse(personaId: string, ideaContent: string, context: any): Promise<any> {
   try {
-    // 根据角色ID映射到对应的AI服务提供商
     const providerMap: Record<string, string> = {
-      'business-guru-beta': 'zhipu',     // 老王使用智谱
-      'tech-pioneer-alex': 'deepseek',      // 艾克斯使用deepseek
-      'innovation-mentor-charlie': 'zhipu',              // 小琳使用智谱
-      'market-insight-delta': 'qwen',         // 阿伦使用通义千问
-      'investment-advisor-ivan': 'deepseek'              // 李博使用deepseek
-    }
+      'business-guru-beta': 'zhipu',
+      'tech-pioneer-alex': 'deepseek',
+      'innovation-mentor-charlie': 'zhipu',
+      'market-insight-delta': 'qwen',
+      'investment-advisor-ivan': 'deepseek'
+    };
 
-    const provider = providerMap[personaId] || 'deepseek'
+    const provider = providerMap[personaId] || 'deepseek';
 
-    // 构建对话上下文
-    const dialogueContext = {
-      idea: ideaContent,
-      phase: context.phase,
-      round: context.round || 1,
-      previousMessages: context.context?.previousMessages || [],
-      currentBids: context.context?.currentBids || {},
-      sessionHistory: []
-    }
-
-    // 根据阶段构建不同的用户提示
-    let userPrompt = ''
+    let userPrompt = '';
 
     if (context.phase === 'warmup') {
       userPrompt = `现在是暖场阶段。请按照你的角色人设，简短介绍你自己，并对这个创意"${ideaContent}"给出第一印象。
@@ -468,24 +456,24 @@ async function generateAIResponse(personaId: string, ideaContent: string, contex
 1. 用你的特色口头禅开场
 2. 保持你的说话风格（如东北话、中英夹杂等）
 3. 简单点评创意（50-100字）
-4. 体现你的个性特点`
+4. 体现你的个性特点`;
     } else if (context.phase === 'discussion') {
-      const previousSpeakers = context.context?.previousMessages?.slice(-3).map((m: any) => m.personaId) || []
+      const previousSpeakers = context.context?.previousMessages?.slice(-3).map((m: any) => m.personaId) || [];
       userPrompt = `现在是深度讨论阶段第${context.round}轮。
 创意：${ideaContent}
 之前的发言者：${previousSpeakers.join(', ')}
 
 请从你的专业角度深入分析这个创意：
 1. 提出你最关心的1-2个问题
-2. 如果有你的"冲突对象"刚发言，要反驳他们
-3. 如果有你的"盟友"刚发言，可以支持他们
+2. 如果有你的“冲突对象”刚发言，要反驳他们
+3. 如果有你的“盟友”刚发言，可以支持他们
 4. 保持你的个性和说话风格
-5. 100-150字`
+5. 100-150字`;
     } else if (context.phase === 'bidding') {
       const otherBids = Object.entries(context.context?.currentBids || {})
         .filter(([id]) => id !== personaId)
         .map(([id, bid]) => `${id}: ${bid}分`)
-        .join(', ')
+        .join(', ');
 
       userPrompt = `现在是评估打分阶段第${context.round}轮。
 创意：${ideaContent}
@@ -496,31 +484,50 @@ async function generateAIResponse(personaId: string, ideaContent: string, contex
 2. 如果冲突对象给了高分，你可能会给低分
 3. 如果盟友给了某个分数，你可能会趋同
 4. 用你的个性化语言解释评分理由
-5. 格式："我给X分，因为..."（100字左右）`
+5. 格式：\"我给X分，因为...\" (100字左右)`;
     }
 
-    // 调用真实AI服务
+    const rawContext = context.context || {};
+    const previousMessages = Array.isArray(rawContext.previousMessages) ? rawContext.previousMessages : [];
+    const formattedHistory = previousMessages.map((message: any) => {
+      const persona = AI_PERSONAS.find(p => p.id === message.personaId);
+      const speakerName = persona?.name || message.personaName || message.personaId || '用户';
+      const content = typeof message.content === 'string' ? message.content : JSON.stringify(message.content);
+      return `${speakerName}: ${content}`;
+    });
+
+    const dialogueContext = {
+      userId: rawContext.userId || 'ai-bidding-system',
+      ideaContent: ideaContent,
+      phase: context.phase,
+      trigger: rawContext.trigger || '',
+      round: context.round || 1,
+      creativityScore: rawContext.creativityScore,
+      userFeedback: rawContext.userFeedback,
+      previousContext: formattedHistory,
+      currentBids: rawContext.currentBids || {},
+      customPrompt: userPrompt
+    };
+
     const response = await aiServiceManager.callSingleService({
       provider: provider as any,
       persona: personaId,
       context: dialogueContext,
       systemPrompt: getSystemPromptForPersona(personaId),
-      temperature: 0.8, // 提高一点温度让对话更生动
+      temperature: 0.8,
       maxTokens: 300
-    })
+    });
 
     return {
       content: response.content,
       confidence: response.confidence || 0.85,
       tokens_used: response.tokens_used || 100,
       cost: response.cost || 0.002
-    }
+    };
 
   } catch (error) {
-    console.error(`Error generating AI response for ${personaId}:`, error)
-
-    // 如果AI服务失败，使用增强版的备用响应
-    return generateFallbackResponse(personaId, ideaContent, context)
+    console.error(`Error generating AI response for ${personaId}:`, error);
+    return generateFallbackResponse(personaId, ideaContent, context);
   }
 }
 

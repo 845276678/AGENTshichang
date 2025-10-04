@@ -438,7 +438,12 @@ export class AIServiceManager {
   }
 
   private buildUserPrompt(context: any): string {
-    let prompt = `创意内容：${context.ideaContent}\n`;
+    if (context?.customPrompt) {
+      return context.customPrompt;
+    }
+
+    const ideaContent = context?.ideaContent || context?.idea || '';
+    let prompt = `创意内容：${ideaContent}\n`;
     prompt += `当前阶段：${context.phase}\n`;
 
     if (context.trigger) {

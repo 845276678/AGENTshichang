@@ -332,6 +332,8 @@ export interface DialogueContext {
   previousContext?: string[];
   creativityScore?: number;
   userFeedback?: string;
+  currentBids?: Record<string, number>;
+  customPrompt?: string;
 }
 
 // 对话响应接口
