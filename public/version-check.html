@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>前端版本验证</title>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .card {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 { color: #2563eb; margin-top: 0; }
+        .status { margin: 20px 0; padding: 15px; border-radius: 5px; }
+        .success { background: #d1fae5; border-left: 4px solid #10b981; }
+        .error { background: #fee2e2; border-left: 4px solid #ef4444; }
+        .info { background: #dbeafe; border-left: 4px solid #3b82f6; }
+        code {
+            background: #f3f4f6;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+        }
+        pre {
+            background: #1f2937;
+            color: #f9fafb;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+        button {
+            background: #2563eb;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+        button:hover { background: #1d4ed8; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1>🔍 前端代码版本验证</h1>
+
+        <div class="info">
+            <strong>检查目的：</strong> 验证 Zeabur 是否部署了最新的前端代码（commit bd7ed0e）
+        </div>
+
+        <div id="result" style="margin-top: 20px;">
+            <p>正在检查...</p>
+        </div>
+
+        <button onclick="runTest()">重新检查</button>
+    </div>
+
+    <script>
+        async function runTest() {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = '<p>正在检查...</p>';
+
+            try {
+                // 测试1: 检查 API 数据
+                const sessionId = 'cmgbuz0b5000c1o019x410pnd';
+                const apiResponse = await fetch(`/api/business-plan-session?sessionId=${sessionId}`);
+                const apiData = await apiResponse.json();
+
+                let html = '<h2>检查结果</h2>';
+
+                // API 状态
+                html += `<div class="status ${apiData.success ? 'success' : 'error'}">
+                    <strong>✓ API 状态：</strong> ${apiData.success ? '正常' : '异常'}<br>
+                    ${apiData.success ? '✓ API 返回了完整的商业计划数据' : '✗ API 返回错误'}
+                </div>`;
+
+                // 测试2: 检查前端是否能正确处理匿名访问
+                html += `<div class="status info">
+                    <strong>前端代码测试：</strong><br>
+                    <p>如果你能在<strong>未登录</strong>的情况下看到这个页面的商业计划内容，说明前端代码已更新。</p>
+                    <p>如果页面显示"需要登录"错误，说明前端代码<strong>仍是旧版本</strong>。</p>
+                </div>`;
+
+                // 测试链接
+                html += `<div class="status success">
+                    <strong>测试链接：</strong><br>
+                    <a href="/business-plan?sessionId=${sessionId}&source=ai-bidding" target="_blank" style="color: #2563eb; text-decoration: underline;">
+                        点击打开商业计划页面（新标签页）
+                    </a>
+                    <p style="margin-top: 10px; font-size: 14px; color: #6b7280;">
+                        在新标签页中：<br>
+                        • 如果显示完整商业计划内容 → ✓ 前端已更新<br>
+                        • 如果显示"需要登录"错误 → ✗ 前端仍是旧代码<br>
+                        • 如果显示加载中 → 刷新页面再试
+                    </p>
+                </div>`;
+
+                // API 数据预览
+                if (apiData.success && apiData.data?.report?.guide) {
+                    const guide = apiData.data.report.guide;
+                    html += `<div class="status info">
+                        <strong>API 返回的数据示例：</strong><br>
+                        <pre>${JSON.stringify({
+                            ideaTitle: guide.metadata?.ideaTitle || 'N/A',
+                            implementationTimeframe: guide.metadata?.implementationTimeframe || 'N/A',
+                            hasCurrentSituation: !!guide.currentSituation,
+                            hasMvpDefinition: !!guide.mvpDefinition,
+                            hasExecutionPlan: !!guide.executionPlan,
+                            hasBusinessExecution: !!guide.businessExecution
+                        }, null, 2)}</pre>
+                    </div>`;
+                }
+
+                // 部署信息
+                const healthResponse = await fetch('/api/health');
+                const healthData = await healthResponse.json();
+                html += `<div class="status info">
+                    <strong>部署信息：</strong><br>
+                    Git Commit: <code>${healthData.gitCommit || 'unknown'}</code><br>
+                    Build Time: <code>${healthData.buildTime || 'unknown'}</code><br>
+                    Environment: <code>${healthData.environment || 'unknown'}</code>
+                </div>`;
+
+                // 期望的 commit
+                html += `<div class="status ${healthData.gitCommit === 'bd7ed0e' || healthData.gitCommit?.startsWith('bd7ed0e') ? 'success' : 'error'}">
+                    <strong>期望的 Git Commit：</strong> <code>bd7ed0e</code> 或 <code>e43d7b5</code><br>
+                    <strong>实际的 Git Commit：</strong> <code>${healthData.gitCommit || 'unknown'}</code><br>
+                    ${healthData.gitCommit === 'unknown' ? '⚠️ 环境变量未设置，无法确认版本' : ''}
+                </div>`;
+
+                resultDiv.innerHTML = html;
+
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="status error">
+                    <strong>检查失败：</strong> ${error.message}
+                </div>`;
+            }
+        }
+
+        // 自动运行
+        runTest();
+    </script>
+</body>
+</html>
