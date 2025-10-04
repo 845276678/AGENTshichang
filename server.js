@@ -51,13 +51,11 @@ console.log('Validating environment configuration...');
 const validationResult = validateEnvironment();
 
 if (validationResult.errors.length > 0) {
-  console.error('
-❌ Environment validation errors:');
+  console.error('\\n❌ Environment validation errors:');
   validationResult.errors.forEach(err => console.error('  - ' + err));
 }
 if (validationResult.warnings.length > 0) {
-  console.warn('
-⚠️  Environment validation warnings:');
+  console.warn('\\n⚠️  Environment validation warnings:');
   validationResult.warnings.forEach(warn => console.warn('  - ' + warn));
 }
 if (validationResult.isValid) {
@@ -66,8 +64,7 @@ if (validationResult.isValid) {
 }
 
 if (!validationResult.isValid) {
-  console.error('
-❌ Environment validation failed. Please fix the errors above.');
+  console.error('\\n❌ Environment validation failed. Please fix the errors above.');
   process.exit(1);
 }
 
