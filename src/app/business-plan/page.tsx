@@ -347,7 +347,8 @@ export default function BusinessPlanPage() {
     }
   ]
 
-  if (!reportId) {
+  // 只有在既没有 reportId 也没有 sessionId 时才显示引导页
+  if (!reportId && !sessionId) {
     return (
       <Layout>
         <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-white">
