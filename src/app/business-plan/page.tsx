@@ -240,9 +240,27 @@ export default function BusinessPlanPage() {
         return
       }
 
-      // PDF/DOCX 格式需要登录
-      console.log('Token状态:', { token: token ? '存在' : '不存在', tokenLength: token?.length })
-      if (!token) {
+      // PDF/DOCX 格式需要登录 - 直接从localStorage获取token
+      let authToken = token
+      if (!authToken && typeof window !== 'undefined') {
+        try {
+          const stored = localStorage.getItem('auth_token') || localStorage.getItem('access_token')
+          if (stored) {
+            authToken = stored
+            console.log('从localStorage获取到token')
+          }
+        } catch (e) {
+          console.error('读取localStorage失败:', e)
+        }
+      }
+
+      console.log('Token状态:', {
+        fromHook: token ? '存在' : '不存在',
+        fromStorage: authToken ? '存在' : '不存在',
+        tokenLength: authToken?.length
+      })
+
+      if (!authToken) {
         throw new Error('PDF/DOCX 下载需要登录。您可以先下载 Markdown 格式，或登录后下载完整版本。')
       }
 
@@ -250,13 +268,14 @@ export default function BusinessPlanPage() {
         `/api/documents/download?${sessionId ? `sessionId=${sessionId}` : `reportId=${reportId}`}&format=${format}&type=guide`,
         {
           headers: {
-            Authorization: `Bearer ${token}`
+            Authorization: `Bearer ${authToken}`
           }
         }
       )
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}))
+        console.error('API错误:', errorData)
         throw new Error(errorData.error || '下载失败')
       }
 
