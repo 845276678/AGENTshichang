@@ -22,13 +22,20 @@ console.log('Port: ' + port);
 console.log('Hostname: ' + hostname);
 // Comprehensive startup validation
 console.log('Running startup checks...');
-// ?
-const requiredEnvs = ['DATABASE_URL', 'JWT_SECRET'];
-const missingEnvs = requiredEnvs.filter(env => !process.env[env]);
-if (missingEnvs.length > 0) {
-  console.error('Missing required environment variables:', missingEnvs);
+
+// 使用完整的环境变量验证
+const { validateEnvironment, printValidationResults } = require('./src/lib/validate-env');
+
+console.log('Validating environment configuration...');
+const validationResult = validateEnvironment();
+printValidationResults(validationResult);
+
+if (!validationResult.isValid) {
+  console.error('❌ Environment validation failed. Please fix the issues above.');
   process.exit(1);
 }
+
+console.log('✅ Environment validation passed');
 // ext.js
 const fs = require('fs');
 const path = require('path');
@@ -1046,6 +1053,17 @@ app.prepare().then(() => {
       console.log(` Fallback mode - AI agents will use simulated responses`);
     }
     console.log(` Health check: http://${hostname}:${port}/api/health`);
+
+    // 启动会话自动清理任务
+    try {
+      // 尝试加载清理任务（TypeScript可能需要编译）
+      const { startSessionCleanupTask } = require('./src/lib/session-cleanup.ts');
+      startSessionCleanupTask();
+      console.log('🧹 Session cleanup task started');
+    } catch (error) {
+      console.warn('⚠️ Failed to start session cleanup task:', error.message);
+      console.warn('   Session cleanup will not run automatically');
+    }
   });
   // 
   process.on('SIGTERM', () => {

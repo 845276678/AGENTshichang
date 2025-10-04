@@ -26,7 +26,7 @@ export async function exportBusinessPlanGuide(
       const { renderGuidePdf } = await import('./exporters/pdf')
       const binary = await renderGuidePdf(guide)
       return {
-        data: binary instanceof Uint8Array ? binary : new Uint8Array(binary),
+        data: binary,
         contentType: 'application/pdf',
         fileExtension: 'pdf'
       }

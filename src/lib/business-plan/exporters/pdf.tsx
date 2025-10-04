@@ -74,7 +74,7 @@ const renderKeyValue = (label: string, value?: string) => {
   )
 }
 
-export async function renderGuidePdf(guide: BusinessPlanGuide): Promise<Buffer> {
+export async function renderGuidePdf(guide: BusinessPlanGuide): Promise<Uint8Array> {
   const generatedAt = guide.metadata?.generatedAt ? new Date(guide.metadata.generatedAt) : new Date()
   const document = (
     <Document>

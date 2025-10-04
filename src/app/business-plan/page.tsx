@@ -28,6 +28,7 @@ import {
 import LandingCoachDisplay from '@/components/business-plan/LandingCoachDisplay'
 import { transformReportToGuide, generateGuideMarkdown, validateReportForGuide } from '@/lib/utils/transformReportToGuide'
 import type { LandingCoachGuide } from '@/lib/utils/transformReportToGuide'
+import { useAuth } from '@/hooks/useAuth'
 
 interface LoadingState {
   isLoading: boolean
@@ -37,7 +38,7 @@ interface LoadingState {
 
 export default function BusinessPlanPage() {
   const router = useRouter()
-  const searchParams = useSearchParams()
+  const searchParams = useSearchParams()\r\n  const { token, isInitialized } = useAuth()
 
   // 支持新的会话ID参数和旧的报告参数
   const sessionId = searchParams.get('sessionId')
@@ -58,8 +59,7 @@ export default function BusinessPlanPage() {
   const displayIdeaTitle = guide?.metadata?.ideaTitle || ideaTitle || ''
 
   // 新增：从会话加载数据的函数
-  const loadSessionData = async (sessionId: string) => {
-    try {
+  const loadSessionData = async (sessionId: string) => {\r\n    if (!token) {\r\n      setError('访问该商业计划需要登录，请先登录后重试。')\r\n      setLoadingState({\r\n        isLoading: false,\r\n        progress: 0,\r\n        stage: '等待登录'\r\n      })\r\n      return\r\n    }\r\n\r\n    try {
       setError(null)
       setGuide(null)
 
@@ -106,8 +106,7 @@ export default function BusinessPlanPage() {
     }
   }
 
-  const loadReportData = async (targetReportId: string) => {
-    try {
+  const loadReportData = async (targetReportId: string) => {\r\n    if (!token) {\r\n      setError('访问该商业计划需要登录，请先登录后重试。')\r\n      setLoadingState({\r\n        isLoading: false,\r\n        progress: 0,\r\n        stage: '等待登录'\r\n      })\r\n      return\r\n    }\r\n\r\n    try {
       setError(null)
       setGuide(null)
 
@@ -149,12 +148,7 @@ export default function BusinessPlanPage() {
   }
 
   useEffect(() => {
-    if (sessionId) {
-      void loadSessionData(sessionId)
-      return
-    }
-
-    if (!reportId) {
+    if (!sessionId && !reportId) {
       setGuide(null)
       setError(null)
       setLoadingState({
@@ -165,8 +159,30 @@ export default function BusinessPlanPage() {
       return
     }
 
-    void loadReportData(reportId)
-  }, [sessionId, reportId])
+    if (!isInitialized) {
+      return
+    }
+
+    if (!token) {
+      setGuide(null)
+      setLoadingState({
+        isLoading: false,
+        progress: 0,
+        stage: '等待登录'
+      })
+      setError('访问该商业计划需要登录，请先登录后重试。')
+      return
+    }
+
+    if (sessionId) {
+      void loadSessionData(sessionId)
+      return
+    }
+
+    if (reportId) {
+      void loadReportData(reportId)
+    }
+  }, [sessionId, reportId, token, isInitialized])
 
   const handleDownload = async (format: 'pdf' | 'docx' | 'markdown') => {
     if (!guide || (!reportId && !sessionId)) return
@@ -186,7 +202,19 @@ export default function BusinessPlanPage() {
         return
       }
 
-      const response = await fetch(`/api/documents/download?reportId=${sessionId || reportId}&format=${format}&type=guide`)
+      if (!token) {
+        throw new Error('下载商业计划前需要登录，请先登录。')
+      }
+
+      const response = await fetch(
+        `/api/documents/download?reportId=${sessionId || reportId}&format=${format}&type=guide`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }
+      )
+
       if (!response.ok) {
         throw new Error('下载失败')
       }
@@ -200,6 +228,13 @@ export default function BusinessPlanPage() {
       link.click()
       document.body.removeChild(link)
       URL.revokeObjectURL(url)
+    } catch (downloadError) {
+      console.error('下载失败:', downloadError)
+      alert('下载失败，请稍后重试')
+    }
+  }
+
+
     } catch (downloadError) {
       console.error('下载失败:', downloadError)
       alert('下载失败，请稍后重试')
@@ -610,3 +645,19 @@ export default function BusinessPlanPage() {
 
   return null
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

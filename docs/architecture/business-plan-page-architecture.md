@@ -119,7 +119,7 @@ sequenceDiagram
 - 日志与追踪：日志需包含 `sessionId`、`reportId`、脱敏后 `userId`；建议对 Prisma 调用与 `composeBusinessPlanGuide` 链路进行追踪。
 
 ## 导出与分享
-- **导出形态**：前端 `LandingCoachDisplay` 默认提供 Markdown 导出能力；若集成 `GET /api/business-plan-report/:id/export` 接口，可扩展 PDF（@react-pdf/renderer / Puppeteer）等格式。
+- **导出形态**：前端 `LandingCoachDisplay` 通过 `GET /api/business-plan-report/:id/export` 提供 Markdown 导出能力，并可按 `?format=pdf` 扩展 PDF（@react-pdf/renderer / Puppeteer）。
 - **下载流程**：用户点击导出 → 前端调用导出 API → 后端读取 `BusinessPlanReport.guide` 结构化数据 → 按所选模板生成目标格式 → 记录 `BusinessPlanAudit` 中的下载事件。
 - **转发/分享**：页面顶部提供分享链接或复制链接，支持携带 `sessionId`/`reportId` 参数进行查看；若启用外部分享需结合鉴权与过期策略。
 - **权限控制**：仅会话创建者或被授权用户可导出；API 校验用户身份与积分状态，避免非法下载。
@@ -134,3 +134,4 @@ sequenceDiagram
 - 部署前确保数据库迁移（含 `creditTransaction`、`BusinessPlan*` 表）已执行。
 - 若引入外部 LLM，需要考虑费用、超时、重试与缓存策略。
 - 默认支持 Markdown 与 PDF 导出，如需 Slides 仍需集成额外渲染服务。
+

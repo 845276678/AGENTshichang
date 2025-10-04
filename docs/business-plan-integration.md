@@ -76,6 +76,7 @@
    - `GET /api/business-plan-report/:id/export` 需鉴权，确保请求用户与报告归属。
    - 默认输出 Markdown；通过 `?format=pdf` 可生成 PDF，成功后写入 `BusinessPlanAudit`（action=`REPORT_EXPORTED`）。
    - PDF 渲染基于 `@react-pdf/renderer`，接口已设置 `dynamic = "force-dynamic"` 以兼容 serverless 渲染。
+   - 导出响应设置 `Content-Disposition` 附带规范化文件名，缓存策略使用 `Cache-Control: no-store`。
 
 
 ### 3. practical-stage-generator 整合
@@ -125,5 +126,4 @@
 ---
 
 该方案整合了现有五大核心模块与 90 天实战/正反馈内容，同时覆盖后端持久化、AI 调度、前端展示和运维要求，可作为后续开发基线。请审阅后指示下一步。
-
 

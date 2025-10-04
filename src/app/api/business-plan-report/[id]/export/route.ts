@@ -1,5 +1,4 @@
-﻿import { Buffer } from 'node:buffer'
-import { NextRequest, NextResponse } from "next/server"
+﻿import { NextRequest, NextResponse } from "next/server"
 import { authenticateRequest, handleApiError } from "@/lib/auth"
 import { BusinessPlanSessionService } from "@/lib/business-plan/session-service"
 import { exportBusinessPlanGuide, type BusinessPlanExportFormat } from "@/lib/business-plan/exporter"
@@ -64,7 +63,7 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
       return NextResponse.json({ success: false, error: "Forbidden" }, { status: 403 })
     }
 
-    const guide = ensureGuideMetadata(report.guide as BusinessPlanGuide)
+    const guide = ensureGuideMetadata(report.guide as unknown as BusinessPlanGuide)
     const exportResult = await exportBusinessPlanGuide(guide, format)
 
     await BusinessPlanSessionService.recordAudit({
@@ -84,13 +83,12 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
     const body =
       typeof exportResult.data === "string"
         ? exportResult.data
-        : Buffer.isBuffer(exportResult.data)
-          ? exportResult.data
-          : Buffer.from(exportResult.data)
+        : new Uint8Array(exportResult.data)
 
     return new NextResponse(body, { status: 200, headers })
   } catch (error) {
     return handleApiError(error)
   }
 }
+
 

@@ -1,0 +1,93 @@
+﻿diff --git a/src/app/business-plan/page.tsx b/src/app/business-plan/page.tsx
+index d6ec264..c97ff52 100644
+--- a/src/app/business-plan/page.tsx
++++ b/src/app/business-plan/page.tsx
+@@
+-import React, { useState, useEffect } from 'react'
+-import { useRouter, useSearchParams } from 'next/navigation'
+-import { motion } from 'framer-motion'
++import React, { useState, useEffect } from 'react'
++import { useRouter, useSearchParams } from 'next/navigation'
++import { motion } from 'framer-motion'
+@@
+-import LandingCoachDisplay from '@/components/business-plan/LandingCoachDisplay'
+-import { transformReportToGuide, generateGuideMarkdown, validateReportForGuide } from '@/lib/utils/transformReportToGuide'
+-import type { LandingCoachGuide } from '@/lib/utils/transformReportToGuide'
++import LandingCoachDisplay from '@/components/business-plan/LandingCoachDisplay'
++import { transformReportToGuide, generateGuideMarkdown, validateReportForGuide } from '@/lib/utils/transformReportToGuide'
++import type { LandingCoachGuide } from '@/lib/utils/transformReportToGuide'
++import { useAuth } from '@/hooks/useAuth'
+@@
+-export default function BusinessPlanPage() {
+-  const router = useRouter()
+-  const searchParams = useSearchParams()
++export default function BusinessPlanPage() {
++  const router = useRouter()
++  const searchParams = useSearchParams()
++  const { token } = useAuth()
+@@
+-  const loadSessionData = async (sessionId: string) => {
++  const loadSessionData = async (sessionId: string) => {
++    if (!token) {
++      setError('访问该商业计划需要登录，请先登录后重试。')
++      setLoadingState({
++        isLoading: false,
++        progress: 0,
++        stage: '等待登录'
++      })
++      return
++    }
++
+     try {
+       setError(null)
+       setGuide(null)
+@@
+-      const response = await fetch(`/api/business-plan-session?sessionId=${sessionId}`, {
+-        cache: 'no-store'
+-      })
++      const response = await fetch(`/api/business-plan-session?sessionId=${sessionId}`, {
++        cache: 'no-store',
++        headers: {
++          Authorization: `Bearer ${token}`
++        }
++      })
+@@
+-  const loadReportData = async (targetReportId: string) => {
++  const loadReportData = async (targetReportId: string) => {
++    if (!token) {
++      setError('访问该商业计划需要登录，请先登录后重试。')
++      setLoadingState({
++        isLoading: false,
++        progress: 0,
++        stage: '等待登录'
++      })
++      return
++    }
++
+     try {
+       setError(null)
+       setGuide(null)
+@@
+-      const response = await fetch(`/api/business-plan-session?reportId=${targetReportId}`, {
+-        cache: 'no-store'
+-      })
++      const response = await fetch(`/api/business-plan-session?reportId=${targetReportId}`, {
++        cache: 'no-store',
++        headers: {
++          Authorization: `Bearer ${token}`
++        }
++      })
+@@
+-      const response = await fetch(`/api/documents/download?reportId=${sessionId || reportId}&format=${format}&type=guide`)
++      if (!token) {
++        throw new Error('下载商业计划前需要登录，请先登录。')
++      }
++
++      const response = await fetch(`/api/documents/download?reportId=${sessionId || reportId}&format=${format}&type=guide`, {
++        headers: {
++          Authorization: `Bearer ${token}`
++        }
++      })
+@@
+-                无法载入创意落地指南
++                无法载入创意落地指南

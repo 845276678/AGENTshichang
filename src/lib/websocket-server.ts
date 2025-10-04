@@ -4,9 +4,30 @@
 import { WebSocket } from 'ws';
 import { AI_PERSONAS, PHASE_STRATEGIES } from './ai-persona-system';
 import { AIServiceManager, SYSTEM_PROMPTS } from './ai-service-manager';
+import { persistSession, completeSession, failSession, recoverActiveSessions } from './session-persistence';
 
 // 初始化AI服务管理器
 const aiServiceManager = new AIServiceManager();
+
+// 定期持久化会话到数据库（每30秒）
+setInterval(() => {
+  activeSessions.forEach((session) => {
+    void persistSession({
+      ideaId: session.ideaId,
+      userId: undefined, // WebSocket层面没有userId，需要从API层传入
+      currentPhase: session.currentPhase,
+      startTime: session.startTime,
+      phaseStartTime: session.phaseStartTime,
+      timeRemaining: session.timeRemaining,
+      currentBids: session.currentBids,
+      highestBid: session.highestBid,
+      messages: session.messages,
+      cost: session.cost,
+      participantCount: session.participants.size,
+      viewerCount: session.clients.size
+    });
+  });
+}, 30000);
 
 // 生产环境会话数据存储
 interface BiddingSession {
@@ -47,6 +68,22 @@ function getOrCreateSession(ideaId: string): BiddingSession {
 
     activeSessions.set(ideaId, session);
     startSessionTimer(session);
+
+    // 立即持久化新会话到数据库
+    void persistSession({
+      ideaId: session.ideaId,
+      userId: undefined,
+      currentPhase: session.currentPhase,
+      startTime: session.startTime,
+      phaseStartTime: session.phaseStartTime,
+      timeRemaining: session.timeRemaining,
+      currentBids: session.currentBids,
+      highestBid: session.highestBid,
+      messages: session.messages,
+      cost: session.cost,
+      participantCount: 0,
+      viewerCount: 0
+    });
   }
 
   return activeSessions.get(ideaId)!;
@@ -373,16 +410,21 @@ function broadcastToSession(session: BiddingSession, message: any) {
 
 // 结束会话
 function endSession(session: BiddingSession) {
+  const winner = findWinner(session);
+
   // 发送结果消息
   broadcastToSession(session, {
     type: 'stage.ended',
     payload: {
       finalPrice: session.highestBid,
-      winner: findWinner(session),
+      winner,
       totalCost: session.cost,
       timestamp: Date.now()
     }
   });
+
+  // 持久化会话完成状态到数据库
+  void completeSession(session.ideaId, winner, session.highestBid);
 
   // 清理会话数据
   setTimeout(() => {
