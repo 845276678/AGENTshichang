@@ -769,153 +769,236 @@ export function generateGuideMarkdown(guide: LandingCoachGuide): string {
     return `${Math.round(percent)}%`
   }
 
-  lines.push(`# ${guide.metadata.ideaTitle} - 落地教练指南`)
-  lines.push(`生成时间: ${new Date(guide.metadata.generatedAt).toLocaleString()}`)
-  lines.push(`执行周期: ${guide.metadata.implementationTimeframe}`)
-  lines.push(`可信度: ${formatPercent(guide.metadata.confidenceLevel)}`)
+  // 标题和元信息
+  lines.push(`# 💡 ${guide.metadata.ideaTitle} - 90天落地指南`)
+  lines.push('')
+  lines.push(`> 📅 生成时间: ${new Date(guide.metadata.generatedAt).toLocaleString('zh-CN')}`)
+  lines.push(`> ⏱️ 预计执行周期: ${guide.metadata.implementationTimeframe}`)
+  lines.push(`> 🎯 可信度评分: ${formatPercent(guide.metadata.confidenceLevel)}`)
   if (guide.metadata.winner) {
-    lines.push(`获胜专家: ${guide.metadata.winner}`)
+    lines.push(`> 🏆 获胜专家: ${guide.metadata.winner}`)
   }
   if (typeof guide.metadata.winningBid === 'number') {
-    lines.push(`获胜出价: ${guide.metadata.winningBid}`)
+    lines.push(`> 💰 最高出价: ¥${guide.metadata.winningBid}`)
   }
   lines.push('')
+  lines.push('---')
+  lines.push('')
 
-  lines.push('## 1. 当前形势与校准')
-  lines.push(`**概述:** ${guide.currentSituation.summary}`)
+  // 第一部分：当前形势
+  lines.push('## 🔍 先聊聊大环境和机会')
+  lines.push('')
+  lines.push(`**一句话总结：** ${guide.currentSituation.summary}`)
+  lines.push('')
   if (guide.currentSituation.keyInsights.length) {
-    lines.push('**关键洞察:**')
+    lines.push('### 💭 关键洞察')
     guide.currentSituation.keyInsights.forEach(item => lines.push(`- ${item}`))
+    lines.push('')
   }
-  lines.push('**市场现状:**')
-  lines.push(`- 市场规模: ${guide.currentSituation.marketReality.marketSize}`)
-  lines.push(`- 竞争格局: ${guide.currentSituation.marketReality.competition}`)
+
+  lines.push('### 📊 市场现状')
+  lines.push(`**市场规模：** ${guide.currentSituation.marketReality.marketSize}`)
+  lines.push('')
+  lines.push(`**竞争格局：** ${guide.currentSituation.marketReality.competition}`)
+  lines.push('')
   if (guide.currentSituation.marketReality.opportunities.length) {
-    lines.push('  机遇:')
+    lines.push('**机会在哪？**')
+    guide.currentSituation.marketReality.opportunities.forEach(item => lines.push(`- ✅ ${item}`))
+    lines.push('')
   }
-  guide.currentSituation.marketReality.opportunities.forEach(item => lines.push(`  - ${item}`))
   if (guide.currentSituation.marketReality.challenges.length) {
-    lines.push('  挑战:')
+    lines.push('**可能遇到的坑：**')
+    guide.currentSituation.marketReality.challenges.forEach(item => lines.push(`- ⚠️ ${item}`))
+    lines.push('')
   }
-  guide.currentSituation.marketReality.challenges.forEach(item => lines.push(`  - ${item}`))
-  lines.push(`**目标用户:** ${guide.currentSituation.userNeeds.targetUsers}`)
+
+  lines.push('### 👥 目标用户画像')
+  lines.push(`${guide.currentSituation.userNeeds.targetUsers}`)
+  lines.push('')
   if (guide.currentSituation.userNeeds.painPoints.length) {
-    lines.push('  痛点:')
-    guide.currentSituation.userNeeds.painPoints.forEach(item => lines.push(`  - ${item}`))
+    lines.push('**他们的痛点：**')
+    guide.currentSituation.userNeeds.painPoints.forEach(item => lines.push(`- 😫 ${item}`))
+    lines.push('')
   }
   if (guide.currentSituation.userNeeds.solutions.length) {
-    lines.push('  建议方案:')
-    guide.currentSituation.userNeeds.solutions.forEach(item => lines.push(`  - ${item}`))
+    lines.push('**咱们的解决方案：**')
+    guide.currentSituation.userNeeds.solutions.forEach(item => lines.push(`- 💊 ${item}`))
+    lines.push('')
   }
+
   if (guide.currentSituation.actionItems.length) {
-    lines.push('**立即行动:**')
+    lines.push('### ✅ 立即行动清单')
     guide.currentSituation.actionItems.forEach((item, idx) => lines.push(`${idx + 1}. ${item}`))
+    lines.push('')
   }
+  lines.push('---')
   lines.push('')
 
-  lines.push('## 2. MVP定义与验证')
-  lines.push(`**产品重点:** ${guide.mvpDefinition.productConcept.uniqueValue}`)
+  // 第二部分：MVP定义
+  lines.push('## 🚀 第一步：做个能用的MVP')
+  lines.push('')
+  lines.push(`**核心价值：** ${guide.mvpDefinition.productConcept.uniqueValue}`)
+  lines.push('')
   if (guide.mvpDefinition.productConcept.coreFeatures.length) {
-    lines.push('**核心功能:**')
-    guide.mvpDefinition.productConcept.coreFeatures.forEach(item => lines.push(`- ${item}`))
+    lines.push('### 🎯 核心功能（就做这几个）')
+    guide.mvpDefinition.productConcept.coreFeatures.forEach((item, idx) => lines.push(`${idx + 1}. ${item}`))
+    lines.push('')
   }
-  lines.push(`**最小范围:** ${guide.mvpDefinition.productConcept.minimumScope}`)
+  lines.push(`**MVP范围控制：** ${guide.mvpDefinition.productConcept.minimumScope}`)
+  lines.push('')
+
   if (guide.mvpDefinition.developmentPlan.phases.length) {
-    lines.push('**开发计划:**')
-    guide.mvpDefinition.developmentPlan.phases.forEach(phase => {
-      lines.push(`- ${phase.name} (${phase.duration})`)
-      lines.push(`  交付成果: ${phase.deliverables.join(', ')}`)
+    lines.push('### 📅 开发计划（分阶段搞）')
+    guide.mvpDefinition.developmentPlan.phases.forEach((phase, idx) => {
+      lines.push(`**${idx + 1}. ${phase.name}** ⏰ *${phase.duration}*`)
+      lines.push(`- 交付成果：${phase.deliverables.join('、')}`)
       if (phase.resources.length) {
-        lines.push(`  资源: ${phase.resources.join(', ')}`)
+        lines.push(`- 需要谁：${phase.resources.join('、')}`)
       }
+      lines.push('')
     })
   }
-  lines.push(`**技术栈:** ${guide.mvpDefinition.developmentPlan.techStack.join(', ')}`)
-  lines.push(`**预估成本:** ${guide.mvpDefinition.developmentPlan.estimatedCost}`)
+
+  lines.push(`**🛠 技术栈：** ${guide.mvpDefinition.developmentPlan.techStack.join(' + ')}`)
+  lines.push('')
+  lines.push(`**💰 预估成本：** ${guide.mvpDefinition.developmentPlan.estimatedCost}`)
+  lines.push('')
+
   if (guide.mvpDefinition.validationStrategy.hypotheses.length) {
-    lines.push('**验证假设:**')
-    guide.mvpDefinition.validationStrategy.hypotheses.forEach(item => lines.push(`- ${item}`))
+    lines.push('### 🧪 要验证的假设')
+    guide.mvpDefinition.validationStrategy.hypotheses.forEach((item, idx) => lines.push(`${idx + 1}. ${item}`))
+    lines.push('')
   }
+
   if (guide.mvpDefinition.validationStrategy.experiments.length) {
-    lines.push('**实验方案:**')
+    lines.push('### 🔬 验证方法')
     guide.mvpDefinition.validationStrategy.experiments.forEach(item => lines.push(`- ${item}`))
+    lines.push('')
   }
+
   if (guide.mvpDefinition.validationStrategy.successMetrics.length) {
-    lines.push('**成功指标:**')
-    guide.mvpDefinition.validationStrategy.successMetrics.forEach(item => lines.push(`- ${item}`))
+    lines.push('### 📈 成功指标（达到这些就算成功）')
+    guide.mvpDefinition.validationStrategy.successMetrics.forEach(item => lines.push(`- ✓ ${item}`))
+    lines.push('')
   }
-  lines.push(`**验证时间线:** ${guide.mvpDefinition.validationStrategy.timeline}`)
+
+  lines.push(`**⏰ 验证时间线：** ${guide.mvpDefinition.validationStrategy.timeline}`)
+  lines.push('')
+
   if (guide.mvpDefinition.actionItems.length) {
-    lines.push('**近期行动:**')
+    lines.push('### ✅ 近期行动')
     guide.mvpDefinition.actionItems.forEach((item, idx) => lines.push(`${idx + 1}. ${item}`))
+    lines.push('')
   }
+  lines.push('---')
   lines.push('')
 
-  lines.push('## 3. 商业模式与运营')
-  lines.push('**商业模式:**')
-  lines.push(`- 收入来源: ${guide.businessExecution.businessModel.revenueStreams.join(', ')}`)
-  lines.push(`- 成本结构: ${guide.businessExecution.businessModel.costStructure.join(', ')}`)
-  lines.push(`- 定价策略: ${guide.businessExecution.businessModel.pricingStrategy}`)
-  lines.push(`- 可扩展性: ${guide.businessExecution.businessModel.scalability}`)
+  // 第三部分：商业模式
+  lines.push('## 💰 怎么赚钱')
+  lines.push('')
+  lines.push('### 💵 商业模式')
+  lines.push(`**收入来源：** ${guide.businessExecution.businessModel.revenueStreams.join('、')}`)
+  lines.push('')
+  lines.push(`**成本结构：** ${guide.businessExecution.businessModel.costStructure.join('、')}`)
+  lines.push('')
+  lines.push(`**定价策略：** ${guide.businessExecution.businessModel.pricingStrategy}`)
+  lines.push('')
+  lines.push(`**规模化：** ${guide.businessExecution.businessModel.scalability}`)
+  lines.push('')
+
   if (guide.businessExecution.launchStrategy.phases.length) {
-    lines.push('**发布计划:**')
-    guide.businessExecution.launchStrategy.phases.forEach(phase => {
-      lines.push(`- ${phase.name} (${phase.timeline})`)
-      lines.push(`  目标: ${phase.goals.join(', ')}`)
+    lines.push('### 📢 发布策略（三步走）')
+    guide.businessExecution.launchStrategy.phases.forEach((phase, idx) => {
+      lines.push(`**${idx + 1}. ${phase.name}** ⏰ *${phase.timeline}*`)
+      lines.push(`- 目标：${phase.goals.join('、')}`)
       if (phase.tactics.length) {
-        lines.push(`  策略: ${phase.tactics.join(', ')}`)
+        lines.push(`- 怎么做：${phase.tactics.join('、')}`)
       }
+      lines.push('')
     })
   }
-  lines.push(`- 营销渠道: ${guide.businessExecution.launchStrategy.marketingChannels.join(', ')}`)
-  lines.push(`- 预算分配: ${guide.businessExecution.launchStrategy.budgetAllocation.join(', ')}`)
-  lines.push('**运营:**')
-  lines.push(`- 团队结构: ${guide.businessExecution.operationalPlan.teamStructure.join(', ')}`)
-  lines.push(`- 流程: ${guide.businessExecution.operationalPlan.processes.join(', ')}`)
-  lines.push(`- 基础设施: ${guide.businessExecution.operationalPlan.infrastructure.join(', ')}`)
-  lines.push(`- 风险管理: ${guide.businessExecution.operationalPlan.riskManagement.join(', ')}`)
-  if (guide.businessExecution.actionItems.length) {
-    lines.push('**运营优先事项:**')
-    guide.businessExecution.actionItems.forEach((item, idx) => lines.push(`${idx + 1}. ${item}`))
-  }
+
+  lines.push(`**🎯 营销渠道：** ${guide.businessExecution.launchStrategy.marketingChannels.join('、')}`)
+  lines.push('')
+  lines.push(`**💸 预算分配：** ${guide.businessExecution.launchStrategy.budgetAllocation.join('、')}`)
   lines.push('')
 
+  lines.push('### ⚙️ 运营怎么搞')
+  lines.push(`**团队配置：** ${guide.businessExecution.operationalPlan.teamStructure.join('、')}`)
+  lines.push('')
+  lines.push(`**工作流程：** ${guide.businessExecution.operationalPlan.processes.join('、')}`)
+  lines.push('')
+  lines.push(`**基础设施：** ${guide.businessExecution.operationalPlan.infrastructure.join('、')}`)
+  lines.push('')
+  lines.push(`**风险管理：** ${guide.businessExecution.operationalPlan.riskManagement.join('、')}`)
+  lines.push('')
+
+  if (guide.businessExecution.actionItems.length) {
+    lines.push('### ✅ 运营优先级')
+    guide.businessExecution.actionItems.forEach((item, idx) => lines.push(`${idx + 1}. ${item}`))
+    lines.push('')
+  }
+  lines.push('---')
+  lines.push('')
+
+  // 第四部分：90天执行计划
   if (guide.executionPlan) {
-    lines.push('## 4. 90天执行计划')
-    lines.push(`**使命:** ${guide.executionPlan.mission}`)
-    lines.push(`**总结:** ${guide.executionPlan.summary}`)
-    lines.push('### 阶段')
-    guide.executionPlan.phases.forEach(phase => {
-      lines.push(`- ${phase.name} (${phase.timeline})`)
-      lines.push(`  重点: ${phase.focus}`)
-      lines.push(`  关键成果: ${phase.keyOutcomes.join(', ')}`)
-      lines.push(`  指标: ${phase.metrics.join(', ')}`)
+    lines.push('## 📋 90天执行计划（具体到周）')
+    lines.push('')
+    lines.push(`**🎯 核心使命：** ${guide.executionPlan.mission}`)
+    lines.push('')
+    lines.push(`**📝 计划总览：** ${guide.executionPlan.summary}`)
+    lines.push('')
+
+    lines.push('### 🗓 三个阶段')
+    guide.executionPlan.phases.forEach((phase, idx) => {
+      lines.push(`**${idx + 1}. ${phase.name}** ⏰ *${phase.timeline}*`)
+      lines.push(`- 重点：${phase.focus}`)
+      lines.push(`- 关键成果：${phase.keyOutcomes.join('、')}`)
+      lines.push(`- 指标：${phase.metrics.join('、')}`)
+      lines.push('')
     })
-    lines.push('### 每周冲刺')
-    guide.executionPlan.weeklySprints.forEach(sprint => {
-      lines.push(`- ${sprint.name}`)
-      lines.push(`  重点: ${sprint.focus}`)
-      lines.push(`  目标: ${sprint.objectives.join(', ')}`)
-      lines.push(`  反馈钩子: ${sprint.feedbackHooks.join(', ')}`)
+
+    lines.push('### 📆 每周冲刺')
+    guide.executionPlan.weeklySprints.forEach((sprint, idx) => {
+      lines.push(`**${sprint.name}**`)
+      lines.push(`- 重点：${sprint.focus}`)
+      lines.push(`- 目标：${sprint.objectives.join('、')}`)
+      lines.push(`- 反馈机制：${sprint.feedbackHooks.join('、')}`)
+      lines.push('')
     })
-    lines.push('### 反馈循环')
-    lines.push(`- 节奏: ${guide.executionPlan.feedbackLoop.cadence.join(', ')}`)
-    lines.push(`- 渠道: ${guide.executionPlan.feedbackLoop.channels.join(', ')}`)
-    lines.push(`- 决策关卡: ${guide.executionPlan.feedbackLoop.decisionGates.join(', ')}`)
-    lines.push(`- 工具: ${guide.executionPlan.feedbackLoop.tooling.join(', ')}`)
-    lines.push('### 日常例行')
-    guide.executionPlan.dailyRoutines.forEach(item => lines.push(`- ${item}`))
-    lines.push('### 审查与指标')
-    lines.push(`- 每周审查: ${guide.executionPlan.reviewFramework.weekly.join(', ')}`)
-    lines.push(`- 月度校准: ${guide.executionPlan.reviewFramework.monthly.join(', ')}`)
-    lines.push(`- 关注指标: ${guide.executionPlan.reviewFramework.dataWatch.join(', ')}`)
+
+    lines.push('### 🔄 反馈循环')
+    lines.push(`**节奏：** ${guide.executionPlan.feedbackLoop.cadence.join('；')}`)
+    lines.push('')
+    lines.push(`**渠道：** ${guide.executionPlan.feedbackLoop.channels.join('；')}`)
+    lines.push('')
+    lines.push(`**决策点：** ${guide.executionPlan.feedbackLoop.decisionGates.join('；')}`)
+    lines.push('')
+    lines.push(`**工具：** ${guide.executionPlan.feedbackLoop.tooling.join('、')}`)
+    lines.push('')
+
+    lines.push('### ⏰ 每天要做的')
+    guide.executionPlan.dailyRoutines.forEach((item, idx) => lines.push(`${idx + 1}. ${item}`))
+    lines.push('')
+
+    lines.push('### 📊 定期复盘')
+    lines.push('**每周复盘：**')
+    guide.executionPlan.reviewFramework.weekly.forEach(item => lines.push(`- ${item}`))
+    lines.push('')
+    lines.push('**每月复盘：**')
+    guide.executionPlan.reviewFramework.monthly.forEach(item => lines.push(`- ${item}`))
+    lines.push('')
+    lines.push('**关注这些数据：**')
+    guide.executionPlan.reviewFramework.dataWatch.forEach(item => lines.push(`- 📈 ${item}`))
     lines.push('')
   }
 
   lines.push('---')
-  lines.push(
-    '注意：由落地教练AI生成。在做出重大投资之前，请根据您的背景进行调整并通过客户反馈和数据进行验证。'
-  )
+  lines.push('')
+  lines.push('> 💬 **温馨提示：** 这份计划是AI根据竞价讨论生成的，建议结合你的实际情况调整。记住，最重要的是快速验证、快速调整，别闷头苦干三个月才发现方向错了。有问题随时跟用户聊，用数据说话！')
+  lines.push('')
+  lines.push('*📝 由AI商业计划助手生成*')
 
   return lines.join('\n')
 }
