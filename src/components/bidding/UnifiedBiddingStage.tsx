@@ -181,46 +181,50 @@ export default function UnifiedBiddingStage({
     }
   }, [sessionId, ideaContent, isConnected, wsPhase, startBidding])
 
-  // 处理AI消息更新Agent状态 - 优化性能
-  const processedMessages = useMemo(() => {
-    if (aiMessages.length === 0) return []
-
-    return aiMessages.map(msg => ({
-      ...msg,
-      confidence: calculateMessageConfidence(msg)
-    }))
-  }, [aiMessages, calculateMessageConfidence])
-
+  // 处理AI消息更新Agent状态 - 为每个agent显示其最新消息
   useEffect(() => {
-    if (processedMessages.length > 0) {
-      const latestMessage = processedMessages[0] // 最新消息
+    if (aiMessages.length === 0) return
 
-      // 更新对应Agent的状态
+    // 按agent分组，获取每个agent的最新消息
+    const latestMessagesByAgent = new Map<string, AIMessage>()
+
+    // 倒序遍历（最新的在前）
+    for (const msg of aiMessages) {
+      if (!latestMessagesByAgent.has(msg.personaId)) {
+        latestMessagesByAgent.set(msg.personaId, msg)
+      }
+    }
+
+    // 更新每个agent的状态
+    latestMessagesByAgent.forEach((msg, agentId) => {
+      const confidence = calculateMessageConfidence(msg)
+
       const updates: Partial<AgentState> = {
-        currentMessage: latestMessage.content,
-        lastActivity: latestMessage.timestamp,
-        confidence: latestMessage.confidence
+        currentMessage: msg.content,
+        lastActivity: msg.timestamp,
+        confidence: confidence
       }
 
       // 根据消息类型设置状态
-      if (latestMessage.type === 'speech') {
+      if (msg.type === 'speech') {
         updates.phase = 'speaking'
-        updates.emotion = latestMessage.emotion as AgentState['emotion']
-      } else if (latestMessage.type === 'bid') {
+        updates.emotion = msg.emotion as AgentState['emotion']
+      } else if (msg.type === 'bid') {
         updates.phase = 'bidding'
         updates.emotion = 'confident'
       }
 
-      updateAgentState(latestMessage.personaId, updates)
+      updateAgentState(agentId, updates)
+    })
 
-      // 3秒后将说话状态重置为idle
-      const timeoutId = setTimeout(() => {
-        updateAgentState(latestMessage.personaId, { phase: 'idle' })
-      }, 3000)
-
-      return () => clearTimeout(timeoutId)
-    }
-  }, [processedMessages, updateAgentState])
+    // 将所有不在最新消息列表中的agent设置为idle（除非他们还有其他状态）
+    AI_PERSONAS.forEach(persona => {
+      if (!latestMessagesByAgent.has(persona.id)) {
+        // 如果这个agent没有最新消息，但之前有消息，保持显示
+        // 不自动重置为idle，让消息持续显示
+      }
+    })
+  }, [aiMessages, updateAgentState, calculateMessageConfidence])
 
   // 处理支持Agent
   const handleSupportAgent = (agentId: string) => {
