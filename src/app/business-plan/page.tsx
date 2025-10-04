@@ -60,7 +60,18 @@ export default function BusinessPlanPage() {
   const displayIdeaTitle = guide?.metadata?.ideaTitle || ideaTitle || ''
 
   // 新增：从会话加载数据的函数
-  const loadSessionData = async (sessionId: string) => {\r\n    if (!token) {\r\n      setError('访问该商业计划需要登录，请先登录后重试。')\r\n      setLoadingState({\r\n        isLoading: false,\r\n        progress: 0,\r\n        stage: '等待登录'\r\n      })\r\n      return\r\n    }\r\n\r\n    try {
+  const loadSessionData = async (sessionId: string) => {
+    if (!token) {
+      setError('访问该商业计划需要登录，请先登录后重试。')
+      setLoadingState({
+        isLoading: false,
+        progress: 0,
+        stage: '等待登录'
+      })
+      return
+    }
+
+    try {
       setError(null)
       setGuide(null)
 
@@ -112,7 +123,18 @@ export default function BusinessPlanPage() {
     }
   }
 
-  const loadReportData = async (targetReportId: string) => {\r\n    if (!token) {\r\n      setError('访问该商业计划需要登录，请先登录后重试。')\r\n      setLoadingState({\r\n        isLoading: false,\r\n        progress: 0,\r\n        stage: '等待登录'\r\n      })\r\n      return\r\n    }\r\n\r\n    try {
+  const loadReportData = async (targetReportId: string) => {
+    if (!token) {
+      setError('访问该商业计划需要登录，请先登录后重试。')
+      setLoadingState({
+        isLoading: false,
+        progress: 0,
+        stage: '等待登录'
+      })
+      return
+    }
+
+    try {
       setError(null)
       setGuide(null)
 
