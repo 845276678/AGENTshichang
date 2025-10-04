@@ -60,17 +60,8 @@ export default function BusinessPlanPage() {
   const displayIdeaTitle = guide?.metadata?.ideaTitle || ideaTitle || ''
 
   // 新增：从会话加载数据的函数
+  // 新增：从会话加载数据的函数（支持匿名访问新会话）
   const loadSessionData = async (sessionId: string) => {
-    if (!token) {
-      setError('访问该商业计划需要登录，请先登录后重试。')
-      setLoadingState({
-        isLoading: false,
-        progress: 0,
-        stage: '等待登录'
-      })
-      return
-    }
-
     try {
       setError(null)
       setGuide(null)
@@ -81,13 +72,25 @@ export default function BusinessPlanPage() {
         stage: '正在获取竞价摘要...'
       })
 
+      // 构建请求头（如果有token则发送，没有也允许）
+      const headers: HeadersInit = token
+        ? { Authorization: `Bearer ${token}` }
+        : {}
+
       const response = await fetch(`/api/business-plan-session?sessionId=${sessionId}`, {
         cache: 'no-store',
-        headers: { Authorization: `Bearer ${token}` }
+        headers
       })
 
       if (response.status === 401) {
-        throw new Error('会话已过期或未登录，请先登录后再查看。')
+        // 如果未认证且会话需要认证，提示登录
+        setError('该商业计划需要登录查看，请先登录。')
+        setLoadingState({
+          isLoading: false,
+          progress: 0,
+          stage: '需要登录'
+        })
+        return
       }
 
       const payload = await response.json()
@@ -192,27 +195,29 @@ export default function BusinessPlanPage() {
       return
     }
 
+    // 等待认证初始化完成
     if (!isInitialized) {
       return
     }
 
-    if (!token) {
-      setGuide(null)
-      setLoadingState({
-        isLoading: false,
-        progress: 0,
-        stage: '等待登录'
-      })
-      setError('访问该商业计划需要登录，请先登录后重试。')
-      return
-    }
-
+    // 如果有sessionId，直接尝试加载（支持匿名访问新会话）
     if (sessionId) {
       void loadSessionData(sessionId)
       return
     }
 
+    // 如果有reportId，需要token才能加载
     if (reportId) {
+      if (!token) {
+        setGuide(null)
+        setLoadingState({
+          isLoading: false,
+          progress: 0,
+          stage: '等待登录'
+        })
+        setError('访问历史商业计划需要登录，请先登录后重试。')
+        return
+      }
       void loadReportData(reportId)
     }
   }, [sessionId, reportId, token, isInitialized])
