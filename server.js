@@ -20,22 +20,57 @@ console.log('Starting server...');
 console.log('Environment: ' + process.env.NODE_ENV);
 console.log('Port: ' + port);
 console.log('Hostname: ' + hostname);
+
 // Comprehensive startup validation
 console.log('Running startup checks...');
 
-// 使用完整的环境变量验证
-const { validateEnvironment, printValidationResults } = require('./src/lib/validate-env');
+// 环境变量验证 (内联版本,避免TypeScript导入问题)
+function validateEnvironment() {
+  const errors = [];
+  const warnings = [];
+
+  if (!process.env.DATABASE_URL) errors.push('DATABASE_URL is required');
+  if (!process.env.JWT_SECRET) errors.push('JWT_SECRET is required');
+  if (!process.env.NEXTAUTH_SECRET) errors.push('NEXTAUTH_SECRET is required');
+
+  const aiServices = {
+    deepseek: !!process.env.DEEPSEEK_API_KEY,
+    glm: !!process.env.ZHIPU_API_KEY,
+    qwen: !!process.env.DASHSCOPE_API_KEY,
+  };
+  const configuredServices = Object.values(aiServices).filter(Boolean).length;
+  if (configuredServices === 0) warnings.push('No AI services configured');
+  if (process.env.JWT_SECRET && process.env.JWT_SECRET.length < 32) {
+    warnings.push('JWT_SECRET should be at least 32 characters');
+  }
+
+  return { isValid: errors.length === 0, errors, warnings, aiServices: configuredServices };
+}
 
 console.log('Validating environment configuration...');
 const validationResult = validateEnvironment();
-printValidationResults(validationResult);
+
+if (validationResult.errors.length > 0) {
+  console.error('
+❌ Environment validation errors:');
+  validationResult.errors.forEach(err => console.error('  - ' + err));
+}
+if (validationResult.warnings.length > 0) {
+  console.warn('
+⚠️  Environment validation warnings:');
+  validationResult.warnings.forEach(warn => console.warn('  - ' + warn));
+}
+if (validationResult.isValid) {
+  console.log('✅ Environment validation passed');
+  console.log('   AI services configured: ' + validationResult.aiServices + '/3');
+}
 
 if (!validationResult.isValid) {
-  console.error('❌ Environment validation failed. Please fix the issues above.');
+  console.error('
+❌ Environment validation failed. Please fix the errors above.');
   process.exit(1);
 }
 
-console.log('✅ Environment validation passed');
 // ext.js
 const fs = require('fs');
 const path = require('path');
