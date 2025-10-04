@@ -5,9 +5,9 @@ import { useSearchParams } from 'next/navigation'
 import { Header } from '@/components/layout/Header'
 
 // 使用React.lazy而不是next/dynamic来避免Next.js特定的问题
-const UnifiedBiddingStage = lazy(() =>
-  import('@/components/bidding/UnifiedBiddingStage').catch(err => {
-    console.error('Failed to load UnifiedBiddingStage:', err)
+const StageBasedBidding = lazy(() =>
+  import('@/components/bidding/StageBasedBidding').catch(err => {
+    console.error('Failed to load StageBasedBidding:', err)
     // 返回一个fallback组件
     return Promise.resolve({
       default: () => (
@@ -65,7 +65,7 @@ function BiddingPageContent() {
 
   return (
     <div suppressHydrationWarning style={{ minHeight: '100vh' }}>
-      <UnifiedBiddingStage ideaId={ideaId} autoStart={autoStart} />
+      <StageBasedBidding ideaId={ideaId} autoStart={autoStart} />
     </div>
   )
 }
