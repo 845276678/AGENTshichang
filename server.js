@@ -637,57 +637,109 @@ async function startRealAIBiddingPhase(ideaId, ideaContent, aiPersonas) {
   }, 3000);
 }
 // AI
-function finishRealAIBidding(ideaId, ideaContent, bids) {
+async function finishRealAIBidding(ideaId, ideaContent, bids) {
   const highestBid = Math.max(...Object.values(bids));
   const avgBid = Object.values(bids).reduce((a, b) => a + b, 0) / Object.values(bids).length;
-  // ?
+  // 获胜者信息
   const winnerPersonaId = Object.keys(bids).find(personaId => bids[personaId] === highestBid);
   const winnerName = getPersonaName(winnerPersonaId);
-  // ID
-  const businessPlanSessionId = `bp_${ideaId}_${Date.now()}`;
-  // edis
-  global.businessPlanSessions = global.businessPlanSessions || new Map();
-  global.businessPlanSessions.set(businessPlanSessionId, {
-    ideaContent: ideaContent || '',
-    highestBid,
-    averageBid: Math.round(avgBid),
-    finalBids: bids,
-    winner: winnerPersonaId,
-    winnerName: winnerName,
-    aiMessages: [], // I
-    supportedAgents: [],
-    currentBids: bids,
-    timestamp: Date.now(),
-    ideaId
-  });
-  // 
-  const businessPlanUrl = `/business-plan?sessionId=${businessPlanSessionId}&source=ai-bidding`;
-  broadcastToSession(ideaId, {
-    type: 'session_complete',
-    results: {
-      highestBid,
-      averageBid: Math.round(avgBid),
-      finalBids: bids,
-      winner: winnerPersonaId,
-      winnerName: winnerName,
-      totalMessages: 25,
-      duration: 480000, // 8
-      businessPlanUrl, // 
-      businessPlanSessionId, // ID
-      report: {
-        summary: 'Based on insights from five expert agents, your idea received a strong positive evaluation.',
-        recommendations: [
-          'Combine technical and business insights to refine the solution.',
-          'Clarify target users and market positioning in the proposal.',
-          'Map out a realistic commercialization roadmap.',
-          'Validate technical feasibility and long-term scalability.'
-        ],
-        winnerAnalysis: 'Winning agent ' + winnerName + ' offered the top bid of ' + highestBid + ' credits and will deliver a concise business plan overview.'
-      }
+
+  console.log(` 竞价完成，准备创建商业计划会话...`);
+  console.log(` 创意内容: ${ideaContent?.substring(0, 100)}...`);
+  console.log(` 最高出价: ${highestBid} by ${winnerName}`);
+
+  // 调用API创建真正的商业计划会话和报告
+  try {
+    const fetch = (await import('node-fetch')).default;
+    const response = await fetch(`http://localhost:${process.env.PORT || 8080}/api/business-plan-session`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Internal-Call': 'true' // 标记为内部调用，允许匿名
+      },
+      body: JSON.stringify({
+        ideaId: ideaId,
+        ideaContent: ideaContent || '',
+        ideaTitle: `创意_${ideaId}`,
+        source: 'ai-bidding',
+        highestBid: highestBid,
+        averageBid: Math.round(avgBid),
+        finalBids: bids,
+        currentBids: bids,
+        winner: winnerPersonaId,
+        winnerName: winnerName,
+        supportedAgents: [],
+        aiMessages: []
+      })
+    });
+
+    const result = await response.json();
+
+    if (!response.ok || !result.success) {
+      console.error(' 创建商业计划会话失败:', result.error);
+      throw new Error(result.error || '创建商业计划会话失败');
     }
-  });
-  console.log(` REAL AI bidding completed. Highest bid: ${highestBid}?by ${winnerName}`);
-  console.log(` Business plan session created: ${businessPlanSessionId}`);
+
+    console.log(` 商业计划会话创建成功: ${result.sessionId}`);
+    console.log(` 报告ID: ${result.reportId}`);
+
+    const businessPlanUrl = result.businessPlanUrl || `/business-plan?sessionId=${result.sessionId}&source=ai-bidding`;
+
+    // 广播竞价完成消息
+    broadcastToSession(ideaId, {
+      type: 'session_complete',
+      results: {
+        highestBid,
+        averageBid: Math.round(avgBid),
+        finalBids: bids,
+        winner: winnerPersonaId,
+        winnerName: winnerName,
+        totalMessages: 25,
+        duration: 480000, // 8分钟
+        businessPlanUrl, // 商业计划URL
+        businessPlanSessionId: result.sessionId, // 会话ID
+        reportId: result.reportId, // 报告ID
+        report: {
+          summary: '基于五位专家AI的深度分析，您的创意获得了积极评价。',
+          recommendations: [
+            '结合技术与商业洞察，进一步细化解决方案',
+            '明确目标用户群体和市场定位',
+            '制定切实可行的商业化路径',
+            '验证技术可行性和长期可扩展性'
+          ],
+          winnerAnalysis: `获胜专家 ${winnerName} 给出了最高出价 ${highestBid} 积分，将为您提供专业的商业计划概要。`
+        }
+      }
+    });
+
+    console.log(` 竞价流程完成，商业计划已生成`);
+  } catch (error) {
+    console.error(' 创建商业计划会话时发生错误:', error);
+
+    // 降级方案：广播错误信息
+    broadcastToSession(ideaId, {
+      type: 'session_complete',
+      results: {
+        highestBid,
+        averageBid: Math.round(avgBid),
+        finalBids: bids,
+        winner: winnerPersonaId,
+        winnerName: winnerName,
+        totalMessages: 25,
+        duration: 480000,
+        businessPlanUrl: `/business-plan?source=ai-bidding`,
+        error: '商业计划生成失败，请稍后重试',
+        report: {
+          summary: '竞价已完成，但商业计划生成遇到问题。',
+          recommendations: [
+            '请联系技术支持或稍后重试',
+            '您可以保存竞价结果后手动生成商业计划'
+          ],
+          winnerAnalysis: `获胜专家 ${winnerName} 给出了最高出价 ${highestBid} 积分。`
+        }
+      }
+    });
+  }
 }
 // AI
 function getSystemPromptForPersona(personaId) {

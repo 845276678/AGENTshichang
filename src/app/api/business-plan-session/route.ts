@@ -108,16 +108,30 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const user = await authenticateRequest(request)
+    // 尝试认证，但允许匿名请求（从AI竞价系统）
+    let user: { id: string } | null = null
+    try {
+      user = await authenticateRequest(request)
+    } catch (authError) {
+      // 检查是否来自服务端内部调用（AI竞价系统）
+      const isInternalCall = request.headers.get('X-Internal-Call') === 'true'
+      if (!isInternalCall) {
+        // 如果不是内部调用且未认证，则拒绝
+        throw authError
+      }
+      // 内部调用允许匿名
+      console.log('⚠️  允许来自AI竞价系统的匿名商业计划会话创建')
+    }
+
     const body = await request.json()
 
     if (!body || !body.ideaContent) {
       return NextResponse.json({ success: false, error: '缺少必要的创意内容参数' }, { status: 400 })
     }
 
-    const snapshot = buildSnapshot(body, user.id)
+    const snapshot = buildSnapshot(body, user?.id)
     const session = await BusinessPlanSessionService.createSession({
-      userId: user.id,
+      userId: user?.id ?? null, // 允许null用于匿名会话
       ideaId: body.ideaId,
       source: (body.source as BusinessPlanSource) ?? BusinessPlanSource.AI_BIDDING,
       snapshot
