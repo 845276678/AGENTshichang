@@ -896,9 +896,9 @@ function simulateAIDiscussion(ideaId, ideaContent) {
   const totalMessages = aiPersonas.length * 3; // AI??
   const sendNextMessage = () => {
     if (messageIndex >= totalMessages) {
-      // ?
+      // 模拟讨论结束，开始竞价
       setTimeout(() => {
-        startSimulatedBidding(ideaId);
+        startSimulatedBidding(ideaId, ideaContent);
       }, 2000);
       return;
     }
@@ -929,8 +929,8 @@ function simulateAIDiscussion(ideaId, ideaContent) {
   // ?
   setTimeout(sendNextMessage, 1000);
 }
-// AI
-function startSimulatedBidding(ideaId) {
+// 模拟AI竞价
+function startSimulatedBidding(ideaId, ideaContent) {
   console.log(` Starting simulated bidding for idea: ${ideaId}`);
   broadcastToSession(ideaId, {
     type: 'phase_change',
@@ -956,9 +956,9 @@ function startSimulatedBidding(ideaId) {
   const personaIds = Object.keys(bids);
   const sendNextBid = () => {
     if (bidIndex >= personaIds.length) {
-      // 
+      // 竞价结束，创建商业计划
       setTimeout(() => {
-        finishSimulatedBidding(ideaId, bids);
+        finishSimulatedBidding(ideaId, ideaContent, bids);
       }, 3000);
       return;
     }
@@ -990,30 +990,110 @@ function startSimulatedBidding(ideaId) {
   setTimeout(sendNextBid, 2000);
 }
 // 
-function finishSimulatedBidding(ideaId, bids) {
+// 完成模拟竞价
+async function finishSimulatedBidding(ideaId, ideaContent, bids) {
   const highestBid = Math.max(...Object.values(bids));
   const avgBid = Object.values(bids).reduce((a, b) => a + b, 0) / Object.values(bids).length;
-  broadcastToSession(ideaId, {
-    type: 'session_complete',
-    results: {
-      highestBid,
-      averageBid: Math.round(avgBid),
-      finalBids: bids,
-      totalMessages: 20,
-      duration: 300000, // 5
-      report: {
-        summary: 'Based on five simulated agents, the idea earned a strong overall score.',
-        recommendations: [
-          'Further refine the technical architecture for clarity.',
-          'Document the target market segments and core customer needs.',
-          'Outline the commercialization plan with concrete milestones.'
-        ]
-      }
+  const winnerPersonaId = Object.keys(bids).find(personaId => bids[personaId] === highestBid);
+  const winnerName = getPersonaName(winnerPersonaId);
+
+  console.log(` 模拟竞价完成，准备创建商业计划会话...`);
+  console.log(` 创意内容: ${ideaContent?.substring(0, 100)}...`);
+  console.log(` 最高出价: ${highestBid} by ${winnerName}`);
+
+  // 调用API创建真正的商业计划会话和报告（与真实竞价相同）
+  try {
+    const fetch = (await import('node-fetch')).default;
+    const response = await fetch(`http://localhost:${process.env.PORT || 8080}/api/business-plan-session`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Internal-Call': 'true' // 标记为内部调用，允许匿名
+      },
+      body: JSON.stringify({
+        ideaId: ideaId,
+        ideaContent: ideaContent || '',
+        ideaTitle: `创意_${ideaId}`,
+        source: 'ai-bidding',
+        highestBid: highestBid,
+        averageBid: Math.round(avgBid),
+        finalBids: bids,
+        currentBids: bids,
+        winner: winnerPersonaId,
+        winnerName: winnerName,
+        supportedAgents: [],
+        aiMessages: []
+      })
+    });
+
+    const result = await response.json();
+
+    if (!response.ok || !result.success) {
+      console.error(' 创建商业计划会话失败:', result.error);
+      throw new Error(result.error || '创建商业计划会话失败');
     }
-  });
-  console.log('Simulated bidding completed. Highest bid: ' + highestBid + ' credits');
+
+    console.log(` 商业计划会话创建成功: ${result.sessionId}`);
+    console.log(` 报告ID: ${result.reportId}`);
+
+    const businessPlanUrl = result.businessPlanUrl || `/business-plan?sessionId=${result.sessionId}&source=ai-bidding`;
+
+    // 广播竞价完成消息
+    broadcastToSession(ideaId, {
+      type: 'session_complete',
+      results: {
+        highestBid,
+        averageBid: Math.round(avgBid),
+        finalBids: bids,
+        winner: winnerPersonaId,
+        winnerName: winnerName,
+        totalMessages: 20,
+        duration: 300000, // 5分钟
+        businessPlanUrl, // 商业计划URL
+        businessPlanSessionId: result.sessionId, // 会话ID
+        reportId: result.reportId, // 报告ID
+        report: {
+          summary: '基于五位模拟AI专家的分析，您的创意获得了整体评分。',
+          recommendations: [
+            '进一步明确技术架构细节',
+            '记录目标市场细分和核心客户需求',
+            '制定商业化路径及关键里程碑'
+          ],
+          winnerAnalysis: `获胜专家 ${winnerName} 给出了最高出价 ${highestBid} 积分。`
+        }
+      }
+    });
+
+    console.log(` 模拟竞价流程完成，商业计划已生成`);
+  } catch (error) {
+    console.error(' 创建商业计划会话时发生错误:', error);
+
+    // 降级方案：广播错误信息
+    broadcastToSession(ideaId, {
+      type: 'session_complete',
+      results: {
+        highestBid,
+        averageBid: Math.round(avgBid),
+        finalBids: bids,
+        winner: winnerPersonaId,
+        winnerName: winnerName,
+        totalMessages: 20,
+        duration: 300000,
+        businessPlanUrl: `/business-plan?source=ai-bidding`,
+        error: '商业计划生成失败，请稍后重试',
+        report: {
+          summary: '模拟竞价已完成，但商业计划生成遇到问题。',
+          recommendations: [
+            '请联系技术支持或稍后重试',
+            '您可以保存竞价结果后手动生成商业计划'
+          ],
+          winnerAnalysis: `获胜专家 ${winnerName} 给出了最高出价 ${highestBid} 积分。`
+        }
+      }
+    });
+  }
 }
-// personaId?
+// 根据personaId获取名称
 function getPersonaName(personaId) {
   const personaNames = {
     'tech-pioneer-alex': 'Tech Pioneer Alex',
@@ -1022,6 +1102,7 @@ function getPersonaName(personaId) {
     'market-insight-delta': 'Market Insight Delta',
     'investment-advisor-ivan': 'Investment Advisor Ivan'
   };
+  return personaNames[personaId] || personaId;
 }
 app.prepare().then(() => {
   console.log('Next.js app prepared successfully');
