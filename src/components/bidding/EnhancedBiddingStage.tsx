@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { motion } from 'framer-motion'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
+import { Textarea } from '@/components/ui/textarea'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Switch } from '@/components/ui/switch'
 import { Slider } from '@/components/ui/slider'
@@ -17,7 +18,9 @@ import {
   Wifi,
   WifiOff,
   Clock,
-  Users
+  Users,
+  Send,
+  MessageSquarePlus
 } from 'lucide-react'
 
 import AIPersonaSceneManager from './AIPersonaSceneManager'
@@ -62,7 +65,8 @@ export default function EnhancedBiddingStage({
     supportedPersona,
     supportPersona,
     startBidding,
-    reconnect
+    reconnect,
+    sendSupplement
   } = useBiddingWebSocket({
     ideaId,
     autoConnect: true
@@ -76,6 +80,27 @@ export default function EnhancedBiddingStage({
   const [enableSound, setEnableSound] = useState<boolean>(false)
   const [showSettings, setShowSettings] = useState<boolean>(false)
   const [performanceMode, setPerformanceMode] = useState<boolean>(false)
+
+  // 用户补充创意状态
+  const [userSupplement, setUserSupplement] = useState('')
+  const [supplementHistory, setSupplementHistory] = useState<string[]>([])
+  const [isSendingSupplement, setIsSendingSupplement] = useState(false)
+
+  // 提交补充创意
+  const handleSubmitSupplement = useCallback(() => {
+    if (!userSupplement.trim() || supplementHistory.length >= 3) return
+
+    setIsSendingSupplement(true)
+    const success = sendSupplement(userSupplement.trim())
+
+    if (success) {
+      setSupplementHistory(prev => [...prev, userSupplement.trim()])
+      setUserSupplement('')
+    }
+
+    setIsSendingSupplement(false)
+  }, [userSupplement, supplementHistory, sendSupplement])
+
 
   // 自动启动AI竞价（如果有sessionId和内容）
   useEffect(() => {
@@ -407,6 +432,75 @@ export default function EnhancedBiddingStage({
           enableFocusMode={effectConfig.effects.focusMode}
         />
       </motion.div>
+
+      {/* 用户补充创意区域 - 在prediction阶段显示 */}
+      {currentPhase === 'prediction' && (
+        <Card className="w-full max-w-4xl mx-auto mt-6 border-2 border-blue-300 bg-gradient-to-r from-blue-50 to-purple-50">
+          <CardHeader className="pb-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <MessageSquarePlus className="w-6 h-6 text-blue-600" />
+                <CardTitle className="text-lg">补充您的创意</CardTitle>
+              </div>
+              <Badge variant="secondary" className="text-sm">
+                {supplementHistory.length} / 3 次
+              </Badge>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {/* 提示信息 */}
+              <div className="bg-blue-100 text-blue-800 p-3 rounded-lg text-sm">
+                <p>💡 根据AI专家的讨论，您可以进一步补充和完善您的创意描述（最多3次）</p>
+              </div>
+
+              {/* 历史补充记录 */}
+              {supplementHistory.length > 0 && (
+                <div className="space-y-2">
+                  <p className="text-sm font-medium text-gray-700">已提交的补充：</p>
+                  <div className="space-y-2">
+                    {supplementHistory.map((item, index) => (
+                      <div key={index} className="bg-white p-3 rounded-lg border border-gray-200 text-sm">
+                        <span className="font-medium text-gray-600">补充 {index + 1}：</span>
+                        <p className="mt-1 text-gray-700">{item}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* 输入框和提交按钮 */}
+              {supplementHistory.length < 3 && (
+                <div className="space-y-3">
+                  <Textarea
+                    value={userSupplement}
+                    onChange={(e) => setUserSupplement(e.target.value)}
+                    placeholder="请输入您想要补充的创意细节..."
+                    className="min-h-[100px] resize-none"
+                    disabled={isSendingSupplement}
+                  />
+                  <div className="flex justify-end gap-2">
+                    <Button
+                      onClick={handleSubmitSupplement}
+                      disabled={!userSupplement.trim() || isSendingSupplement}
+                      className="bg-blue-600 hover:bg-blue-700"
+                    >
+                      <Send className="w-4 h-4 mr-2" />
+                      {isSendingSupplement ? '发送中...' : '提交补充'}
+                    </Button>
+                  </div>
+                </div>
+              )}
+
+              {supplementHistory.length >= 3 && (
+                <div className="bg-green-100 text-green-800 p-3 rounded-lg text-sm text-center">
+                  ✓ 您已完成3次补充，AI专家正在综合考虑您的意见
+                </div>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* 实时效果预览信息 */}
       <Card className="bg-gradient-to-r from-blue-50 to-purple-50 border-blue-200">
