@@ -385,7 +385,7 @@ export default function EnhancedAIPersonaStage({
                     : 'bg-gray-50'
                 }`}
               >
-                <div className="line-clamp-3">{latestMessage.content}</div>
+                <div className="whitespace-pre-wrap break-words">{latestMessage.content}</div>
                 <div className="text-xs text-gray-500 mt-1 flex items-center gap-1">
                   {isSpeaking && <Zap className="w-3 h-3 text-purple-500" />}
                   {new Date(latestMessage.timestamp).toLocaleTimeString()}
