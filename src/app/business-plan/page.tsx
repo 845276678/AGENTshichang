@@ -70,8 +70,13 @@ export default function BusinessPlanPage() {
       })
 
       const response = await fetch(`/api/business-plan-session?sessionId=${sessionId}`, {
-        cache: 'no-store'
+        cache: 'no-store',
+        headers: { Authorization: `Bearer ${token}` }
       })
+
+      if (response.status === 401) {
+        throw new Error('会话已过期或未登录，请先登录后再查看。')
+      }
 
       const payload = await response.json()
       if (!response.ok || !payload.success) {
@@ -117,8 +122,13 @@ export default function BusinessPlanPage() {
       })
 
       const response = await fetch(`/api/business-plan-session?reportId=${targetReportId}`, {
-        cache: 'no-store'
+        cache: 'no-store',
+        headers: { Authorization: `Bearer ${token}` }
       })
+
+      if (response.status === 401) {
+        throw new Error('会话已过期或未登录，请先登录后再查看。')
+      }
 
       const payload = await response.json()
       if (!response.ok || !payload.success) {
@@ -645,6 +655,12 @@ export default function BusinessPlanPage() {
 
   return null
 }
+
+
+
+
+
+
 
 
 
