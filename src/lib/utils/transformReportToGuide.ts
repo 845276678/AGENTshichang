@@ -57,6 +57,18 @@ export interface LandingCoachGuide {
       warningSignals: string[]
     }>
   }
+  expertInsights?: {
+    summary: string
+    keyQuotes: Array<{
+      expert: string
+      personaName: string
+      quote: string
+      topic: string
+      sentiment: 'positive' | 'negative' | 'neutral'
+    }>
+    consensusPoints: string[]
+    controversialPoints: string[]
+  }
   currentSituation: {
     title: string
     summary: string
@@ -116,12 +128,36 @@ export interface LandingCoachGuide {
       }>
       marketingChannels: string[]
       budgetAllocation: string[]
+      coldStart?: {
+        strategy: string
+        targetCustomers: string[]
+        acquisitionChannels: string[]
+        viralMechanics: string
+        partnershipIdeas: string[]
+      }
     }
     operationalPlan: {
       teamStructure: string[]
       processes: string[]
       infrastructure: string[]
       riskManagement: string[]
+    }
+    earlyMilestones?: {
+      twoWeekGoals: Array<{
+        title: string
+        description: string
+        successCriteria: string
+        effort: 'low' | 'medium' | 'high'
+        impact: 'low' | 'medium' | 'high'
+      }>
+      oneMonthGoals: Array<{
+        title: string
+        description: string
+        successCriteria: string
+        effort: 'low' | 'medium' | 'high'
+        impact: 'low' | 'medium' | 'high'
+      }>
+      quickWins: string[]
     }
     actionItems: string[]
   }
@@ -785,6 +821,36 @@ export function generateGuideMarkdown(guide: LandingCoachGuide): string {
   lines.push('---')
   lines.push('')
 
+  // 新增：专家核心观点
+  if (guide.expertInsights && guide.expertInsights.keyQuotes.length > 0) {
+    lines.push('## 💬 专家核心观点')
+    lines.push('')
+    lines.push(`**讨论摘要：** ${guide.expertInsights.summary}`)
+    lines.push('')
+
+    if (guide.expertInsights.consensusPoints.length > 0) {
+      lines.push('### ✅ 专家共识')
+      guide.expertInsights.consensusPoints.forEach(item => lines.push(`- ${item}`))
+      lines.push('')
+    }
+
+    if (guide.expertInsights.controversialPoints.length > 0) {
+      lines.push('### ⚠️ 需要注意')
+      guide.expertInsights.controversialPoints.forEach(item => lines.push(`- ${item}`))
+      lines.push('')
+    }
+
+    lines.push('### 💡 关键引用')
+    guide.expertInsights.keyQuotes.forEach((quote, idx) => {
+      const sentimentIcon = quote.sentiment === 'positive' ? '👍' : quote.sentiment === 'negative' ? '👎' : '💭'
+      lines.push(`${idx + 1}. **${quote.personaName}** (${quote.topic}) ${sentimentIcon}`)
+      lines.push(`   > "${quote.quote}"`)
+      lines.push('')
+    })
+    lines.push('---')
+    lines.push('')
+  }
+
   // 第一部分：当前形势
   lines.push('## 🔍 先聊聊大环境和机会')
   lines.push('')
@@ -923,6 +989,31 @@ export function generateGuideMarkdown(guide: LandingCoachGuide): string {
   lines.push(`**💸 预算分配：** ${guide.businessExecution.launchStrategy.budgetAllocation.join('、')}`)
   lines.push('')
 
+  // 新增：冷启动策略
+  if (guide.businessExecution.launchStrategy.coldStart) {
+    lines.push('### 🚀 冷启动策略（前100个用户怎么找）')
+    lines.push('')
+    lines.push(guide.businessExecution.launchStrategy.coldStart.strategy)
+    lines.push('')
+    lines.push('**🎯 目标客户：**')
+    guide.businessExecution.launchStrategy.coldStart.targetCustomers.forEach(item =>
+      lines.push(`- ${item}`)
+    )
+    lines.push('')
+    lines.push('**📢 获客渠道：**')
+    guide.businessExecution.launchStrategy.coldStart.acquisitionChannels.forEach(item =>
+      lines.push(`- ${item}`)
+    )
+    lines.push('')
+    lines.push('**🤝 合作伙伴策略：**')
+    guide.businessExecution.launchStrategy.coldStart.partnershipIdeas.forEach(item =>
+      lines.push(`- ${item}`)
+    )
+    lines.push('')
+    lines.push(`**🔥 病毒传播机制：** ${guide.businessExecution.launchStrategy.coldStart.viralMechanics}`)
+    lines.push('')
+  }
+
   lines.push('### ⚙️ 运营怎么搞')
   lines.push(`**团队配置：** ${guide.businessExecution.operationalPlan.teamStructure.join('、')}`)
   lines.push('')
@@ -932,6 +1023,37 @@ export function generateGuideMarkdown(guide: LandingCoachGuide): string {
   lines.push('')
   lines.push(`**风险管理：** ${guide.businessExecution.operationalPlan.riskManagement.join('、')}`)
   lines.push('')
+
+  // 新增：早期里程碑
+  if (guide.businessExecution.earlyMilestones) {
+    lines.push('### 🎯 早期里程碑（让你快速看到成果）')
+    lines.push('')
+
+    // 2周目标
+    lines.push('**📅 2周内快速验证**')
+    lines.push('')
+    guide.businessExecution.earlyMilestones.twoWeekGoals.forEach((goal, idx) => {
+      lines.push(`${idx + 1}. **${goal.title}** (影响: ${goal.impact}, 投入: ${goal.effort})`)
+      lines.push(`   - 描述: ${goal.description}`)
+      lines.push(`   - 成功标准: ${goal.successCriteria}`)
+      lines.push('')
+    })
+
+    // 1个月目标
+    lines.push('**📅 1个月内重要成果**')
+    lines.push('')
+    guide.businessExecution.earlyMilestones.oneMonthGoals.forEach((goal, idx) => {
+      lines.push(`${idx + 1}. **${goal.title}** (影响: ${goal.impact}, 投入: ${goal.effort})`)
+      lines.push(`   - 描述: ${goal.description}`)
+      lines.push(`   - 成功标准: ${goal.successCriteria}`)
+      lines.push('')
+    })
+
+    // 快赢行动
+    lines.push('**⚡ 立即可做的快赢行动**')
+    guide.businessExecution.earlyMilestones.quickWins.forEach(item => lines.push(`- ${item}`))
+    lines.push('')
+  }
 
   if (guide.businessExecution.actionItems.length) {
     lines.push('### ✅ 运营优先级')

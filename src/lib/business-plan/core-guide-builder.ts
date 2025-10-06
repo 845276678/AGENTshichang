@@ -1,6 +1,7 @@
 import type { BusinessPlanGuide, BiddingSnapshot, BusinessPlanMetadata } from "./types"
 import type { AIMessage } from '@/lib/ai-persona-system'
 import AIServiceManager from '@/lib/ai-service-manager'
+import { contentCache } from './content-cache'
 
 const aiServiceManager = new AIServiceManager()
 
@@ -389,6 +390,24 @@ async function generatePersonalizedContent(
   const ideaTitle = snapshot.ideaTitle || '创意项目'
   const ideaContent = snapshot.ideaContent || snapshot.summary || ''
 
+  // 生成缓存键
+  const cacheKey = contentCache.getHash(
+    ideaContent,
+    JSON.stringify({
+      summary: expertContext.summary,
+      consensusCount: expertContext.consensusPoints.length,
+      controversyCount: expertContext.controversialPoints.length,
+      quotesCount: expertContext.keyQuotes.length
+    })
+  )
+
+  // 尝试从缓存获取
+  const cachedContent = contentCache.get(cacheKey)
+  if (cachedContent) {
+    console.log('🎯 使用缓存的AI生成内容，节省成本')
+    return cachedContent
+  }
+
   // 构建丰富的上下文prompt
   const contextPrompt = `
 创意标题：${ideaTitle}
@@ -461,7 +480,13 @@ ${contextPrompt}
 请直接返回JSON，不要其他说明。
 `.trim()
 
+  // 多层降级策略：DeepSeek → Qwen → 智能模板
+  let aiResponse: any = null
+  let lastError: Error | null = null
+
+  // 第一层：尝试 DeepSeek
   try {
+    console.log('🤖 尝试使用 DeepSeek 生成内容...')
     const response = await aiServiceManager.callSingleService({
       provider: 'deepseek',
       persona: 'business-strategist',
@@ -475,46 +500,81 @@ ${contextPrompt}
       maxTokens: 3000
     })
 
-    // 尝试解析JSON响应
     const content = response.content.trim()
     const jsonMatch = content.match(/\{[\s\S]*\}/)
-
     if (jsonMatch) {
-      const parsed = JSON.parse(jsonMatch[0])
-      return {
-        marketAnalysis: parsed.marketAnalysis || '市场分析生成中...',
-        competitionAnalysis: parsed.competitionAnalysis || '竞争分析生成中...',
-        targetCustomers: Array.isArray(parsed.targetCustomers) ? parsed.targetCustomers : [`${ideaTitle}的核心目标用户群体`, '次要用户群体', '潜在扩展用户'],
-        userNeeds: parsed.userNeeds || '用户需求分析中...',
-        mvpFeatures: Array.isArray(parsed.mvpFeatures) ? parsed.mvpFeatures : ['核心功能1', '核心功能2', '核心功能3'],
-        techStack: Array.isArray(parsed.techStack) ? parsed.techStack : ['Next.js / React', 'Node.js', 'PostgreSQL'],
-        revenueModel: parsed.revenueModel || '收入模式设计中...',
-        pricingStrategy: parsed.pricingStrategy || '定价策略设计中...',
+      aiResponse = JSON.parse(jsonMatch[0])
+      console.log('✅ DeepSeek 生成成功')
+    }
+  } catch (error) {
+    lastError = error as Error
+    console.warn('⚠️ DeepSeek 调用失败:', error)
+
+    // 第二层：尝试 Qwen (通义千问)
+    try {
+      console.log('🤖 降级到 Qwen 生成内容...')
+      const response = await aiServiceManager.callSingleService({
+        provider: 'qwen',
+        persona: 'business-strategist',
+        context: {
+          ideaContent,
+          expertInsights: contextPrompt
+        },
+        systemPrompt: '你是一位资深商业顾问和营销专家，擅长将创意转化为可执行的商业计划，特别擅长设计获客策略和冷启动方案。使用口语化、务实的语言，给出具体可操作的建议。',
+        userPrompt: prompt,
+        temperature: 0.7,
+        maxTokens: 3000
+      })
+
+      const content = response.content.trim()
+      const jsonMatch = content.match(/\{[\s\S]*\}/)
+      if (jsonMatch) {
+        aiResponse = JSON.parse(jsonMatch[0])
+        console.log('✅ Qwen 生成成功')
+      }
+    } catch (qwenError) {
+      lastError = qwenError as Error
+      console.error('❌ Qwen 也失败了:', qwenError)
+    }
+  }
+
+  // 如果AI成功生成内容，解析并返回
+  if (aiResponse) {
+    try {
+      const result = {
+        marketAnalysis: aiResponse.marketAnalysis || '市场分析生成中...',
+        competitionAnalysis: aiResponse.competitionAnalysis || '竞争分析生成中...',
+        targetCustomers: Array.isArray(aiResponse.targetCustomers) ? aiResponse.targetCustomers : [`${ideaTitle}的核心目标用户群体`, '次要用户群体', '潜在扩展用户'],
+        userNeeds: aiResponse.userNeeds || '用户需求分析中...',
+        mvpFeatures: Array.isArray(aiResponse.mvpFeatures) ? aiResponse.mvpFeatures : ['核心功能1', '核心功能2', '核心功能3'],
+        techStack: Array.isArray(aiResponse.techStack) ? aiResponse.techStack : ['Next.js / React', 'Node.js', 'PostgreSQL'],
+        revenueModel: aiResponse.revenueModel || '收入模式设计中...',
+        pricingStrategy: aiResponse.pricingStrategy || '定价策略设计中...',
         customerAcquisition: {
-          targetCustomers: Array.isArray(parsed.customerAcquisition?.targetCustomers)
-            ? parsed.customerAcquisition.targetCustomers
+          targetCustomers: Array.isArray(aiResponse.customerAcquisition?.targetCustomers)
+            ? aiResponse.customerAcquisition.targetCustomers
             : [`${ideaTitle}的核心目标用户群体`, '次要用户群体', '潜在扩展用户'],
-          acquisitionChannels: Array.isArray(parsed.customerAcquisition?.acquisitionChannels)
-            ? parsed.customerAcquisition.acquisitionChannels
+          acquisitionChannels: Array.isArray(aiResponse.customerAcquisition?.acquisitionChannels)
+            ? aiResponse.customerAcquisition.acquisitionChannels
             : ['搜索引擎优化SEO', '内容营销', '社交媒体推广', '合作伙伴引流'],
-          coldStartStrategy: parsed.customerAcquisition?.coldStartStrategy || '冷启动策略制定中...',
-          budgetAllocation: parsed.customerAcquisition?.budgetAllocation || '预算分配建议制定中...'
+          coldStartStrategy: aiResponse.customerAcquisition?.coldStartStrategy || '冷启动策略制定中...',
+          budgetAllocation: aiResponse.customerAcquisition?.budgetAllocation || '预算分配建议制定中...'
         },
         marketingStrategy: {
-          contentStrategy: Array.isArray(parsed.marketingStrategy?.contentStrategy)
-            ? parsed.marketingStrategy.contentStrategy
+          contentStrategy: Array.isArray(aiResponse.marketingStrategy?.contentStrategy)
+            ? aiResponse.marketingStrategy.contentStrategy
             : ['创建行业相关的优质内容', '分享用户成功案例', '发布产品使用技巧'],
-          communityStrategy: Array.isArray(parsed.marketingStrategy?.communityStrategy)
-            ? parsed.marketingStrategy.communityStrategy
+          communityStrategy: Array.isArray(aiResponse.marketingStrategy?.communityStrategy)
+            ? aiResponse.marketingStrategy.communityStrategy
             : ['建立用户社群', '定期组织线上活动', '培养种子用户'],
-          partnershipIdeas: Array.isArray(parsed.marketingStrategy?.partnershipIdeas)
-            ? parsed.marketingStrategy.partnershipIdeas
+          partnershipIdeas: Array.isArray(aiResponse.marketingStrategy?.partnershipIdeas)
+            ? aiResponse.marketingStrategy.partnershipIdeas
             : ['与互补产品合作', '寻找行业KOL背书', '加入行业联盟'],
-          viralMechanics: parsed.marketingStrategy?.viralMechanics || '病毒传播机制设计中...'
+          viralMechanics: aiResponse.marketingStrategy?.viralMechanics || '病毒传播机制设计中...'
         },
         earlyMilestones: {
-          twoWeekGoals: Array.isArray(parsed.earlyMilestones?.twoWeekGoals)
-            ? parsed.earlyMilestones.twoWeekGoals
+          twoWeekGoals: Array.isArray(aiResponse.earlyMilestones?.twoWeekGoals)
+            ? aiResponse.earlyMilestones.twoWeekGoals
             : [
                 {
                   title: '验证核心假设',
@@ -538,8 +598,8 @@ ${contextPrompt}
                   impact: 'medium' as const
                 }
               ],
-          oneMonthGoals: Array.isArray(parsed.earlyMilestones?.oneMonthGoals)
-            ? parsed.earlyMilestones.oneMonthGoals
+          oneMonthGoals: Array.isArray(aiResponse.earlyMilestones?.oneMonthGoals)
+            ? aiResponse.earlyMilestones.oneMonthGoals
             : [
                 {
                   title: '获得前20个真实用户',
@@ -563,8 +623,8 @@ ${contextPrompt}
                   impact: 'high' as const
                 }
               ],
-          quickWins: Array.isArray(parsed.earlyMilestones?.quickWins)
-            ? parsed.earlyMilestones.quickWins
+          quickWins: Array.isArray(aiResponse.earlyMilestones?.quickWins)
+            ? aiResponse.earlyMilestones.quickWins
             : [
                 '今天就在朋友圈发布创意，收集初步反馈',
                 '加入3个目标用户活跃的社群，观察他们的讨论',
@@ -572,12 +632,23 @@ ${contextPrompt}
               ]
         }
       }
+
+      // 保存到缓存
+      contentCache.set(cacheKey, result)
+      console.log('💾 AI生成内容已缓存')
+
+      return result
+    } catch (parseError) {
+      console.error('❌ AI响应解析失败:', parseError)
+      // 继续到降级方案
     }
-  } catch (error) {
-    console.error('AI content generation failed:', error)
   }
 
-  // 降级方案：基于创意内容生成模板化但有针对性的内容
+  // 第三层：智能模板降级（基于专家洞察生成更有针对性的内容）
+  console.log('🔧 使用智能模板生成降级内容...')
+  console.error('所有AI服务均失败，最后错误:', lastError)
+
+  // 降级方案：基于创意内容和专家洞察生成模板化但有针对性的内容
   return {
     marketAnalysis: `${ideaTitle}面向的市场具有一定规模和增长潜力。通过竞价分析，专家们对这个创意的评估是${snapshot.highestBid && snapshot.highestBid > 200 ? '积极的' : '谨慎乐观的'}，认为需要进一步验证市场需求和竞争优势。建议重点关注目标用户的真实痛点，找到差异化切入点。`,
 
@@ -731,6 +802,14 @@ export async function buildCoreGuide(snapshot: BiddingSnapshot): Promise<{
   guide.metadata.estimatedReadTime = 15
   guide.metadata.winningBid = highestBid
   guide.metadata.winner = winnerName
+
+  // 添加专家洞察到guide
+  guide.expertInsights = {
+    summary: expertContext.summary,
+    keyQuotes: expertContext.keyQuotes,
+    consensusPoints: expertContext.consensusPoints,
+    controversialPoints: expertContext.controversialPoints
+  }
 
   // 更口语化的概述
   const supporterText = supporters > 0
