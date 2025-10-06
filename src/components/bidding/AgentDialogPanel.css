@@ -115,6 +115,28 @@
 /* 对话气泡增强动画 */
 .dialog-bubble {
   animation: bounce-in 0.5s ease-out;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(59, 130, 246, 0.3) rgba(243, 244, 246, 0.5);
+}
+
+/* 自定义滚动条样式（Webkit浏览器） */
+.dialog-bubble::-webkit-scrollbar {
+  width: 6px;
+}
+
+.dialog-bubble::-webkit-scrollbar-track {
+  background: rgba(243, 244, 246, 0.5);
+  border-radius: 10px;
+}
+
+.dialog-bubble::-webkit-scrollbar-thumb {
+  background: rgba(59, 130, 246, 0.3);
+  border-radius: 10px;
+  transition: background 0.2s ease;
+}
+
+.dialog-bubble::-webkit-scrollbar-thumb:hover {
+  background: rgba(59, 130, 246, 0.5);
 }
 
 .dialog-bubble::before {
@@ -131,6 +153,7 @@
     transparent
   );
   animation: shimmer 2s infinite;
+  pointer-events: none;
 }
 
 /* 竞价金额特殊效果 */

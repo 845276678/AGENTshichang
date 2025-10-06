@@ -390,17 +390,22 @@ export const AgentDialogPanel: React.FC<AgentDialogPanelProps> = ({
       <div
         className="dialog-section relative flex-1 flex items-start justify-center"
         style={{
-          minHeight: '180px',
+          minHeight: '120px',
+          maxHeight: '280px',
           width: '100%',
           paddingTop: '0.5rem',
-          paddingBottom: '0.5rem'
+          paddingBottom: '0.5rem',
+          overflow: 'visible'
         }}
       >
         <AnimatePresence>
           {state.currentMessage && (
             <MotionDiv
-              className="dialog-bubble relative bg-white border border-gray-200 rounded-2xl shadow-md p-3 w-full max-w-none"
-              style={{ width: '100%' }}
+              className="dialog-bubble relative bg-white border border-gray-200 rounded-2xl shadow-md p-3 w-full max-w-none overflow-y-auto"
+              style={{
+                width: '100%',
+                maxHeight: '260px'
+              }}
             >
               {/* 气泡内容 */}
               <div className="bubble-content relative z-10">
@@ -408,6 +413,8 @@ export const AgentDialogPanel: React.FC<AgentDialogPanelProps> = ({
                   className="message-text text-xs text-gray-800 leading-relaxed break-words hyphens-auto"
                   style={{
                     whiteSpace: 'pre-wrap',
+                    wordWrap: 'break-word',
+                    overflowWrap: 'break-word',
                     lineHeight: '1.5'
                   }}
                 >
