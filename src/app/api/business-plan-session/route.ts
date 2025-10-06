@@ -137,7 +137,7 @@ export async function POST(request: NextRequest) {
       snapshot
     })
 
-    const { guide, metadata } = composeBusinessPlanGuide(snapshot)
+    const { guide, metadata } = await composeBusinessPlanGuide(snapshot)
     const completion = await BusinessPlanSessionService.completeSession({
       sessionId: session.id,
       guide,

@@ -1,4 +1,7 @@
 import type { BusinessPlanGuide, BiddingSnapshot, BusinessPlanMetadata } from "./types"
+import AIServiceManager from '@/lib/ai-service-manager'
+
+const aiServiceManager = new AIServiceManager()
 
 const BASE_GUIDE_TEMPLATE: BusinessPlanGuide = {
   currentSituation: {
@@ -133,15 +136,172 @@ const computeConfidence = (snapshot: BiddingSnapshot): number => {
   return Math.min(98, Math.round(base + supporters * 2))
 }
 
-export function buildCoreGuide(snapshot: BiddingSnapshot): {
+/**
+ * 从竞价对话中提取专家洞察
+ */
+function extractExpertInsights(snapshot: BiddingSnapshot): {
+  strengths: string[]
+  challenges: string[]
+  opportunities: string[]
+  keyQuestions: string[]
+} {
+  const insights = {
+    strengths: [] as string[],
+    challenges: [] as string[],
+    opportunities: [] as string[],
+    keyQuestions: [] as string[]
+  }
+
+  // 从专家消息中提取关键洞察
+  const messages = snapshot.messages || []
+  messages.forEach(msg => {
+    const content = msg.content || ''
+
+    // 识别优势相关的内容
+    if (content.includes('优势') || content.includes('亮点') || content.includes('看好')) {
+      const match = content.match(/[^。！？]*(?:优势|亮点|看好)[^。！？]*/g)
+      if (match) insights.strengths.push(...match.map(s => s.trim()).filter(Boolean))
+    }
+
+    // 识别挑战相关的内容
+    if (content.includes('挑战') || content.includes('风险') || content.includes('问题')) {
+      const match = content.match(/[^。！？]*(?:挑战|风险|问题)[^。！？]*/g)
+      if (match) insights.challenges.push(...match.map(s => s.trim()).filter(Boolean))
+    }
+
+    // 识别机会相关的内容
+    if (content.includes('机会') || content.includes('潜力') || content.includes('空间')) {
+      const match = content.match(/[^。！？]*(?:机会|潜力|空间)[^。！？]*/g)
+      if (match) insights.opportunities.push(...match.map(s => s.trim()).filter(Boolean))
+    }
+
+    // 识别问题
+    if (content.includes('?') || content.includes('？')) {
+      const match = content.match(/[^。！]*[?？]/g)
+      if (match) insights.keyQuestions.push(...match.map(s => s.trim()).filter(Boolean))
+    }
+  })
+
+  // 去重并限制数量
+  insights.strengths = [...new Set(insights.strengths)].slice(0, 5)
+  insights.challenges = [...new Set(insights.challenges)].slice(0, 5)
+  insights.opportunities = [...new Set(insights.opportunities)].slice(0, 5)
+  insights.keyQuestions = [...new Set(insights.keyQuestions)].slice(0, 3)
+
+  return insights
+}
+
+/**
+ * 使用AI生成个性化的商业计划内容
+ */
+async function generatePersonalizedContent(
+  snapshot: BiddingSnapshot,
+  expertInsights: ReturnType<typeof extractExpertInsights>
+): Promise<{
+  marketAnalysis: string
+  userNeeds: string
+  mvpFeatures: string[]
+  revenueModel: string
+}> {
+  const ideaTitle = snapshot.ideaTitle || '创意项目'
+  const ideaContent = snapshot.ideaContent || snapshot.summary || ''
+
+  // 构建专家洞察摘要
+  const insightsSummary = `
+专家识别的优势：${expertInsights.strengths.join('；')}
+专家识别的挑战：${expertInsights.challenges.join('；')}
+市场机会：${expertInsights.opportunities.join('；')}
+关键问题：${expertInsights.keyQuestions.join('；')}
+  `.trim()
+
+  const prompt = `
+你是一位资深的商业顾问，正在为创业者制定详细的商业计划。请基于以下信息生成个性化的分析和建议：
+
+创意标题：${ideaTitle}
+创意描述：${ideaContent}
+专家竞价结果：最高出价 ${snapshot.highestBid || 0} 分，${snapshot.supportedAgents?.length || 0} 位专家支持
+
+${insightsSummary}
+
+请提供以下内容（用JSON格式返回）：
+
+1. marketAnalysis: 市场分析（100-150字，分析市场规模、竞争态势、目标用户群体）
+2. userNeeds: 用户需求和痛点（80-120字，具体说明目标用户的核心痛点和需求）
+3. mvpFeatures: MVP核心功能列表（3-5个功能，每个15-30字）
+4. revenueModel: 收入模式建议（80-120字，说明如何变现）
+
+要求：
+- 内容必须紧密结合这个具体的创意和行业特点
+- 语言口语化、接地气
+- 给出可执行的具体建议
+- 避免空洞的套话
+
+请直接返回JSON，不要其他说明。
+`.trim()
+
+  try {
+    const response = await aiServiceManager.callSingleService({
+      provider: 'deepseek',
+      persona: 'business-strategist',
+      context: {
+        ideaContent,
+        expertInsights: insightsSummary
+      },
+      systemPrompt: '你是一位资深商业顾问，擅长将创意转化为可执行的商业计划。使用口语化、务实的语言，给出具体可操作的建议。',
+      userPrompt: prompt,
+      temperature: 0.7,
+      maxTokens: 1500
+    })
+
+    // 尝试解析JSON响应
+    const content = response.content.trim()
+    const jsonMatch = content.match(/\{[\s\S]*\}/)
+
+    if (jsonMatch) {
+      const parsed = JSON.parse(jsonMatch[0])
+      return {
+        marketAnalysis: parsed.marketAnalysis || '市场分析生成中...',
+        userNeeds: parsed.userNeeds || '用户需求分析中...',
+        mvpFeatures: Array.isArray(parsed.mvpFeatures) ? parsed.mvpFeatures : ['核心功能1', '核心功能2', '核心功能3'],
+        revenueModel: parsed.revenueModel || '收入模式设计中...'
+      }
+    }
+  } catch (error) {
+    console.error('AI content generation failed:', error)
+  }
+
+  // 降级方案：基于创意内容生成模板化但有针对性的内容
+  return {
+    marketAnalysis: `${ideaTitle}面向的市场具有一定规模和增长潜力。通过竞价分析，专家们对这个创意的评估是${snapshot.highestBid && snapshot.highestBid > 200 ? '积极的' : '谨慎乐观的'}，认为需要进一步验证市场需求和竞争优势。建议重点关注目标用户的真实痛点，找到差异化切入点。`,
+
+    userNeeds: `目标用户在使用现有解决方案时遇到的主要痛点包括：效率低、成本高、体验差等问题。${ideaTitle}需要深入了解用户的具体场景和需求，通过访谈和调研验证这些假设，确保产品真正解决用户的核心问题。`,
+
+    mvpFeatures: [
+      `${ideaTitle}的核心功能模块`,
+      '用户引导和入门体验优化',
+      '基础数据分析和反馈机制',
+      '简化的工作流程和交互界面'
+    ],
+
+    revenueModel: `建议采用订阅制为主、按量付费为辅的混合模式。早期可以通过免费试用吸引种子用户，积累口碑后推出付费版本。定价要参考同类产品，但可以在功能和服务上形成差异化，支撑溢价空间。`
+  }
+}
+
+export async function buildCoreGuide(snapshot: BiddingSnapshot): Promise<{
   guide: BusinessPlanGuide
   metadata: BusinessPlanMetadata
-} {
+}> {
   const guide = cloneGuide()
   const highestBid = snapshot.highestBid ?? 0
   const supporters = snapshot.supportedAgents?.length ?? 0
   const confidence = computeConfidence(snapshot)
   const winnerName = snapshot.winnerName || 'AI专家团队'
+
+  // 提取专家洞察
+  const expertInsights = extractExpertInsights(snapshot)
+
+  // 生成个性化内容
+  const personalizedContent = await generatePersonalizedContent(snapshot, expertInsights)
 
   guide.metadata.ideaTitle = snapshot.ideaTitle
   guide.metadata.generatedAt = new Date().toISOString()
@@ -156,14 +316,40 @@ export function buildCoreGuide(snapshot: BiddingSnapshot): {
     ? `有 ${supporters} 位专家明确表示看好，这说明需求是真实存在的`
     : `虽然还需要进一步验证，但专家们都看到了机会`
 
-  guide.currentSituation.summary = `你的"${snapshot.ideaTitle}"在竞价环节拿到了 ¥${highestBid} 的最高出价。${supporterText}。接下来咱们把这些专家的洞察转化成实实在在的行动计划。`
+  guide.currentSituation.summary = `你的"${snapshot.ideaTitle}"在竞价环节拿到了 ${highestBid} 积分的最高出价。${supporterText}。接下来咱们把这些专家的洞察转化成实实在在的行动计划。`
 
+  // 整合专家识别的关键洞察
   guide.currentSituation.keyInsights = [
-    `竞价讨论中已经帮你找到了差异化的切入点`,
+    ...expertInsights.strengths.slice(0, 2),
     supporterText,
     `现在最关键的是：别光想，赶紧找真实用户聊聊`
+  ].filter(Boolean)
+
+  // 使用AI生成的市场分析
+  guide.currentSituation.marketReality.marketSize = personalizedContent.marketAnalysis
+  guide.currentSituation.marketReality.competition = `根据竞价讨论，专家们对市场竞争的看法各有侧重。${winnerName}最看好这个方向，给出了 ${highestBid} 分的评估。`
+  guide.currentSituation.marketReality.opportunities = [
+    ...expertInsights.opportunities.slice(0, 3),
+    '通过MVP快速验证，降低试错成本'
+  ].filter(Boolean)
+  guide.currentSituation.marketReality.challenges = [
+    ...expertInsights.challenges.slice(0, 3),
+    '需要持续关注用户反馈，快速迭代'
+  ].filter(Boolean)
+
+  // 使用AI生成的用户需求分析
+  guide.currentSituation.userNeeds.targetUsers = personalizedContent.userNeeds
+  guide.currentSituation.userNeeds.painPoints = expertInsights.keyQuestions.length > 0
+    ? expertInsights.keyQuestions
+    : ['用户的核心痛点需要通过访谈验证', '现有解决方案的不足之处', '愿意为解决方案付费的意愿']
+  guide.currentSituation.userNeeds.solutions = [
+    `${snapshot.ideaTitle}提供的核心价值`,
+    '通过技术手段降低成本',
+    '优化用户体验，提高效率'
   ]
 
+  // 使用AI生成的MVP功能
+  guide.mvpDefinition.productConcept.coreFeatures = personalizedContent.mvpFeatures
   guide.mvpDefinition.productConcept.uniqueValue = `用最小的成本快速验证"${snapshot.ideaTitle}"这个想法到底行不行。`
   guide.mvpDefinition.productConcept.minimumScope = '专注1-2个最核心的场景，把反馈机制嵌进去，每天都能看到用户的真实反应。'
   guide.mvpDefinition.developmentPlan.techStack = ['Next.js / React', 'Node.js 或 FastAPI', '向量数据库 + AI API', 'Vercel/Railway 部署']
@@ -194,11 +380,12 @@ export function buildCoreGuide(snapshot: BiddingSnapshot): {
     '定好每周节奏，谁负责啥，周五下午一起看数据'
   ]
 
+  // 使用AI生成的收入模式
   guide.businessExecution.businessModel.revenueStreams = [
-    '订阅制（月付或年付）+ 按量收费',
+    personalizedContent.revenueModel,
     '企业定制服务（利润高但费时间）',
     '数据报告（后期可以考虑）'
-  ]
+  ].slice(0, 3)
 
   guide.businessExecution.businessModel.costStructure = [
     '开发成本（人力为主）',

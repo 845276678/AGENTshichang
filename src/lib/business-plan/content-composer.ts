@@ -12,11 +12,11 @@ export interface ComposedBusinessPlan {
   metadata: BusinessPlanMetadata
 }
 
-export function composeBusinessPlanGuide(
+export async function composeBusinessPlanGuide(
   snapshot: BiddingSnapshot,
   options: ComposeGuideOptions = {}
-): ComposedBusinessPlan {
-  const { guide, metadata } = buildCoreGuide(snapshot)
+): Promise<ComposedBusinessPlan> {
+  const { guide, metadata } = await buildCoreGuide(snapshot)
 
   guide.executionPlan = buildExecutionPlan(snapshot, {
     ideaDescription: snapshot.ideaDescription,

@@ -16,6 +16,7 @@ export interface AIServiceRequest {
   persona: string;
   context: DialogueContext;
   systemPrompt: string;
+  userPrompt?: string;
   temperature: number;
   maxTokens: number;
 }
@@ -338,7 +339,7 @@ export class AIServiceManager {
           },
           {
             role: 'user',
-            content: this.buildUserPrompt(request.context)
+            content: request.userPrompt || this.buildUserPrompt(request.context)
           }
         ],
         temperature: request.temperature,
