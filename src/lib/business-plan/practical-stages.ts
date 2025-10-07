@@ -9,12 +9,12 @@ export const PRACTICAL_BUSINESS_PLAN_STAGES: BusinessPlanStageConfig[] = [
     deliverables: [
       '清晰的目标层次结构',
       '可量化的成功指标',
-      '目标实现的时间节点',
-      '资源投入预期',
-      '目标管理工具推荐'
+      '短中长期时间安排',
+      '资源投入预估',
+      '目标管理工具与节奏建议'
     ],
     dependencies: [],
-    description: '帮助创业者明确"为什么做"比"做什么"更重要，建立清晰的短中长期目标体系'
+    description: '帮助创业者搞清楚“为什么做”“要做到什么”，建立结构化的目标体系，并对齐四周冲刺的重点。'
   },
   {
     id: 'basic_market_analysis',
@@ -22,44 +22,44 @@ export const PRACTICAL_BUSINESS_PLAN_STAGES: BusinessPlanStageConfig[] = [
     aiProvider: 'ALI',
     estimatedTime: '12-15分钟',
     deliverables: [
-      '基本盘圈子识别',
-      '需求硬度分析报告',
-      '个人优势匹配评估',
-      'MVP核心功能定义',
-      '启动成本预算'
+      '基本盘圈层识别',
+      '需求硬度评分报告',
+      '个人优势匹配分析',
+      'MVP 核心功能定义',
+      '启动成本与投入预算'
     ],
     dependencies: ['goal_analysis'],
-    description: '基于"基本盘理论"，从身边朋友圈开始验证创意，分析需求硬度和个人优势匹配'
+    description: '基于“基本盘理论”，从身边圈层开始验证创意，评估需求硬度与个人优势匹配度，为四周冲刺奠定基础。'
   },
   {
     id: 'research_method_guide',
-    name: '4周调研方法指导',
+    name: '4周调研方法指南',
     aiProvider: 'ZHIPU',
     estimatedTime: '10-12分钟',
     deliverables: [
-      '4周详细调研计划',
+      '逐周调研行动计划',
       '用户访谈问题清单',
-      '竞品调研方法指南',
-      '数据收集工具推荐',
-      '验证实验设计方案'
+      '竞品深度调研手册',
+      '数据收集与验证工具',
+      '快速实验设计模板'
     ],
     dependencies: ['basic_market_analysis'],
-    description: '设计系统化的4周调研计划，包括用户验证、竞品分析、数据收集和市场验证'
+    description: '设计系统化的四周调研计划，涵盖用户验证、竞品分析、数据收集与市场验证，确保每周都有可交付成果。'
   },
   {
     id: 'implementation_plan',
-    name: '3个月实施计划与正反馈机制',
+    name: '4周实施计划与正反馈机制',
     aiProvider: 'DEEPSEEK',
     estimatedTime: '15-20分钟',
     deliverables: [
-      '3个月详细实施计划',
-      '每周里程碑设定',
-      '正反馈机制设计',
-      '风险预警与应对策略',
-      '团队管理指导'
+      '4周详细执行排期',
+      '每周里程碑与产出',
+      '正反馈机制与节奏板',
+      '风险预警与备选预案',
+      '团队协作与沟通指引'
     ],
     dependencies: ['research_method_guide'],
-    description: '制定详细的3个月实施计划，建立正反馈机制维持信心，确保快速迭代和持续推进'
+    description: '制定落地的四周冲刺计划，设置每周节奏与正反馈机制，保障团队持续推进并能及时纠偏。'
   },
   {
     id: 'business_model_profitability',
@@ -68,38 +68,38 @@ export const PRACTICAL_BUSINESS_PLAN_STAGES: BusinessPlanStageConfig[] = [
     estimatedTime: '12-15分钟',
     deliverables: [
       '商业模式画布',
-      '收入模式设计',
-      '成本结构优化方案',
-      '竞争优势分析',
-      '财务可行性评估'
+      '收入结构与定价建议',
+      '成本与资源配置方案',
+      '竞争优势与差异化分析',
+      '盈利路径与关键指标'
     ],
     dependencies: ['basic_market_analysis', 'implementation_plan'],
-    description: '设计可持续的商业模式，包括收入流设计、成本控制、竞争优势构建和盈利路径规划'
+    description: '设计可持续的商业模式，明确收入结构、成本控制、差异化优势与盈利指标，为后续扩张打底。'
   }
 ]
 
 // 阶段间的数据流转映射
 export const STAGE_DATA_FLOW = {
-  'goal_analysis': {
+  goal_analysis: {
     outputs: ['userGoals', 'successMetrics', 'timelineTargets'],
     nextStages: ['basic_market_analysis']
   },
-  'basic_market_analysis': {
+  basic_market_analysis: {
     inputs: ['userGoals', 'successMetrics'],
     outputs: ['targetCircle', 'needHardness', 'personalAdvantages', 'mvpDefinition'],
     nextStages: ['research_method_guide', 'business_model_profitability']
   },
-  'research_method_guide': {
+  research_method_guide: {
     inputs: ['targetCircle', 'mvpDefinition'],
     outputs: ['researchPlan', 'validationMethods', 'dataCollectionTools'],
     nextStages: ['implementation_plan']
   },
-  'implementation_plan': {
+  implementation_plan: {
     inputs: ['researchPlan', 'mvpDefinition'],
     outputs: ['detailedSchedule', 'feedbackMechanisms', 'riskManagement'],
     nextStages: ['business_model_profitability']
   },
-  'business_model_profitability': {
+  business_model_profitability: {
     inputs: ['targetCircle', 'needHardness', 'detailedSchedule'],
     outputs: ['businessModelCanvas', 'revenueModel', 'competitiveAdvantage'],
     nextStages: []
@@ -113,26 +113,26 @@ export const GOAL_VALIDATION_CONFIG = {
   clarificationQuestions: [
     {
       id: 'short_term_goals',
-      question: '你希望在接下来的3个月内实现什么目标？',
-      hint: '例如：验证用户需求、完成MVP开发、获得100个测试用户',
+      question: '你希望在接下来的4周内达成什么结果？',
+      hint: '例如：完成 MVP 原型、验证 3 个核心假设、拿到首批付费承诺。',
       required: true
     },
     {
       id: 'success_metrics',
-      question: '你如何判断这个项目是否成功？',
-      hint: '例如：用户满意度达到80%、月收入达到1万元、获得天使投资',
+      question: '你如何判断这轮冲刺是否成功？',
+      hint: '例如：用户满意度 80%、获取 20 位深度反馈、转化 3 个付费用户。',
       required: true
     },
     {
       id: 'medium_term_goals',
-      question: '你的6-12个月目标是什么？',
-      hint: '例如：产品正式上线、用户规模达到1万、实现盈亏平衡',
+      question: '你在 3-6 个月内的目标是什么？',
+      hint: '例如：产品正式上线、月度营收稳定、拓展关键渠道。',
       required: false
     },
     {
       id: 'long_term_vision',
-      question: '你对这个项目的长期愿景（1-3年）是什么？',
-      hint: '例如：成为行业领导者、IPO上市、被大公司收购',
+      question: '你对这个项目的长期愿景（1-3 年）是什么？',
+      hint: '例如：成为细分领域的领军品牌、实现持续盈利、规划退出路径。',
       required: false
     }
   ]
@@ -141,13 +141,13 @@ export const GOAL_VALIDATION_CONFIG = {
 // 基本盘分析配置
 export const BASIC_MARKET_CONFIG = {
   circleTypes: [
-    '同事朋友圈', '同学校友圈', '行业专业圈',
-    '兴趣爱好圈', '地域社区圈', '线上社群圈'
+    '同事朋友圈', '同学校友圈', '行业社群圈',
+    '兴趣爱好圈', '本地社区圈', '线上社群圈'
   ],
   needHardnessLevels: [
     { level: 'hard', description: '硬需求：必须解决的问题', score: 8-10 },
-    { level: 'medium', description: '中等需求：重要但可延迟的问题', score: 5-7 },
-    { level: 'soft', description: '软需求：可有可无的问题', score: 1-4 }
+    { level: 'medium', description: '中等需求：重要但可延迟', score: 5-7 },
+    { level: 'soft', description: '软需求：可有可无', score: 1-4 }
   ],
   personalAdvantageTypes: [
     '行业经验', '技术能力', '人脉资源',
@@ -161,8 +161,8 @@ export const RESEARCH_METHOD_CONFIG = {
     {
       week: 1,
       focus: '身边用户验证',
-      activities: ['用户访谈', '需求确认', '假设验证'],
-      deliverables: ['用户反馈报告', '需求验证结果', '假设修正建议']
+      activities: ['用户访谈', '需求确认', '核心假设梳理'],
+      deliverables: ['用户反馈报告', '需求验证结论', '假设修正建议']
     },
     {
       week: 2,
@@ -173,43 +173,53 @@ export const RESEARCH_METHOD_CONFIG = {
     {
       week: 3,
       focus: '数据收集与验证',
-      activities: ['市场数据收集', 'MVP原型测试', 'A/B测试'],
-      deliverables: ['市场数据报告', 'MVP测试结果', '用户行为分析']
+      activities: ['市场数据收集', 'MVP 原型测试', '小规模实验'],
+      deliverables: ['市场数据汇总', 'MVP 测试结果', '用户行为分析']
     },
     {
       week: 4,
-      focus: '结果整理与策略调整',
-      activities: ['调研结果分析', '策略调整建议', '下步计划制定'],
-      deliverables: ['综合调研报告', '策略调整方案', '下阶段行动计划']
+      focus: '结果整理与策略调优',
+      activities: ['调研结果分析', '策略调整建议', '下一阶段计划'],
+      deliverables: ['综合调研报告', '策略调整方案', '下一阶段行动清单']
     }
   ]
 }
 
 // 实施计划配置
 export const IMPLEMENTATION_CONFIG = {
-  monthlyMilestones: [
+  weeklyMilestones: [
     {
-      month: 1,
-      theme: 'MVP开发与初步验证',
-      keyMilestones: ['MVP功能完成', '第一批用户测试', '初步反馈收集'],
-      successCriteria: ['功能可用性达到80%', '用户测试满意度>70%', '收集到20+有效反馈']
+      week: 1,
+      theme: '方向确认与节奏搭建',
+      keyMilestones: ['完成目标与假设清单', '锁定目标用户画像', '搭建执行看板'],
+      successCriteria: ['完成 ≥8 场访谈', '形成 5 项核心假设', '节奏板开始运行']
     },
     {
-      month: 2,
-      theme: '扩大验证与产品优化',
-      keyMilestones: ['用户群体扩展', '产品功能优化', '数据跟踪建立'],
-      successCriteria: ['测试用户达到100+', '产品留存率>60%', '核心指标体系建立']
+      week: 2,
+      theme: 'MVP 原型与技术验证',
+      keyMilestones: ['核心流程跑通', '关键技术问题定位并解决', '完成演示脚本与埋点'],
+      successCriteria: ['原型稳定通过内部测试', '高优先级技术问题解决率 ≥80%', '核心数据正常采集']
     },
     {
-      month: 3,
-      theme: '商业模式验证与优化',
-      keyMilestones: ['付费模式测试', '商业模式验证', '扩展计划制定'],
-      successCriteria: ['获得第一批付费用户', '商业模式可行性确认', '下阶段发展规划完成']
+      week: 3,
+      theme: '用户验证与快速迭代',
+      keyMilestones: ['组织目标用户体验', '收集并分类反馈', '完成至少一次迭代'],
+      successCriteria: ['累计 ≥15 位用户体验', '高频反馈形成行动项', '完成 1-2 次产品更新']
+    },
+    {
+      week: 4,
+      theme: '收入信号与扩展规划',
+      keyMilestones: ['设计收费实验', '获取首批付费或预订', '制定下一阶段路线图'],
+      successCriteria: ['获得 ≥3 个付费承诺', '形成转化漏斗数据', '明确后续 4-8 周重点']
     }
   ],
   feedbackMechanisms: [
-    '每周小胜利庆祝', '可视化进展追踪', '定期团队分享',
-    '导师指导机制', '同行交流支持', '用户反馈激励'
+    '每日站会更新进展与阻塞',
+    '每周五冲刺复盘',
+    '专家顾问定期把关',
+    '用户社群即时反馈',
+    '里程碑庆祝与信心补给',
+    '风控检查与备选预案'
   ]
 }
 
@@ -220,11 +230,11 @@ export const BUSINESS_MODEL_CONFIG = {
     'keyResources', 'keyActivities', 'keyPartnerships', 'costStructure', 'revenueStreams'
   ],
   revenueModels: [
-    '订阅制收费', '一次性付费', '按使用量收费', '免费增值模式',
-    '广告收入', '佣金分成', '数据服务', '企业定制'
+    '订阅付费', '一次性买断', '按使用量计费', '增值服务',
+    'SaaS 模式', '佣金分成', '数据服务', '企业版授权'
   ],
   costCategories: [
-    '人员成本', '技术成本', '营销成本', '运营成本',
-    '办公成本', '法务成本', '合规成本', '其他费用'
+    '人员成本', '技术成本', '运营成本', '营销成本',
+    '办公成本', '合规成本', '供应链成本', '渠道成本'
   ]
 }

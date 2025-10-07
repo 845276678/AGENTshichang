@@ -2,12 +2,15 @@ import { NextRequest, NextResponse } from 'next/server'
 import { authenticateToken } from '@/lib/auth-middleware'
 import AIServiceManager, { SYSTEM_PROMPTS } from '@/lib/ai-service-manager'
 import { AI_PERSONAS } from '@/lib/ai-persona-system'
+import type { AIPersona } from '@/lib/ai-persona-system'
 import {
   generateBiddingRound,
   generatePersonaComment,
   calculatePersonaScore
 } from '@/lib/ai-persona-enhanced'
-import { evaluateIdeaQuality, generateEvaluationFeedback } from '@/lib/idea-evaluation'
+import { evaluateIdeaQuality } from '@/lib/idea-evaluation'
+import type { IdeaEvaluationResult, IdeaEvaluationVerdict, DimensionStatus } from '@/lib/idea-evaluation'
+import { buildCriticalReviewPrompt } from '@/lib/prompt-builders'
 
 // UTF-8编码响应助手函数
 function createUTF8Response(data: any, status: number = 200) {
@@ -32,14 +35,10 @@ interface BiddingSession {
   currentBids: Record<string, number>
   messages: any[]
   finalReport?: any
-  evaluationResult?: {
-    score: number
-    verdict: string
-    feedback: string
-    requiredInfo: string[]
-  }
+  evaluationResult?: IdeaEvaluationResult
   supplementCount?: number // 补充次数
 }
+
 
 // 全局会话存储（生产环境应使用Redis）
 const activeSessions = new Map<string, BiddingSession>()
@@ -208,27 +207,17 @@ async function evaluateAndStartBidding(sessionId: string) {
 
     // 执行创意评估
     const evaluation = await evaluateIdeaQuality(session.ideaContent)
-    const feedback = generateEvaluationFeedback(evaluation)
+    const { feedback } = evaluation
 
     // 保存评估结果
-    session.evaluationResult = {
-      score: evaluation.score,
-      verdict: evaluation.verdict,
-      feedback,
-      requiredInfo: evaluation.requiredInfo
-    }
+    session.evaluationResult = evaluation
 
     console.log(`📊 Evaluation result: ${evaluation.verdict} (score: ${evaluation.score}/100)`)
 
     // 广播评估结果
     broadcastMessage(session.ideaId, {
       type: 'evaluation_result',
-      evaluation: {
-        score: evaluation.score,
-        verdict: evaluation.verdict,
-        feedback,
-        isWillingToDiscuss: evaluation.isWillingToDiscuss
-      }
+      evaluation,
     })
 
     // 根据评分决定流程
@@ -241,9 +230,15 @@ async function evaluateAndStartBidding(sessionId: string) {
 
       broadcastMessage(session.ideaId, {
         type: 'needs_supplement',
-        message: '您的创意需要补充信息才能继续',
+        message: 'Your idea needs more detail before the AI bidding can continue. Please follow the prompts to enrich it.',
         requiredInfo: evaluation.requiredInfo,
-        feedback
+        weaknesses: evaluation.weaknesses,
+        missingSections: evaluation.missingSections,
+        improvementActions: evaluation.improvementActions,
+        risks: evaluation.risks,
+        feedback,
+        score: evaluation.score,
+        verdict: evaluation.verdict,
       })
     } else {
       // 高分：进入犀利点评阶段
@@ -305,32 +300,14 @@ async function runWarmupPhase(sessionId: string) {
     const persona = AI_PERSONAS[i]
 
     try {
+      const prompt = buildCriticalReviewPrompt(persona, {
+        ideaContent: session.ideaContent,
+        evaluationResult: session.evaluationResult,
+      })
+
       const response = await generateAIResponse(persona.id, session.ideaContent, {
         phase: 'warmup',
-        prompt: `你是${persona.name}，${persona.background || '资深专家'}。
-
-用户创意：
-"${session.ideaContent}"
-
-请用你的专业视角进行犀利点评（保持${persona.personality || '专业'}风格）：
-
-1. **核心问题识别**：
-   - 这个创意最大的问题是什么？
-   - 问题定义是否清晰？目标用户是谁？
-
-2. **可行性快评**：
-   - 技术/商业可行性评分（0-10）：
-   - 最大风险：
-
-3. **直接建议**：
-   - 必须补充什么信息？
-   - 如果要继续，必须先解决什么？
-
-要求：
-- 直接、犀利、不客套
-- 不超过150字
-- 必须指出具体问题，不能只说好话
-- 给出明确的评分和建议`
+        prompt,
       })
 
       const message = {

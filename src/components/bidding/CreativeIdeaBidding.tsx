@@ -23,7 +23,7 @@ interface CreativeIdeaBiddingProps {
   ideaId: string;
 }
 
-// 阶段状态枚举
+// 阶段状态枚�?
 type PhaseStatus = 'warmup' | 'discussion' | 'bidding' | 'prediction' | 'result';
 
 // 用户参与统计
@@ -55,7 +55,7 @@ export default function CreativeIdeaBidding({ ideaId }: CreativeIdeaBiddingProps
     autoConnect: true
   });
 
-  // 本地状态
+  // 本地状�?
   const [userPrediction, setUserPrediction] = useState<number>(100);
   const [engagementStats, setEngagementStats] = useState<EngagementStats>({
     reactions: 0,
@@ -64,7 +64,7 @@ export default function CreativeIdeaBidding({ ideaId }: CreativeIdeaBiddingProps
     totalActions: 0
   });
 
-  // 生成商业指导书相关状态
+  // 生成商业指导书相关状�?
   const [isGeneratingGuide, setIsGeneratingGuide] = useState(false);
   const [guideProgress, setGuideProgress] = useState(0);
 
@@ -127,7 +127,7 @@ export default function CreativeIdeaBidding({ ideaId }: CreativeIdeaBiddingProps
     }));
   }, [submitPrediction, userPrediction]);
 
-  // 生成商业指导书处理函数
+  // 生成商业指导书处理函�?
   const handleGenerateGuide = useCallback(async () => {
     if (isGeneratingGuide) {
       return;
@@ -169,7 +169,7 @@ export default function CreativeIdeaBidding({ ideaId }: CreativeIdeaBiddingProps
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.error || '生成商业指导书失败');
+        throw new Error(errorData.error || '生成商业指导书失�?);
       }
 
       const result = await response.json();
@@ -215,7 +215,7 @@ export default function CreativeIdeaBidding({ ideaId }: CreativeIdeaBiddingProps
       const guideUrl = `/business-plan?reportId=${reportId}&source=business-plan-generator`;
       window.open(guideUrl, '_blank', 'noopener,noreferrer');
     } catch (error) {
-      console.error('生成商业指导书失败:', error);
+      console.error('生成商业指导书失�?', error);
       alert(error instanceof Error ? error.message : '生成失败，请稍后重试');
     } finally {
       if (progressTimer) {
@@ -226,7 +226,7 @@ export default function CreativeIdeaBidding({ ideaId }: CreativeIdeaBiddingProps
     }
   }, [idea, isGeneratingGuide]);
 
-  // 格式化时间显示
+  // 格式化时间显�?
   const formatTimeRemaining = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
@@ -258,12 +258,12 @@ export default function CreativeIdeaBidding({ ideaId }: CreativeIdeaBiddingProps
                   AI创意竞价直播
                 </Badge>
                 <Badge variant={isConnected ? 'default' : 'secondary'} className="animate-pulse">
-                  {isConnected ? '🔴 LIVE' : '连接中...'}
+                  {isConnected ? '🔴 LIVE' : '连接�?..'}
                 </Badge>
                 <div className="flex items-center gap-2 text-sm">
                   <Users className="w-4 h-4" />
                   <span className="font-medium">{viewerCount}</span>
-                  <span className="text-muted-foreground">人正在观看</span>
+                  <span className="text-muted-foreground">人正在观�?/span>
                 </div>
               </div>
 
@@ -275,7 +275,7 @@ export default function CreativeIdeaBidding({ ideaId }: CreativeIdeaBiddingProps
               </div>
             </div>
 
-            {/* 阶段进度条 */}
+            {/* 阶段进度�?*/}
             <div className="space-y-2">
               <div className="flex items-center justify-between text-sm">
                 <span>{getCurrentPhaseConfig().description}</span>
@@ -308,7 +308,7 @@ export default function CreativeIdeaBidding({ ideaId }: CreativeIdeaBiddingProps
                   </div>
                 </div>
                 <div className="text-right">
-                  <div className="text-sm text-muted-foreground">当前最高出价</div>
+                  <div className="text-sm text-muted-foreground">当前最高出�?/div>
                   <div className="text-3xl font-bold text-green-600">
                     {highestBid} 积分
                   </div>
@@ -347,7 +347,7 @@ export default function CreativeIdeaBidding({ ideaId }: CreativeIdeaBiddingProps
                       size="sm"
                       onClick={() => setEnableEnhancedEffects(!enableEnhancedEffects)}
                     >
-                      {enableEnhancedEffects ? '开启' : '关闭'}
+                      {enableEnhancedEffects ? '开�? : '关闭'}
                     </Button>
                   </div>
 
@@ -376,7 +376,7 @@ export default function CreativeIdeaBidding({ ideaId }: CreativeIdeaBiddingProps
                       <Badge variant="secondary">{viewerCount}</Badge>
                     </div>
                     <div className="flex items-center justify-between text-sm">
-                      <span>当前最高</span>
+                      <span>当前最�?/span>
                       <Badge variant="secondary">{highestBid} 积分</Badge>
                     </div>
                   </div>
@@ -431,7 +431,7 @@ export default function CreativeIdeaBidding({ ideaId }: CreativeIdeaBiddingProps
                               {persona.name}
                             </div>
                             <div className="text-xs text-muted-foreground">
-                              {persona.specialty.split('、')[0]}
+                              {persona.specialty.split('�?)[0]}
                             </div>
                           </div>
                           {activeSpeaker === persona.id && (
@@ -446,7 +446,7 @@ export default function CreativeIdeaBidding({ ideaId }: CreativeIdeaBiddingProps
                             <div className="text-lg font-bold text-green-600">
                               {currentBids[persona.id]} 积分
                             </div>
-                            <div className="text-xs text-muted-foreground">最新出价</div>
+                            <div className="text-xs text-muted-foreground">最新出�?/div>
                           </div>
                         )}
 
@@ -485,7 +485,7 @@ export default function CreativeIdeaBidding({ ideaId }: CreativeIdeaBiddingProps
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="flex-1 flex flex-col min-h-0">
-                  <div className="flex-1 overflow-y-auto space-y-3 max-h-[450px] scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 messages-container">
+                  <div className="flex-1 overflow-y-auto space-y-4 px-1 sm:px-2 py-3 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 messages-container">
                     <AnimatePresence mode="wait">
                       {aiMessages.slice(-8).map((message) => {
                         const persona = AI_PERSONAS.find(p => p.id === message.personaId);
@@ -532,7 +532,7 @@ export default function CreativeIdeaBidding({ ideaId }: CreativeIdeaBiddingProps
                                   onClick={() => handleReaction(message.id, 'like')}
                                 >
                                   <ThumbsUp className="w-3 h-3 mr-1" />
-                                  赞
+                                  �?
                                 </Button>
                                 <Button
                                   variant="ghost"
@@ -592,7 +592,7 @@ export default function CreativeIdeaBidding({ ideaId }: CreativeIdeaBiddingProps
                       />
                       <div className="flex items-center justify-between text-xs text-muted-foreground">
                         <span>50 积分</span>
-                        <span>当前最高: {highestBid}</span>
+                        <span>当前最�? {highestBid}</span>
                         <span>500 积分</span>
                       </div>
                     </div>
@@ -603,7 +603,7 @@ export default function CreativeIdeaBidding({ ideaId }: CreativeIdeaBiddingProps
                       size="lg"
                     >
                       <Gift className="w-4 h-4 mr-2" />
-                      提交预测 (奖励最高 200 积分)
+                      提交预测 (奖励最�?200 积分)
                     </Button>
                   </CardContent>
                 </Card>
@@ -617,7 +617,7 @@ export default function CreativeIdeaBidding({ ideaId }: CreativeIdeaBiddingProps
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2 text-sm">
                     <Flame className="w-4 h-4" />
-                    你的参与度
+                    你的参与�?
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
@@ -642,26 +642,26 @@ export default function CreativeIdeaBidding({ ideaId }: CreativeIdeaBiddingProps
 
                   <div className="pt-2 border-t">
                     <div className="text-xs text-muted-foreground mb-2">
-                      参与度等级
+                      参与度等�?
                     </div>
                     <Progress
                       value={Math.min(engagementStats.totalActions * 10, 100)}
                       className="h-2"
                     />
                     <div className="text-xs text-center mt-1 text-primary font-medium">
-                      {engagementStats.totalActions >= 10 ? '超级参与者' :
-                       engagementStats.totalActions >= 5 ? '活跃参与者' : '观众'}
+                      {engagementStats.totalActions >= 10 ? '超级参与�? :
+                       engagementStats.totalActions >= 5 ? '活跃参与�? : '观众'}
                     </div>
                   </div>
                 </CardContent>
               </Card>
 
-              {/* 实时排行榜 */}
+              {/* 实时排行�?*/}
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2 text-sm">
                     <Trophy className="w-4 h-4" />
-                    竞价排行榜
+                    竞价排行�?
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -710,7 +710,7 @@ export default function CreativeIdeaBidding({ ideaId }: CreativeIdeaBiddingProps
                     <div className="text-2xl mb-1">🏆</div>
                     <div className="text-sm font-medium">预测奖励</div>
                     <div className="text-lg font-bold text-orange-600">
-                      最高 200 积分
+                      最�?200 积分
                     </div>
                   </div>
                   <div className="text-center p-2 bg-muted/50 rounded">
@@ -722,7 +722,7 @@ export default function CreativeIdeaBidding({ ideaId }: CreativeIdeaBiddingProps
                 </CardContent>
               </Card>
 
-              {/* 商业指导书生成 */}
+              {/* 商业指导书生�?*/}
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2 text-sm">
@@ -742,7 +742,7 @@ export default function CreativeIdeaBidding({ ideaId }: CreativeIdeaBiddingProps
                       <div className="space-y-2">
                         <div className="flex items-center justify-center gap-2 text-blue-600">
                           <Loader2 className="w-4 h-4 animate-spin" />
-                          <span className="text-sm">生成中...</span>
+                          <span className="text-sm">生成�?..</span>
                         </div>
                         <Progress value={guideProgress} className="h-2" />
                         <div className="text-xs text-muted-foreground">
@@ -776,3 +776,4 @@ export default function CreativeIdeaBidding({ ideaId }: CreativeIdeaBiddingProps
     </Layout>
   );
 }
+

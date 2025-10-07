@@ -24,6 +24,8 @@
     --input: 214.3 31.8% 91.4%;
     --ring: 221.2 83.2% 53.3%;
     --radius: 0.5rem;
+    --font-size-base: 14px;
+    --font-size-small: 12px;
   }
 
   .dark {
@@ -98,8 +100,35 @@
   body {
     @apply bg-background text-foreground;
     font-feature-settings: 'rlig' 1, 'calt' 1;
+    font-size: var(--font-size-base);
+    line-height: 1.6;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
-  
+
+  button,
+  input,
+  textarea,
+  select {
+    font-size: var(--font-size-base);
+    line-height: 1.6;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  small,
+  .text-small {
+    font-size: var(--font-size-small);
+    line-height: 1.6;
+  }
+
+  .text-base-fixed {
+    font-size: var(--font-size-base);
+    line-height: 1.6;
+  }
+
   /* Custom scrollbar */
   ::-webkit-scrollbar {
     width: 8px;

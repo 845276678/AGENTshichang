@@ -63,12 +63,7 @@ export async function generateGuidePDF(guide: LandingCoachGuide): Promise<Buffer
     )
   )
 
-  const pdfStream = await ReactPDF.renderToStream(pdfDoc)
+  const pdfBuffer = await ReactPDF.renderToBuffer(pdfDoc)
 
-  return new Promise((resolve, reject) => {
-    const chunks: Uint8Array[] = []
-    pdfStream.on('data', (chunk: Uint8Array) => chunks.push(chunk))
-    pdfStream.on('end', () => resolve(Buffer.concat(chunks)))
-    pdfStream.on('error', reject)
-  })
+  return Buffer.isBuffer(pdfBuffer) ? pdfBuffer : Buffer.from(pdfBuffer)
 }

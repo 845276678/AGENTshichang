@@ -60,13 +60,13 @@ const BASE_GUIDE_TEMPLATE: BusinessPlanGuide = {
         }
       ],
       techStack: ["技术栈定义中，选成熟的就行"],
-      estimatedCost: "预计90天消耗：¥50,000 – ¥80,000（主要是人工成本）"
+      estimatedCost: "预计4周消耗：¥15,000 - ¥30,000（主要是人工与工具成本）"
     },
     validationStrategy: {
       hypotheses: ["关键假设待验证，这些假设决定成败"],
       experiments: ["设计访谈和实验计划，用数据说话"],
       successMetrics: ["定义成功指标，不能光凭感觉"],
-      timeline: "90天内分三步走：技术验证 → 用户验证 → 商业验证"
+      timeline: "4周内分四步走：对齐方向 → 原型构建 → 用户验证 → 收入信号"
     },
     actionItems: [
       '确定MVP范围和「必须有的」功能，其他的先放放',
@@ -86,19 +86,19 @@ const BASE_GUIDE_TEMPLATE: BusinessPlanGuide = {
       phases: [
         {
           name: "预热期",
-          timeline: "第1个月",
+          timeline: "第1周",
           goals: ["搭品牌", "找种子用户"],
           tactics: ["内容营销", "专家背书"]
         },
         {
           name: "试点期",
-          timeline: "第2个月",
+          timeline: "第2-3周",
           goals: ["小范围验证", "收集案例"],
           tactics: ["用户共创", "精细化服务"]
         },
         {
           name: "商业验证",
-          timeline: "第3个月",
+          timeline: "第4周",
           goals: ["验证付费", "建立反馈循环"],
           tactics: ["限时优惠", "推荐返利"]
         }
@@ -124,7 +124,7 @@ const BASE_GUIDE_TEMPLATE: BusinessPlanGuide = {
     reportId: undefined,
     generatedAt: new Date().toISOString(),
     estimatedReadTime: 15,
-    implementationTimeframe: "90天",
+    implementationTimeframe: "4周",
     confidenceLevel: 50,
     source: 'ai-bidding'
   }
@@ -464,7 +464,7 @@ ${contextPrompt}
      * successCriteria: 成功标准（20-30字，可量化）
      * effort: 投入程度（low/medium/high）
      * impact: 影响程度（low/medium/high）
-   - oneMonthGoals: 1个月内可达成的目标（3-4个选项，结构同上）
+   - oneMonthGoals: 4周内可达成的目标（3-4个选项，结构同上）
    - quickWins: 立即可做的3个快赢行动（每个15-25字）
 
 要求：
@@ -798,7 +798,7 @@ export async function buildCoreGuide(snapshot: BiddingSnapshot): Promise<{
   guide.metadata.ideaTitle = snapshot.ideaTitle
   guide.metadata.generatedAt = new Date().toISOString()
   guide.metadata.confidenceLevel = confidence
-  guide.metadata.implementationTimeframe = '90天'
+  guide.metadata.implementationTimeframe = '4周'
   guide.metadata.estimatedReadTime = 15
   guide.metadata.winningBid = highestBid
   guide.metadata.winner = winnerName
@@ -872,7 +872,7 @@ export async function buildCoreGuide(snapshot: BiddingSnapshot): Promise<{
     '至少10%的用户表示愿意付费或推荐'
   ]
 
-  guide.mvpDefinition.validationStrategy.timeline = '90天内走完三步：先验证技术行不行 → 再验证用户要不要 → 最后验证能不能赚钱'
+  guide.mvpDefinition.validationStrategy.timeline = '4周内走完四步：先对齐方向 → 做出原型 → 找用户验证 → 收入信号成形'
 
   guide.mvpDefinition.actionItems = [
     '把功能清单砍到只剩"没有就完全不行"的那几个',

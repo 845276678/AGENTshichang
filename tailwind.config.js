@@ -184,6 +184,10 @@ module.exports = {
         sans: ['Inter', 'sans-serif'],
         mono: ['Fira Code', 'monospace'],
       },
+      fontSize: {
+        sm: ['12px', { lineHeight: '1.6' }],
+        base: ['14px', { lineHeight: '1.6' }],
+      },
       spacing: {
         '18': '4.5rem',
         '88': '22rem',
@@ -199,3 +203,4 @@ module.exports = {
     require('@tailwindcss/typography'),
   ],
 }
+
