@@ -36,8 +36,12 @@ interface FormProps extends ComponentProps {
 }
 
 // 简化的无动画组件，避免framer-motion导致的初始化问题
-  <form className={className} style={style} onSubmit={onSubmit} {...props}>{children}</form>
+const SimpleForm = ({ children, className, style, onSubmit, ...props }: FormProps) => (
+  <form className={className} style={style} onSubmit={onSubmit} {...props}>
+    {children}
+  </form>
 )
+
 const SimpleH1 = ({ children, className, style, ...props }: ComponentProps) => (
   <h1 className={className} style={style} {...props}>{children}</h1>
 )
