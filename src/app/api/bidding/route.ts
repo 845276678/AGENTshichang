@@ -7,6 +7,7 @@ import {
   generatePersonaComment,
   calculatePersonaScore
 } from '@/lib/ai-persona-enhanced'
+import { evaluateIdeaQuality, generateEvaluationFeedback } from '@/lib/idea-evaluation'
 
 // UTF-8编码响应助手函数
 function createUTF8Response(data: any, status: number = 200) {
@@ -21,8 +22,8 @@ const aiServiceManager = new AIServiceManager()
 interface BiddingSession {
   ideaId: string
   ideaContent: string
-  status: 'active' | 'completed' | 'cancelled'
-  phase: 'warmup' | 'discussion' | 'bidding' | 'prediction' | 'result'
+  status: 'active' | 'completed' | 'cancelled' | 'awaiting_supplement'
+  phase: 'evaluation' | 'warmup' | 'discussion' | 'bidding' | 'prediction' | 'result'
   startTime: number
   endTime?: number
   currentRound: number
@@ -31,6 +32,13 @@ interface BiddingSession {
   currentBids: Record<string, number>
   messages: any[]
   finalReport?: any
+  evaluationResult?: {
+    score: number
+    verdict: string
+    feedback: string
+    requiredInfo: string[]
+  }
+  supplementCount?: number // 补充次数
 }
 
 // 全局会话存储（生产环境应使用Redis）
@@ -68,30 +76,31 @@ export async function POST(request: NextRequest) {
       ideaId,
       ideaContent,
       status: 'active',
-      phase: 'warmup',
+      phase: 'evaluation', // 从评估阶段开始
       startTime: Date.now(),
       currentRound: 1,
       maxRounds: 3,
       participants: 1,
       currentBids: {},
-      messages: []
+      messages: [],
+      supplementCount: 0
     }
 
     activeSessions.set(finalSessionId, session)
 
     console.log(`🎭 Created bidding session: ${finalSessionId} for idea: ${ideaId}`)
 
-    // 启动AI对话引擎
+    // 先进行创意评估
     setTimeout(async () => {
-      await startAIBiddingDialogue(finalSessionId)
-    }, 3000) // 3秒后开始AI对话
+      await evaluateAndStartBidding(finalSessionId)
+    }, 2000) // 2秒后开始评估
 
     return createUTF8Response({
       success: true,
       sessionId: finalSessionId,
       session: {
         ...session,
-        message: 'AI竞价会话已启动，专家团队正在准备中...'
+        message: 'AI专家团队正在评估您的创意...'
       }
     })
 
@@ -99,6 +108,64 @@ export async function POST(request: NextRequest) {
     console.error('Error starting bidding session:', error)
     return createUTF8Response(
       { error: 'Failed to start bidding session' },
+      500
+    )
+  }
+}
+
+// 补充创意信息并重新评估
+export async function PATCH(request: NextRequest) {
+  try {
+    const body = await request.json()
+    const { sessionId, supplementInfo } = body
+
+    if (!sessionId || !supplementInfo) {
+      return createUTF8Response({ error: 'Missing required fields' }, 400)
+    }
+
+    const session = activeSessions.get(sessionId)
+    if (!session) {
+      return createUTF8Response({ error: 'Session not found' }, 404)
+    }
+
+    if (session.status !== 'awaiting_supplement') {
+      return createUTF8Response({ error: 'Session not awaiting supplement' }, 400)
+    }
+
+    console.log(`📝 User supplementing idea for session: ${sessionId}`)
+
+    // 更新创意内容
+    const originalContent = session.ideaContent
+    session.ideaContent = `${originalContent}\n\n补充信息：\n${supplementInfo}`
+    session.supplementCount = (session.supplementCount || 0) + 1
+
+    // 广播补充信息
+    broadcastMessage(session.ideaId, {
+      type: 'idea_supplemented',
+      message: '用户已补充信息，正在重新评估...'
+    })
+
+    // 重新评估
+    setTimeout(async () => {
+      await evaluateAndStartBidding(sessionId)
+    }, 1500)
+
+    // 重置状态
+    session.status = 'active'
+
+    return createUTF8Response({
+      success: true,
+      message: '补充信息已提交，正在重新评估...',
+      session: {
+        ideaContent: session.ideaContent,
+        supplementCount: session.supplementCount
+      }
+    })
+
+  } catch (error) {
+    console.error('Error supplementing idea:', error)
+    return createUTF8Response(
+      { error: 'Failed to supplement idea' },
       500
     )
   }
@@ -131,6 +198,70 @@ export async function GET(request: NextRequest) {
 }
 
 // AI竞价对话逻辑
+// 评估创意并决定流程
+async function evaluateAndStartBidding(sessionId: string) {
+  const session = activeSessions.get(sessionId)
+  if (!session) return
+
+  try {
+    console.log(`📊 Evaluating idea for session: ${sessionId}`)
+
+    // 执行创意评估
+    const evaluation = await evaluateIdeaQuality(session.ideaContent)
+    const feedback = generateEvaluationFeedback(evaluation)
+
+    // 保存评估结果
+    session.evaluationResult = {
+      score: evaluation.score,
+      verdict: evaluation.verdict,
+      feedback,
+      requiredInfo: evaluation.requiredInfo
+    }
+
+    console.log(`📊 Evaluation result: ${evaluation.verdict} (score: ${evaluation.score}/100)`)
+
+    // 广播评估结果
+    broadcastMessage(session.ideaId, {
+      type: 'evaluation_result',
+      evaluation: {
+        score: evaluation.score,
+        verdict: evaluation.verdict,
+        feedback,
+        isWillingToDiscuss: evaluation.isWillingToDiscuss
+      }
+    })
+
+    // 根据评分决定流程
+    if (evaluation.score < 60) {
+      // 低分：暂停并等待用户补充
+      session.status = 'awaiting_supplement'
+      session.phase = 'evaluation'
+
+      console.log(`⏸️ Idea needs improvement. Waiting for user supplement...`)
+
+      broadcastMessage(session.ideaId, {
+        type: 'needs_supplement',
+        message: '您的创意需要补充信息才能继续',
+        requiredInfo: evaluation.requiredInfo,
+        feedback
+      })
+    } else {
+      // 高分：进入犀利点评阶段
+      console.log(`✅ Idea quality acceptable. Starting critical review...`)
+
+      session.phase = 'warmup'
+      await startAIBiddingDialogue(sessionId)
+    }
+
+  } catch (error) {
+    console.error('Error in idea evaluation:', error)
+    // 评估失败，直接进入正常流程
+    session.phase = 'warmup'
+    await startAIBiddingDialogue(sessionId)
+  }
+}
+
+// 启动AI竞价对话
 async function startAIBiddingDialogue(sessionId: string) {
   const session = activeSessions.get(sessionId)
   if (!session || session.status !== 'active') {
