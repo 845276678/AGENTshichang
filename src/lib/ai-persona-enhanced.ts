@@ -425,4 +425,65 @@ export function resetAgentBudget(personaId: string): void {
   resetBudgetIfNeeded(personaId)
 }
 
+/**
+ * 使用AI生成基于persona人设的个性化创意分析
+ * 这个函数会被API路由调用，传入AIServiceManager实例
+ */
+export async function generateAIPersonaAnalysis(
+  persona: AIPersona,
+  ideaContent: string,
+  score: number,
+  aiService: any // AIServiceManager实例
+): Promise<string> {
+  const playbook = PERSONA_PLAYBOOKS[persona.id] ?? DEFAULT_PLAYBOOK
+
+  // 构建prompt让AI基于人设分析创意
+  const analysisPrompt = `你是${persona.name}，一位专注于${playbook.focus}的专家。
+
+你的人设特点：
+- 性格：${persona.personality.join('、')}
+- 专长：${persona.specialty}
+- 口头禅："${persona.catchPhrase}"
+- 分析视角：${playbook.focus}
+- 关注点：${playbook.contextNote}
+
+现在请你基于自己的专业视角，对以下创意进行深入分析：
+
+创意内容：
+${ideaContent}
+
+你的评分是：${Math.round(score)}分
+
+请按照以下格式输出你的分析（150-200字）：
+
+1. 开头用你的口头禅或符合性格的开场白
+2. 从你的专业视角（${playbook.focus}）指出创意的亮点或问题
+3. 给出2-3条具体的、可执行的建议
+4. 用符合你性格的语气收尾
+
+要求：
+- 必须基于创意的具体内容进行分析，不要泛泛而谈
+- 体现你的专业领域和人设特点
+- 语气要符合你的性格（${persona.personality.join('、')}）
+- 建议要具体、可操作
+- 控制在150-200字以内`
+
+  try {
+    const response = await aiService.chat(
+      [{ role: 'user', content: analysisPrompt }],
+      {
+        model: persona.primaryModel,
+        temperature: 0.8,
+        maxTokens: 500
+      }
+    )
+
+    return response.content || generatePersonaComment(persona, score, ideaContent, [])
+  } catch (error) {
+    console.error(`AI分析生成失败 (${persona.name}):`, error)
+    // 降级到模板评论
+    return generatePersonaComment(persona, score, ideaContent, [])
+  }
+}
+
 export { AI_PERSONAS, type AIPersona }

@@ -6,7 +6,8 @@ import type { AIPersona } from '@/lib/ai-persona-system'
 import {
   generateBiddingRound,
   generatePersonaComment,
-  calculatePersonaScore
+  calculatePersonaScore,
+  generateAIPersonaAnalysis
 } from '@/lib/ai-persona-enhanced'
 import { evaluateIdeaQuality } from '@/lib/idea-evaluation'
 import type { IdeaEvaluationResult, IdeaEvaluationVerdict, DimensionStatus } from '@/lib/idea-evaluation'
@@ -672,32 +673,44 @@ function generateFallbackResponse(personaId: string, ideaContent: string, contex
   if (context.phase === 'warmup') {
     content = generatePersonaIntro(persona, ideaContent)
   } else if (context.phase === 'discussion') {
-    // 使用预设的讨论模板
-    const templates: Record<string, string[]> = {
-      'business-guru-beta': [
-        `哎呀妈呀，${ideaContent}这个想法有点意思，但能赚钱吗？我得好好算算账。`,
-        `做生意就一个字：赚！这个${ideaContent}的盈利模式在哪？别整虚的！`
-      ],
-      'tech-pioneer-alex': [
-        `Technically speaking，${ideaContent}的技术架构需要仔细设计，scalability是关键。`,
-        `${ideaContent}？Let me think... 技术实现不难，但要做好不容易。`
-      ],
-      'innovation-mentor-charlie': [
-        `${ideaContent}让我想到了用户的真实需求，产品要有温度才能打动人心~`,
-        `这个创意很有潜力，但用户体验设计要特别用心，美是生产力！`
-      ],
-      'market-insight-delta': [
-        `家人们！${ideaContent}有爆点！Z世代肯定买单，流量密码被我找到了！`,
-        `${ideaContent}踩中热点了！小红书上这类内容超火的，分分钟10万+！`
-      ],
-      'investment-advisor-ivan': [
-        `根据我的研究，${ideaContent}符合创新扩散理论，但要注意风险控制。`,
-        `让我们用学术的眼光看${ideaContent}，理论基础扎实但执行是关键。`
-      ]
-    }
+    // 在discussion阶段也使用AI生成个性化分析
+    const score = calculatePersonaScore(
+      persona,
+      ideaContent,
+      'product',
+      new Map(Object.entries(context.context?.currentBids || {}))
+    )
 
-    const personaTemplates = templates[personaId] || [`${persona.catchPhrase}`]
-    content = personaTemplates[Math.floor(Math.random() * personaTemplates.length)]
+    try {
+      content = await generateAIPersonaAnalysis(persona, ideaContent, score, aiServiceManager)
+    } catch (error) {
+      console.error(`AI讨论分析失败，降级到模板 (${persona.name}):`, error)
+      // 降级到预设模板
+      const templates: Record<string, string[]> = {
+        'business-guru-beta': [
+          `哎呀妈呀，${ideaContent}这个想法有点意思，但能赚钱吗？我得好好算算账。`,
+          `做生意就一个字：赚！这个${ideaContent}的盈利模式在哪？别整虚的！`
+        ],
+        'tech-pioneer-alex': [
+          `Technically speaking，${ideaContent}的技术架构需要仔细设计，scalability是关键。`,
+          `${ideaContent}？Let me think... 技术实现不难，但要做好不容易。`
+        ],
+        'innovation-mentor-charlie': [
+          `${ideaContent}让我想到了用户的真实需求，产品要有温度才能打动人心~`,
+          `这个创意很有潜力，但用户体验设计要特别用心，美是生产力！`
+        ],
+        'market-insight-delta': [
+          `家人们！${ideaContent}有爆点！Z世代肯定买单，流量密码被我找到了！`,
+          `${ideaContent}踩中热点了！小红书上这类内容超火的，分分钟10万+！`
+        ],
+        'investment-advisor-ivan': [
+          `根据我的研究，${ideaContent}符合创新扩散理论，但要注意风险控制。`,
+          `让我们用学术的眼光看${ideaContent}，理论基础扎实但执行是关键。`
+        ]
+      }
+      const personaTemplates = templates[personaId] || [`${persona.catchPhrase}`]
+      content = personaTemplates[Math.floor(Math.random() * personaTemplates.length)]
+    }
 
   } else if (context.phase === 'bidding') {
     // 使用增强版的评分系统
@@ -707,7 +720,14 @@ function generateFallbackResponse(personaId: string, ideaContent: string, contex
       'market',
       new Map(Object.entries(context.context?.currentBids || {}))
     )
-    content = generatePersonaComment(persona, score, ideaContent, [])
+
+    // 使用AI生成基于人设的个性化分析
+    try {
+      content = await generateAIPersonaAnalysis(persona, ideaContent, score, aiServiceManager)
+    } catch (error) {
+      console.error(`AI分析生成失败，降级到模板评论 (${persona.name}):`, error)
+      content = generatePersonaComment(persona, score, ideaContent, [])
+    }
   }
 
   return {
