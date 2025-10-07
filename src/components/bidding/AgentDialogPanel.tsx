@@ -9,8 +9,6 @@ import { Heart } from 'lucide-react'
 import { SpeakingIndicator, ThinkingIndicator, BiddingIndicator, WaitingIndicator } from './StatusIndicators'
 import type { AIPersona } from '@/lib/ai-persona-enhanced'
 
-const MotionDiv = motion.div
-
 
 
 // 简化组件替代motion - 避免生产环境错误
@@ -239,7 +237,7 @@ export const AgentDialogPanel: React.FC<AgentDialogPanelProps> = ({
   // const emotionAnimation = EMOTION_ANIMATIONS[state.emotion] || {} // 已移除动?
 
   return (
-    <MotionDiv
+    <motion.div
       className={`agent-panel-container relative flex flex-col gap-5 bg-white rounded-2xl shadow-lg border-2 p-5 transition-all duration-300 ease-out ${
         isActive
           ? 'ring-4 ring-blue-500 ring-opacity-70 shadow-2xl border-blue-500 bg-blue-50 is-active scale-105 z-10'
@@ -256,7 +254,7 @@ export const AgentDialogPanel: React.FC<AgentDialogPanelProps> = ({
       {/* 1. 头像区域 */}
       <div className="agent-avatar-section flex flex-col items-center gap-2">
         <div className="avatar-container relative w-16 h-16 mb-2">
-          <MotionDiv className="agent-avatar relative">
+          <motion.div className="agent-avatar relative">
             {/* 使用真实头像图片 */}
             <div className="w-full h-full rounded-full overflow-hidden shadow-lg">
               <img
@@ -317,7 +315,7 @@ export const AgentDialogPanel: React.FC<AgentDialogPanelProps> = ({
                 />
               </>
             )}
-          </MotionDiv>
+          </motion.div>
 
           {/* 状态标?*/}
           <Badge
@@ -372,7 +370,7 @@ export const AgentDialogPanel: React.FC<AgentDialogPanelProps> = ({
         {state.confidence > 0 && (
           <div className="confidence-indicator flex items-center gap-2">
             <div className="flex-1 h-1.5 bg-gray-200 rounded-full overflow-hidden">
-              <MotionDiv
+              <motion.div
                 className="h-full bg-gradient-to-r from-blue-400 to-blue-600 rounded-full"
                 style={{ width: `${state.confidence * 100}%` }}
               />
@@ -393,7 +391,7 @@ export const AgentDialogPanel: React.FC<AgentDialogPanelProps> = ({
       >
         <AnimatePresence>
           {state.currentMessage && (
-            <MotionDiv
+            <motion.div
               className="dialog-bubble relative bg-white border border-gray-200 rounded-2xl shadow-md p-4 w-full max-w-none"
               style={{
                 width: '100%',
@@ -426,20 +424,20 @@ export const AgentDialogPanel: React.FC<AgentDialogPanelProps> = ({
               <div className="absolute -bottom-5 left-1/2 transform -translate-x-1/2 text-xs text-gray-400 whitespace-nowrap">
                 {formatRelativeTime(state.lastActivity)}
               </div>
-            </MotionDiv>
+            </motion.div>
           )}
         </AnimatePresence>
       </div>
 
       {/* 4. 竞价状态区?*/}
       {showBidInfo && (
-        <MotionDiv
+        <motion.div
           className="bidding-section relative flex items-center justify-center mt-2"
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.3, duration: 0.4 }}
         >
-          <MotionDiv
+          <motion.div
             className={`bid-amount flex items-center gap-1 px-4 py-2 rounded-full shadow-lg ${
               currentBid === 0
                 ? 'bg-gradient-to-r from-gray-300 to-gray-400 text-gray-700'
@@ -469,11 +467,11 @@ export const AgentDialogPanel: React.FC<AgentDialogPanelProps> = ({
             >
               {currentBid || 0}
             </span>
-          </MotionDiv>
+          </motion.div>
 
           {/* 0出价特殊提示 */}
           {currentBid === 0 && (
-            <MotionDiv
+            <motion.div
               className="absolute -bottom-6 left-1/2 transform -translate-x-1/2 text-xs text-gray-400 whitespace-nowrap"
               initial={{ opacity: 0, y: -5 }}
               animate={{ opacity: 1, y: 0 }}
@@ -482,12 +480,12 @@ export const AgentDialogPanel: React.FC<AgentDialogPanelProps> = ({
               <span className="animate-pulse">
                 尚无溢价
               </span>
-            </MotionDiv>
+            </motion.div>
           )}
 
           {/* 高出价闪烁效?*/}
           {currentBid && currentBid > 100 && (
-            <MotionDiv
+            <motion.div
               className="absolute inset-0 bg-yellow-400 rounded-full pointer-events-none"
               animate={{
                 scale: [1, 1.3, 1],
@@ -505,7 +503,7 @@ export const AgentDialogPanel: React.FC<AgentDialogPanelProps> = ({
           {/* 竞价脉冲效果（增强版?*/}
           {state.phase === 'bidding' && currentBid !== undefined && (
             <>
-              <MotionDiv
+              <motion.div
                 className="absolute inset-0 rounded-full pointer-events-none"
                 style={{
                   background: currentBid === 0
@@ -525,7 +523,7 @@ export const AgentDialogPanel: React.FC<AgentDialogPanelProps> = ({
               />
 
               {/* 额外的竞价指示器 */}
-              <MotionDiv
+              <motion.div
                 className="absolute -top-1 -right-1 w-3 h-3 bg-red-400 rounded-full"
                 animate={{
                   scale: [0.8, 1.2, 0.8],
@@ -539,13 +537,13 @@ export const AgentDialogPanel: React.FC<AgentDialogPanelProps> = ({
               />
             </>
           )}
-        </MotionDiv>
+        </motion.div>
       )}
 
       {/* 5. 交互区域 */}
       <div className="interaction-section flex justify-center mt-2">
         {currentPhase === BiddingPhase.USER_SUPPLEMENT && (
-          <MotionDiv
+          <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 }}
@@ -560,7 +558,7 @@ export const AgentDialogPanel: React.FC<AgentDialogPanelProps> = ({
               aria-label={`${state.isSupported ? '已支? : '支持'} ${agent.name}`}
               disabled={state.isSupported}
             >
-              <MotionDiv
+              <motion.div
                 animate={state.isSupported ? {
                   scale: [1, 1.2, 1],
                   rotate: [0, 10, -10, 0]
@@ -568,17 +566,17 @@ export const AgentDialogPanel: React.FC<AgentDialogPanelProps> = ({
                 transition={{ duration: 0.5 }}
               >
                 <Heart className={`w-3 h-3 mr-1 ${state.isSupported ? 'fill-current text-red-500' : ''}`} />
-              </MotionDiv>
+              </motion.div>
               <span>{state.isSupported ? '已支? : '支持'}</span>
             </Button>
-          </MotionDiv>
+          </motion.div>
         )}
       </div>
 
       {/* 加载状态覆盖层 */}
       <AnimatePresence>
         {state.phase === 'thinking' && (
-          <MotionDiv
+          <motion.div
             className="absolute inset-0 bg-white bg-opacity-50 rounded-2xl flex items-center justify-center"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -586,10 +584,10 @@ export const AgentDialogPanel: React.FC<AgentDialogPanelProps> = ({
             transition={{ duration: 0.2 }}
           >
             <div className="loading-spinner w-8 h-8 border-2 border-blue-300 border-t-blue-600 rounded-full animate-spin" />
-          </MotionDiv>
+          </motion.div>
         )}
       </AnimatePresence>
-    </MotionDiv>
+    </motion.div>
 }
 
 // 默认Agent状态生成函?
