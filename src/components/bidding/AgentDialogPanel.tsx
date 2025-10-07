@@ -19,7 +19,7 @@ const AnimatePresence = ({ children }: any) => <>{children}</>
 
 // 使用简化组件替代motion组件
 
-// Agent状态接口定?
+// Agent状态接口定义
 export interface AgentState {
   id: string
   phase: 'idle' | 'thinking' | 'speaking' | 'bidding' | 'waiting'
@@ -52,7 +52,7 @@ interface AgentDialogPanelProps {
   className?: string
 }
 
-// 状态颜色映?
+// 状态颜色映射
 const AGENT_STATE_COLORS = {
   idle: 'bg-slate-100 text-slate-600 border-slate-200',
   thinking: 'bg-blue-100 text-blue-700 border-blue-200',
@@ -61,7 +61,7 @@ const AGENT_STATE_COLORS = {
   waiting: 'bg-purple-100 text-purple-700 border-purple-200'
 } as const
 
-// 状态显示文?
+// 状态显示文本
 const STATE_DISPLAY_NAMES = {
   idle: 'Idle',
   thinking: 'Thinking',
@@ -70,7 +70,7 @@ const STATE_DISPLAY_NAMES = {
   waiting: 'Waiting'
 } as const
 
-// 情感动画映射（增强版?
+// 情感动画映射（增强版）
 const EMOTION_ANIMATIONS = {
   neutral: {
     animate: { scale: 1, rotate: 0 },
@@ -172,7 +172,7 @@ const bubbleVariants = {
   }
 } as const
 
-// 面板动画变体（增强版?
+// 面板动画变体（增强版）
 const panelVariants = {
   initial: {
     opacity: 0,
@@ -238,7 +238,7 @@ export const AgentDialogPanel: React.FC<AgentDialogPanelProps> = ({
     currentPhase === BiddingPhase.AGENT_BIDDING ||
     currentPhase === BiddingPhase.USER_SUPPLEMENT
 
-  // const emotionAnimation = EMOTION_ANIMATIONS[state.emotion] || {} // 已移除动?
+  // const emotionAnimation = EMOTION_ANIMATIONS[state.emotion] || {} // 已移除动画
 
   return (
     <MotionDiv
@@ -266,7 +266,7 @@ export const AgentDialogPanel: React.FC<AgentDialogPanelProps> = ({
                 alt={agent.name}
                 className="w-full h-full object-cover"
                 onError={(e) => {
-                  // 如果图片加载失败，使用渐变背景和首字?
+                  // 如果图片加载失败，使用渐变背景和首字母
                   const target = e.target as HTMLImageElement;
                   target.style.display = 'none';
                   const parent = target.parentElement;
@@ -279,7 +279,7 @@ export const AgentDialogPanel: React.FC<AgentDialogPanelProps> = ({
               />
             </div>
 
-            {/* 状态指示器叠加?*/}
+            {/* 状态指示器叠加层 */}
             <div className="absolute inset-0 pointer-events-none">
               <SpeakingIndicator
                 show={state.phase === 'speaking'}
@@ -298,7 +298,7 @@ export const AgentDialogPanel: React.FC<AgentDialogPanelProps> = ({
               />
             </div>
 
-            {/* 活跃光环效果 - 增强?*/}
+            {/* 活跃光环效果 - 增强版 */}
             {isActive && (
               <>
                 <div
@@ -321,7 +321,7 @@ export const AgentDialogPanel: React.FC<AgentDialogPanelProps> = ({
             )}
           </MotionDiv>
 
-          {/* 状态标?*/}
+          {/* 状态标签 */}
           <Badge
             className={`text-xs font-medium transition-colors duration-300 ${getStateColor(state.phase)}`}
             variant="outline"
@@ -335,7 +335,7 @@ export const AgentDialogPanel: React.FC<AgentDialogPanelProps> = ({
       <div className="agent-info-section text-center flex flex-col items-center gap-2">
         <h4 className="agent-name text-sm font-semibold text-gray-800 leading-snug line-clamp-1">
           {agent.name}
-          {agent.age && <span className="text-xs text-gray-500 ml-1">({agent.age}?</span>}
+          {agent.age && <span className="text-xs text-gray-500 ml-1">({agent.age}岁)</span>}
         </h4>
 
         {/* 背景信息 */}
@@ -349,7 +349,7 @@ export const AgentDialogPanel: React.FC<AgentDialogPanelProps> = ({
           专长：{agent.specialty}
         </p>
 
-        {/* 口头?*/}
+        {/* 口头禅 */}
         {agent.catchPhrase && (
           <p className="text-xs italic text-blue-600 leading-relaxed">
             "{agent.catchPhrase}"
@@ -360,12 +360,12 @@ export const AgentDialogPanel: React.FC<AgentDialogPanelProps> = ({
         <div className="flex flex-wrap justify-center gap-1.5">
           {agent.conflicts && agent.conflicts.length > 0 && (
             <Badge variant="outline" className="text-xs bg-red-50 text-red-600">
-              易冲突：{agent.conflicts.length}?
+              易冲突：{agent.conflicts.length}人
             </Badge>
           )}
           {agent.allies && agent.allies.length > 0 && (
             <Badge variant="outline" className="text-xs bg-green-50 text-green-600">
-              盟友：{agent.allies.length}?
+              盟友：{agent.allies.length}人
             </Badge>
           )}
         </div>
@@ -424,7 +424,7 @@ export const AgentDialogPanel: React.FC<AgentDialogPanelProps> = ({
                 style={{ zIndex: -1 }}
               />
 
-              {/* 时间?*/}
+              {/* 时间戳 */}
               <div className="absolute -bottom-5 left-1/2 transform -translate-x-1/2 text-xs text-gray-400 whitespace-nowrap">
                 {formatRelativeTime(state.lastActivity)}
               </div>
@@ -433,7 +433,7 @@ export const AgentDialogPanel: React.FC<AgentDialogPanelProps> = ({
         </AnimatePresence>
       </div>
 
-      {/* 4. 竞价状态区?*/}
+      {/* 4. 竞价状态区域 */}
       {showBidInfo && (
         <MotionDiv
           className="bidding-section relative flex items-center justify-center mt-2"
@@ -487,7 +487,7 @@ export const AgentDialogPanel: React.FC<AgentDialogPanelProps> = ({
             </MotionDiv>
           )}
 
-          {/* 高出价闪烁效?*/}
+          {/* 高出价闪烁效果 */}
           {currentBid && currentBid > 100 && (
             <MotionDiv
               className="absolute inset-0 bg-yellow-400 rounded-full pointer-events-none"
@@ -504,7 +504,7 @@ export const AgentDialogPanel: React.FC<AgentDialogPanelProps> = ({
             />
           )}
 
-          {/* 竞价脉冲效果（增强版?*/}
+          {/* 竞价脉冲效果（增强版） */}
           {state.phase === 'bidding' && currentBid !== undefined && (
             <>
               <MotionDiv
@@ -559,7 +559,7 @@ export const AgentDialogPanel: React.FC<AgentDialogPanelProps> = ({
               className={`support-button transition-all duration-200 hover:scale-105 active:scale-95 ${
                 state.isSupported ? 'is-supported' : ''
               }`}
-              aria-label={`${state.isSupported ? '已支? : '支持'} ${agent.name}`}
+              aria-label={`${state.isSupported ? '已支持' : '支持'} ${agent.name}`}
               disabled={state.isSupported}
             >
               <MotionDiv
@@ -571,7 +571,7 @@ export const AgentDialogPanel: React.FC<AgentDialogPanelProps> = ({
               >
                 <Heart className={`w-3 h-3 mr-1 ${state.isSupported ? 'fill-current text-red-500' : ''}`} />
               </MotionDiv>
-              <span>{state.isSupported ? '已支? : '支持'}</span>
+              <span>{state.isSupported ? '已支持' : '支持'}</span>
             </Button>
           </MotionDiv>
         )}
@@ -594,7 +594,7 @@ export const AgentDialogPanel: React.FC<AgentDialogPanelProps> = ({
     </MotionDiv>
 }
 
-// 默认Agent状态生成函?
+// 默认Agent状态生成函数
 export const getDefaultAgentState = (agentId: string): AgentState => ({
   id: agentId,
   phase: 'idle',
