@@ -108,7 +108,7 @@ const HeroSection = () => {
           <AnimatedSection delay={0.1}>
             <Badge variant="outline" className="mb-6">
               <Sparkles className="w-4 h-4 mr-2" />
-              AI智能体创意竞价 · 专业商业指导
+              创意即财富 · 想法需行动
             </Badge>
           </AnimatedSection>
 
@@ -119,9 +119,9 @@ const HeroSection = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3, duration: 0.8 }}
             >
-              创意竞价获得{' '}
+              创意即财富{' '}
               <span className="bg-gradient-to-r from-primary via-agent-500 to-purple-600 bg-clip-text text-transparent">
-                专业商业指导
+                想法需行动
               </span>
             </motion.h1>
           </AnimatedSection>
