@@ -3,7 +3,7 @@
 FROM node:18-alpine AS base
 
 # Cache bust to force a fresh build
-RUN echo "Cache bust: 2025-09-29-custom-server" > /tmp/cache_bust
+RUN echo "Cache bust: 2025-10-07-npm-mirror" > /tmp/cache_bust
 
 # Install system dependencies and timezone data
 RUN apk add --no-cache \
@@ -32,8 +32,13 @@ FROM base AS deps
 COPY package.json package-lock.json* ./
 COPY prisma ./prisma/
 
-# Configure npm registry for faster downloads
-RUN npm config set registry https://registry.npmmirror.com
+# Configure npm for faster and more reliable downloads
+RUN npm config set registry https://registry.npmmirror.com && \
+    npm config set disturl https://npmmirror.com/dist && \
+    npm config set fetch-retries 5 && \
+    npm config set fetch-retry-mintimeout 20000 && \
+    npm config set fetch-retry-maxtimeout 120000 && \
+    npm config set network-timeout 300000
 
 # Install production dependencies (includes Prisma dev requirements)
 RUN npm ci --frozen-lockfile --legacy-peer-deps
@@ -46,8 +51,13 @@ WORKDIR /app
 COPY package.json package-lock.json* ./
 COPY prisma ./prisma/
 
-# Configure npm registry for faster downloads
-RUN npm config set registry https://registry.npmmirror.com
+# Configure npm for faster and more reliable downloads
+RUN npm config set registry https://registry.npmmirror.com && \
+    npm config set disturl https://npmmirror.com/dist && \
+    npm config set fetch-retries 5 && \
+    npm config set fetch-retry-mintimeout 20000 && \
+    npm config set fetch-retry-maxtimeout 120000 && \
+    npm config set network-timeout 300000
 
 # Install all dependencies (including dev)
 RUN npm ci --frozen-lockfile --legacy-peer-deps
