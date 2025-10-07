@@ -176,7 +176,30 @@ async function runWarmupPhase(sessionId: string) {
     try {
       const response = await generateAIResponse(persona.id, session.ideaContent, {
         phase: 'warmup',
-        prompt: `请简短介绍你自己，并对这个创意"${session.ideaContent}"给出第一印象。保持角色特色，不超过100字。`
+        prompt: `你是${persona.name}，${persona.background || '资深专家'}。
+
+用户创意：
+"${session.ideaContent}"
+
+请用你的专业视角进行犀利点评（保持${persona.personality || '专业'}风格）：
+
+1. **核心问题识别**：
+   - 这个创意最大的问题是什么？
+   - 问题定义是否清晰？目标用户是谁？
+
+2. **可行性快评**：
+   - 技术/商业可行性评分（0-10）：
+   - 最大风险：
+
+3. **直接建议**：
+   - 必须补充什么信息？
+   - 如果要继续，必须先解决什么？
+
+要求：
+- 直接、犀利、不客套
+- 不超过150字
+- 必须指出具体问题，不能只说好话
+- 给出明确的评分和建议`
       })
 
       const message = {
