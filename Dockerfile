@@ -32,6 +32,9 @@ FROM base AS deps
 COPY package.json package-lock.json* ./
 COPY prisma ./prisma/
 
+# Configure npm registry for faster downloads
+RUN npm config set registry https://registry.npmmirror.com
+
 # Install production dependencies (includes Prisma dev requirements)
 RUN npm ci --frozen-lockfile --legacy-peer-deps
 
@@ -42,6 +45,9 @@ WORKDIR /app
 # Copy dependency manifests
 COPY package.json package-lock.json* ./
 COPY prisma ./prisma/
+
+# Configure npm registry for faster downloads
+RUN npm config set registry https://registry.npmmirror.com
 
 # Install all dependencies (including dev)
 RUN npm ci --frozen-lockfile --legacy-peer-deps
