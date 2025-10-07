@@ -1,6 +1,7 @@
 'use client'
 
 import React from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
@@ -8,15 +9,13 @@ import { Heart } from 'lucide-react'
 import { SpeakingIndicator, ThinkingIndicator, BiddingIndicator, WaitingIndicator } from './StatusIndicators'
 import type { AIPersona } from '@/lib/ai-persona-enhanced'
 
+const MotionDiv = motion.div
+
+
+
 // 简化组件替代motion - 避免生产环境错误
-const SimpleDiv = ({ children, className, style, ...props }: any) => (
-  <div className={className} style={style} {...props}>{children}</div>
-)
-const SimplePresence = ({ children }: any) => <>{children}</>
 
 // 使用简化组件替代motion组件
-const MotionDiv = SimpleDiv
-const AnimatePresence = SimplePresence
 
 // Agent状态接口定?
 export interface AgentState {
@@ -62,11 +61,11 @@ const AGENT_STATE_COLORS = {
 
 // 状态显示文?
 const STATE_DISPLAY_NAMES = {
-  idle: '待命',
-  thinking: '思考中',
-  speaking: '发言中',
-  bidding: '竞价中',
-  waiting: '等待中'
+  idle: 'Idle',
+  thinking: 'Thinking',
+  speaking: 'Speaking',
+  bidding: 'Bidding',
+  waiting: 'Waiting'
 } as const
 
 // 情感动画映射（增强版?
@@ -127,10 +126,10 @@ const formatRelativeTime = (date: Date): string => {
   const diff = now.getTime() - date.getTime()
   const seconds = Math.floor(diff / 1000)
 
-  if (seconds < 10) return '刚刚'
-  if (seconds < 60) return `${seconds}秒前`
+  if (seconds < 10) return 'just now'
+  if (seconds < 60) return `${seconds}s ago`
   const minutes = Math.floor(seconds / 60)
-  if (minutes < 60) return `${minutes}分钟前`
+  if (minutes < 60) return `${minutes}m ago`
   return date.toLocaleTimeString('zh-CN', {
     hour: '2-digit',
     minute: '2-digit'
@@ -142,7 +141,7 @@ const getStateColor = (phase: AgentState['phase']): string => {
 }
 
 const getStateDisplayName = (phase: AgentState['phase']): string => {
-  return STATE_DISPLAY_NAMES[phase] || '未知'
+  return STATE_DISPLAY_NAMES[phase] || 'Unknown'
 }
 
 // 对话气泡动画变体
@@ -591,7 +590,6 @@ export const AgentDialogPanel: React.FC<AgentDialogPanelProps> = ({
         )}
       </AnimatePresence>
     </MotionDiv>
-  )
 }
 
 // 默认Agent状态生成函?
