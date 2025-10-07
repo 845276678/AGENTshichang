@@ -2,7 +2,7 @@ import type { AIPersona } from '@/lib/ai-persona-system'
 import type {
   IdeaEvaluationResult,
   IdeaEvaluationVerdict,
-  DimensionStatus,
+  DimensionStatus
 } from '@/lib/idea-evaluation'
 
 export interface PromptSessionContext {
@@ -12,53 +12,54 @@ export interface PromptSessionContext {
 
 const VERDICT_LABEL: Record<IdeaEvaluationVerdict, string> = {
   reject: '拒绝',
-  needs_work: '待完善',
+  needs_work: '待优化',
   acceptable: '可推进',
-  excellent: '优秀',
+  excellent: '强烈推荐'
 }
 
 const DIMENSION_STATUS_LABEL: Record<DimensionStatus, string> = {
   missing: '缺失',
   weak: '薄弱',
   good: '良好',
-  strong: '优秀',
+  strong: '优秀'
 }
 
 const CRITICAL_REVIEW_TEMPLATE = `
-你是{personaName}（{personaRole}），保持「{personaTone}」的表达风格，用犀利、简洁的语言点评创意。
+作为 {personaName} 这位 {personaRole}，请以 {personaTone} 的口吻，为下面的创意写一段结构化点评。
 
-**创意速览**
-- 核心描述：{ideaSummary}
-- 系统评分：{evaluationScore}/100（判定：{evaluationVerdict}）
-- 综合可行性（0-10）：{feasibilityScore}
-- 系统要点：{systemFeedback}
+**基础信息**
+- 创意摘要：{ideaSummary}
+- 系统评分：{evaluationScore}/100（判断为 {evaluationVerdict}）
+- 可行性得分（0-10）：{feasibilityScore}
+- 系统提醒要点：{systemFeedback}
 
-**维度概览**
+**维度拆解**
 {dimensionSummary}
 
 **提示信息**
-优势：
+亮点：
 {strengthHighlights}
 风险：
 {riskHighlights}
 
-原始创意节选：
+原始创意全文
 ---
 {ideaFull}
 ---
 
-请在150字内完成点评，结构需包含：
-1. 开头一句点出最大隐患或最值得推进的突破口；
-2. 简述最担忧或最看好的方面及原因；
-3. 用短句给出2-3条必须补充或修正的关键行动建议（可用顿号或分号分隔）。
+请在 150 字以内输出：
+1. 开场一句给出总体判断与价值取向；
+2. 点出最值得肯定的部分，并解释原因；
+3. 用 2~3 条建议指出需要补强的关键环节（用换行或顿号分隔）。
 
-必须指出具体问题，避免客套和重复题面。`
+仅返回最终文本，不需要额外说明。`
 
-const FALLBACK_CRITICAL_REVIEW_PROMPT = `你是{personaName}，请在不超过120字内直接点评：{ideaContent}`
+const FALLBACK_CRITICAL_REVIEW_PROMPT =
+  `请让 {personaName} 在 120 字内，从专业角度点评这条创意：{ideaContent}`
 
 export function buildCriticalReviewPrompt(
   persona: AIPersona,
-  session: PromptSessionContext,
+  session: PromptSessionContext
 ): string {
   const evaluation = session.evaluationResult
   const ideaFull = normalizeWhitespace(session.ideaContent || '') || '暂无创意描述'
@@ -74,21 +75,22 @@ export function buildCriticalReviewPrompt(
     : '专业'
   const personaRole = persona.specialty || persona.catchPhrase || '领域专家'
   const ideaSummary = truncateText(ideaFull, 80)
-  const dimensionSummary = evaluation.dimensions && evaluation.dimensions.length
-    ? evaluation.dimensions
-        .map((dimension) => `- ${dimension.label}: ${dimension.score}/${dimension.weight}（${DIMENSION_STATUS_LABEL[dimension.status] ?? dimension.status}）`)
-        .join('
-')
-    : '- 暂无维度数据'
+
+  const dimensionSummary =
+    evaluation.dimensions && evaluation.dimensions.length
+      ? evaluation.dimensions
+          .map((dimension) => `- ${dimension.label}: ${dimension.score}/${dimension.weight}（${DIMENSION_STATUS_LABEL[dimension.status] ?? dimension.status}）`)
+          .join('\n')
+      : '- 暂无维度数据'
+
   const strengthHighlights = formatBulletList(evaluation.strengths)
   const riskHighlights = formatBulletList(evaluation.risks)
   const verdictLabel = VERDICT_LABEL[evaluation.verdict] ?? evaluation.verdict
   const feedbackSummary = truncateText(
     (evaluation.feedback || '')
-      .split(/?
-/)
-      .find((line) => line.trim()) || '暂无系统反馈',
-    80,
+      .split(/\r?\n/)
+      .find((line) => line.trim()) || '系统暂未提供详细反馈',
+    80
   )
   const feasibilityScore = (evaluation.score / 10).toFixed(1)
 
@@ -104,7 +106,7 @@ export function buildCriticalReviewPrompt(
     '{dimensionSummary}': dimensionSummary,
     '{strengthHighlights}': strengthHighlights,
     '{riskHighlights}': riskHighlights,
-    '{feasibilityScore}': feasibilityScore,
+    '{feasibilityScore}': feasibilityScore
   }
 
   let prompt = CRITICAL_REVIEW_TEMPLATE
@@ -118,8 +120,10 @@ function formatBulletList(items: string[] | undefined, limit = 2): string {
   if (!items || items.length === 0) {
     return '- 暂无信息'
   }
-  return items.slice(0, limit).map((item) => `- ${item}`).join('
-')
+  return items
+    .slice(0, limit)
+    .map((item) => `- ${item}`)
+    .join('\n')
 }
 
 function truncateText(value: string, max = 120): string {

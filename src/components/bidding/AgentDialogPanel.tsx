@@ -64,9 +64,9 @@ const AGENT_STATE_COLORS = {
 const STATE_DISPLAY_NAMES = {
   idle: '待命',
   thinking: '思考中',
-  speaking: '发言?,
-  bidding: '竞价?,
-  waiting: '等待?
+  speaking: '发言中',
+  bidding: '竞价中',
+  waiting: '等待中'
 } as const
 
 // 情感动画映射（增强版?
