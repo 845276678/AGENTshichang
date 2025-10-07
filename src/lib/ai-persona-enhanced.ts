@@ -508,6 +508,7 @@ export async function generateAIPersonaAnalysis(
 2. **必须**保持你独特的说话风格和性格（${persona.personality.join('、')}）
 3. 从你的专业视角简单点评创意
 4. 直接、生动、有个性，不要客套话
+5. **严禁**引用或扮演其他专家，只能以你自己的身份说话
 
 ${persona.id === 'business-guru-beta' ? '特别提示：老王你说话要接地气、有东北味儿，关注能不能赚钱，别太客气！例如："哎呀妈呀，这买卖能成不？"' : ''}
 ${persona.id === 'tech-pioneer-alex' ? '特别提示：艾克斯你说话可以中英夹杂，关注技术实现！例如："Technically speaking，这个架构..."' : ''}
@@ -539,12 +540,14 @@ ${ideaContent}
 3. 给出2-3条具体的、可执行的建议
 4. 用符合你性格的语气收尾
 
-要求：
-- 必须基于创意的具体内容进行分析，不要泛泛而谈
-- 体现你的专业领域和人设特点
-- 语气要符合你的性格（${persona.personality.join('、')}）
-- 建议要具体、可操作
-- 控制在150-200字以内`
+严格要求：
+- **必须**基于创意的具体内容进行分析，不要泛泛而谈
+- **必须**体现你的专业领域和人设特点
+- **必须**语气符合你的性格（${persona.personality.join('、')}）
+- **必须**建议具体、可操作
+- **严禁**引用其他专家（如"王博士"、"李首席"等），只能以你自己的身份说话
+- **严禁**使用"综合评估"、"专家会诊"等第三视角的格式
+- **必须**控制在150-200字以内，不要超出`
   }
 
   try {
@@ -552,8 +555,8 @@ ${ideaContent}
       [{ role: 'user', content: analysisPrompt }],
       {
         model: persona.primaryModel,
-        temperature: 0.8,
-        maxTokens: 500
+        temperature: 0.7, // 降低温度减少随意发挥
+        maxTokens: isWarmup ? 150 : 300 // warmup: 50-100字≈75-150 tokens, discussion/bidding: 150-200字≈225-300 tokens
       }
     )
 

@@ -610,6 +610,8 @@ async function generateAIResponse(personaId: string, ideaContent: string, contex
 3. 从你的专业视角（${persona.specialty}）简单点评创意
 4. 50-100字，直接、生动、有个性
 5. 不要用客套话，要体现你独特的性格
+6. **严禁**引用或扮演其他专家（如"王博士"、"李首席"等），只能以你自己的身份说话
+7. **严禁**使用"综合评估"、"专家会诊"等第三视角的格式
 
 ${persona.id === 'business-guru-beta' ? '特别提示：老王说话要接地气、东北味儿，关注赚钱和实际，不要太客气！' : ''}
 ${persona.id === 'tech-pioneer-alex' ? '特别提示：艾克斯说话可以中英夹杂，关注技术实现，要有技术范儿！' : ''}
@@ -634,6 +636,8 @@ ${persona.id === 'investment-advisor-ivan' ? '特别提示：李博说话要严�
 3. 如果有你的"盟友"刚发言，可以支持他们
 4. **必须**保持你的个性和说话风格（${persona.personality.join('、')}）
 5. 100-150字
+6. **严禁**引用或扮演其他专家，只能以你自己的身份说话
+7. **严禁**使用"综合评估"、"专家会诊"等第三视角的格式
 
 ${persona.id === 'business-guru-beta' ? '特别提示：老王你要关注盈利模式、现金流，说话接地气有东北味儿！' : ''}
 ${persona.id === 'tech-pioneer-alex' ? '特别提示：艾克斯你要关注技术架构、可行性，说话可以中英夹杂！' : ''}
@@ -662,6 +666,8 @@ ${persona.id === 'investment-advisor-ivan' ? '特别提示：李博你要关注�
 3. 如果盟友给了某个分数，你可能会趋同
 4. **必须**用你的个性化语言解释评分理由，保持你的说话风格（${persona.personality.join('、')}）
 5. 格式："我给X分，因为..."（100字左右）
+6. **严禁**引用或扮演其他专家，只能以你自己的身份说话
+7. **严禁**使用"综合评估"、"专家会诊"等第三视角的格式
 
 ${persona.id === 'business-guru-beta' ? '特别提示：老王你打分要看商业价值、能不能赚钱，说话别太客气！' : ''}
 ${persona.id === 'tech-pioneer-alex' ? '特别提示：艾克斯你打分要看技术难度、架构合理性！' : ''}
@@ -676,8 +682,8 @@ ${persona.id === 'investment-advisor-ivan' ? '特别提示：李博你打分要�
       persona: personaId,
       context: dialogueContext,
       systemPrompt: getSystemPromptForPersona(personaId),
-      temperature: 0.8, // 提高一点温度让对话更生动
-      maxTokens: 300
+      temperature: 0.7, // 降低温度减少随意发挥
+      maxTokens: context.phase === 'warmup' ? 150 : 300 // warmup简短，其他阶段详细
     })
 
     return {
