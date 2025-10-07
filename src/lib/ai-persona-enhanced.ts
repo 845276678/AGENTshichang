@@ -314,13 +314,62 @@ export function generatePersonaComment(
     ? `我特别留意 ${highlights.join('、')} 这些点。`
     : playbook.contextNote
 
-  const header = `${persona.name}（${playbook.focus}视角）给出 ${Math.round(score)} 分。${highlightPart}`
+  // 根据persona定制评论开头和语气
+  const personaHeaders: Record<string, (score: number) => string> = {
+    'business-guru-beta': (s) => `哎呀妈呀！这买卖我看了看，给${Math.round(s)}分。${highlightPart}`,
+    'tech-pioneer-alex': (s) => `Let me see... 技术评估${Math.round(s)}分。${highlightPart}`,
+    'innovation-mentor-charlie': (s) => `这个创意让我感受到了价值~我给${Math.round(s)}分。${highlightPart}`,
+    'market-insight-delta': (s) => `家人们！这个项目我评${Math.round(s)}分。${highlightPart}`,
+    'investment-advisor-ivan': (s) => `经过系统分析，我给出${Math.round(s)}分的评价。${highlightPart}`
+  }
 
+  const personaTransitions: Record<string, { high: string; medium: string; low: string; veryLow: string }> = {
+    'business-guru-beta': {
+      high: '赚钱的路子清楚了，可以干！',
+      medium: '方向对，但得把账算清楚：',
+      low: '有风险啊，先把这些整明白：',
+      veryLow: '这买卖不靠谱，赶紧刹车：'
+    },
+    'tech-pioneer-alex': {
+      high: 'Architecture looks solid, 可以推进。',
+      medium: '技术可行，但要注意：',
+      low: 'Tech stack有隐患，建议：',
+      veryLow: '技术风险太大，必须重构：'
+    },
+    'innovation-mentor-charlie': {
+      high: '用户会爱上这个体验的！',
+      medium: '体验不错，但还要优化：',
+      low: '用户价值不够清晰，建议：',
+      veryLow: '用户需求没抓准，需要重新思考：'
+    },
+    'market-insight-delta': {
+      high: '流量密码找到了，冲冲冲！',
+      medium: '有传播点，但要调整：',
+      low: '传播力不够，得加强：',
+      veryLow: '市场反应会很冷，建议：'
+    },
+    'investment-advisor-ivan': {
+      high: '理论基础扎实，可以执行。',
+      medium: '逻辑成立，但需补充：',
+      low: '证据不足，建议完善：',
+      veryLow: '理论风险较大，需要：'
+    }
+  }
+
+  const getHeader = personaHeaders[persona.id] || ((s) => `${persona.name}（${playbook.focus}视角）给出 ${Math.round(s)} 分。${highlightPart}`)
+  const transitions = personaTransitions[persona.id] || {
+    high: '整体信号不错，可以直接冲刺。',
+    medium: '方向基本成立，但还需要把下面的环节补紧：',
+    low: '目前还在摇摆区，先把基础打扎实：',
+    veryLow: '现在风险比机会大，先止血再谈扩张：'
+  }
+
+  const header = getHeader(score)
   const formatChecklist = (items: string[]) => items.map(item => `- ${item}`).join('\n')
 
   if (score >= 80) {
     return [
-      `${header}整体信号不错，可以直接冲刺。`,
+      header + transitions.high,
       formatChecklist(playbook.momentumMoves),
       `下一轮别忘了：${playbook.closingReminder}`
     ].join('\n')
@@ -328,7 +377,7 @@ export function generatePersonaComment(
 
   if (score >= 65) {
     return [
-      `${header}方向基本成立，但还需要把下面的环节补紧：`,
+      header + transitions.medium,
       formatChecklist(playbook.polishMoves),
       `下一轮别忘了：${playbook.closingReminder}`
     ].join('\n')
@@ -336,14 +385,14 @@ export function generatePersonaComment(
 
   if (score >= 50) {
     return [
-      `${header}目前还在摇摆区，先把基础打扎实：`,
+      header + transitions.low,
       formatChecklist(playbook.polishMoves),
       `下一轮别忘了：${playbook.closingReminder}`
     ].join('\n')
   }
 
   return [
-    `${header}现在风险比机会大，先止血再谈扩张：`,
+    header + transitions.veryLow,
     formatChecklist(playbook.rescueMoves),
     `下一轮别忘了：${playbook.closingReminder}`
   ].join('\n')
