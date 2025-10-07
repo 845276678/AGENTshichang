@@ -22,6 +22,7 @@ import { tokenStorage } from '@/lib/token-storage'
 import { AgentDialogPanel, BiddingPhase, type AgentState } from './AgentDialogPanel'
 import PhaseStatusBar from './PhaseStatusBar'
 import EnhancedSupplementPanel, { type SupplementCategory } from './EnhancedSupplementPanel'
+import { extractUserContext } from '@/lib/business-plan/context-extractor'
 import './AgentDialogPanel.css'
 
 import {
@@ -140,7 +141,11 @@ export default function UnifiedBiddingStage({
 
   // 用户补充状态
   const [userSupplement, setUserSupplement] = useState('')
-  const [supplementHistory, setSupplementHistory] = useState<string[]>([])
+  const [supplementHistory, setSupplementHistory] = useState<Array<{
+    category: SupplementCategory | string
+    content: string
+    timestamp: Date
+  }>>([])
   const [isSendingSupplement, setIsSendingSupplement] = useState(false)
 
   // 计算消息信心度
@@ -254,7 +259,11 @@ export default function UnifiedBiddingStage({
 
       if (success) {
         // 添加到历史记录
-        setSupplementHistory(prev => [...prev, content])
+        setSupplementHistory(prev => [...prev, {
+          category: category || 'other',
+          content: content.trim(),
+          timestamp: new Date()
+        }])
 
         console.log('✅ 用户补充创意已发送:', content)
         console.log('📊 补充次数:', supplementHistory.length + 1, '/ 3')
@@ -365,9 +374,16 @@ export default function UnifiedBiddingStage({
           }
         })
 
+      // Extract user context from idea and supplements for personalized recommendations
+      const userContext = extractUserContext({
+        ideaContent: ideaContent || '',
+        supplements: supplementHistory
+      })
+
       const requestBody = {
         ideaId,
         ideaContent: ideaContent || '未提供创意内容',
+        userContext,
         biddingResults: {
           winningBid: Math.round(winningBidValue),
           winningPersona: winningPersonaId,
@@ -669,7 +685,7 @@ export default function UnifiedBiddingStage({
                     {supplementHistory.map((item, index) => (
                       <div key={index} className="bg-white p-3 rounded-lg border border-gray-200 text-sm">
                         <span className="font-medium text-gray-600">补充 {index + 1}：</span>
-                        <p className="mt-1 text-gray-700">{item}</p>
+                        <p className="mt-1 text-gray-700">{item.content}</p>
                       </div>
                     ))}
                   </div>

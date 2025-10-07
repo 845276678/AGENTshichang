@@ -35,6 +35,7 @@ export interface ExecutionPlan {
     monthly: string[]
     dataWatch: string[]
   }
+  personalizedRecommendations?: string // 新增：个性化建议的Markdown内容
 }
 
 export type BusinessPlanGuide = LandingCoachGuide & { executionPlan?: ExecutionPlan }
