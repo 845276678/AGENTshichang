@@ -126,12 +126,13 @@ export async function GET(request: NextRequest) {
     } else if (sessionId) {
       // 通过sessionId查找关联的报告
       const session = await BusinessPlanSessionService.getSessionWithReport(sessionId)
-      if (session?.report?.guide) {
+      const sessionReport = session?.reports?.[0]
+      if (sessionReport?.guide) {
         // 如果session已经有guide，直接使用
-        guide = session.report.guide as LandingCoachGuide
-      } else if (session?.report) {
+        guide = sessionReport.guide as LandingCoachGuide
+      } else if (sessionReport) {
         // 否则尝试从report数据转换
-        report = session.report as any
+        report = sessionReport as any
       }
     }
 
