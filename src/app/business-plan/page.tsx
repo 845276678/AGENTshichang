@@ -222,17 +222,22 @@ export default function BusinessPlanPage() {
     }
   }, [sessionId, reportId, token, isInitialized])
 
-  const handleDownload = async (format: 'pdf' | 'docx' | 'markdown') => {
+  const handleDownload = async (format: 'pdf' | 'docx' | 'markdown' | 'txt') => {
     if (!guide || (!reportId && !sessionId)) return
 
     try {
-      if (format === 'markdown') {
+      // TXT和Markdown格式可以直接在前端生成
+      if (format === 'txt' || format === 'markdown') {
         const markdownContent = generateGuideMarkdown(guide)
-        const blob = new Blob([markdownContent], { type: 'text/markdown' })
+        const content = format === 'txt'
+          ? markdownContent.replace(/[#*_`>\-\[\]]/g, '').replace(/\n\n+/g, '\n\n') // 移除Markdown语法
+          : markdownContent
+        const mimeType = format === 'txt' ? 'text/plain' : 'text/markdown'
+        const blob = new Blob([content], { type: mimeType })
         const url = URL.createObjectURL(blob)
         const link = document.createElement('a')
         link.href = url
-        link.download = `${guide.metadata.ideaTitle}-落地指南.md`
+        link.download = `${guide.metadata.ideaTitle}-落地指南.${format}`
         document.body.appendChild(link)
         link.click()
         document.body.removeChild(link)

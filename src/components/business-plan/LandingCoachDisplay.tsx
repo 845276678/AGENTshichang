@@ -27,7 +27,7 @@ import type { LandingCoachGuide } from "@/lib/utils/transformReportToGuide"
 interface LandingCoachDisplayProps {
   guide: LandingCoachGuide
   isLoading?: boolean
-  onDownload?: (format: "pdf" | "docx" | "markdown") => void
+  onDownload?: (format: "pdf" | "docx" | "markdown" | "txt") => void
   onShare?: () => void
 }
 
@@ -111,6 +111,9 @@ export default function LandingCoachDisplay({
         <div className="flex flex-wrap gap-3">
           <Button onClick={() => onDownload?.("pdf")} variant="default">
             <Download className="mr-2 h-4 w-4" /> 导出 PDF
+          </Button>
+          <Button onClick={() => onDownload?.("txt")} variant="outline">
+            <Download className="mr-2 h-4 w-4" /> 导出 TXT
           </Button>
           <Button onClick={() => onDownload?.("markdown")} variant="outline">
             <Download className="mr-2 h-4 w-4" /> 导出 Markdown

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { verifyToken } from '@/lib/auth'
 import { ResearchReportService } from '@/lib/services/research-report.service'
 import { transformReportToGuide, generateGuideMarkdown, type LandingCoachGuide } from '@/lib/utils/transformReportToGuide'
+import { generateGuidePDF } from '@/lib/utils/pdfGenerator'
 import JSZip from 'jszip'
 import type { ResearchReport, User, Idea } from '@/types/entities'
 
@@ -200,9 +201,33 @@ export async function GET(request: NextRequest) {
     }
 
     if (format === 'pdf' || format === 'docx') {
-      // 对于PDF和DOCX，目前返回错误，可以后续集成相关库
+      // 生成PDF文件
+      if (format === 'pdf') {
+        try {
+          const guide = type === 'guide'
+            ? transformReportToGuide(report)
+            : transformReportToGuide(report) // 可以根据需要调整报告转换逻辑
+
+          const pdfBuffer = await generateGuidePDF(guide)
+
+          return new NextResponse(pdfBuffer, {
+            headers: {
+              'Content-Type': 'application/pdf',
+              'Content-Disposition': `attachment; filename="${filename}.pdf"`
+            }
+          })
+        } catch (error) {
+          console.error('PDF generation failed:', error)
+          return NextResponse.json(
+            { error: 'PDF生成失败，请稍后重试或选择其他格式' },
+            { status: 500 }
+          )
+        }
+      }
+
+      // DOCX格式暂不支持
       return NextResponse.json(
-        { error: `${format.toUpperCase()}格式暂不支持，请选择Markdown或ZIP格式` },
+        { error: 'DOCX格式暂不支持，请选择PDF、TXT或Markdown格式' },
         { status: 400 }
       )
     }
