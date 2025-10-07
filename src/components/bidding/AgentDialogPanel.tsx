@@ -252,8 +252,6 @@ export const AgentDialogPanel: React.FC<AgentDialogPanelProps> = ({
         minWidth: '240px',
         maxWidth: '320px'
       }}
-      animate={isActive ? 'active' : 'animate'}
-      whileHover={!isActive ? 'hover' : undefined}
     >
       {/* 1. 头像区域 */}
       <div className="agent-avatar-section flex flex-col items-center gap-2">
@@ -435,34 +433,13 @@ export const AgentDialogPanel: React.FC<AgentDialogPanelProps> = ({
 
       {/* 4. 竞价状态区域 */}
       {showBidInfo && (
-        <MotionDiv
-          className="bidding-section relative flex items-center justify-center mt-2"
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.3, duration: 0.4 }}
-        >
+        <MotionDiv className="bidding-section relative flex items-center justify-center mt-2">
           <MotionDiv
             className={`bid-amount flex items-center gap-1 px-4 py-2 rounded-full shadow-lg ${
               currentBid === 0
                 ? 'bg-gradient-to-r from-gray-300 to-gray-400 text-gray-700'
                 : 'bg-gradient-to-r from-yellow-400 to-orange-400 text-white'
             }`}
-            animate={currentBid === 0 ? {
-              scale: [1, 1.02, 1],
-              opacity: [0.7, 0.9, 0.7]
-            } : {
-              scale: [1, 1.05, 1],
-              boxShadow: [
-                "0 4px 14px 0 rgba(245, 158, 11, 0.3)",
-                "0 6px 20px 0 rgba(245, 158, 11, 0.4)",
-                "0 4px 14px 0 rgba(245, 158, 11, 0.3)"
-              ]
-            }}
-            transition={{
-              duration: currentBid === 0 ? 2 : 1.5,
-              repeat: Infinity,
-              ease: "easeInOut"
-            }}
           >
             <span className="text-base font-medium">¥</span>
             <span
@@ -475,12 +452,7 @@ export const AgentDialogPanel: React.FC<AgentDialogPanelProps> = ({
 
           {/* 0出价特殊提示 */}
           {currentBid === 0 && (
-            <MotionDiv
-              className="absolute -bottom-6 left-1/2 transform -translate-x-1/2 text-xs text-gray-400 whitespace-nowrap"
-              initial={{ opacity: 0, y: -5 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.5 }}
-            >
+            <MotionDiv className="absolute -bottom-6 left-1/2 transform -translate-x-1/2 text-xs text-gray-400 whitespace-nowrap">
               <span className="animate-pulse">
                 尚无溢价
               </span>
@@ -491,15 +463,6 @@ export const AgentDialogPanel: React.FC<AgentDialogPanelProps> = ({
           {currentBid && currentBid > 100 && (
             <MotionDiv
               className="absolute inset-0 bg-yellow-400 rounded-full pointer-events-none"
-              animate={{
-                scale: [1, 1.3, 1],
-                opacity: [0, 0.3, 0]
-              }}
-              transition={{
-                repeat: Infinity,
-                duration: 1.2,
-                ease: "easeOut"
-              }}
               style={{ zIndex: -1 }}
             />
           )}
@@ -515,30 +478,10 @@ export const AgentDialogPanel: React.FC<AgentDialogPanelProps> = ({
                     : 'radial-gradient(circle, rgba(245, 158, 11, 0.3) 0%, transparent 70%)',
                   zIndex: -1
                 }}
-                animate={{
-                  scale: [1, 1.5, 1],
-                  opacity: currentBid === 0 ? [0.1, 0.3, 0.1] : [0.3, 0.1, 0.3]
-                }}
-                transition={{
-                  repeat: Infinity,
-                  duration: currentBid === 0 ? 3 : 1.8,
-                  ease: "easeInOut"
-                }}
               />
 
               {/* 额外的竞价指示器 */}
-              <MotionDiv
-                className="absolute -top-1 -right-1 w-3 h-3 bg-red-400 rounded-full"
-                animate={{
-                  scale: [0.8, 1.2, 0.8],
-                  opacity: [1, 0.6, 1]
-                }}
-                transition={{
-                  repeat: Infinity,
-                  duration: 1,
-                  ease: "easeInOut"
-                }}
-              />
+              <MotionDiv className="absolute -top-1 -right-1 w-3 h-3 bg-red-400 rounded-full" />
             </>
           )}
         </MotionDiv>
@@ -547,11 +490,7 @@ export const AgentDialogPanel: React.FC<AgentDialogPanelProps> = ({
       {/* 5. 交互区域 */}
       <div className="interaction-section flex justify-center mt-2">
         {currentPhase === BiddingPhase.USER_SUPPLEMENT && (
-          <MotionDiv
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4 }}
-          >
+          <MotionDiv>
             <Button
               size="sm"
               variant={state.isSupported ? "default" : "outline"}
@@ -562,13 +501,7 @@ export const AgentDialogPanel: React.FC<AgentDialogPanelProps> = ({
               aria-label={`${state.isSupported ? '已支持' : '支持'} ${agent.name}`}
               disabled={state.isSupported}
             >
-              <MotionDiv
-                animate={state.isSupported ? {
-                  scale: [1, 1.2, 1],
-                  rotate: [0, 10, -10, 0]
-                } : {}}
-                transition={{ duration: 0.5 }}
-              >
+              <MotionDiv>
                 <Heart className={`w-3 h-3 mr-1 ${state.isSupported ? 'fill-current text-red-500' : ''}`} />
               </MotionDiv>
               <span>{state.isSupported ? '已支持' : '支持'}</span>
@@ -580,18 +513,13 @@ export const AgentDialogPanel: React.FC<AgentDialogPanelProps> = ({
       {/* 加载状态覆盖层 */}
       <AnimatePresence>
         {state.phase === 'thinking' && (
-          <MotionDiv
-            className="absolute inset-0 bg-white bg-opacity-50 rounded-2xl flex items-center justify-center"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
-          >
+          <MotionDiv className="absolute inset-0 bg-white bg-opacity-50 rounded-2xl flex items-center justify-center">
             <div className="loading-spinner w-8 h-8 border-2 border-blue-300 border-t-blue-600 rounded-full animate-spin" />
           </MotionDiv>
         )}
       </AnimatePresence>
     </MotionDiv>
+  )
 }
 
 // 默认Agent状态生成函数
