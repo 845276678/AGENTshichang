@@ -8,6 +8,7 @@ import { tokenStorage } from '@/lib/token-storage'
 import { useAuth } from '@/contexts/AuthContext'
 import EnhancedBiddingStage from './EnhancedBiddingStage'
 import UnifiedBiddingStage from './UnifiedBiddingStage'
+import IdeaEvaluationPanel from './IdeaEvaluationPanel'
 import { AI_PERSONAS, DISCUSSION_PHASES, type AIMessage } from '@/lib/ai-persona-system'
 import { DialogueDecisionEngine } from '@/lib/dialogue-strategy'
 import AIServiceManager from '@/lib/ai-service-manager'
@@ -259,7 +260,7 @@ export default function StageBasedBidding({
   autoStart = false,
   initialIdeaContent
 }: CreativeIdeaBiddingProps) {
-  const [currentStage, setCurrentStage] = useState<'input' | 'bidding'>('input')
+  const [currentStage, setCurrentStage] = useState<'input' | 'evaluation' | 'bidding'>('input')
   const [submittedIdea, setSubmittedIdea] = useState<string>('')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [sessionId, setSessionId] = useState<string | null>(null)
@@ -332,21 +333,38 @@ export default function StageBasedBidding({
       setIsSubmitting(true)
       setSubmittedIdea(ideaContent)
 
-      // 生成真实sessionId启动AI服务
-      const newSessionId = `session_${Date.now()}_${ideaId}`
-      setSessionId(newSessionId)
-
       // 模拟提交延迟
-      await new Promise(resolve => setTimeout(resolve, 1000))
+      await new Promise(resolve => setTimeout(resolve, 500))
 
-      setCurrentStage('bidding')
-      setDisplayPhase('warmup')  // 初始设为warmup，真实AI将接管
+      // 先进入评估阶段
+      setCurrentStage('evaluation')
     } catch (error) {
       console.error('Idea submission error:', error)
       alert('提交失败，请重试')
     } finally {
       setIsSubmitting(false)
     }
+  }
+
+  const handleProceedToBidding = () => {
+    // 从评估阶段进入竞价阶段
+    const newSessionId = `session_${Date.now()}_${ideaId}`
+    setSessionId(newSessionId)
+    setCurrentStage('bidding')
+    setDisplayPhase('warmup')
+  }
+
+  const handleSkipEvaluation = () => {
+    // 跳过评估直接进入竞价
+    const newSessionId = `session_${Date.now()}_${ideaId}`
+    setSessionId(newSessionId)
+    setCurrentStage('bidding')
+    setDisplayPhase('warmup')
+  }
+
+  const handleIdeaUpdate = (newContent: string) => {
+    // 更新创意内容
+    setSubmittedIdea(newContent)
   }
 
   const handleBackToInput = () => {
@@ -368,6 +386,28 @@ export default function StageBasedBidding({
               isLoading={isSubmitting}
               userCredits={userCredits}
               defaultContent={initialIdeaContent}
+            />
+          </div>
+        )}
+
+        {currentStage === 'evaluation' && submittedIdea && (
+          <div className="space-y-6">
+            <div className="flex items-center justify-between">
+              <Button
+                variant="ghost"
+                onClick={handleBackToInput}
+                className="flex items-center gap-2"
+              >
+                <ArrowLeft className="w-4 h-4" />
+                返回修改
+              </Button>
+            </div>
+
+            <IdeaEvaluationPanel
+              ideaContent={submittedIdea}
+              onIdeaUpdate={handleIdeaUpdate}
+              onProceedToBidding={handleProceedToBidding}
+              onSkipEvaluation={handleSkipEvaluation}
             />
           </div>
         )}

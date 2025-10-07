@@ -1,12 +1,17 @@
 'use client'
 
 import React, { useState, useEffect, useMemo, useCallback } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Textarea } from '@/components/ui/textarea'
 import { AI_PERSONAS, type AIPersona } from '@/lib/ai-persona-enhanced'
+
+const MotionDiv = ({ children, className, style, ...props }: { children: React.ReactNode; className?: string; style?: React.CSSProperties }) => (
+  <div className={className} style={style} {...props}>{children}</div>
+)
+const AnimatePresence = ({ children }: { children: React.ReactNode }) => <>{children}</>
+
 import { type AIMessage } from '@/lib/ai-persona-system'
 import { useBiddingWebSocket } from '@/hooks/useBiddingWebSocket'
 import { useAgentStates, PhasePermissionManager } from '@/hooks/useAgentStates'
@@ -16,6 +21,7 @@ import { tokenStorage } from '@/lib/token-storage'
 // Import our new components
 import { AgentDialogPanel, BiddingPhase, type AgentState } from './AgentDialogPanel'
 import PhaseStatusBar from './PhaseStatusBar'
+import EnhancedSupplementPanel, { type SupplementCategory } from './EnhancedSupplementPanel'
 import './AgentDialogPanel.css'
 
 import {
@@ -37,13 +43,12 @@ import {
 } from 'lucide-react'
 
 // 简化组件替代motion - 避免生产环境错误
-/* Removed SimpleDiv placeholder */
 
 
 
 
 // 使用简化组件替代motion组件
-/* MotionDiv wrapper removed */
+
 
 // Props interface
 interface UnifiedBiddingStageProps {
@@ -228,41 +233,51 @@ export default function UnifiedBiddingStage({
   }
 
   // 处理用户补充创意
-  const handleSubmitSupplement = async () => {
-    if (!userSupplement.trim() || isSendingSupplement) return
+  const handleSubmitSupplement = async (content: string, category?: SupplementCategory) => {
+    if (!content.trim() || isSendingSupplement) return false
 
     // 检查是否已达上限
     if (supplementHistory.length >= 3) {
       alert('已达到补充上限（3次）')
-      return
+      return false
     }
 
     setIsSendingSupplement(true)
     try {
       // 通过WebSocket发送补充内容给后端
-      const success = sendSupplement(userSupplement.trim())
+      // 如果有类别信息，可以一起发送
+      const supplementData = category
+        ? `[${category}] ${content.trim()}`
+        : content.trim()
+
+      const success = sendSupplement(supplementData)
 
       if (success) {
         // 添加到历史记录
-        setSupplementHistory(prev => [...prev, userSupplement])
+        setSupplementHistory(prev => [...prev, content])
 
-        console.log('✅ 用户补充创意已发送:', userSupplement)
+        console.log('✅ 用户补充创意已发送:', content)
         console.log('📊 补充次数:', supplementHistory.length + 1, '/ 3')
 
         // 清空输入框
         setUserSupplement('')
 
-        // 显示成功提示
-        alert(`补充成功！AI专家团队正在重新评估（${supplementHistory.length + 1}/3）`)
+        return true
       } else {
         throw new Error('发送失败')
       }
     } catch (error) {
       console.error('❌ 补充失败:', error)
       alert('补充失败，请重试')
+      return false
     } finally {
       setIsSendingSupplement(false)
     }
+  }
+
+  // 兼容旧的简单补充方法
+  const handleSubmitSupplementSimple = async () => {
+    return await handleSubmitSupplement(userSupplement)
   }
 
   // 格式化时间
@@ -590,10 +605,10 @@ export default function UnifiedBiddingStage({
       </Card>
 
       {/* Agent对话面板网格 */}
-      <motion.div className="agents-grid-container">
+      <MotionDiv className="agents-grid-container">
         <div className={`agents-grid ${compactMode ? 'compact-mode' : ''}`}>
           {AI_PERSONAS.map((agent, index) => (
-            <motion.div key={agent.id}>
+            <MotionDiv key={agent.id}>
               <AgentDialogPanel
                 agent={agent}
                 state={agentStates[agent.id] || {
@@ -611,10 +626,19 @@ export default function UnifiedBiddingStage({
                 currentBid={currentBids[agent.id]}
                 className={`${compactMode ? 'compact' : ''}`}
               />
-            </motion.div>
+            </MotionDiv>
           ))}
         </div>
-      </motion.div>
+      </MotionDiv>
+
+      {/* 增强的补充创意面板 - 在所有竞价阶段都显示 */}
+      {currentPhase !== BiddingPhase.IDEA_INPUT && currentPhase !== BiddingPhase.RESULT_DISPLAY && (
+        <EnhancedSupplementPanel
+          onSubmitSupplement={handleSubmitSupplement}
+          maxSupplements={3}
+          currentSupplementCount={supplementHistory.length}
+        />
+      )}
 
       {/* 用户补充创意区域 - 在USER_SUPPLEMENT阶段显示 */}
       {currentPhase === BiddingPhase.USER_SUPPLEMENT && (
@@ -669,7 +693,7 @@ export default function UnifiedBiddingStage({
                         : '请详细描述您的补充内容'}
                     </p>
                     <Button
-                      onClick={handleSubmitSupplement}
+                      onClick={handleSubmitSupplementSimple}
                       disabled={!userSupplement.trim() || isSendingSupplement}
                       className="bg-blue-600 hover:bg-blue-700"
                     >
@@ -781,7 +805,7 @@ export default function UnifiedBiddingStage({
       {/* 设置面板 */}
       <AnimatePresence>
         {showSettings && (
-          <motion.div>
+          <MotionDiv>
             <Card>
               <CardHeader>
                 <CardTitle className="text-lg">显示设置</CardTitle>
@@ -817,7 +841,7 @@ export default function UnifiedBiddingStage({
                 </div>
               </CardContent>
             </Card>
-          </motion.div>
+          </MotionDiv>
         )}
       </AnimatePresence>
 
