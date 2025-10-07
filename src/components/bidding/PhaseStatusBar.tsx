@@ -1,6 +1,7 @@
 'use client'
 
 import React from 'react'
+import { motion } from 'framer-motion'
 import { Progress } from '@/components/ui/progress'
 import { Badge } from '@/components/ui/badge'
 import { BiddingPhase } from '@/components/bidding/AgentDialogPanel'
@@ -8,12 +9,7 @@ import { PhasePermissionManager } from '@/hooks/useAgentStates'
 import { Clock, Users, Zap, TrendingUp, Award, CheckCircle } from 'lucide-react'
 
 // 简化组件替代motion - 避免生产环境错误
-const SimpleDiv = ({ children, className, style, ...props }: any) => (
-  <div className={className} style={style} {...props}>{children}</div>
-)
-
 // 使用简化组件替代motion组件
-const MotionDiv = SimpleDiv
 
 interface PhaseStatusBarProps {
   currentPhase: BiddingPhase
@@ -115,7 +111,7 @@ export const PhaseStatusBar: React.FC<PhaseStatusBarProps> = ({
     : progress
 
   return (
-    <MotionDiv className={`phase-status-bar relative bg-white border-b border-gray-200 shadow-sm ${className}`}>
+    <motion.div className={`phase-status-bar relative bg-white border-b border-gray-200 shadow-sm ${className}`}>
       {/* 背景渐变 */}
       <div className={`absolute inset-0 bg-gradient-to-r ${config.color} opacity-5`} />
 
@@ -124,9 +120,9 @@ export const PhaseStatusBar: React.FC<PhaseStatusBarProps> = ({
           <div className="flex items-center justify-between">
             {/* 左侧：阶段信息 */}
             <div className="flex items-center gap-4">
-              <MotionDiv className={`phase-icon flex items-center justify-center w-12 h-12 rounded-full ${config.bgColor} ${config.textColor}`}>
+              <motion.div className={`phase-icon flex items-center justify-center w-12 h-12 rounded-full ${config.bgColor} ${config.textColor}`}>
                 <IconComponent className="w-6 h-6" />
-              </MotionDiv>
+              </motion.div>
 
               <div className="phase-info">
                 <div className="flex items-center gap-2 mb-1">
@@ -166,7 +162,7 @@ export const PhaseStatusBar: React.FC<PhaseStatusBarProps> = ({
 
                 {/* 脉冲效果 */}
                 {timeProgress > 0 && (
-                  <MotionDiv
+                  <motion.div
                     className={`absolute top-0 right-0 h-full w-4 bg-gradient-to-r ${config.color} rounded-r-full opacity-60`}
                     style={{ right: `${100 - timeProgress}%` }}
                   />
@@ -205,38 +201,38 @@ export const PhaseStatusBar: React.FC<PhaseStatusBarProps> = ({
               )}
 
               {/* 实时指示器 */}
-              <MotionDiv className="realtime-indicator flex items-center gap-2 px-3 py-1.5 bg-green-50 text-green-700 rounded-full border border-green-200">
+              <motion.div className="realtime-indicator flex items-center gap-2 px-3 py-1.5 bg-green-50 text-green-700 rounded-full border border-green-200">
                 <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
                 <span className="text-xs font-medium">实时</span>
-              </MotionDiv>
+              </motion.div>
             </div>
           </div>
 
           {/* 阶段提示信息 */}
           {!permissions.canUserInput && permissions.canUserWatch && (
-            <MotionDiv className="phase-hint mt-3 p-2 bg-blue-50 text-blue-700 rounded-lg border border-blue-200">
+            <motion.div className="phase-hint mt-3 p-2 bg-blue-50 text-blue-700 rounded-lg border border-blue-200">
               <p className="text-sm">
                 📺 当前为观看阶段，请耐心观看专家们的精彩表现
               </p>
-            </MotionDiv>
+            </motion.div>
           )}
 
           {permissions.userSupplementAllowed && (
-            <MotionDiv className="phase-hint mt-3 p-2 bg-yellow-50 text-yellow-700 rounded-lg border border-yellow-200">
+            <motion.div className="phase-hint mt-3 p-2 bg-yellow-50 text-yellow-700 rounded-lg border border-yellow-200">
               <p className="text-sm">
                 🎯 您可以支持喜欢的专家（最多 {permissions.maxSupplementCount} 次）
               </p>
-            </MotionDiv>
+            </motion.div>
           )}
         </div>
       </div>
 
       {/* 阶段切换动画效果 - 简化版本 */}
-      <MotionDiv
+      <motion.div
         className={`absolute inset-0 bg-gradient-to-r ${config.color} opacity-20`}
         key={currentPhase} // 确保阶段变化时重新触发动画
       />
-    </MotionDiv>
+    </motion.div>
   )
 }
 

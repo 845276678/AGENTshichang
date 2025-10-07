@@ -36,10 +36,6 @@ interface FormProps extends ComponentProps {
 }
 
 // 简化的无动画组件，避免framer-motion导致的初始化问题
-const SimpleDiv = ({ children, className, style, ...props }: ComponentProps) => (
-  <div className={className} style={style} {...props}>{children}</div>
-)
-const SimpleForm = ({ children, className, style, onSubmit, ...props }: FormProps) => (
   <form className={className} style={style} onSubmit={onSubmit} {...props}>{children}</form>
 )
 const SimpleH1 = ({ children, className, style, ...props }: ComponentProps) => (
@@ -51,15 +47,12 @@ const SimpleP = ({ children, className, style, ...props }: ComponentProps) => (
 const SimpleH3 = ({ children, className, style, ...props }: ComponentProps) => (
   <h3 className={className} style={style} {...props}>{children}</h3>
 )
-const SimplePresence = ({ children }: { children: React.ReactNode }) => <>{children}</>;
 
 // 使用简化组件替代motion组件
-const MotionDiv = SimpleDiv
 const MotionForm = SimpleForm
 const MotionH1 = SimpleH1
 const MotionP = SimpleP
 const MotionH3 = SimpleH3
-const AnimatePresence = SimplePresence
 
 type SubmitResult = Promise<void | boolean> | void | boolean
 

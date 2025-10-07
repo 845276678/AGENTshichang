@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState, useEffect, useMemo, useCallback } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -36,22 +37,13 @@ import {
 } from 'lucide-react'
 
 // 简化组件替代motion - 避免生产环境错误
-interface SimpleDivProps {
-  children: React.ReactNode
-  className?: string
-  style?: React.CSSProperties
-  [key: string]: any
-}
+/* Removed SimpleDiv placeholder */
 
-const SimpleDiv = ({ children, className, style, ...props }: SimpleDivProps) => (
-  <div className={className} style={style} {...props}>{children}</div>
-)
 
-const SimplePresence = ({ children }: { children: React.ReactNode }) => <>{children}</>
+
 
 // 使用简化组件替代motion组件
-const MotionDiv = SimpleDiv
-const AnimatePresence = SimplePresence
+/* MotionDiv wrapper removed */
 
 // Props interface
 interface UnifiedBiddingStageProps {
@@ -598,10 +590,10 @@ export default function UnifiedBiddingStage({
       </Card>
 
       {/* Agent对话面板网格 */}
-      <MotionDiv className="agents-grid-container">
+      <motion.div className="agents-grid-container">
         <div className={`agents-grid ${compactMode ? 'compact-mode' : ''}`}>
           {AI_PERSONAS.map((agent, index) => (
-            <MotionDiv key={agent.id}>
+            <motion.div key={agent.id}>
               <AgentDialogPanel
                 agent={agent}
                 state={agentStates[agent.id] || {
@@ -619,10 +611,10 @@ export default function UnifiedBiddingStage({
                 currentBid={currentBids[agent.id]}
                 className={`${compactMode ? 'compact' : ''}`}
               />
-            </MotionDiv>
+            </motion.div>
           ))}
         </div>
-      </MotionDiv>
+      </motion.div>
 
       {/* 用户补充创意区域 - 在USER_SUPPLEMENT阶段显示 */}
       {currentPhase === BiddingPhase.USER_SUPPLEMENT && (
@@ -789,7 +781,7 @@ export default function UnifiedBiddingStage({
       {/* 设置面板 */}
       <AnimatePresence>
         {showSettings && (
-          <MotionDiv>
+          <motion.div>
             <Card>
               <CardHeader>
                 <CardTitle className="text-lg">显示设置</CardTitle>
@@ -825,7 +817,7 @@ export default function UnifiedBiddingStage({
                 </div>
               </CardContent>
             </Card>
-          </MotionDiv>
+          </motion.div>
         )}
       </AnimatePresence>
 
