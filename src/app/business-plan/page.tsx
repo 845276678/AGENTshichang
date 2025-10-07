@@ -245,7 +245,7 @@ export default function BusinessPlanPage() {
         return
       }
 
-      // PDF/DOCX 格式需要登录 - 直接从localStorage获取token
+      // PDF/DOCX 格式 - 尝试获取token，但不强制要求
       let authToken = token
       if (!authToken && typeof window !== 'undefined') {
         try {
@@ -265,17 +265,14 @@ export default function BusinessPlanPage() {
         tokenLength: authToken?.length
       })
 
-      if (!authToken) {
-        throw new Error('PDF/DOCX 下载需要登录。您可以先下载 Markdown 格式，或登录后下载完整版本。')
-      }
+      // 构建请求头，如果有token则发送
+      const headers: HeadersInit = authToken
+        ? { Authorization: `Bearer ${authToken}` }
+        : {}
 
       const response = await fetch(
         `/api/documents/download?${sessionId ? `sessionId=${sessionId}` : `reportId=${reportId}`}&format=${format}&type=guide`,
-        {
-          headers: {
-            Authorization: `Bearer ${authToken}`
-          }
-        }
+        { headers }
       )
 
       if (!response.ok) {

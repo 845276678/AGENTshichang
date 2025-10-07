@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { verifyToken } from '@/lib/auth'
 import { ResearchReportService } from '@/lib/services/research-report.service'
+import { BusinessPlanSessionService } from '@/lib/business-plan/session-service'
 import { transformReportToGuide, generateGuideMarkdown, type LandingCoachGuide } from '@/lib/utils/transformReportToGuide'
 import { generateGuidePDF } from '@/lib/utils/pdfGenerator'
 import JSZip from 'jszip'
@@ -89,17 +90,18 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
     const reportId = searchParams.get('reportId')
-    const format = searchParams.get('format') || 'zip' // zip, pdf, docx, markdown
+    const sessionId = searchParams.get('sessionId')
+    const format = searchParams.get('format') || 'zip' // zip, pdf, docx, markdown, txt
     const type = searchParams.get('type') || 'report' // report, guide
 
-    if (!reportId) {
+    if (!reportId && !sessionId) {
       return NextResponse.json(
-        { error: '缺少reportId参数' },
+        { error: '缺少reportId或sessionId参数' },
         { status: 400 }
       )
     }
 
-    console.log(`📥 用户请求下载文档: reportId=${reportId}, format=${format}, type=${type}`)
+    console.log(`📥 用户请求下载文档: reportId=${reportId}, sessionId=${sessionId}, format=${format}, type=${type}`)
 
     // 验证用户身份（可选）
     const authHeader = request.headers.get('Authorization')
@@ -115,26 +117,42 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    // 获取调研报告数据
-    const report = await ResearchReportService.findById(reportId, true) as ReportWithIdea | null
+    // 获取调研报告数据 - 支持reportId或sessionId
+    let report: ReportWithIdea | null = null
+    let guide: LandingCoachGuide | null = null
 
-    if (!report) {
+    if (reportId) {
+      report = await ResearchReportService.findById(reportId, true) as ReportWithIdea | null
+    } else if (sessionId) {
+      // 通过sessionId查找关联的报告
+      const session = await BusinessPlanSessionService.getSessionWithReport(sessionId)
+      if (session?.report?.guide) {
+        // 如果session已经有guide，直接使用
+        guide = session.report.guide as LandingCoachGuide
+      } else if (session?.report) {
+        // 否则尝试从report数据转换
+        report = session.report as any
+      }
+    }
+
+    if (!report && !guide) {
       return NextResponse.json(
-        { error: '调研报告不存在' },
+        { error: '调研报告或商业计划不存在' },
         { status: 404 }
       )
     }
 
-    if (report.status !== 'COMPLETED') {
+    // 如果有report但还需要状态检查
+    if (report && report.status !== 'COMPLETED') {
       return NextResponse.json(
         { error: '报告尚未完成生成' },
         { status: 400 }
       )
     }
 
-    // 权限检查（可选）
-    if (userId && report.userId !== userId) {
-      console.warn(`User ${userId} downloading report ${reportId} owned by ${report.userId}`)
+    // 权限检查（可选，仅在有userId且有report时检查）
+    if (userId && report && report.userId !== userId) {
+      console.warn(`User ${userId} downloading report ${reportId || sessionId} owned by ${report.userId}`)
     }
 
     let content = ''
@@ -143,9 +161,9 @@ export async function GET(request: NextRequest) {
     if (type === 'guide') {
       // 生成落地指南
       try {
-        const guide = transformReportToGuide(report)
-        content = generateGuideMarkdown(guide)
-        filename = `${report.idea?.title || 'CreativeIdea'}-落地指南`
+        const guideToUse = guide || transformReportToGuide(report!)
+        content = generateGuideMarkdown(guideToUse)
+        filename = `${guideToUse.metadata.ideaTitle || 'CreativeIdea'}-落地指南`
       } catch (error) {
         console.error('Failed to generate guide:', error)
         return NextResponse.json(
@@ -153,10 +171,15 @@ export async function GET(request: NextRequest) {
           { status: 500 }
         )
       }
-    } else {
+    } else if (report) {
       // 生成调研报告
       content = await generateReportMarkdown(report)
       filename = `${report.idea?.title || 'CreativeIdea'}-调研报告`
+    } else {
+      return NextResponse.json(
+        { error: '无法生成报告，缺少必要数据' },
+        { status: 400 }
+      )
     }
 
     if (format === 'markdown') {
@@ -178,14 +201,14 @@ export async function GET(request: NextRequest) {
 
       // 如果是落地指南，添加额外的文件
       if (type === 'guide') {
-        const guide = transformReportToGuide(report)
+        const guideToUse = guide || transformReportToGuide(report!)
 
         // 添加行动清单
-        const actionItems = generateActionItemsList(guide)
+        const actionItems = generateActionItemsList(guideToUse)
         zip.file('行动清单.md', actionItems)
 
         // 添加项目时间线
-        const timeline = generateProjectTimeline(guide)
+        const timeline = generateProjectTimeline(guideToUse)
         zip.file('项目时间线.md', timeline)
       }
 
@@ -204,11 +227,16 @@ export async function GET(request: NextRequest) {
       // 生成PDF文件
       if (format === 'pdf') {
         try {
-          const guide = type === 'guide'
-            ? transformReportToGuide(report)
-            : transformReportToGuide(report) // 可以根据需要调整报告转换逻辑
+          const guideToUse = guide || (type === 'guide' && report ? transformReportToGuide(report) : null)
 
-          const pdfBuffer = await generateGuidePDF(guide)
+          if (!guideToUse) {
+            return NextResponse.json(
+              { error: 'PDF生成需要商业计划指南数据' },
+              { status: 400 }
+            )
+          }
+
+          const pdfBuffer = await generateGuidePDF(guideToUse)
 
           return new NextResponse(pdfBuffer, {
             headers: {
