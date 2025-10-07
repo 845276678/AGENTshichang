@@ -652,12 +652,12 @@ async function generateAIResponse(personaId: string, ideaContent: string, contex
     console.error(`Error generating AI response for ${personaId}:`, error)
 
     // 如果AI服务失败，使用增强版的备用响应
-    return generateFallbackResponse(personaId, ideaContent, context)
+    return await generateFallbackResponse(personaId, ideaContent, context)
   }
 }
 
 // 生成备用响应（当AI服务不可用时）
-function generateFallbackResponse(personaId: string, ideaContent: string, context: any): any {
+async function generateFallbackResponse(personaId: string, ideaContent: string, context: any): Promise<any> {
   const persona = AI_PERSONAS.find(p => p.id === personaId)
   if (!persona) {
     return {
