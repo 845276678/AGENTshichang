@@ -437,8 +437,37 @@ export async function generateAIPersonaAnalysis(
 ): Promise<string> {
   const playbook = PERSONA_PLAYBOOKS[persona.id] ?? DEFAULT_PLAYBOOK
 
-  // 构建prompt让AI基于人设分析创意
-  const analysisPrompt = `你是${persona.name}，一位专注于${playbook.focus}的专家。
+  // warmup阶段（score=70）使用简短的开场prompt
+  const isWarmup = score === 70
+
+  let analysisPrompt = ''
+
+  if (isWarmup) {
+    // warmup阶段：简短开场
+    analysisPrompt = `你是${persona.name}，${persona.specialty}专家。
+
+你的人设特点：
+- 性格：${persona.personality.join('、')}
+- 专长：${persona.specialty}
+- 口头禅："${persona.catchPhrase}"
+
+创意内容："${ideaContent}"
+
+这是暖场阶段，请用50-100字简短点评：
+
+1. **必须**用你的口头禅"${persona.catchPhrase}"或类似风格开场
+2. **必须**保持你独特的说话风格和性格（${persona.personality.join('、')}）
+3. 从你的专业视角简单点评创意
+4. 直接、生动、有个性，不要客套话
+
+${persona.id === 'business-guru-beta' ? '特别提示：老王你说话要接地气、有东北味儿，关注能不能赚钱，别太客气！例如："哎呀妈呀，这买卖能成不？"' : ''}
+${persona.id === 'tech-pioneer-alex' ? '特别提示：艾克斯你说话可以中英夹杂，关注技术实现！例如："Technically speaking，这个架构..."' : ''}
+${persona.id === 'innovation-mentor-charlie' ? '特别提示：小琳你说话要温柔、有共鸣感！例如："这个创意让我感受到..."' : ''}
+${persona.id === 'market-insight-delta' ? '特别提示：阿伦你说话要有网感、年轻化！例如："家人们，这个流量密码我找到了！"' : ''}
+${persona.id === 'investment-advisor-ivan' ? '特别提示：李博你说话要严谨、学术化！例如："从理论角度分析..."' : ''}`
+  } else {
+    // discussion/bidding阶段：深度分析
+    analysisPrompt = `你是${persona.name}，一位专注于${playbook.focus}的专家。
 
 你的人设特点：
 - 性格：${persona.personality.join('、')}
@@ -467,6 +496,7 @@ ${ideaContent}
 - 语气要符合你的性格（${persona.personality.join('、')}）
 - 建议要具体、可操作
 - 控制在150-200字以内`
+  }
 
   try {
     const response = await aiService.chat(

@@ -595,12 +595,27 @@ async function generateAIResponse(personaId: string, ideaContent: string, contex
     let userPrompt = ''
 
     if (context.phase === 'warmup') {
-      userPrompt = `现在是暖场阶段。请按照你的角色人设，简短介绍你自己，并对这个创意"${ideaContent}"给出第一印象。
-要求：
-1. 用你的特色口头禅开场
-2. 保持你的说话风格（如东北话、中英夹杂等）
-3. 简单点评创意（50-100字）
-4. 体现你的个性特点`
+      userPrompt = `现在是暖场阶段。你是${persona.name}，${persona.specialty}专家。
+
+你的人设特点：
+- 性格：${persona.personality.join('、')}
+- 专长：${persona.specialty}
+- 口头禅："${persona.catchPhrase}"
+
+创意内容："${ideaContent}"
+
+要求（必须严格遵守）：
+1. **必须**用你的口头禅"${persona.catchPhrase}"或类似风格开场
+2. **必须**保持你的说话风格和性格特点（${persona.personality.join('、')}）
+3. 从你的专业视角（${persona.specialty}）简单点评创意
+4. 50-100字，直接、生动、有个性
+5. 不要用客套话，要体现你独特的性格
+
+${persona.id === 'business-guru-beta' ? '特别提示：老王说话要接地气、东北味儿，关注赚钱和实际，不要太客气！' : ''}
+${persona.id === 'tech-pioneer-alex' ? '特别提示：艾克斯说话可以中英夹杂，关注技术实现，要有技术范儿！' : ''}
+${persona.id === 'innovation-mentor-charlie' ? '特别提示：小琳说话要温柔、有共鸣感，关注用户体验和美感！' : ''}
+${persona.id === 'market-insight-delta' ? '特别提示：阿伦说话要有网感、年轻化，关注热点和传播，可以用网络用语！' : ''}
+${persona.id === 'investment-advisor-ivan' ? '特别提示：李博说话要严谨、学术化，关注理论和验证！' : ''}`
     } else if (context.phase === 'discussion') {
       const previousSpeakers = context.context?.previousMessages?.slice(-3).map((m: any) => m.personaId) || []
       userPrompt = `现在是深度讨论阶段第${context.round}轮。
@@ -671,7 +686,22 @@ async function generateFallbackResponse(personaId: string, ideaContent: string, 
   let content = ''
 
   if (context.phase === 'warmup') {
-    content = generatePersonaIntro(persona, ideaContent)
+    // warmup阶段也使用AI生成，降级到简单模板
+    try {
+      const score = 70 // warmup阶段给个中等分数
+      content = await generateAIPersonaAnalysis(persona, ideaContent, score, aiServiceManager)
+    } catch (error) {
+      console.error(`Warmup AI生成失败，使用简单模板 (${persona.name}):`, error)
+      // 最终降级模板
+      const warmupTemplates: Record<string, string> = {
+        'business-guru-beta': `哎呀妈呀，"${ideaContent}"？数据驱动决策，价值创造未来！这事儿能不能赚钱，咱得好好算算账！`,
+        'tech-pioneer-alex': `Let me see..."${ideaContent}"，技术上有意思。让数据说话，用技术改变世界！架构得仔细设计啊。`,
+        'innovation-mentor-charlie': `"${ideaContent}"让我看到了用户的需求呢~好的创意要触动人心，让生活更美好！体验设计很关键哦。`,
+        'market-insight-delta': `家人们！"${ideaContent}"这个idea有点东西！抓住风口，让创意火遍全网！得看看传播点在哪。`,
+        'investment-advisor-ivan': `关于"${ideaContent}"，理论指导实践，学术成就未来。需要系统性地分析可行性和风险。`
+      }
+      content = warmupTemplates[persona.id] || `${persona.catchPhrase} 关于"${ideaContent}"，让我从专业角度分析一下。`
+    }
   } else if (context.phase === 'discussion') {
     // 在discussion阶段也使用AI生成个性化分析
     const score = calculatePersonaScore(
