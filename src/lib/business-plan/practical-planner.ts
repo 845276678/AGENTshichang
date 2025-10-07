@@ -36,9 +36,7 @@ export function buildExecutionPlan(
     ? `把 "${snapshot.ideaTitle}" 落地，核心场景是：${snapshot.ideaDescription.slice(0, 80)}${snapshot.ideaDescription.length > 80 ? "..." : ""}。4 周内必须拿出能跑通的版本、真实用户反馈和收入信号。`
     : `4 周内把 "${snapshot.ideaTitle}" 从想法推进到可验证的产品雏形。每个周末都要看到数据、反馈和新的行动计划。`
 
-  const techConfidence = Math.min(85, Math.max(50, Math.floor(highestBid / 5)))
-
-  plan.phases[0]?.metrics.push(`技术可信度评分 ${techConfidence} 分（基于竞价信号）`)
+  // 移除技术可信度评分，添加更实际的指标
   plan.phases[1]?.metrics.push("原型体验自评至少 8 分（团队内部测试）")
   plan.phases[2]?.metrics.push("收集至少 15 份有效的用户验证反馈")
   plan.phases[3]?.metrics.push("锁定至少 3 个明确的付费或预订承诺")

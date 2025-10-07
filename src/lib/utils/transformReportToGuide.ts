@@ -806,11 +806,10 @@ export function generateGuideMarkdown(guide: LandingCoachGuide): string {
   }
 
   // 标题和元信息
-  lines.push(`# 💡 ${guide.metadata.ideaTitle} - 90天落地指南`)
+  lines.push(`# 💡 ${guide.metadata.ideaTitle} - 4周快速验证计划`)
   lines.push('')
   lines.push(`> 📅 生成时间: ${new Date(guide.metadata.generatedAt).toLocaleString('zh-CN')}`)
   lines.push(`> ⏱️ 预计执行周期: ${guide.metadata.implementationTimeframe}`)
-  lines.push(`> 🎯 可信度评分: ${formatPercent(guide.metadata.confidenceLevel)}`)
   if (guide.metadata.winner) {
     lines.push(`> 🏆 获胜专家: ${guide.metadata.winner}`)
   }
