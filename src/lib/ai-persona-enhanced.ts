@@ -551,14 +551,22 @@ ${ideaContent}
   }
 
   try {
-    const response = await aiService.chat(
-      [{ role: 'user', content: analysisPrompt }],
-      {
-        model: persona.primaryModel,
-        temperature: 0.7, // 降低温度减少随意发挥
-        maxTokens: isWarmup ? 150 : 300 // warmup: 50-100字≈75-150 tokens, discussion/bidding: 150-200字≈225-300 tokens
-      }
-    )
+    const response = await aiService.callSingleService({
+      provider: persona.primaryModel,
+      persona: persona.id,
+      context: {
+        idea: ideaContent,
+        phase: isWarmup ? 'warmup' : 'discussion',
+        round: 1,
+        previousMessages: [],
+        currentBids: {},
+        sessionHistory: []
+      },
+      systemPrompt: `你是${persona.name}，必须严格按照你的人设说话。`,
+      userPrompt: analysisPrompt,
+      temperature: 0.7, // 降低温度减少随意发挥
+      maxTokens: isWarmup ? 150 : 300 // warmup: 50-100字≈75-150 tokens, discussion/bidding: 150-200字≈225-300 tokens
+    })
 
     return response.content || generatePersonaComment(persona, score, ideaContent, [])
   } catch (error) {
