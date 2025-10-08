@@ -19,7 +19,7 @@ export async function composeBusinessPlanGuide(
 ): Promise<ComposedBusinessPlan> {
   const { guide, metadata } = await buildCoreGuide(snapshot)
 
-  guide.executionPlan = buildExecutionPlan(snapshot, {
+  guide.executionPlan = await buildExecutionPlan(snapshot, {
     ideaDescription: snapshot.ideaDescription,
     industry: options.industry,
     teamStrength: options.teamStrength
