@@ -19,17 +19,22 @@ export async function generatePersonalizedExecutionPlan(
 
   try {
     // 调用AI生成计划
-    const response = await aiService.chat(
-      [
-        { role: 'system', content: systemPrompt },
-        { role: 'user', content: userPrompt }
-      ],
-      {
-        model: 'deepseek',
-        temperature: 0.7,
-        maxTokens: 2000
-      }
-    )
+    const response = await aiService.callSingleService({
+      provider: 'deepseek',
+      persona: 'business-plan-generator',
+      context: {
+        idea: ideaDescription || ideaTitle,
+        phase: 'planning',
+        round: 1,
+        previousMessages: [],
+        currentBids: {},
+        sessionHistory: []
+      },
+      systemPrompt,
+      userPrompt,
+      temperature: 0.7,
+      maxTokens: 2000
+    })
 
     // 解析AI响应为ExecutionPlan结构
     const plan = parseAIResponseToPlan(response.content, snapshot)
