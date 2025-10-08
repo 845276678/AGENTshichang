@@ -325,7 +325,7 @@ async function handleIdeaSupplement(ideaId, payload, ws) {
           },
           systemPrompt: getSystemPromptForPersona(persona.id) + '\n\nUser just provided additional idea details. Incorporate this information into your expert analysis.',
           temperature: 0.7,
-          maxTokens: 250
+          maxTokens: 600
         });
         const message = {
           id: `supplement_response_${Date.now()}_${persona.id}`,
@@ -429,7 +429,7 @@ async function startRealAIDiscussion(ideaId, ideaContent) {
         },
         systemPrompt: getSystemPromptForPersona(persona.id),
         temperature: 0.7,
-        maxTokens: 200
+        maxTokens: 600
       });
       const message = {
         id: `real_msg_${Date.now()}_${i}`,
@@ -516,7 +516,7 @@ async function startRealAIDiscussionPhase(ideaId, ideaContent, aiPersonas) {
           },
           systemPrompt: getSystemPromptForPersona(persona.id),
           temperature: 0.8,
-          maxTokens: 300
+          maxTokens: 800
         });
         const message = {
           id: `real_discussion_${Date.now()}_${round}`,
@@ -599,7 +599,7 @@ async function startRealAIBiddingPhase(ideaId, ideaContent, aiPersonas) {
           },
           systemPrompt: getSystemPromptForPersona(persona.id) + '\n\nX...',
           temperature: 0.6,
-          maxTokens: 250
+          maxTokens: 600
         });
         // I?
         const bidAmount = extractBidAmount(response.content);
