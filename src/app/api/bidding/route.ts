@@ -570,6 +570,12 @@ async function runResultPhase(sessionId: string) {
 // 生成AI回应 - 使用真实AI服务
 async function generateAIResponse(personaId: string, ideaContent: string, context: any): Promise<any> {
   try {
+    // 首先获取persona对象
+    const persona = AI_PERSONAS.find(p => p.id === personaId)
+    if (!persona) {
+      throw new Error(`Persona not found: ${personaId}`)
+    }
+
     // 根据角色ID映射到对应的AI服务提供商
     const providerMap: Record<string, string> = {
       'business-guru-beta': 'zhipu',     // 老王使用智谱
