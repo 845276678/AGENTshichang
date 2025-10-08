@@ -397,8 +397,7 @@ export const AgentDialogPanel: React.FC<AgentDialogPanelProps> = ({
               className="dialog-bubble relative bg-white border border-gray-200 rounded-2xl shadow-md p-4 w-full max-w-none"
               style={{
                 width: '100%',
-                maxHeight: '40rem',
-                overflowY: 'auto',
+                maxHeight: 'none',
                 paddingRight: '0.75rem'
               }}
             >
