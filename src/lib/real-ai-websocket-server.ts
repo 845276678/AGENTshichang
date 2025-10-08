@@ -138,7 +138,7 @@ async function generateRealAIDialogue(session: RealBiddingSession, isPhaseStart 
 
 // 构建AI提示词
 function buildAIPrompt(session: RealBiddingSession, persona: any, isPhaseStart: boolean): string {
-  const baseContext = `你是${persona.name}，${persona.role}。你的专长是${persona.specialty}。你的口头禅是"${persona.catchPhrase}"。
+  const baseContext = `你是${persona.name}。你的专长是${persona.specialty}。你的口头禅是"${persona.catchPhrase}"。
 
 用户创意内容：
 ${session.ideaContent}
