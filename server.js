@@ -662,7 +662,7 @@ async function finishRealAIBidding(ideaId, ideaContent, bids) {
       body: JSON.stringify({
         ideaId: ideaId,
         ideaContent: ideaContent || '',
-        ideaTitle: `创意_${ideaId}`,
+        ideaTitle: ideaContent ? (ideaContent.slice(0, 30) + (ideaContent.length > 30 ? '...' : '')) : `创意_${ideaId}`,
         source: 'AI_BIDDING',
         highestBid: highestBid,
         averageBid: Math.round(avgBid),
@@ -1070,7 +1070,7 @@ async function finishSimulatedBidding(ideaId, ideaContent, bids) {
       body: JSON.stringify({
         ideaId: ideaId,
         ideaContent: ideaContent || '',
-        ideaTitle: `创意_${ideaId}`,
+        ideaTitle: ideaContent ? (ideaContent.slice(0, 30) + (ideaContent.length > 30 ? '...' : '')) : `创意_${ideaId}`,
         source: 'AI_BIDDING',
         highestBid: highestBid,
         averageBid: Math.round(avgBid),
