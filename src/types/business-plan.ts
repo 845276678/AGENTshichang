@@ -50,6 +50,9 @@ export interface ClarificationQuestion {
 
 export interface ScenarioOutput {
   traceId: string
+  ideaTitle: string
+  ideaDescription: string
+  category: string
   summary: string
   primaryUseCases: string[]
   actors: ScenarioActor[]

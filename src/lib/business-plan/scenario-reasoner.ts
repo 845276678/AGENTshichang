@@ -49,6 +49,9 @@ export class ScenarioReasoner {
 
     return {
       traceId,
+      ideaTitle: payload.ideaTitle,
+      ideaDescription: payload.ideaDescription,
+      category: payload.category,
       summary: this.composeSummary(payload, feasibility),
       primaryUseCases: this.deriveUseCases(payload, payload.context),
       actors: this.deriveActors(payload.context),

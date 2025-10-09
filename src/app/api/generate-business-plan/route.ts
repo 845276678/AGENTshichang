@@ -206,9 +206,9 @@ async function generateStageContent(stage: any, scenario: any, previousStagesOut
   try {
     // 构建生成上下文
     const context = {
-      ideaTitle: scenario.ideaTitle || '创意项目',
-      ideaDescription: scenario.summary || '创意描述',
-      category: scenario.industry || 'GENERAL',
+      ideaTitle: scenario.ideaTitle,
+      ideaDescription: scenario.ideaDescription,
+      category: scenario.category,
       scenario: scenario,
       previousStagesOutput: previousStagesOutput
     }

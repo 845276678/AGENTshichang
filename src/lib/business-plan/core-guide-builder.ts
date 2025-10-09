@@ -388,7 +388,7 @@ async function generatePersonalizedContent(
   }
 }> {
   const ideaTitle = snapshot.ideaTitle || '创意项目'
-  const ideaContent = snapshot.ideaContent || snapshot.summary || ''
+  const ideaContent = snapshot.ideaDescription || snapshot.summary || ''
 
   // 生成缓存键
   const cacheKey = contentCache.getHash(
