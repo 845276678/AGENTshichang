@@ -228,17 +228,22 @@ export async function GET(request: NextRequest) {
       // 生成PDF文件
       if (format === 'pdf') {
         try {
+          console.log('📥 开始生成PDF，type:', type, 'reportId:', reportId, 'sessionId:', sessionId)
+
           const guideToUse = guide || (type === 'guide' && report ? transformReportToGuide(report) : null)
 
           if (!guideToUse) {
+            console.error('❌ PDF生成失败：缺少商业计划指南数据')
             return NextResponse.json(
               { error: 'PDF生成需要商业计划指南数据' },
               { status: 400 }
             )
           }
 
+          console.log('🔄 调用 generateGuidePDF...')
           const pdfBuffer = await generateGuidePDF(guideToUse)
 
+          console.log('✅ PDF生成成功，返回文件')
           return new NextResponse(pdfBuffer, {
             headers: {
               'Content-Type': 'application/pdf',
@@ -246,9 +251,13 @@ export async function GET(request: NextRequest) {
             }
           })
         } catch (error) {
-          console.error('PDF generation failed:', error)
+          console.error('❌ PDF generation failed:', error)
+          const errorMessage = error instanceof Error ? error.message : 'PDF生成失败，请稍后重试或选择其他格式'
           return NextResponse.json(
-            { error: 'PDF生成失败，请稍后重试或选择其他格式' },
+            {
+              error: errorMessage,
+              details: error instanceof Error ? error.stack : undefined
+            },
             { status: 500 }
           )
         }
