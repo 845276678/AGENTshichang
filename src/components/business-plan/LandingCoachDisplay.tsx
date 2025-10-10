@@ -125,7 +125,7 @@ export default function LandingCoachDisplay({
       </motion.header>
 
       {/* 新增：专家核心观点卡片 */}
-      {guide.expertInsights && guide.expertInsights.keyQuotes.length > 0 && (
+      {guide.expertInsights && guide.expertInsights.summary && guide.expertInsights.keyQuotes.length > 0 && (
         <Card className="border-2 border-purple-200 bg-gradient-to-br from-purple-50 via-white to-pink-50">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-lg">

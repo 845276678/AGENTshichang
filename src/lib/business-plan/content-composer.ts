@@ -2,6 +2,7 @@ import { buildCoreGuide } from './core-guide-builder'
 import { buildExecutionPlan } from './practical-planner'
 import { generatePersonalizedRecommendations, formatRecommendationsAsMarkdown } from './personalized-recommendations'
 import { FocusGuidanceBuilder } from './focus-guidance-builder'
+import { BASE_LANDING_COACH_TEMPLATE } from '@/lib/utils/transformReportToGuide'
 import type { BiddingSnapshot, BusinessPlanMetadata, BusinessPlanGuide } from './types'
 import type { MaturityScoreResult } from '@/types/maturity-score'
 
@@ -36,11 +37,12 @@ export async function composeBusinessPlanGuide(
     const focusGuide = guidanceBuilder.generate(maturityScore, snapshot.ideaDescription || '');
     const markdownGuide = guidanceBuilder.exportToMarkdown(focusGuide);
 
-    // 返回简化的 guide 结构
+    // 返回简化的 guide 结构，基于模板确保所有字段存在
     const guide: BusinessPlanGuide = {
+      ...BASE_LANDING_COACH_TEMPLATE, // 🆕 使用完整模板作为基础
       title: focusGuide.title,
       introduction: focusGuide.summary,
-      // 将聚焦引导内容放入 executionPlan
+      // 覆盖 executionPlan 为聚焦引导内容
       executionPlan: {
         overview: focusGuide.summary,
         phases: focusGuide.expertAdvice.map((step) => ({
@@ -65,6 +67,17 @@ export async function composeBusinessPlanGuide(
         operationsPriorities: focusGuide.whyLowScore.lackingEvidence,
         // 🆕 附加完整的聚焦引导 Markdown
         personalizedRecommendations: markdownGuide
+      },
+      // 🆕 添加专门的聚焦引导说明到 expertInsights
+      expertInsights: {
+        summary: `创意成熟度评分 ${maturityScore.totalScore}/10 (${maturityScore.level})。根据评分结果，我们为您生成了聚焦引导模板，帮助您完善创意。`,
+        keyQuotes: [],
+        consensusPoints: [
+          '需要更明确的目标用户定义',
+          '需要验证真实的市场需求',
+          '需要找到差异化竞争优势'
+        ],
+        controversialPoints: focusGuide.whyLowScore.lackingEvidence.slice(0, 3)
       }
     };
 
