@@ -237,7 +237,7 @@ export default function BusinessPlanPage() {
         const url = URL.createObjectURL(blob)
         const link = document.createElement('a')
         link.href = url
-        link.download = `${guide.metadata.ideaTitle}-落地指南.${format}`
+        link.download = `${guide.metadata?.ideaTitle || '创意项目'}-落地指南.${format}`
         document.body.appendChild(link)
         link.click()
         document.body.removeChild(link)
@@ -285,7 +285,7 @@ export default function BusinessPlanPage() {
       const url = URL.createObjectURL(blob)
       const link = document.createElement('a')
       link.href = url
-      link.download = `${guide.metadata.ideaTitle}-落地指南.${format === 'pdf' ? 'pdf' : 'docx'}`
+      link.download = `${guide.metadata?.ideaTitle || '创意项目'}-落地指南.${format === 'pdf' ? 'pdf' : 'docx'}`
       document.body.appendChild(link)
       link.click()
       document.body.removeChild(link)

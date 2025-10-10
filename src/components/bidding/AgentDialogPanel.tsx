@@ -394,10 +394,10 @@ export const AgentDialogPanel: React.FC<AgentDialogPanelProps> = ({
         <AnimatePresence>
           {state.currentMessage && (
             <MotionDiv
-              className="dialog-bubble relative bg-white border border-gray-200 rounded-2xl shadow-md p-4 w-full max-w-none"
+              className="dialog-bubble relative bg-white border border-gray-200 rounded-2xl shadow-md p-4 w-full"
               style={{
                 width: '100%',
-                maxHeight: 'none',
+                minHeight: '60px',
                 paddingRight: '0.75rem'
               }}
             >

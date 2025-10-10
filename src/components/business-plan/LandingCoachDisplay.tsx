@@ -94,7 +94,7 @@ export default function LandingCoachDisplay({
             <Brain className="h-6 w-6" />
           </div>
           <div className="space-y-1">
-            <h1 className="text-2xl font-bold">{guide.metadata.ideaTitle}</h1>
+            <h1 className="text-2xl font-bold">{guide.metadata?.ideaTitle || '创意项目'}</h1>
             <p className="text-sm text-muted-foreground">落地执行指南</p>
           </div>
         </div>
