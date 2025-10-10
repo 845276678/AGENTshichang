@@ -106,4 +106,13 @@ export interface BusinessPlanMetadata {
   winningBid?: number
   winner?: string | null
   supportedAgents?: number
+  // 🆕 创意成熟度评分相关字段
+  version?: string // 例如: '2.0-focus-guidance', '1.0-standard'
+  generatedAt?: string // ISO timestamp
+  maturityLevel?: string // LOW, GRAY_LOW, MEDIUM, GRAY_HIGH, HIGH
+  maturityScore?: number // 1-10分
+  confidence?: number // 0-1置信度
+  // 🆕 创意基本信息
+  ideaTitle?: string // 创意标题
+  ideaId?: string // 创意ID
 }

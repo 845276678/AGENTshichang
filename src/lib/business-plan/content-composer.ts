@@ -74,7 +74,9 @@ export async function composeBusinessPlanGuide(
       source: 'focus-guidance',
       maturityLevel: maturityScore.level,
       maturityScore: maturityScore.totalScore,
-      confidence: maturityScore.confidence
+      confidence: maturityScore.confidence,
+      ideaTitle: snapshot.ideaTitle, // 🆕 包含创意标题
+      ideaId: snapshot.ideaId // 🆕 包含创意ID
     };
 
     return { guide, metadata };
@@ -108,12 +110,14 @@ export async function composeBusinessPlanGuide(
     }
   }
 
-  // 🆕 在 metadata 中包含成熟度评分
+  // 🆕 在 metadata 中包含成熟度评分和创意信息
   if (maturityScore) {
     metadata.maturityLevel = maturityScore.level;
     metadata.maturityScore = maturityScore.totalScore;
     metadata.confidence = maturityScore.confidence;
   }
+  metadata.ideaTitle = snapshot.ideaTitle; // 🆕 包含创意标题
+  metadata.ideaId = snapshot.ideaId; // 🆕 包含创意ID
 
   return { guide, metadata }
 }
