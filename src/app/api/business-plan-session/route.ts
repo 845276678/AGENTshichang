@@ -58,11 +58,20 @@ export async function GET(request: NextRequest) {
         }
       }
 
+      // 🆕 合并 metadata 到 guide 中，确保前端能访问 guide.metadata
+      const enrichedReport = {
+        ...report,
+        guide: {
+          ...report.guide,
+          metadata: report.metadata || {}
+        }
+      }
+
       return NextResponse.json({
         success: true,
         data: {
           session: report.session,
-          report
+          report: enrichedReport
         }
       })
     }
@@ -94,11 +103,21 @@ export async function GET(request: NextRequest) {
       }
     }
 
+    // 🆕 合并 metadata 到 guide 中，确保前端能访问 guide.metadata
+    const report = session.reports?.[0] ?? null
+    const enrichedReport = report ? {
+      ...report,
+      guide: {
+        ...report.guide,
+        metadata: report.metadata || {}
+      }
+    } : null
+
     return NextResponse.json({
       success: true,
       data: {
         session,
-        report: session.reports?.[0] ?? null
+        report: enrichedReport
       }
     })
   } catch (error) {
