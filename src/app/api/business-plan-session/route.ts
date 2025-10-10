@@ -137,7 +137,10 @@ export async function POST(request: NextRequest) {
       snapshot
     })
 
-    const { guide, metadata } = await composeBusinessPlanGuide(snapshot)
+    // 🆕 传递成熟度评分给 composeBusinessPlanGuide
+    const { guide, metadata } = await composeBusinessPlanGuide(snapshot, {
+      maturityScore: body.maturityScore ?? null
+    })
     const completion = await BusinessPlanSessionService.completeSession({
       sessionId: session.id,
       guide,

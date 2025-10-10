@@ -653,6 +653,41 @@ async function finishRealAIBidding(ideaId, ideaContent, bids) {
     const fetch = (await import('node-fetch')).default;
     // 优先使用环境变量 API_BASE_URL，否则使用 127.0.0.1
     const apiBaseUrl = process.env.API_BASE_URL || `http://127.0.0.1:${process.env.PORT || 8080}`;
+
+    // 🆕 先触发创意成熟度评分 (Task 9)
+    // Spec: CREATIVE_MATURITY_PLAN_ENHANCED.md Lines 2474-2524
+    let maturityScore = null;
+    try {
+      console.log(` 触发创意成熟度评分...`);
+      const scoreResponse = await fetch(`${apiBaseUrl}/api/score-creative`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          ideaId,
+          ideaContent,
+          aiMessages: [], // 将在实际使用时填充真实AI消息
+          bids,
+          userId: null // 匿名创意
+        })
+      });
+
+      if (scoreResponse.ok) {
+        const scoreResult = await scoreResponse.json();
+        if (scoreResult.success) {
+          maturityScore = scoreResult.result;
+          console.log(` 成熟度评分完成: ${maturityScore.totalScore}/10 (${maturityScore.level})`);
+        }
+      } else {
+        console.warn(` 评分失败，使用降级策略:`, await scoreResponse.text());
+      }
+    } catch (scoreError) {
+      console.error(' 评分失败，继续原流程:', scoreError.message);
+      // 降级：不评分，继续原流程
+    }
+
+    // 🆕 创建商业计划会话时传递成熟度评分
     const response = await fetch(`${apiBaseUrl}/api/business-plan-session`, {
       method: 'POST',
       headers: {
@@ -671,7 +706,8 @@ async function finishRealAIBidding(ideaId, ideaContent, bids) {
         winner: winnerPersonaId,
         winnerName: winnerName,
         supportedAgents: [],
-        aiMessages: []
+        aiMessages: [],
+        maturityScore: maturityScore // 🆕 传递成熟度评分
       })
     });
 
@@ -701,6 +737,7 @@ async function finishRealAIBidding(ideaId, ideaContent, bids) {
         businessPlanUrl, // 商业计划URL
         businessPlanSessionId: result.sessionId, // 会话ID
         reportId: result.reportId, // 报告ID
+        maturityScore, // 🆕 创意成熟度评分
         report: {
           summary: '基于五位专家AI的深度分析，您的创意获得了积极评价。',
           recommendations: [
