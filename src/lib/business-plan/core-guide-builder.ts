@@ -954,7 +954,13 @@ export async function buildCoreGuide(snapshot: BiddingSnapshot): Promise<{
     source: snapshot.source,
     winningBid: highestBid,
     winner: winnerName,
-    supportedAgents: supporters
+    supportedAgents: supporters,
+    // 🆕 保留guide中已设置的metadata字段
+    ideaTitle: guide.metadata.ideaTitle,
+    generatedAt: guide.metadata.generatedAt,
+    confidenceLevel: guide.metadata.confidenceLevel,
+    implementationTimeframe: guide.metadata.implementationTimeframe,
+    estimatedReadTime: guide.metadata.estimatedReadTime
   }
 
   return { guide, metadata }
