@@ -74,29 +74,52 @@ export async function composeBusinessPlanGuide(
       ...BASE_LANDING_COACH_TEMPLATE, // 🆕 使用完整模板作为基础
       title: focusGuide.title,
       introduction: focusGuide.summary,
-      // 覆盖 executionPlan 为聚焦引导内容
+      // 覆盖 executionPlan 为聚焦引导内容 - 使用标准ExecutionPlan结构
       executionPlan: {
-        overview: focusGuide.summary,
-        phases: focusGuide.expertAdvice.map((step) => ({
+        mission: '通过用户访谈和需求验证，在4周内明确产品方向',
+        summary: focusGuide.summary,
+        phases: focusGuide.expertAdvice.map((step, idx) => ({
           name: step.title,
-          duration: '1-2周',
-          keyMilestones: step.actionItems.map(action => ({
-            name: action,
-            impact: 'high' as const,
-            input: 'medium' as const,
-            description: ''
-          })),
-          keyActions: step.actionItems,
-          feedback: step.momTestValidation.doAsk
+          timeline: `第${idx + 1}周`,
+          focus: step.actionItems[0] || '完成本阶段关键任务',
+          keyOutcomes: step.actionItems,
+          metrics: [`完成${step.actionItems.length}项关键任务`, '获得用户反馈数据']
         })),
-        milestones: focusGuide.momTestChecklist.map(q => ({
-          week: 1,
-          title: q.question,
-          deliverables: [q.why],
-          successCriteria: [q.example]
+        weeklySprints: focusGuide.expertAdvice.map((step, idx) => ({
+          name: `第${idx + 1}周 - ${step.title}`,
+          focus: step.actionItems[0] || '完成本周核心目标',
+          objectives: step.actionItems,
+          feedbackHooks: step.momTestValidation.doAsk
         })),
-        quickWins: focusGuide.nextSteps,
-        operationsPriorities: focusGuide.whyLowScore.lackingEvidence,
+        feedbackLoop: {
+          cadence: ['每天记录用户访谈结果', '每周五复盘并调整方向', '第4周末做总结决策'],
+          channels: ['用户访谈记录', '需求验证数据', '市场调研反馈'],
+          decisionGates: ['用户痛点是否真实', '解决方案是否被需要', '是否愿意付费'],
+          tooling: ['访谈记录表', 'The Mom Test 问题清单', '需求优先级矩阵']
+        },
+        dailyRoutines: [
+          '每天完成至少1次用户访谈或需求验证',
+          '整理访谈笔记，提炼关键洞察',
+          '记录今日学到的3个最重要发现',
+          '准备明天的访谈问题清单'
+        ],
+        reviewFramework: {
+          weekly: [
+            '回顾本周用户访谈结果和关键发现',
+            '检查是否回答了本周的核心问题',
+            '根据反馈调整下周计划'
+          ],
+          monthly: [
+            '4周结束时做决策：继续推进还是转向',
+            '总结验证了哪些假设，推翻了哪些假设',
+            '明确下一步MVP需要做什么'
+          ],
+          dataWatch: [
+            '用户访谈数量和质量',
+            '痛点确认率（多少用户真的有这个痛点）',
+            '付费意愿验证结果'
+          ]
+        },
         // 🆕 附加完整的聚焦引导 Markdown
         personalizedRecommendations: markdownGuide
       },
