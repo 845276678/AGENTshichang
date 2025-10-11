@@ -523,16 +523,16 @@ function generateActionItemsList(guide: LandingCoachGuide): string {
 
 ## 📊 第一阶段：现状认知与方向确认
 
-${guide.currentSituation.actionItems.map((item: string, index: number) => `${index + 1}. ${item}`).join('\n')}
+${guide.currentSituation?.actionItems?.map((item: string, index: number) => `${index + 1}. ${item}`).join('\n') || '暂无行动项'}
 
 ## 🚀 第二阶段：M
 VP产品定义与验证
 
-${guide.mvpDefinition.actionItems.map((item: string, index: number) => `${index + 1}. ${item}`).join('\n')}
+${guide.mvpDefinition?.actionItems?.map((item: string, index: number) => `${index + 1}. ${item}`).join('\n') || '暂无行动项'}
 
 ## 💼 第三阶段：商业化落地与运营
 
-${guide.businessExecution.actionItems.map((item: string, index: number) => `${index + 1}. ${item}`).join('\n')}
+${guide.businessExecution?.actionItems?.map((item: string, index: number) => `${index + 1}. ${item}`).join('\n') || '暂无行动项'}
 
 ---
 
@@ -558,7 +558,7 @@ function generateProjectTimeline(guide: LandingCoachGuide): string {
 - 确定产品方向
 
 ### 主要活动
-${guide.currentSituation.actionItems.map((item: string) => `- ${item}`).join('\n')}
+${guide.currentSituation?.actionItems?.map((item: string) => `- ${item}`).join('\n') || '暂无行动项'}
 
 ## 阶段二：MVP产品定义与验证 (第3-4个月)
 
@@ -568,7 +568,7 @@ ${guide.currentSituation.actionItems.map((item: string) => `- ${item}`).join('\n
 - 验证核心假设
 
 ### 主要活动
-${guide.mvpDefinition.actionItems.map((item: string) => `- ${item}`).join('\n')}
+${guide.mvpDefinition?.actionItems?.map((item: string) => `- ${item}`).join('\n') || '暂无行动项'}
 
 ## 阶段三：商业化落地与运营 (第5-6个月)
 
@@ -578,7 +578,7 @@ ${guide.mvpDefinition.actionItems.map((item: string) => `- ${item}`).join('\n')}
 - 实现收入增长
 
 ### 主要活动
-${guide.businessExecution.actionItems.map((item: string) => `- ${item}`).join('\n')}
+${guide.businessExecution?.actionItems?.map((item: string) => `- ${item}`).join('\n') || '暂无行动项'}
 
 ---
 
