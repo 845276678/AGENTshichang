@@ -1121,13 +1121,13 @@ export function generateGuideMarkdown(guide: LandingCoachGuide): string {
     })
 
     lines.push('### 🔄 反馈循环')
-    lines.push(`**节奏：** ${guide.executionPlan.feedbackLoop.cadence?.join('；') || '待补充'}`)
+    lines.push(`**节奏：** ${guide.executionPlan.feedbackLoop?.cadence?.join('；') || '待补充'}`)
     lines.push('')
-    lines.push(`**渠道：** ${guide.executionPlan.feedbackLoop.channels?.join('；') || '待补充'}`)
+    lines.push(`**渠道：** ${guide.executionPlan.feedbackLoop?.channels?.join('；') || '待补充'}`)
     lines.push('')
-    lines.push(`**决策点：** ${guide.executionPlan.feedbackLoop.decisionGates?.join('；') || '待补充'}`)
+    lines.push(`**决策点：** ${guide.executionPlan.feedbackLoop?.decisionGates?.join('；') || '待补充'}`)
     lines.push('')
-    lines.push(`**工具：** ${guide.executionPlan.feedbackLoop.tooling?.join('、') || '待补充'}`)
+    lines.push(`**工具：** ${guide.executionPlan.feedbackLoop?.tooling?.join('、') || '待补充'}`)
     lines.push('')
 
     lines.push('### ⏰ 每天要做的')
@@ -1136,13 +1136,13 @@ export function generateGuideMarkdown(guide: LandingCoachGuide): string {
 
     lines.push('### 📊 定期复盘')
     lines.push('**每周复盘：**')
-    guide.executionPlan.reviewFramework.weekly?.forEach(item => lines.push(`- ${item}`))
+    guide.executionPlan.reviewFramework?.weekly?.forEach(item => lines.push(`- ${item}`))
     lines.push('')
     lines.push('**每月复盘：**')
-    guide.executionPlan.reviewFramework.monthly?.forEach(item => lines.push(`- ${item}`))
+    guide.executionPlan.reviewFramework?.monthly?.forEach(item => lines.push(`- ${item}`))
     lines.push('')
     lines.push('**关注这些数据：**')
-    guide.executionPlan.reviewFramework.dataWatch?.forEach(item => lines.push(`- 📈 ${item}`))
+    guide.executionPlan.reviewFramework?.dataWatch?.forEach(item => lines.push(`- 📈 ${item}`))
     lines.push('')
   }
 
