@@ -947,15 +947,15 @@ export function generateGuideMarkdown(guide: LandingCoachGuide): string {
     lines.push('### 📅 开发计划（分阶段搞）')
     guide.mvpDefinition.developmentPlan.phases.forEach((phase, idx) => {
       lines.push(`**${idx + 1}. ${phase.name}** ⏰ *${phase.duration}*`)
-      lines.push(`- 交付成果：${phase.deliverables.join('、')}`)
-      if (phase.resources.length) {
-        lines.push(`- 需要谁：${phase.resources.join('、')}`)
+      lines.push(`- 交付成果：${phase.deliverables?.join('、') || '待补充'}`)
+      if (phase.resources?.length) {
+        lines.push(`- 需要谁：${phase.resources?.join('、') || '待补充'}`)
       }
       lines.push('')
     })
   }
 
-  lines.push(`**🛠 技术栈：** ${guide.mvpDefinition.developmentPlan.techStack.join(' + ')}`)
+  lines.push(`**🛠 技术栈：** ${guide.mvpDefinition.developmentPlan.techStack?.join(' + ') || '待补充'}`)
   lines.push('')
   lines.push(`**💰 预估成本：** ${guide.mvpDefinition.developmentPlan.estimatedCost}`)
   lines.push('')
@@ -993,9 +993,9 @@ export function generateGuideMarkdown(guide: LandingCoachGuide): string {
   lines.push('## 💰 怎么赚钱')
   lines.push('')
   lines.push('### 💵 商业模式')
-  lines.push(`**收入来源：** ${guide.businessExecution.businessModel.revenueStreams.join('、')}`)
+  lines.push(`**收入来源：** ${guide.businessExecution.businessModel.revenueStreams?.join('、') || '待补充'}`)
   lines.push('')
-  lines.push(`**成本结构：** ${guide.businessExecution.businessModel.costStructure.join('、')}`)
+  lines.push(`**成本结构：** ${guide.businessExecution.businessModel.costStructure?.join('、') || '待补充'}`)
   lines.push('')
   lines.push(`**定价策略：** ${guide.businessExecution.businessModel.pricingStrategy}`)
   lines.push('')
@@ -1006,17 +1006,17 @@ export function generateGuideMarkdown(guide: LandingCoachGuide): string {
     lines.push('### 📢 发布策略（三步走）')
     guide.businessExecution.launchStrategy.phases.forEach((phase, idx) => {
       lines.push(`**${idx + 1}. ${phase.name}** ⏰ *${phase.timeline}*`)
-      lines.push(`- 目标：${phase.goals.join('、')}`)
-      if (phase.tactics.length) {
-        lines.push(`- 怎么做：${phase.tactics.join('、')}`)
+      lines.push(`- 目标：${phase.goals?.join('、') || '待补充'}`)
+      if (phase.tactics?.length) {
+        lines.push(`- 怎么做：${phase.tactics?.join('、') || '待补充'}`)
       }
       lines.push('')
     })
   }
 
-  lines.push(`**🎯 营销渠道：** ${guide.businessExecution.launchStrategy.marketingChannels.join('、')}`)
+  lines.push(`**🎯 营销渠道：** ${guide.businessExecution.launchStrategy.marketingChannels?.join('、') || '待补充'}`)
   lines.push('')
-  lines.push(`**💸 预算分配：** ${guide.businessExecution.launchStrategy.budgetAllocation.join('、')}`)
+  lines.push(`**💸 预算分配：** ${guide.businessExecution.launchStrategy.budgetAllocation?.join('、') || '待补充'}`)
   lines.push('')
 
   // 新增：冷启动策略
@@ -1045,13 +1045,13 @@ export function generateGuideMarkdown(guide: LandingCoachGuide): string {
   }
 
   lines.push('### ⚙️ 运营怎么搞')
-  lines.push(`**团队配置：** ${guide.businessExecution.operationalPlan.teamStructure.join('、')}`)
+  lines.push(`**团队配置：** ${guide.businessExecution.operationalPlan.teamStructure?.join('、') || '待补充'}`)
   lines.push('')
-  lines.push(`**工作流程：** ${guide.businessExecution.operationalPlan.processes.join('、')}`)
+  lines.push(`**工作流程：** ${guide.businessExecution.operationalPlan.processes?.join('、') || '待补充'}`)
   lines.push('')
-  lines.push(`**基础设施：** ${guide.businessExecution.operationalPlan.infrastructure.join('、')}`)
+  lines.push(`**基础设施：** ${guide.businessExecution.operationalPlan.infrastructure?.join('、') || '待补充'}`)
   lines.push('')
-  lines.push(`**风险管理：** ${guide.businessExecution.operationalPlan.riskManagement.join('、')}`)
+  lines.push(`**风险管理：** ${guide.businessExecution.operationalPlan.riskManagement?.join('、') || '待补充'}`)
   lines.push('')
 
   // 新增：早期里程碑
@@ -1106,8 +1106,8 @@ export function generateGuideMarkdown(guide: LandingCoachGuide): string {
     guide.executionPlan.phases.forEach((phase, idx) => {
       lines.push(`**${idx + 1}. ${phase.name}** ⏰ *${phase.timeline}*`)
       lines.push(`- 重点：${phase.focus}`)
-      lines.push(`- 关键成果：${phase.keyOutcomes.join('、')}`)
-      lines.push(`- 指标：${phase.metrics.join('、')}`)
+      lines.push(`- 关键成果：${phase.keyOutcomes?.join('、') || '待补充'}`)
+      lines.push(`- 指标：${phase.metrics?.join('、') || '待补充'}`)
       lines.push('')
     })
 
@@ -1115,19 +1115,19 @@ export function generateGuideMarkdown(guide: LandingCoachGuide): string {
     guide.executionPlan.weeklySprints.forEach((sprint, idx) => {
       lines.push(`**${sprint.name}**`)
       lines.push(`- 重点：${sprint.focus}`)
-      lines.push(`- 目标：${sprint.objectives.join('、')}`)
-      lines.push(`- 反馈机制：${sprint.feedbackHooks.join('、')}`)
+      lines.push(`- 目标：${sprint.objectives?.join('、') || '待补充'}`)
+      lines.push(`- 反馈机制：${sprint.feedbackHooks?.join('、') || '待补充'}`)
       lines.push('')
     })
 
     lines.push('### 🔄 反馈循环')
-    lines.push(`**节奏：** ${guide.executionPlan.feedbackLoop.cadence.join('；')}`)
+    lines.push(`**节奏：** ${guide.executionPlan.feedbackLoop.cadence?.join('；') || '待补充'}`)
     lines.push('')
-    lines.push(`**渠道：** ${guide.executionPlan.feedbackLoop.channels.join('；')}`)
+    lines.push(`**渠道：** ${guide.executionPlan.feedbackLoop.channels?.join('；') || '待补充'}`)
     lines.push('')
-    lines.push(`**决策点：** ${guide.executionPlan.feedbackLoop.decisionGates.join('；')}`)
+    lines.push(`**决策点：** ${guide.executionPlan.feedbackLoop.decisionGates?.join('；') || '待补充'}`)
     lines.push('')
-    lines.push(`**工具：** ${guide.executionPlan.feedbackLoop.tooling.join('、')}`)
+    lines.push(`**工具：** ${guide.executionPlan.feedbackLoop.tooling?.join('、') || '待补充'}`)
     lines.push('')
 
     lines.push('### ⏰ 每天要做的')
