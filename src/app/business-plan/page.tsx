@@ -493,19 +493,19 @@ export default function BusinessPlanPage() {
                   <Button
                     size="lg"
                     className="bg-white text-blue-600 hover:bg-white/90"
-                    onClick={() => router.push('/business-plan/intelligent')}
+                    onClick={() => router.push('/business-plan/modular')}
                   >
-                    <Brain className="w-4 h-4 mr-2" />
-                    智能化生成（推荐）
+                    <Sparkles className="w-4 h-4 mr-2" />
+                    模块化生成（新功能）
                   </Button>
                   <Button
                     size="lg"
                     variant="outline"
                     className="bg-white/10 text-white hover:bg-white/20 border-white/40"
-                    onClick={() => router.push('/business-plan/v2')}
+                    onClick={() => router.push('/business-plan/intelligent')}
                   >
-                    <Sparkles className="w-4 h-4 mr-2" />
-                    标准版生成
+                    <Brain className="w-4 h-4 mr-2" />
+                    智能化生成
                   </Button>
                   <Button
                     size="lg"

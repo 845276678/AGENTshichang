@@ -76,6 +76,8 @@ const CreativeInputForm = ({
   defaultContent?: string
 }) => {
   const [ideaContent, setIdeaContent] = useState(defaultContent ?? '')
+  const [isTyping, setIsTyping] = useState(false)
+  const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null)
   const REQUIRED_CREDITS = 50 // Required credits to join bidding
 
   useEffect(() => {
@@ -83,6 +85,32 @@ const CreativeInputForm = ({
       setIdeaContent(defaultContent)
     }
   }, [defaultContent])
+
+  // 优化输入处理，添加防抖和即时反馈
+  const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const value = e.target.value
+    setIdeaContent(value)
+    setIsTyping(true)
+
+    // 清除之前的定时器
+    if (typingTimeoutRef.current) {
+      clearTimeout(typingTimeoutRef.current)
+    }
+
+    // 设置新的定时器，延迟更新输入状态
+    typingTimeoutRef.current = setTimeout(() => {
+      setIsTyping(false)
+    }, 500)
+  }
+
+  // 清理定时器
+  useEffect(() => {
+    return () => {
+      if (typingTimeoutRef.current) {
+        clearTimeout(typingTimeoutRef.current)
+      }
+    }
+  }, [])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -96,6 +124,8 @@ const CreativeInputForm = ({
       return
     }
 
+    // 显示加载提示
+    console.log('🚀 正在提交创意到AI竞价系统...')
     await onSubmit(ideaContent.trim())
   }
 
@@ -147,14 +177,23 @@ const CreativeInputForm = ({
             </label>
             <Textarea
               value={ideaContent}
-              onChange={(e) => setIdeaContent(e.target.value)}
+              onChange={handleInputChange}
               placeholder="请详细描述您的创意想法，包括：&#10;• 创意的核心概念和独特价值&#10;• 目标用户群体&#10;• 预期的市场价值&#10;• 实现方式和技术需求&#10;&#10;例如：一个基于AI的个性化学习助手，能够根据学生的学习习惯和知识掌握程度，自动生成个性化的学习计划和练习题..."
-              className="min-h-[120px] resize-none"
+              className="min-h-[120px] resize-none transition-all duration-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               disabled={isLoading}
+              autoFocus={false}
             />
-            <div className="flex justify-between items-center mt-2 text-sm text-gray-500">
-              <span>{ideaContent.length} 字符</span>
-              <span>建议 50-500 字</span>
+            <div className="flex justify-between items-center mt-2 text-sm">
+              <div className="flex items-center gap-2">
+                <span className="text-gray-600">{ideaContent.length} 字符</span>
+                {isTyping && (
+                  <span className="text-blue-500 flex items-center gap-1 animate-pulse">
+                    <span className="w-1.5 h-1.5 bg-blue-500 rounded-full"></span>
+                    输入中...
+                  </span>
+                )}
+              </div>
+              <span className="text-gray-500">建议 50-500 字</span>
             </div>
           </div>
 
@@ -176,16 +215,16 @@ const CreativeInputForm = ({
             <Button
               type="submit"
               disabled={!canSubmit}
-              className="h-12 text-lg font-semibold relative overflow-hidden"
+              className="h-12 text-lg font-semibold relative overflow-hidden group transition-all duration-300 hover:shadow-lg"
             >
               {isLoading ? (
                 <div className="flex items-center justify-center gap-2">
                   <Loader2 className="w-5 h-5 animate-spin" />
-                  正在启动AI竞价...
+                  <span className="animate-pulse">正在启动AI竞价引擎...</span>
                 </div>
               ) : (
                 <div className="flex items-center justify-center gap-2">
-                  <Play className="w-5 h-5" />
+                  <Play className="w-5 h-5 group-hover:scale-110 transition-transform" />
                   开始AI专家竞价
                 </div>
               )}
@@ -196,16 +235,16 @@ const CreativeInputForm = ({
               variant="outline"
               disabled={!canDirectGenerate}
               onClick={handleDirectGenerate}
-              className="h-12 text-lg font-semibold relative overflow-hidden border-2 border-green-500 text-green-600 hover:bg-green-50"
+              className="h-12 text-lg font-semibold relative overflow-hidden border-2 border-green-500 text-green-600 hover:bg-green-50 group transition-all duration-300 hover:shadow-lg"
             >
               {isLoading ? (
                 <div className="flex items-center justify-center gap-2">
                   <Loader2 className="w-5 h-5 animate-spin" />
-                  正在生成...
+                  <span className="animate-pulse">正在生成商业计划...</span>
                 </div>
               ) : (
                 <div className="flex items-center justify-center gap-2">
-                  <FileText className="w-5 h-5" />
+                  <FileText className="w-5 h-5 group-hover:scale-110 transition-transform" />
                   直接生成商业计划书
                 </div>
               )}
@@ -398,9 +437,12 @@ export default function StageBasedBidding({
     try {
       setIsSubmitting(true)
 
+      // 从创意内容中提取标题（前50个字符）或使用默认标题
+      const extractedTitle = ideaContent.trim().substring(0, 50).replace(/\n/g, ' ') || '创意项目'
+
       // 跳转到商业计划生成页面，使用简化版格式
       const params = new URLSearchParams({
-        ideaTitle: `用户创意-${Date.now()}`,
+        ideaTitle: extractedTitle,
         ideaDescription: ideaContent,
         source: 'direct-generation',
         useSimplifiedFormat: 'true'

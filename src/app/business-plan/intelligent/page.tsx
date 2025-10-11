@@ -90,6 +90,33 @@ export default function IntelligentBusinessPlanPage() {
   const [analyzing, setAnalyzing] = useState(false)
   const [ideaCharacteristics, setIdeaCharacteristics] = useState<IdeaCharacteristics | null>(null)
   const [personalizedRecommendations, setPersonalizedRecommendations] = useState<PersonalizedRecommendations | null>(null)
+  const [isTyping, setIsTyping] = useState(false)
+  const typingTimeoutRef = React.useRef<NodeJS.Timeout | null>(null)
+
+  // 优化输入处理
+  const handleFieldChange = (setter: (value: string) => void) => (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    setter(e.target.value)
+    setIsTyping(true)
+
+    if (typingTimeoutRef.current) {
+      clearTimeout(typingTimeoutRef.current)
+    }
+
+    typingTimeoutRef.current = setTimeout(() => {
+      setIsTyping(false)
+    }, 500)
+  }
+
+  // 清理定时器
+  React.useEffect(() => {
+    return () => {
+      if (typingTimeoutRef.current) {
+        clearTimeout(typingTimeoutRef.current)
+      }
+    }
+  }, [])
 
   // 从竞价页面导入创意时自动填充
   useEffect(() => {
@@ -315,8 +342,9 @@ export default function IntelligentBusinessPlanPage() {
                         id="title"
                         placeholder="例如：AI智能英语学习助手"
                         value={ideaTitle}
-                        onChange={(e) => setIdeaTitle(e.target.value)}
-                        className="w-full"
+                        onChange={handleFieldChange(setIdeaTitle)}
+                        className="w-full transition-all duration-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        disabled={analyzing}
                       />
                     </div>
                     <div className="space-y-2">
@@ -325,8 +353,9 @@ export default function IntelligentBusinessPlanPage() {
                         id="location"
                         placeholder="北京"
                         value={userLocation}
-                        onChange={(e) => setUserLocation(e.target.value)}
-                        className="w-full"
+                        onChange={handleFieldChange(setUserLocation)}
+                        className="w-full transition-all duration-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        disabled={analyzing}
                       />
                     </div>
                   </div>
@@ -337,8 +366,9 @@ export default function IntelligentBusinessPlanPage() {
                       id="description"
                       placeholder="描述您的创意要解决什么问题，面向什么用户，如何创造价值..."
                       value={ideaDescription}
-                      onChange={(e) => setIdeaDescription(e.target.value)}
-                      className="min-h-[120px] w-full"
+                      onChange={handleFieldChange(setIdeaDescription)}
+                      className="min-h-[120px] w-full transition-all duration-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      disabled={analyzing}
                     />
                   </div>
 
@@ -348,28 +378,37 @@ export default function IntelligentBusinessPlanPage() {
                       id="background"
                       placeholder="例如：技术背景、行业经验、可用资源等"
                       value={userBackground}
-                      onChange={(e) => setUserBackground(e.target.value)}
-                      className="w-full"
+                      onChange={handleFieldChange(setUserBackground)}
+                      className="w-full transition-all duration-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      disabled={analyzing}
                     />
                   </div>
 
                   <div className="flex justify-center pt-4">
+                    {isTyping && (
+                      <div className="mb-4 text-center">
+                        <span className="text-blue-500 flex items-center gap-2 text-sm animate-pulse">
+                          <span className="w-2 h-2 bg-blue-500 rounded-full"></span>
+                          正在输入创意信息...
+                        </span>
+                      </div>
+                    )}
                     <Button
                       onClick={handleAnalyze}
                       disabled={analyzing || !ideaTitle || !ideaDescription}
-                      className="px-8 py-6 text-lg"
+                      className="px-8 py-6 text-lg transition-all duration-300 hover:shadow-lg group"
                       size="lg"
                     >
                       {analyzing ? (
                         <>
                           <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                          分析中...
+                          <span className="animate-pulse">AI正在分析您的创意特征...</span>
                         </>
                       ) : (
                         <>
-                          <Sparkles className="mr-2 h-5 w-5" />
+                          <Sparkles className="mr-2 h-5 w-5 group-hover:rotate-12 transition-transform" />
                           开始分析创意
-                          <ArrowRight className="ml-2 h-5 w-5" />
+                          <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
                         </>
                       )}
                     </Button>
