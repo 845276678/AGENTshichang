@@ -339,7 +339,7 @@ export function RealtimeRecommendationDisplay({
               <div>
                 <div className="text-sm font-medium mb-1">成本优化建议</div>
                 <div className="text-xs text-muted-foreground">
-                  {personalizedRecommendations.budgetPlan.costOptimization[0]}
+                  {personalizedRecommendations.budgetPlan.costOptimization?.[0] || '成本优化建议生成中...'}
                 </div>
               </div>
             </CardContent>

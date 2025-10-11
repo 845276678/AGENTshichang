@@ -209,7 +209,7 @@ function convertSimplifiedToGuide(simplifiedPlan: SimplifiedBusinessPlan): Busin
         techStack: simplifiedPlan.productAndTech.techStack.recommended
       },
       validationStrategy: {
-        timeline: simplifiedPlan.validationAndIteration.validationMethods[0]?.timeline || '未定义',
+        timeline: simplifiedPlan.validationAndIteration.validationMethods?.[0]?.timeline || '未定义',
         hypotheses: simplifiedPlan.validationAndIteration.hypotheses,
         experiments: simplifiedPlan.validationAndIteration.validationMethods.map(v => v.method),
         successMetrics: simplifiedPlan.validationAndIteration.validationMethods.map(v => v.successCriteria)
