@@ -118,18 +118,18 @@ export async function renderGuidePdf(guide: BusinessPlanGuide): Promise<Uint8Arr
           {renderList(guide.mvpDefinition.productConcept.coreFeatures)}
           {renderKeyValue("Minimum scope", guide.mvpDefinition.productConcept.minimumScope)}
           <Text style={styles.subheading}>Development plan</Text>
-          {guide.mvpDefinition.developmentPlan.phases.map((phase, idx) => (
+          {guide.mvpDefinition.developmentPlan.phases?.map((phase, idx) => (
             <View key={`${phase.name}-${idx}`} style={{ marginBottom: 4, marginLeft: 4 }}>
               <Text style={{ fontWeight: "bold" }}>
                 {phase.name} ({phase.duration})
               </Text>
-              <Text style={styles.paragraph}>Deliverables: {phase.deliverables.join(", ")}</Text>
-              {phase.resources.length > 0 && (
-                <Text style={styles.paragraph}>Resources: {phase.resources.join(", ")}</Text>
+              <Text style={styles.paragraph}>Deliverables: {phase.deliverables?.join(", ") || "待补充"}</Text>
+              {phase.resources && phase.resources.length > 0 && (
+                <Text style={styles.paragraph}>Resources: {phase.resources?.join(", ") || "待补充"}</Text>
               )}
             </View>
           ))}
-          {renderKeyValue("Tech stack", guide.mvpDefinition.developmentPlan.techStack.join(", "))}
+          {renderKeyValue("Tech stack", guide.mvpDefinition.developmentPlan.techStack?.join(", ") || "待补充")}
           {renderKeyValue("Estimated cost", guide.mvpDefinition.developmentPlan.estimatedCost)}
           <Text style={styles.subheading}>Validation hypotheses</Text>
           {renderList(guide.mvpDefinition.validationStrategy.hypotheses)}
@@ -145,29 +145,29 @@ export async function renderGuidePdf(guide: BusinessPlanGuide): Promise<Uint8Arr
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>3. Business Model & Operations</Text>
           <Text style={styles.subheading}>Business model</Text>
-          {renderKeyValue("Revenue streams", guide.businessExecution.businessModel.revenueStreams.join(", "))}
-          {renderKeyValue("Cost structure", guide.businessExecution.businessModel.costStructure.join(", "))}
+          {renderKeyValue("Revenue streams", guide.businessExecution.businessModel.revenueStreams?.join(", ") || "待补充")}
+          {renderKeyValue("Cost structure", guide.businessExecution.businessModel.costStructure?.join(", ") || "待补充")}
           {renderKeyValue("Pricing strategy", guide.businessExecution.businessModel.pricingStrategy)}
           {renderKeyValue("Scalability", guide.businessExecution.businessModel.scalability)}
           <Text style={styles.subheading}>Launch plan</Text>
-          {guide.businessExecution.launchStrategy.phases.map((phase, idx) => (
+          {guide.businessExecution.launchStrategy.phases?.map((phase, idx) => (
             <View key={`${phase.name}-${idx}`} style={{ marginBottom: 4, marginLeft: 4 }}>
               <Text style={{ fontWeight: "bold" }}>
                 {phase.name} ({phase.timeline})
               </Text>
-              <Text style={styles.paragraph}>Goals: {phase.goals.join(", ")}</Text>
-              {phase.tactics.length > 0 && (
-                <Text style={styles.paragraph}>Tactics: {phase.tactics.join(", ")}</Text>
+              <Text style={styles.paragraph}>Goals: {phase.goals?.join(", ") || "待补充"}</Text>
+              {phase.tactics && phase.tactics.length > 0 && (
+                <Text style={styles.paragraph}>Tactics: {phase.tactics?.join(", ") || "待补充"}</Text>
               )}
             </View>
           ))}
-          {renderKeyValue("Marketing channels", guide.businessExecution.launchStrategy.marketingChannels.join(", "))}
-          {renderKeyValue("Budget allocation", guide.businessExecution.launchStrategy.budgetAllocation.join(", "))}
+          {renderKeyValue("Marketing channels", guide.businessExecution.launchStrategy.marketingChannels?.join(", ") || "待补充")}
+          {renderKeyValue("Budget allocation", guide.businessExecution.launchStrategy.budgetAllocation?.join(", ") || "待补充")}
           <Text style={styles.subheading}>Operations</Text>
-          {renderKeyValue("Team structure", guide.businessExecution.operationalPlan.teamStructure.join(", "))}
-          {renderKeyValue("Processes", guide.businessExecution.operationalPlan.processes.join(", "))}
-          {renderKeyValue("Infrastructure", guide.businessExecution.operationalPlan.infrastructure.join(", "))}
-          {renderKeyValue("Risk management", guide.businessExecution.operationalPlan.riskManagement.join(", "))}
+          {renderKeyValue("Team structure", guide.businessExecution.operationalPlan.teamStructure?.join(", ") || "待补充")}
+          {renderKeyValue("Processes", guide.businessExecution.operationalPlan.processes?.join(", ") || "待补充")}
+          {renderKeyValue("Infrastructure", guide.businessExecution.operationalPlan.infrastructure?.join(", ") || "待补充")}
+          {renderKeyValue("Risk management", guide.businessExecution.operationalPlan.riskManagement?.join(", ") || "待补充")}
           <Text style={styles.subheading}>Operational priorities</Text>
           {renderList(guide.businessExecution.actionItems)}
         </View>
@@ -178,36 +178,36 @@ export async function renderGuidePdf(guide: BusinessPlanGuide): Promise<Uint8Arr
             {renderKeyValue("Mission", guide.executionPlan.mission)}
             {renderKeyValue("Summary", guide.executionPlan.summary)}
             <Text style={styles.subheading}>Phases</Text>
-            {guide.executionPlan.phases.map((phase, idx) => (
+            {guide.executionPlan.phases?.map((phase, idx) => (
               <View key={`${phase.name}-${idx}`} style={{ marginBottom: 4, marginLeft: 4 }}>
                 <Text style={{ fontWeight: "bold" }}>
                   {phase.name} ({phase.timeline})
                 </Text>
                 <Text style={styles.paragraph}>Focus: {phase.focus}</Text>
-                <Text style={styles.paragraph}>Key outcomes: {phase.keyOutcomes.join(", ")}</Text>
-                <Text style={styles.paragraph}>Metrics: {phase.metrics.join(", ")}</Text>
+                <Text style={styles.paragraph}>Key outcomes: {phase.keyOutcomes?.join(", ") || "待补充"}</Text>
+                <Text style={styles.paragraph}>Metrics: {phase.metrics?.join(", ") || "待补充"}</Text>
               </View>
             ))}
             <Text style={styles.subheading}>Weekly sprints</Text>
-            {guide.executionPlan.weeklySprints.map((sprint, idx) => (
+            {guide.executionPlan.weeklySprints?.map((sprint, idx) => (
               <View key={`${sprint.name}-${idx}`} style={{ marginBottom: 4, marginLeft: 4 }}>
                 <Text style={{ fontWeight: "bold" }}>{sprint.name}</Text>
                 <Text style={styles.paragraph}>Focus: {sprint.focus}</Text>
-                <Text style={styles.paragraph}>Objectives: {sprint.objectives.join(", ")}</Text>
-                <Text style={styles.paragraph}>Feedback hooks: {sprint.feedbackHooks.join(", ")}</Text>
+                <Text style={styles.paragraph}>Objectives: {sprint.objectives?.join(", ") || "待补充"}</Text>
+                <Text style={styles.paragraph}>Feedback hooks: {sprint.feedbackHooks?.join(", ") || "待补充"}</Text>
               </View>
             ))}
             <Text style={styles.subheading}>Feedback loop</Text>
-            {renderKeyValue("Cadence", guide.executionPlan.feedbackLoop.cadence.join(", "))}
-            {renderKeyValue("Channels", guide.executionPlan.feedbackLoop.channels.join(", "))}
-            {renderKeyValue("Decision gates", guide.executionPlan.feedbackLoop.decisionGates.join(", "))}
-            {renderKeyValue("Tooling", guide.executionPlan.feedbackLoop.tooling.join(", "))}
+            {renderKeyValue("Cadence", guide.executionPlan.feedbackLoop?.cadence?.join(", ") || "待补充")}
+            {renderKeyValue("Channels", guide.executionPlan.feedbackLoop?.channels?.join(", ") || "待补充")}
+            {renderKeyValue("Decision gates", guide.executionPlan.feedbackLoop?.decisionGates?.join(", ") || "待补充")}
+            {renderKeyValue("Tooling", guide.executionPlan.feedbackLoop?.tooling?.join(", ") || "待补充")}
             <Text style={styles.subheading}>Daily routines</Text>
             {renderList(guide.executionPlan.dailyRoutines)}
             <Text style={styles.subheading}>Review framework</Text>
-            {renderKeyValue("Weekly review", guide.executionPlan.reviewFramework.weekly.join(", "))}
-            {renderKeyValue("Monthly calibration", guide.executionPlan.reviewFramework.monthly.join(", "))}
-            {renderKeyValue("Metrics to watch", guide.executionPlan.reviewFramework.dataWatch.join(", "))}
+            {renderKeyValue("Weekly review", guide.executionPlan.reviewFramework?.weekly?.join(", ") || "待补充")}
+            {renderKeyValue("Monthly calibration", guide.executionPlan.reviewFramework?.monthly?.join(", ") || "待补充")}
+            {renderKeyValue("Metrics to watch", guide.executionPlan.reviewFramework?.dataWatch?.join(", ") || "待补充")}
           </View>
         )}
 
