@@ -69,6 +69,7 @@ export interface LandingCoachGuide {
     consensusPoints: string[]
     controversialPoints: string[]
   }
+  // 版块1：用户需求与市场定位
   currentSituation: {
     title: string
     summary: string
@@ -86,6 +87,7 @@ export interface LandingCoachGuide {
     }
     actionItems: string[]
   }
+  // 版块2：产品方案与技术实现
   mvpDefinition: {
     title: string
     productConcept: {
@@ -111,6 +113,35 @@ export interface LandingCoachGuide {
     }
     actionItems: string[]
   }
+  // 版块3：验证策略与迭代路径
+  validationAndIteration: {
+    title: string
+    summary: string
+    hypotheses: string[]
+    validationMethods: Array<{
+      method: string
+      timeline: string
+      successCriteria: string
+      resources: string[]
+    }>
+    iterationPlan: {
+      cycles: Array<{
+        focus: string
+        duration: string
+        experiments: string[]
+        metrics: string[]
+      }>
+      feedbackChannels: string[]
+      decisionFramework: string
+    }
+    riskManagement: Array<{
+      risk: string
+      impact: 'high' | 'medium' | 'low'
+      mitigation: string
+    }>
+    actionItems: string[]
+  }
+  // 版块4：商业模式与资源规划
   businessExecution: {
     title: string
     businessModel: {

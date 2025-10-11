@@ -45,15 +45,20 @@ export default function BusinessPlanPage() {
   const sessionId = searchParams.get('sessionId')
   const reportId = searchParams.get('reportId')
   const ideaTitle = searchParams.get('ideaTitle')
-  const source = searchParams.get('source') // 来源：ai-bidding, marketplace 或其他
+  const ideaDescription = searchParams.get('ideaDescription')
+  const source = searchParams.get('source') // 来源：ai-bidding, marketplace, direct-generation 或其他
   const winningBid = searchParams.get('winningBid')
   const winner = searchParams.get('winner')
   const guideCost = searchParams.get('guideCost') // 动态价格
+  const useSimplifiedFormat = searchParams.get('useSimplifiedFormat') === 'true'
+  const autoGenerate = searchParams.get('autoGenerate') === 'true'
 
   const [loadingState, setLoadingState] = useState<LoadingState>({
-    isLoading: Boolean(sessionId || reportId),
+    isLoading: Boolean(sessionId || reportId || autoGenerate),
     progress: 0,
-    stage: source === 'marketplace' ? '正在处理竞价结果...' : '正在载入数据...'
+    stage: source === 'marketplace' ? '正在处理竞价结果...' :
+           source === 'direct-generation' ? '正在生成简化版商业计划书...' :
+           '正在载入数据...'
   })
   const [guide, setGuide] = useState<LandingCoachGuide | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -126,7 +131,91 @@ export default function BusinessPlanPage() {
     }
   }
 
-  const loadReportData = async (targetReportId: string) => {
+  // 直接生成商业计划书的函数
+  const generateDirectBusinessPlan = async () => {
+    try {
+      setError(null)
+      setGuide(null)
+
+      setLoadingState({
+        isLoading: true,
+        progress: 15,
+        stage: '正在准备创意分析...'
+      })
+
+      console.log('🚀 开始直接生成商业计划书', {
+        ideaTitle,
+        ideaDescription,
+        useSimplifiedFormat
+      })
+
+      // 构建请求数据
+      const requestData = {
+        ideaTitle,
+        ideaDescription,
+        source: 'direct-generation',
+        useSimplifiedFormat: true
+      }
+
+      setLoadingState({
+        isLoading: true,
+        progress: 30,
+        stage: '正在调用AI专家团队...'
+      })
+
+      // 调用API生成商业计划书
+      const response = await fetch('/api/business-plan/generate-direct', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {})
+        },
+        body: JSON.stringify(requestData)
+      })
+
+      setLoadingState({
+        isLoading: true,
+        progress: 60,
+        stage: '正在生成商业计划书...'
+      })
+
+      if (!response.ok) {
+        throw new Error(`API调用失败: ${response.statusText}`)
+      }
+
+      const result = await response.json()
+
+      if (!result.success) {
+        throw new Error(result.error || '生成商业计划书失败')
+      }
+
+      setLoadingState({
+        isLoading: true,
+        progress: 90,
+        stage: '正在完成最后处理...'
+      })
+
+      // 设置生成的指南
+      setGuide(result.guide)
+
+      setLoadingState({
+        isLoading: false,
+        progress: 100,
+        stage: '商业计划书生成完成'
+      })
+
+      console.log('✅ 商业计划书生成完成')
+
+    } catch (error) {
+      console.error('直接生成商业计划书失败:', error)
+      setError(error instanceof Error ? error.message : '生成商业计划书失败')
+      setLoadingState({
+        isLoading: false,
+        progress: 0,
+        stage: '生成失败'
+      })
+    }
+  }
     if (!token) {
       setError('访问该商业计划需要登录，请先登录后重试。')
       setLoadingState({
@@ -184,7 +273,7 @@ export default function BusinessPlanPage() {
   }
 
   useEffect(() => {
-    if (!sessionId && !reportId) {
+    if (!sessionId && !reportId && !autoGenerate) {
       setGuide(null)
       setError(null)
       setLoadingState({
@@ -197,6 +286,12 @@ export default function BusinessPlanPage() {
 
     // 等待认证初始化完成
     if (!isInitialized) {
+      return
+    }
+
+    // 处理直接生成模式
+    if (autoGenerate && source === 'direct-generation' && ideaTitle && ideaDescription) {
+      void generateDirectBusinessPlan()
       return
     }
 
@@ -220,7 +315,7 @@ export default function BusinessPlanPage() {
       }
       void loadReportData(reportId)
     }
-  }, [sessionId, reportId, token, isInitialized])
+  }, [sessionId, reportId, token, isInitialized, autoGenerate, source, ideaTitle, ideaDescription])
 
   const handleDownload = async (format: 'pdf' | 'docx' | 'markdown' | 'txt') => {
     if (!guide || (!reportId && !sessionId)) return

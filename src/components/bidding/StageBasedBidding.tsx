@@ -64,11 +64,13 @@ type SubmitResult = Promise<void | boolean> | void | boolean
 // 创意输入表单组件 - 升级版
 const CreativeInputForm = ({
   onSubmit,
+  onDirectGenerate,
   isLoading,
   userCredits,
   defaultContent
 }: {
   onSubmit: (idea: string) => SubmitResult
+  onDirectGenerate?: (idea: string) => SubmitResult
   isLoading: boolean
   userCredits: number
   defaultContent?: string
@@ -97,7 +99,20 @@ const CreativeInputForm = ({
     await onSubmit(ideaContent.trim())
   }
 
+  const handleDirectGenerate = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!ideaContent.trim()) {
+      alert('请输入您的创意内容')
+      return
+    }
+
+    if (onDirectGenerate) {
+      await onDirectGenerate(ideaContent.trim())
+    }
+  }
+
   const canSubmit = ideaContent.trim().length > 0 && userCredits >= REQUIRED_CREDITS && !isLoading
+  const canDirectGenerate = ideaContent.trim().length > 0 && !isLoading
 
   return (
     <Card className="w-full max-w-4xl mx-auto">
@@ -156,23 +171,74 @@ const CreativeInputForm = ({
             )}
           </div>
 
-          <Button
-            type="submit"
-            disabled={!canSubmit}
-            className="w-full h-12 text-lg font-semibold relative overflow-hidden"
-          >
-            {isLoading ? (
-              <div className="flex items-center justify-center gap-2">
-                <Loader2 className="w-5 h-5 animate-spin" />
-                正在启动AI竞价...
+          {/* 按钮组 */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <Button
+              type="submit"
+              disabled={!canSubmit}
+              className="h-12 text-lg font-semibold relative overflow-hidden"
+            >
+              {isLoading ? (
+                <div className="flex items-center justify-center gap-2">
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                  正在启动AI竞价...
+                </div>
+              ) : (
+                <div className="flex items-center justify-center gap-2">
+                  <Play className="w-5 h-5" />
+                  开始AI专家竞价
+                </div>
+              )}
+            </Button>
+
+            <Button
+              type="button"
+              variant="outline"
+              disabled={!canDirectGenerate}
+              onClick={handleDirectGenerate}
+              className="h-12 text-lg font-semibold relative overflow-hidden border-2 border-green-500 text-green-600 hover:bg-green-50"
+            >
+              {isLoading ? (
+                <div className="flex items-center justify-center gap-2">
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                  正在生成...
+                </div>
+              ) : (
+                <div className="flex items-center justify-center gap-2">
+                  <FileText className="w-5 h-5" />
+                  直接生成商业计划书
+                </div>
+              )}
+            </Button>
+          </div>
+
+          {/* 功能对比说明 */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4 p-4 bg-gray-50 rounded-lg">
+            <div className="text-center">
+              <div className="flex items-center justify-center gap-2 mb-2">
+                <Trophy className="w-5 h-5 text-blue-600" />
+                <h4 className="font-semibold text-gray-800">AI竞价模式</h4>
               </div>
-            ) : (
-              <div className="flex items-center justify-center gap-2">
-                <Play className="w-5 h-5" />
-                开始AI专家竞价
+              <ul className="text-sm text-gray-600 space-y-1">
+                <li>• 5位AI专家评估竞价</li>
+                <li>• 详细商业价值分析</li>
+                <li>• 需要{REQUIRED_CREDITS}积分</li>
+                <li>• 耗时35-45分钟</li>
+              </ul>
+            </div>
+            <div className="text-center">
+              <div className="flex items-center justify-center gap-2 mb-2">
+                <FileText className="w-5 h-5 text-green-600" />
+                <h4 className="font-semibold text-gray-800">直接生成模式</h4>
               </div>
-            )}
-          </Button>
+              <ul className="text-sm text-gray-600 space-y-1">
+                <li>• 简化版4模块结构</li>
+                <li>• AI协作快速生成</li>
+                <li>• 完全免费使用</li>
+                <li>• 耗时3-5分钟</li>
+              </ul>
+            </div>
+          </div>
 
           {/* 功能说明 */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
@@ -328,6 +394,27 @@ export default function StageBasedBidding({
   //   }
   // }, [currentStage])
 
+  const handleDirectGenerate = async (ideaContent: string) => {
+    try {
+      setIsSubmitting(true)
+
+      // 跳转到商业计划生成页面，使用简化版格式
+      const params = new URLSearchParams({
+        ideaTitle: `用户创意-${Date.now()}`,
+        ideaDescription: ideaContent,
+        source: 'direct-generation',
+        useSimplifiedFormat: 'true'
+      })
+
+      router.push(`/business-plan/intelligent?${params.toString()}`)
+    } catch (error) {
+      console.error('Direct generation error:', error)
+      alert('生成失败，请重试')
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
   const handleIdeaSubmit = async (ideaContent: string) => {
     try {
       setIsSubmitting(true)
@@ -383,6 +470,7 @@ export default function StageBasedBidding({
           <div className="space-y-8">
             <CreativeInputForm
               onSubmit={handleIdeaSubmit}
+              onDirectGenerate={handleDirectGenerate}
               isLoading={isSubmitting}
               userCredits={userCredits}
               defaultContent={initialIdeaContent}

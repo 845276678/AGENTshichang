@@ -251,9 +251,10 @@ export default function LandingCoachDisplay({
 
       <Tabs defaultValue="situation" className="space-y-6">
         <TabsList>
-          <TabsTrigger value="situation">当前形势</TabsTrigger>
-          <TabsTrigger value="mvp">MVP 计划</TabsTrigger>
-          <TabsTrigger value="business">商业计划</TabsTrigger>
+          <TabsTrigger value="situation">用户需求与市场</TabsTrigger>
+          <TabsTrigger value="mvp">产品方案与技术</TabsTrigger>
+          <TabsTrigger value="validation">验证策略与迭代</TabsTrigger>
+          <TabsTrigger value="business">商业模式与资源</TabsTrigger>
           {executionEnabled && <TabsTrigger value="execution">执行计划</TabsTrigger>}
         </TabsList>
 
@@ -261,7 +262,7 @@ export default function LandingCoachDisplay({
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-xl">
-                <BarChart3 className="h-5 w-5" /> 当前形势与校准
+                <BarChart3 className="h-5 w-5" /> 用户需求与市场定位
               </CardTitle>
               <CardDescription>{guide.currentSituation.summary}</CardDescription>
             </CardHeader>
@@ -290,7 +291,7 @@ export default function LandingCoachDisplay({
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-xl">
-                <Rocket className="h-5 w-5" /> MVP 定义与验证
+                <Rocket className="h-5 w-5" /> 产品方案与技术实现
               </CardTitle>
               <CardDescription>{guide.mvpDefinition.productConcept.uniqueValue}</CardDescription>
             </CardHeader>
@@ -300,19 +301,106 @@ export default function LandingCoachDisplay({
               <div className="grid gap-4 md:grid-cols-2">
                 {infoBlock(
                   '开发计划',
-                  guide.mvpDefinition.developmentPlan.estimatedCost,
-                  guide.mvpDefinition.developmentPlan.phases.map(phase => `${phase.name} (${phase.duration}): ${phase.deliverables.join(', ')}`)
+                  guide.mvpDefinition?.developmentPlan?.estimatedCost,
+                  (guide.mvpDefinition?.developmentPlan?.phases || []).map(phase => `${phase.name} (${phase.duration}): ${(phase.deliverables || []).join(', ')}`)
                 )}
                 {infoBlock('推荐技术栈', undefined, guide.mvpDefinition.developmentPlan.techStack)}
               </div>
               <Separator />
-              {infoBlock('验证方法', guide.mvpDefinition.validationStrategy.timeline, [
-                `关键假设: ${guide.mvpDefinition.validationStrategy.hypotheses.join(', ')}`,
-                `实验方案: ${guide.mvpDefinition.validationStrategy.experiments.join(', ')}`,
-                `成功指标: ${guide.mvpDefinition.validationStrategy.successMetrics.join(', ')}`
+              {infoBlock('基础验证策略', guide.mvpDefinition?.validationStrategy?.timeline, [
+                `关键假设: ${(guide.mvpDefinition?.validationStrategy?.hypotheses || []).join(', ')}`,
+                `实验方案: ${(guide.mvpDefinition?.validationStrategy?.experiments || []).join(', ')}`,
+                `成功指标: ${(guide.mvpDefinition?.validationStrategy?.successMetrics || []).join(', ')}`
               ])}
               <Separator />
               {infoBlock('行动清单', undefined, guide.mvpDefinition.actionItems)}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="validation" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-xl">
+                <ClipboardList className="h-5 w-5" /> 验证策略与迭代路径
+              </CardTitle>
+              <CardDescription>{guide.validationAndIteration?.summary}</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {infoBlock('核心假设', undefined, guide.validationAndIteration?.hypotheses)}
+              <Separator />
+              <div className="space-y-4">
+                <h4 className="text-base font-semibold">验证方法</h4>
+                <div className="grid gap-3">
+                  {(guide.validationAndIteration?.validationMethods || []).map((method, idx) => (
+                    <div key={idx} className="rounded-lg border bg-background p-4">
+                      <div className="flex items-start justify-between gap-4">
+                        <div className="flex-1">
+                          <h5 className="font-medium text-gray-800">{method.method}</h5>
+                          <p className="text-sm text-gray-600 mt-1">时间安排: {method.timeline}</p>
+                          <p className="text-sm text-gray-600">成功标准: {method.successCriteria}</p>
+                        </div>
+                        <div className="text-sm text-gray-500">
+                          所需资源: {method.resources.join(', ')}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <Separator />
+              <div className="space-y-4">
+                <h4 className="text-base font-semibold">迭代计划</h4>
+                <div className="grid gap-3">
+                  {(guide.validationAndIteration?.iterationPlan?.cycles || []).map((cycle, idx) => (
+                    <div key={idx} className="rounded-lg border bg-blue-50 p-4">
+                      <div className="flex items-start justify-between gap-4">
+                        <div className="flex-1">
+                          <h5 className="font-medium text-blue-800">迭代重点: {cycle.focus}</h5>
+                          <p className="text-sm text-blue-600 mt-1">周期时长: {cycle.duration}</p>
+                          <p className="text-sm text-blue-600">实验内容: {cycle.experiments.join(', ')}</p>
+                          <p className="text-sm text-blue-600">关键指标: {cycle.metrics.join(', ')}</p>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <Separator />
+              <div className="grid gap-4 md:grid-cols-2">
+                {infoBlock('反馈渠道', undefined, guide.validationAndIteration?.iterationPlan?.feedbackChannels)}
+                {infoBlock('决策框架', guide.validationAndIteration?.iterationPlan?.decisionFramework)}
+              </div>
+              <Separator />
+              <div className="space-y-4">
+                <h4 className="text-base font-semibold">风险管理</h4>
+                <div className="grid gap-3">
+                  {(guide.validationAndIteration?.riskManagement || []).map((risk, idx) => (
+                    <div key={idx} className={`rounded-lg border p-4 ${
+                      risk.impact === 'high' ? 'bg-red-50 border-red-200' :
+                      risk.impact === 'medium' ? 'bg-yellow-50 border-yellow-200' :
+                      'bg-green-50 border-green-200'
+                    }`}>
+                      <div className="flex items-start justify-between gap-4">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2">
+                            <h5 className="font-medium text-gray-800">{risk.risk}</h5>
+                            <Badge variant={
+                              risk.impact === 'high' ? 'destructive' :
+                              risk.impact === 'medium' ? 'secondary' : 'outline'
+                            } className="text-xs">
+                              {risk.impact === 'high' ? '高风险' : risk.impact === 'medium' ? '中风险' : '低风险'}
+                            </Badge>
+                          </div>
+                          <p className="text-sm text-gray-600 mt-1">缓解措施: {risk.mitigation}</p>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <Separator />
+              {infoBlock('行动清单', undefined, guide.validationAndIteration?.actionItems)}
             </CardContent>
           </Card>
         </TabsContent>
@@ -331,12 +419,12 @@ export default function LandingCoachDisplay({
                 {infoBlock('成本结构', undefined, guide.businessExecution.businessModel.costStructure)}
               </div>
               <Separator />
-              {infoBlock('市场推广阶段', undefined, guide.businessExecution.launchStrategy.phases.map(
-                phase => `${phase.name} (${phase.timeline}): ${phase.goals.join(', ')}`
+              {infoBlock('市场推广阶段', undefined, (guide.businessExecution?.launchStrategy?.phases || []).map(
+                phase => `${phase.name} (${phase.timeline}): ${(phase.goals || []).join(', ')}`
               ))}
 
               {/* 新增：冷启动策略 */}
-              {guide.businessExecution.launchStrategy.coldStart && (
+              {guide.businessExecution?.launchStrategy?.coldStart && (
                 <>
                   <Separator />
                   <div className="space-y-4 rounded-lg border-2 border-blue-200 bg-blue-50 p-4">
@@ -345,15 +433,15 @@ export default function LandingCoachDisplay({
                       冷启动策略（前100个用户）
                     </h4>
                     <p className="text-sm text-blue-800 leading-relaxed">
-                      {guide.businessExecution.launchStrategy.coldStart.strategy}
+                      {guide.businessExecution?.launchStrategy?.coldStart?.strategy}
                     </p>
                     <div className="grid gap-3 md:grid-cols-2">
-                      {infoBlock('🎯 目标客户', undefined, guide.businessExecution.launchStrategy.coldStart.targetCustomers)}
-                      {infoBlock('📢 获客渠道', undefined, guide.businessExecution.launchStrategy.coldStart.acquisitionChannels)}
+                      {infoBlock('🎯 目标客户', undefined, guide.businessExecution?.launchStrategy?.coldStart?.targetCustomers || [])}
+                      {infoBlock('📢 获客渠道', undefined, guide.businessExecution?.launchStrategy?.coldStart?.acquisitionChannels || [])}
                     </div>
                     <div className="grid gap-3 md:grid-cols-2">
-                      {infoBlock('🤝 合作伙伴策略', undefined, guide.businessExecution.launchStrategy.coldStart.partnershipIdeas)}
-                      {infoBlock('🔥 病毒传播机制', guide.businessExecution.launchStrategy.coldStart.viralMechanics)}
+                      {infoBlock('🤝 合作伙伴策略', undefined, guide.businessExecution?.launchStrategy?.coldStart?.partnershipIdeas || [])}
+                      {infoBlock('🔥 病毒传播机制', guide.businessExecution?.launchStrategy?.coldStart?.viralMechanics || '')}
                     </div>
                   </div>
                 </>
@@ -368,7 +456,7 @@ export default function LandingCoachDisplay({
               {infoBlock('风险管理', undefined, guide.businessExecution.operationalPlan.riskManagement)}
 
               {/* 新增：早期里程碑 */}
-              {guide.businessExecution.earlyMilestones && (
+              {guide.businessExecution?.earlyMilestones && (
                 <>
                   <Separator />
                   <div className="space-y-4 rounded-lg border-2 border-green-200 bg-green-50 p-4">
@@ -381,7 +469,7 @@ export default function LandingCoachDisplay({
                     <div className="space-y-3">
                       <h5 className="font-medium text-green-800">📅 2周内快速验证</h5>
                       <div className="grid gap-3">
-                        {guide.businessExecution.earlyMilestones.twoWeekGoals.map((goal, idx) => (
+                        {(guide.businessExecution?.earlyMilestones?.twoWeekGoals || []).map((goal, idx) => (
                           <Card key={idx} className="border-green-300 bg-white">
                             <CardContent className="p-3">
                               <div className="flex items-start justify-between gap-3">
@@ -412,7 +500,7 @@ export default function LandingCoachDisplay({
                     <div className="space-y-3">
                       <h5 className="font-medium text-green-800">📅 1个月内重要成果</h5>
                       <div className="grid gap-3">
-                        {guide.businessExecution.earlyMilestones.oneMonthGoals.map((goal, idx) => (
+                        {(guide.businessExecution?.earlyMilestones?.oneMonthGoals || []).map((goal, idx) => (
                           <Card key={idx} className="border-green-300 bg-white">
                             <CardContent className="p-3">
                               <div className="flex items-start justify-between gap-3">
@@ -440,7 +528,7 @@ export default function LandingCoachDisplay({
                     </div>
 
                     {/* 快赢行动 */}
-                    {infoBlock('⚡ 立即可做的快赢行动', undefined, guide.businessExecution.earlyMilestones.quickWins)}
+                    {infoBlock('⚡ 立即可做的快赢行动', undefined, guide.businessExecution?.earlyMilestones?.quickWins || [])}
                   </div>
                 </>
               )}
@@ -458,25 +546,25 @@ export default function LandingCoachDisplay({
                 <CardTitle className="flex items-center gap-2 text-xl">
                   <Compass className="h-5 w-5" /> 90天执行计划
                 </CardTitle>
-                <CardDescription>{guide.executionPlan.summary}</CardDescription>
+                <CardDescription>{guide.executionPlan?.summary}</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                {infoBlock('阶段分解', undefined, guide.executionPlan.phases.map(
+                {infoBlock('阶段分解', undefined, (guide.executionPlan?.phases || []).map(
                   phase => `${phase.name} (${phase.timeline}): ${phase.focus}`
                 ))}
                 <Separator />
-                {infoBlock('每周冲刺', undefined, guide.executionPlan.weeklySprints.map(
+                {infoBlock('每周冲刺', undefined, (guide.executionPlan?.weeklySprints || []).map(
                   sprint => `${sprint.name}: ${sprint.focus}`
                 ))}
                 <Separator />
                 {infoBlock('反馈循环', undefined, [
-                  `节奏: ${guide.executionPlan.feedbackLoop.cadence.join(' / ')}`,
-                  `渠道: ${guide.executionPlan.feedbackLoop.channels.join(' / ')}`,
-                  `决策关卡: ${guide.executionPlan.feedbackLoop.decisionGates.join(' / ')}`,
-                  `工具: ${guide.executionPlan.feedbackLoop.tooling.join(' / ')}`
+                  `节奏: ${(guide.executionPlan?.feedbackLoop?.cadence || []).join(' / ')}`,
+                  `渠道: ${(guide.executionPlan?.feedbackLoop?.channels || []).join(' / ')}`,
+                  `决策关卡: ${(guide.executionPlan?.feedbackLoop?.decisionGates || []).join(' / ')}`,
+                  `工具: ${(guide.executionPlan?.feedbackLoop?.tooling || []).join(' / ')}`
                 ])}
                 <Separator />
-                {infoBlock('日常例行', undefined, guide.executionPlan.dailyRoutines)}
+                {infoBlock('日常例行', undefined, guide.executionPlan?.dailyRoutines || [])}
               </CardContent>
             </Card>
           </TabsContent>

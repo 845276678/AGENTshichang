@@ -80,6 +80,8 @@ export default function IntelligentBusinessPlanPage() {
   const ideaDescParam = searchParams.get('ideaDescription')
   const ideaCategoryParam = searchParams.get('category')
   const fromBidding = searchParams.get('from') === 'bidding'
+  const source = searchParams.get('source')
+  const useSimplifiedFormat = searchParams.get('useSimplifiedFormat') === 'true'
 
   const [ideaTitle, setIdeaTitle] = useState('')
   const [ideaDescription, setIdeaDescription] = useState('')
@@ -97,10 +99,52 @@ export default function IntelligentBusinessPlanPage() {
     if (ideaDescParam) {
       setIdeaDescription(decodeURIComponent(ideaDescParam))
     }
-  }, [ideaTitleParam, ideaDescParam])
+
+    // 如果是直接生成模式，自动开始分析
+    if (source === 'direct-generation' && useSimplifiedFormat && ideaTitleParam && ideaDescParam) {
+      console.log('🚀 检测到直接生成模式，开始自动分析...')
+      setTimeout(() => {
+        handleAnalyze()
+      }, 1000)
+    }
+  }, [ideaTitleParam, ideaDescParam, source, useSimplifiedFormat])
 
   const handleAnalyze = () => {
     setAnalyzing(true)
+
+    if (useSimplifiedFormat) {
+      // 直接生成简化版商业计划书
+      console.log('🎯 开始生成简化版商业计划书...')
+
+      // 构建BiddingSnapshot数据
+      const snapshot = {
+        ideaTitle: ideaTitle,
+        ideaDescription: ideaDescription,
+        ideaId: `direct-${Date.now()}`,
+        industry: '通用',
+        targetUsers: '待分析',
+        expertDiscussion: [],
+        finalBids: [],
+        userContext: {
+          location: userLocation,
+          background: userBackground
+        }
+      }
+
+      // 重定向到商业计划书页面，并开始生成
+      const params = new URLSearchParams({
+        ideaTitle: ideaTitle,
+        ideaDescription: ideaDescription,
+        source: 'direct-generation',
+        useSimplifiedFormat: 'true',
+        autoGenerate: 'true'
+      })
+
+      window.location.href = `/business-plan?${params.toString()}`
+      return
+    }
+
+    // 原有的分析逻辑（非简化版）
     setTimeout(() => {
       setAnalyzing(false)
 
