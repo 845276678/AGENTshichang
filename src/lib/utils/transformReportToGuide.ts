@@ -858,20 +858,20 @@ export function generateGuideMarkdown(guide: LandingCoachGuide): string {
     lines.push(`**讨论摘要：** ${guide.expertInsights.summary}`)
     lines.push('')
 
-    if (guide.expertInsights.consensusPoints.length > 0) {
+    if (guide.expertInsights.consensusPoints?.length > 0) {
       lines.push('### ✅ 专家共识')
-      guide.expertInsights.consensusPoints.forEach(item => lines.push(`- ${item}`))
+      guide.expertInsights.consensusPoints?.forEach(item => lines.push(`- ${item}`))
       lines.push('')
     }
 
-    if (guide.expertInsights.controversialPoints.length > 0) {
+    if (guide.expertInsights.controversialPoints?.length > 0) {
       lines.push('### ⚠️ 需要注意')
-      guide.expertInsights.controversialPoints.forEach(item => lines.push(`- ${item}`))
+      guide.expertInsights.controversialPoints?.forEach(item => lines.push(`- ${item}`))
       lines.push('')
     }
 
     lines.push('### 💡 关键引用')
-    guide.expertInsights.keyQuotes.forEach((quote, idx) => {
+    guide.expertInsights.keyQuotes?.forEach((quote, idx) => {
       const sentimentIcon = quote.sentiment === 'positive' ? '👍' : quote.sentiment === 'negative' ? '👎' : '💭'
       lines.push(`${idx + 1}. **${quote.personaName}** (${quote.topic}) ${sentimentIcon}`)
       lines.push(`   > "${quote.quote}"`)
@@ -886,9 +886,9 @@ export function generateGuideMarkdown(guide: LandingCoachGuide): string {
   lines.push('')
   lines.push(`**一句话总结：** ${guide.currentSituation.summary}`)
   lines.push('')
-  if (guide.currentSituation.keyInsights.length) {
+  if (guide.currentSituation.keyInsights?.length) {
     lines.push('### 💭 关键洞察')
-    guide.currentSituation.keyInsights.forEach(item => lines.push(`- ${item}`))
+    guide.currentSituation.keyInsights?.forEach(item => lines.push(`- ${item}`))
     lines.push('')
   }
 
@@ -897,34 +897,34 @@ export function generateGuideMarkdown(guide: LandingCoachGuide): string {
   lines.push('')
   lines.push(`**竞争格局：** ${guide.currentSituation.marketReality.competition}`)
   lines.push('')
-  if (guide.currentSituation.marketReality.opportunities.length) {
+  if (guide.currentSituation.marketReality.opportunities?.length) {
     lines.push('**机会在哪？**')
-    guide.currentSituation.marketReality.opportunities.forEach(item => lines.push(`- ✅ ${item}`))
+    guide.currentSituation.marketReality.opportunities?.forEach(item => lines.push(`- ✅ ${item}`))
     lines.push('')
   }
-  if (guide.currentSituation.marketReality.challenges.length) {
+  if (guide.currentSituation.marketReality.challenges?.length) {
     lines.push('**可能遇到的坑：**')
-    guide.currentSituation.marketReality.challenges.forEach(item => lines.push(`- ⚠️ ${item}`))
+    guide.currentSituation.marketReality.challenges?.forEach(item => lines.push(`- ⚠️ ${item}`))
     lines.push('')
   }
 
   lines.push('### 👥 目标用户画像')
   lines.push(`${guide.currentSituation.userNeeds.targetUsers}`)
   lines.push('')
-  if (guide.currentSituation.userNeeds.painPoints.length) {
+  if (guide.currentSituation.userNeeds.painPoints?.length) {
     lines.push('**他们的痛点：**')
-    guide.currentSituation.userNeeds.painPoints.forEach(item => lines.push(`- 😫 ${item}`))
+    guide.currentSituation.userNeeds.painPoints?.forEach(item => lines.push(`- 😫 ${item}`))
     lines.push('')
   }
-  if (guide.currentSituation.userNeeds.solutions.length) {
+  if (guide.currentSituation.userNeeds.solutions?.length) {
     lines.push('**咱们的解决方案：**')
-    guide.currentSituation.userNeeds.solutions.forEach(item => lines.push(`- 💊 ${item}`))
+    guide.currentSituation.userNeeds.solutions?.forEach(item => lines.push(`- 💊 ${item}`))
     lines.push('')
   }
 
-  if (guide.currentSituation.actionItems.length) {
+  if (guide.currentSituation.actionItems?.length) {
     lines.push('### ✅ 立即行动清单')
-    guide.currentSituation.actionItems.forEach((item, idx) => lines.push(`${idx + 1}. ${item}`))
+    guide.currentSituation.actionItems?.forEach((item, idx) => lines.push(`${idx + 1}. ${item}`))
     lines.push('')
   }
   lines.push('---')
@@ -935,17 +935,17 @@ export function generateGuideMarkdown(guide: LandingCoachGuide): string {
   lines.push('')
   lines.push(`**核心价值：** ${guide.mvpDefinition.productConcept.uniqueValue}`)
   lines.push('')
-  if (guide.mvpDefinition.productConcept.coreFeatures.length) {
+  if (guide.mvpDefinition.productConcept.coreFeatures?.length) {
     lines.push('### 🎯 核心功能（就做这几个）')
-    guide.mvpDefinition.productConcept.coreFeatures.forEach((item, idx) => lines.push(`${idx + 1}. ${item}`))
+    guide.mvpDefinition.productConcept.coreFeatures?.forEach((item, idx) => lines.push(`${idx + 1}. ${item}`))
     lines.push('')
   }
   lines.push(`**MVP范围控制：** ${guide.mvpDefinition.productConcept.minimumScope}`)
   lines.push('')
 
-  if (guide.mvpDefinition.developmentPlan.phases.length) {
+  if (guide.mvpDefinition.developmentPlan.phases?.length) {
     lines.push('### 📅 开发计划（分阶段搞）')
-    guide.mvpDefinition.developmentPlan.phases.forEach((phase, idx) => {
+    guide.mvpDefinition.developmentPlan.phases?.forEach((phase, idx) => {
       lines.push(`**${idx + 1}. ${phase.name}** ⏰ *${phase.duration}*`)
       lines.push(`- 交付成果：${phase.deliverables?.join('、') || '待补充'}`)
       if (phase.resources?.length) {
@@ -960,30 +960,30 @@ export function generateGuideMarkdown(guide: LandingCoachGuide): string {
   lines.push(`**💰 预估成本：** ${guide.mvpDefinition.developmentPlan.estimatedCost}`)
   lines.push('')
 
-  if (guide.mvpDefinition.validationStrategy.hypotheses.length) {
+  if (guide.mvpDefinition.validationStrategy.hypotheses?.length) {
     lines.push('### 🧪 要验证的假设')
-    guide.mvpDefinition.validationStrategy.hypotheses.forEach((item, idx) => lines.push(`${idx + 1}. ${item}`))
+    guide.mvpDefinition.validationStrategy.hypotheses?.forEach((item, idx) => lines.push(`${idx + 1}. ${item}`))
     lines.push('')
   }
 
-  if (guide.mvpDefinition.validationStrategy.experiments.length) {
+  if (guide.mvpDefinition.validationStrategy.experiments?.length) {
     lines.push('### 🔬 验证方法')
-    guide.mvpDefinition.validationStrategy.experiments.forEach(item => lines.push(`- ${item}`))
+    guide.mvpDefinition.validationStrategy.experiments?.forEach(item => lines.push(`- ${item}`))
     lines.push('')
   }
 
-  if (guide.mvpDefinition.validationStrategy.successMetrics.length) {
+  if (guide.mvpDefinition.validationStrategy.successMetrics?.length) {
     lines.push('### 📈 成功指标（达到这些就算成功）')
-    guide.mvpDefinition.validationStrategy.successMetrics.forEach(item => lines.push(`- ✓ ${item}`))
+    guide.mvpDefinition.validationStrategy.successMetrics?.forEach(item => lines.push(`- ✓ ${item}`))
     lines.push('')
   }
 
   lines.push(`**⏰ 验证时间线：** ${guide.mvpDefinition.validationStrategy.timeline}`)
   lines.push('')
 
-  if (guide.mvpDefinition.actionItems.length) {
+  if (guide.mvpDefinition.actionItems?.length) {
     lines.push('### ✅ 近期行动')
-    guide.mvpDefinition.actionItems.forEach((item, idx) => lines.push(`${idx + 1}. ${item}`))
+    guide.mvpDefinition.actionItems?.forEach((item, idx) => lines.push(`${idx + 1}. ${item}`))
     lines.push('')
   }
   lines.push('---')
@@ -1002,9 +1002,9 @@ export function generateGuideMarkdown(guide: LandingCoachGuide): string {
   lines.push(`**规模化：** ${guide.businessExecution.businessModel.scalability}`)
   lines.push('')
 
-  if (guide.businessExecution.launchStrategy.phases.length) {
+  if (guide.businessExecution.launchStrategy.phases?.length) {
     lines.push('### 📢 发布策略（三步走）')
-    guide.businessExecution.launchStrategy.phases.forEach((phase, idx) => {
+    guide.businessExecution.launchStrategy.phases?.forEach((phase, idx) => {
       lines.push(`**${idx + 1}. ${phase.name}** ⏰ *${phase.timeline}*`)
       lines.push(`- 目标：${phase.goals?.join('、') || '待补充'}`)
       if (phase.tactics?.length) {
@@ -1026,17 +1026,17 @@ export function generateGuideMarkdown(guide: LandingCoachGuide): string {
     lines.push(guide.businessExecution.launchStrategy.coldStart.strategy)
     lines.push('')
     lines.push('**🎯 目标客户：**')
-    guide.businessExecution.launchStrategy.coldStart.targetCustomers.forEach(item =>
+    guide.businessExecution.launchStrategy.coldStart.targetCustomers?.forEach(item =>
       lines.push(`- ${item}`)
     )
     lines.push('')
     lines.push('**📢 获客渠道：**')
-    guide.businessExecution.launchStrategy.coldStart.acquisitionChannels.forEach(item =>
+    guide.businessExecution.launchStrategy.coldStart.acquisitionChannels?.forEach(item =>
       lines.push(`- ${item}`)
     )
     lines.push('')
     lines.push('**🤝 合作伙伴策略：**')
-    guide.businessExecution.launchStrategy.coldStart.partnershipIdeas.forEach(item =>
+    guide.businessExecution.launchStrategy.coldStart.partnershipIdeas?.forEach(item =>
       lines.push(`- ${item}`)
     )
     lines.push('')
@@ -1062,7 +1062,7 @@ export function generateGuideMarkdown(guide: LandingCoachGuide): string {
     // 2周目标
     lines.push('**📅 2周内快速验证**')
     lines.push('')
-    guide.businessExecution.earlyMilestones.twoWeekGoals.forEach((goal, idx) => {
+    guide.businessExecution.earlyMilestones.twoWeekGoals?.forEach((goal, idx) => {
       lines.push(`${idx + 1}. **${goal.title}** (影响: ${goal.impact}, 投入: ${goal.effort})`)
       lines.push(`   - 描述: ${goal.description}`)
       lines.push(`   - 成功标准: ${goal.successCriteria}`)
@@ -1072,7 +1072,7 @@ export function generateGuideMarkdown(guide: LandingCoachGuide): string {
     // 1个月目标
     lines.push('**📅 1个月内重要成果**')
     lines.push('')
-    guide.businessExecution.earlyMilestones.oneMonthGoals.forEach((goal, idx) => {
+    guide.businessExecution.earlyMilestones.oneMonthGoals?.forEach((goal, idx) => {
       lines.push(`${idx + 1}. **${goal.title}** (影响: ${goal.impact}, 投入: ${goal.effort})`)
       lines.push(`   - 描述: ${goal.description}`)
       lines.push(`   - 成功标准: ${goal.successCriteria}`)
@@ -1081,13 +1081,13 @@ export function generateGuideMarkdown(guide: LandingCoachGuide): string {
 
     // 快赢行动
     lines.push('**⚡ 立即可做的快赢行动**')
-    guide.businessExecution.earlyMilestones.quickWins.forEach(item => lines.push(`- ${item}`))
+    guide.businessExecution.earlyMilestones.quickWins?.forEach(item => lines.push(`- ${item}`))
     lines.push('')
   }
 
-  if (guide.businessExecution.actionItems.length) {
+  if (guide.businessExecution.actionItems?.length) {
     lines.push('### ✅ 运营优先级')
-    guide.businessExecution.actionItems.forEach((item, idx) => lines.push(`${idx + 1}. ${item}`))
+    guide.businessExecution.actionItems?.forEach((item, idx) => lines.push(`${idx + 1}. ${item}`))
     lines.push('')
   }
   lines.push('---')
@@ -1103,7 +1103,7 @@ export function generateGuideMarkdown(guide: LandingCoachGuide): string {
     lines.push('')
 
     lines.push('### 🗓 三个阶段')
-    guide.executionPlan.phases.forEach((phase, idx) => {
+    guide.executionPlan.phases?.forEach((phase, idx) => {
       lines.push(`**${idx + 1}. ${phase.name}** ⏰ *${phase.timeline}*`)
       lines.push(`- 重点：${phase.focus}`)
       lines.push(`- 关键成果：${phase.keyOutcomes?.join('、') || '待补充'}`)
@@ -1112,7 +1112,7 @@ export function generateGuideMarkdown(guide: LandingCoachGuide): string {
     })
 
     lines.push('### 📆 每周冲刺')
-    guide.executionPlan.weeklySprints.forEach((sprint, idx) => {
+    guide.executionPlan.weeklySprints?.forEach((sprint, idx) => {
       lines.push(`**${sprint.name}**`)
       lines.push(`- 重点：${sprint.focus}`)
       lines.push(`- 目标：${sprint.objectives?.join('、') || '待补充'}`)
@@ -1131,18 +1131,18 @@ export function generateGuideMarkdown(guide: LandingCoachGuide): string {
     lines.push('')
 
     lines.push('### ⏰ 每天要做的')
-    guide.executionPlan.dailyRoutines.forEach((item, idx) => lines.push(`${idx + 1}. ${item}`))
+    guide.executionPlan.dailyRoutines?.forEach((item, idx) => lines.push(`${idx + 1}. ${item}`))
     lines.push('')
 
     lines.push('### 📊 定期复盘')
     lines.push('**每周复盘：**')
-    guide.executionPlan.reviewFramework.weekly.forEach(item => lines.push(`- ${item}`))
+    guide.executionPlan.reviewFramework.weekly?.forEach(item => lines.push(`- ${item}`))
     lines.push('')
     lines.push('**每月复盘：**')
-    guide.executionPlan.reviewFramework.monthly.forEach(item => lines.push(`- ${item}`))
+    guide.executionPlan.reviewFramework.monthly?.forEach(item => lines.push(`- ${item}`))
     lines.push('')
     lines.push('**关注这些数据：**')
-    guide.executionPlan.reviewFramework.dataWatch.forEach(item => lines.push(`- 📈 ${item}`))
+    guide.executionPlan.reviewFramework.dataWatch?.forEach(item => lines.push(`- 📈 ${item}`))
     lines.push('')
   }
 
