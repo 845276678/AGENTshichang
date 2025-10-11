@@ -262,7 +262,7 @@ export class SimplifiedBusinessPlanGenerator {
 - 行业：${context.idea.industry}
 
 专家讨论：
-${context.discussions.map((d: any) => `${d.personaName}: ${d.content}`).join('\n')}
+${context.discussions?.map((d: any) => `${d.personaName}: ${d.content}`).join('\n') || '暂无专家讨论记录'}
 
 请从用户体验和情感角度分析，以JSON格式返回：
 {
