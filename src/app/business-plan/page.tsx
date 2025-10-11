@@ -216,6 +216,9 @@ export default function BusinessPlanPage() {
       })
     }
   }
+
+  // 从报告ID加载数据的函数
+  const loadReportData = async (targetReportId: string) => {
     if (!token) {
       setError('访问该商业计划需要登录，请先登录后重试。')
       setLoadingState({
