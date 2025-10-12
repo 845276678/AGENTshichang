@@ -25,9 +25,17 @@ import {
   Info,
   Download,
   Eye,
-  ChevronRight
+  ChevronRight,
+  Star,
+  ThumbsUp,
+  ThumbsDown,
+  MessageSquare,
+  RefreshCw,
+  Edit
 } from 'lucide-react'
 import { analyzeIdea, type IdeaAnalysisResult } from '@/lib/business-plan/idea-analyzer'
+import { analyzeIdeaCompleteness, type CompletenessAnalysis } from '@/lib/business-plan/idea-completeness-analyzer'
+import { IdeaEnhancementFlow } from '@/components/business-plan/IdeaEnhancementFlow'
 
 interface ModuleCardProps {
   id: string
@@ -121,6 +129,14 @@ interface ModuleResult {
   previewUrl?: string
 }
 
+interface ModuleFeedback {
+  moduleId: string
+  rating: number // 1-5 stars
+  comment: string
+  suggestions: string[]
+  isHelpful: boolean | null
+}
+
 export default function ModularBusinessPlanPage() {
   const router = useRouter()
   const [ideaTitle, setIdeaTitle] = useState('')
@@ -130,8 +146,15 @@ export default function ModularBusinessPlanPage() {
   const [completedModules, setCompletedModules] = useState<Set<string>>(new Set())
   const [isAnalyzing, setIsAnalyzing] = useState(false)
   const [analysisResult, setAnalysisResult] = useState<IdeaAnalysisResult | null>(null)
+  const [completenessAnalysis, setCompletenessAnalysis] = useState<CompletenessAnalysis | null>(null)
+  const [showEnhancementFlow, setShowEnhancementFlow] = useState(false)
   const [moduleResults, setModuleResults] = useState<Map<string, ModuleResult>>(new Map())
   const [currentGeneratingModule, setCurrentGeneratingModule] = useState<string>('')
+
+  // 反馈调整机制相关状态
+  const [moduleFeedback, setModuleFeedback] = useState<Map<string, ModuleFeedback>>(new Map())
+  const [showFeedbackFor, setShowFeedbackFor] = useState<string | null>(null)
+  const [isRegenerating, setIsRegenerating] = useState<Map<string, boolean>>(new Map())
 
   const modules = [
     {
@@ -192,14 +215,48 @@ export default function ModularBusinessPlanPage() {
 
     setIsAnalyzing(true)
     try {
-      const result = await analyzeIdea(ideaTitle, ideaContent)
-      setAnalysisResult(result)
-      console.log('✅ 创意分析结果:', result)
+      // 并行执行两种分析
+      const [basicResult, completenessResult] = await Promise.all([
+        analyzeIdea(ideaTitle, ideaContent),
+        analyzeIdeaCompleteness(ideaTitle, ideaContent)
+      ])
+
+      setAnalysisResult(basicResult)
+      setCompletenessAnalysis(completenessResult)
+
+      console.log('✅ 创意分析结果:', basicResult)
+      console.log('✅ 完整度分析结果:', completenessResult)
+
+      // 根据完整度决定是否显示完善流程
+      if (completenessResult.canGenerateQuality === 'insufficient' || completenessResult.overallScore < 50) {
+        setShowEnhancementFlow(true)
+      }
     } catch (error) {
       console.error('❌ 分析失败:', error)
       alert('分析失败，请重试')
     } finally {
       setIsAnalyzing(false)
+    }
+  }
+
+  // 处理创意更新（来自完善流程）
+  const handleIdeaUpdate = (title: string, description: string) => {
+    setIdeaTitle(title)
+    setIdeaContent(description)
+  }
+
+  // 重新分析
+  const handleReAnalyze = async () => {
+    setShowEnhancementFlow(false)
+    await handleAnalyzeIdea()
+  }
+
+  // 继续生成流程
+  const handleProceedGeneration = () => {
+    setShowEnhancementFlow(false)
+    // 自动选择推荐的模块
+    if (analysisResult?.recommendations.suggestedModules) {
+      setSelectedModules(new Set(analysisResult.recommendations.suggestedModules))
     }
   }
 
@@ -254,6 +311,26 @@ export default function ModularBusinessPlanPage() {
           requestBody.businessType = analysisResult.characteristics.businessType
         }
 
+        // 使用完整度分析优化生成质量
+        if (completenessAnalysis) {
+          requestBody.completenessScore = completenessAnalysis.overallScore
+          requestBody.qualityLevel = completenessAnalysis.canGenerateQuality
+          requestBody.dimensionScores = Object.fromEntries(
+            Object.entries(completenessAnalysis.dimensions).map(([key, dim]) => [key, dim.score])
+          )
+          requestBody.missingInfo = Object.fromEntries(
+            Object.entries(completenessAnalysis.dimensions)
+              .filter(([, dim]) => dim.missing.length > 0)
+              .map(([key, dim]) => [key, dim.missing])
+          )
+          requestBody.recommendations = completenessAnalysis.recommendations
+          requestBody.generationGuidance = {
+            focusAreas: completenessAnalysis.recommendations.map(r => r.dimension),
+            avoidGenericContent: completenessAnalysis.overallScore < 70,
+            useConservativeApproach: completenessAnalysis.canGenerateQuality === 'low' || completenessAnalysis.canGenerateQuality === 'insufficient'
+          }
+        }
+
         switch (moduleId) {
           case 'market-analysis':
             apiUrl = '/api/business-plan/modules/market-analysis'
@@ -261,6 +338,12 @@ export default function ModularBusinessPlanPage() {
             if (analysisResult) {
               requestBody.focusAreas = analysisResult.moduleRelevance.marketAnalysis.suggestedFocus
               requestBody.keyQuestions = analysisResult.moduleRelevance.marketAnalysis.keyQuestions
+            }
+            // 针对市场分析的完整度优化
+            if (completenessAnalysis) {
+              requestBody.targetUserConfidence = completenessAnalysis.dimensions.targetUsers.score
+              requestBody.competitorAnalysisDepth = completenessAnalysis.dimensions.competitors.score > 60 ? 'detailed' : 'basic'
+              requestBody.marketSizeApproach = completenessAnalysis.dimensions.userScenarios.score > 70 ? 'data-driven' : 'conservative'
             }
             break
 
@@ -275,6 +358,13 @@ export default function ModularBusinessPlanPage() {
               requestBody.coreFeatures = ['核心功能1', '核心功能2']
               requestBody.industryType = '通用'
             }
+            // 针对MVP的完整度优化
+            if (completenessAnalysis) {
+              requestBody.featureComplexity = completenessAnalysis.dimensions.coreFeatures.score > 70 ? 'advanced' : 'basic'
+              requestBody.designDetailLevel = completenessAnalysis.dimensions.uniqueValue.score > 60 ? 'detailed' : 'minimal'
+              requestBody.interactionDepth = completenessAnalysis.dimensions.userScenarios.score
+              requestBody.technicalApproach = completenessAnalysis.dimensions.techRequirements.score > 50 ? 'specific' : 'generic'
+            }
             break
 
           case 'marketing-strategy':
@@ -284,6 +374,13 @@ export default function ModularBusinessPlanPage() {
               requestBody.suggestedChannels = analysisResult.moduleRelevance.marketingStrategy.suggestedChannels
             } else {
               requestBody.targetUsers = ['目标用户']
+            }
+            // 针对营销策略的完整度优化
+            if (completenessAnalysis) {
+              requestBody.audienceSegmentationDepth = completenessAnalysis.dimensions.targetUsers.score > 70 ? 'detailed' : 'basic'
+              requestBody.channelSpecificity = completenessAnalysis.dimensions.userScenarios.score
+              requestBody.budgetDetailLevel = completenessAnalysis.dimensions.businessModel.score > 60 ? 'specific' : 'general'
+              requestBody.competitivePositioning = completenessAnalysis.dimensions.competitors.score > 50
             }
             break
 
@@ -295,6 +392,13 @@ export default function ModularBusinessPlanPage() {
               requestBody.costStructure = analysisResult.moduleRelevance.businessModel.costStructure
             } else {
               requestBody.targetUsers = ['目标用户']
+            }
+            // 针对商业模式的完整度优化
+            if (completenessAnalysis) {
+              requestBody.revenueModelDepth = completenessAnalysis.dimensions.businessModel.score > 70 ? 'detailed' : 'conceptual'
+              requestBody.pricingStrategySpecificity = completenessAnalysis.dimensions.uniqueValue.score
+              requestBody.financialProjectionLevel = completenessAnalysis.dimensions.businessModel.score > 60 ? 'quantitative' : 'qualitative'
+              requestBody.marketValidationApproach = completenessAnalysis.dimensions.competitors.score > 50 ? 'competitive' : 'theoretical'
             }
             break
         }
@@ -386,6 +490,182 @@ export default function ModularBusinessPlanPage() {
     }
   }
 
+  // 反馈调整机制相关函数
+  const handleModuleFeedback = (moduleId: string, rating: number) => {
+    const newFeedback = new Map(moduleFeedback)
+    const existing = newFeedback.get(moduleId) || {
+      moduleId,
+      rating: 0,
+      comment: '',
+      suggestions: [],
+      isHelpful: null
+    }
+
+    newFeedback.set(moduleId, { ...existing, rating })
+    setModuleFeedback(newFeedback)
+  }
+
+  const handleFeedbackComment = (moduleId: string, comment: string) => {
+    const newFeedback = new Map(moduleFeedback)
+    const existing = newFeedback.get(moduleId) || {
+      moduleId,
+      rating: 0,
+      comment: '',
+      suggestions: [],
+      isHelpful: null
+    }
+
+    newFeedback.set(moduleId, { ...existing, comment })
+    setModuleFeedback(newFeedback)
+  }
+
+  const handleHelpfulFeedback = (moduleId: string, isHelpful: boolean) => {
+    const newFeedback = new Map(moduleFeedback)
+    const existing = newFeedback.get(moduleId) || {
+      moduleId,
+      rating: 0,
+      comment: '',
+      suggestions: [],
+      isHelpful: null
+    }
+
+    newFeedback.set(moduleId, { ...existing, isHelpful })
+    setModuleFeedback(newFeedback)
+  }
+
+  const handleRegenerateModule = async (moduleId: string) => {
+    const feedback = moduleFeedback.get(moduleId)
+    if (!feedback || !feedback.comment.trim()) {
+      alert('请先提供反馈意见，我们将根据您的建议重新生成')
+      return
+    }
+
+    // 标记正在重新生成
+    const newRegenerating = new Map(isRegenerating)
+    newRegenerating.set(moduleId, true)
+    setIsRegenerating(newRegenerating)
+
+    try {
+      // 构建API请求，包含用户反馈
+      let apiUrl = ''
+      let requestBody: any = {
+        ideaDescription: ideaContent,
+        ideaTitle: ideaTitle,
+        feedback: {
+          rating: feedback.rating,
+          comment: feedback.comment,
+          suggestions: feedback.suggestions,
+          regenerationReason: `用户反馈：${feedback.comment}`
+        }
+      }
+
+      // 使用分析结果增强请求数据
+      if (analysisResult) {
+        requestBody.targetUsers = analysisResult.characteristics.targetUsers
+        requestBody.coreFeatures = analysisResult.characteristics.coreFeatures
+        requestBody.industryType = analysisResult.characteristics.industry
+        requestBody.businessType = analysisResult.characteristics.businessType
+      }
+
+      // 使用完整度分析优化重新生成
+      if (completenessAnalysis) {
+        requestBody.completenessScore = completenessAnalysis.overallScore
+        requestBody.qualityLevel = completenessAnalysis.canGenerateQuality
+        requestBody.regenerationContext = {
+          originalQuality: completenessAnalysis.canGenerateQuality,
+          focusAreas: completenessAnalysis.recommendations.map(r => r.dimension),
+          improvementNeeded: true,
+          userFeedback: feedback.comment
+        }
+      }
+
+      // 设置API URL和特定参数
+      switch (moduleId) {
+        case 'market-analysis':
+          apiUrl = '/api/business-plan/modules/market-analysis'
+          requestBody.industryCategory = analysisResult?.characteristics.industry || '通用'
+          if (analysisResult) {
+            requestBody.focusAreas = analysisResult.moduleRelevance.marketAnalysis.suggestedFocus
+            requestBody.keyQuestions = analysisResult.moduleRelevance.marketAnalysis.keyQuestions
+          }
+          break
+
+        case 'mvp-prototype':
+          apiUrl = '/api/business-plan/modules/mvp-prototype'
+          if (analysisResult) {
+            requestBody.targetUsers = analysisResult.characteristics.targetUsers
+            requestBody.coreFeatures = analysisResult.moduleRelevance.mvpPrototype.suggestedFeatures
+            requestBody.industryType = analysisResult.characteristics.industry
+          } else {
+            requestBody.targetUsers = ['目标用户']
+            requestBody.coreFeatures = ['核心功能1', '核心功能2']
+            requestBody.industryType = '通用'
+          }
+          break
+
+        case 'marketing-strategy':
+          apiUrl = '/api/business-plan/modules/marketing-strategy'
+          if (analysisResult) {
+            requestBody.targetUsers = analysisResult.characteristics.targetUsers
+            requestBody.suggestedChannels = analysisResult.moduleRelevance.marketingStrategy.suggestedChannels
+          } else {
+            requestBody.targetUsers = ['目标用户']
+          }
+          break
+
+        case 'business-model':
+          apiUrl = '/api/business-plan/modules/business-model'
+          if (analysisResult) {
+            requestBody.targetUsers = analysisResult.characteristics.targetUsers
+            requestBody.revenueStreams = analysisResult.moduleRelevance.businessModel.revenueStreams
+            requestBody.costStructure = analysisResult.moduleRelevance.businessModel.costStructure
+          } else {
+            requestBody.targetUsers = ['目标用户']
+          }
+          break
+      }
+
+      console.log(`🔄 重新生成模块: ${moduleId}，基于用户反馈: ${feedback.comment}`)
+
+      const response = await fetch(apiUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(requestBody)
+      })
+
+      if (response.ok) {
+        const result = await response.json()
+
+        // 更新模块结果
+        const newResults = new Map(moduleResults)
+        newResults.set(moduleId, {
+          moduleId,
+          data: result.data,
+          downloadUrl: result.data?.downloadUrls?.htmlBundle,
+          previewUrl: result.data?.previewUrl
+        })
+        setModuleResults(newResults)
+
+        // 重置反馈状态
+        setShowFeedbackFor(null)
+
+        console.log(`✅ 模块 ${moduleId} 重新生成完成`)
+        alert('模块已根据您的反馈重新生成完成！')
+      } else {
+        console.error(`❌ 模块 ${moduleId} 重新生成失败`)
+        alert('重新生成失败，请稍后重试')
+      }
+    } catch (error) {
+      console.error('重新生成过程中出现错误:', error)
+      alert('重新生成过程中出现错误，请重试')
+    } finally {
+      // 清除正在重新生成的标记
+      const newRegenerating = new Map(isRegenerating)
+      newRegenerating.delete(moduleId)
+      setIsRegenerating(newRegenerating)
+    }
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 py-12">
       <div className="container mx-auto px-4 max-w-7xl">
@@ -468,8 +748,20 @@ export default function ModularBusinessPlanPage() {
           </CardContent>
         </Card>
 
+        {/* 创意完善引导流程 */}
+        {showEnhancementFlow && completenessAnalysis && (
+          <IdeaEnhancementFlow
+            analysis={completenessAnalysis}
+            ideaTitle={ideaTitle}
+            ideaDescription={ideaContent}
+            onIdeaUpdate={handleIdeaUpdate}
+            onReAnalyze={handleReAnalyze}
+            onProceedGeneration={handleProceedGeneration}
+          />
+        )}
+
         {/* AI分析结果展示 */}
-        {analysisResult && (
+        {analysisResult && !showEnhancementFlow && (
           <Card className="mb-8 border-2 border-green-300 bg-gradient-to-r from-green-50 to-blue-50 shadow-lg">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-green-800">
@@ -521,8 +813,45 @@ export default function ModularBusinessPlanPage() {
           </Card>
         )}
 
+        {/* 质量提示（当需要完善时显示） */}
+        {completenessAnalysis && !showEnhancementFlow && completenessAnalysis.canGenerateQuality !== 'high' && (
+          <Alert className="mb-6 border-yellow-300 bg-yellow-50">
+            <Info className="h-4 w-4" />
+            <AlertTitle>创意完整度分析</AlertTitle>
+            <AlertDescription className="mt-2">
+              <div className="flex items-center gap-2 mb-2">
+                <span>当前完整度得分: </span>
+                <Badge variant="outline">{completenessAnalysis.overallScore}/100</Badge>
+                <Badge className={
+                  completenessAnalysis.canGenerateQuality === 'high' ? 'bg-green-100 text-green-800' :
+                  completenessAnalysis.canGenerateQuality === 'medium' ? 'bg-yellow-100 text-yellow-800' :
+                  completenessAnalysis.canGenerateQuality === 'low' ? 'bg-orange-100 text-orange-800' :
+                  'bg-red-100 text-red-800'
+                }>
+                  {completenessAnalysis.canGenerateQuality === 'high' ? '优秀' :
+                   completenessAnalysis.canGenerateQuality === 'medium' ? '良好' :
+                   completenessAnalysis.canGenerateQuality === 'low' ? '一般' : '不足'}
+                </Badge>
+              </div>
+              <p className="text-sm">
+                {completenessAnalysis.canGenerateQuality === 'insufficient'
+                  ? '创意信息不足，建议先完善再生成内容'
+                  : '可以生成基础内容，完善后可获得更高质量的结果'}
+              </p>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowEnhancementFlow(true)}
+                className="mt-2"
+              >
+                查看详细分析
+              </Button>
+            </AlertDescription>
+          </Alert>
+        )}
+
         {/* 模块选择区域 */}
-        <div className="mb-8">
+        <div className={`mb-8 ${showEnhancementFlow ? 'hidden' : ''}`}>
           <h2 className="text-2xl font-bold mb-6 text-center">
             选择需要生成的模块
             <span className="text-sm font-normal text-gray-500 ml-2">
@@ -556,7 +885,7 @@ export default function ModularBusinessPlanPage() {
         )}
 
         {/* 操作按钮 */}
-        <div className="flex flex-col items-center gap-4">
+        <div className={`flex flex-col items-center gap-4 ${showEnhancementFlow ? 'hidden' : ''}`}>
           <Button
             size="lg"
             onClick={handleGenerate}
@@ -585,7 +914,7 @@ export default function ModularBusinessPlanPage() {
         </div>
 
         {/* 生成结果展示 */}
-        {completedModules.size > 0 && (
+        {completedModules.size > 0 && !showEnhancementFlow && (
           <Card className="mt-8 border-2 border-green-300">
             <CardHeader className="bg-gradient-to-r from-green-50 to-blue-50">
               <CardTitle className="flex items-center gap-2">
@@ -618,37 +947,157 @@ export default function ModularBusinessPlanPage() {
                           <Check className="w-5 h-5 text-green-600" />
                         </div>
 
-                        <div className="flex gap-2">
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => handleDownloadModule(moduleId)}
-                            className="flex-1"
-                          >
-                            <Download className="w-4 h-4 mr-1" />
-                            下载
-                          </Button>
-                          {moduleId === 'mvp-prototype' && (
+                        {/* 操作按钮 */}
+                        <div className="space-y-3">
+                          <div className="flex gap-2">
                             <Button
                               size="sm"
                               variant="outline"
-                              onClick={() => {
-                                const result = moduleResults.get(moduleId)
-                                if (result?.data?.prototype) {
-                                  // 在新窗口预览
-                                  const win = window.open('', '_blank')
-                                  if (win) {
-                                    win.document.write(result.data.prototype.htmlCode)
-                                    win.document.close()
-                                  }
-                                }
-                              }}
+                              onClick={() => handleDownloadModule(moduleId)}
                               className="flex-1"
                             >
-                              <Eye className="w-4 h-4 mr-1" />
-                              预览
+                              <Download className="w-4 h-4 mr-1" />
+                              下载
                             </Button>
-                          )}
+                            {moduleId === 'mvp-prototype' && (
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => {
+                                  const result = moduleResults.get(moduleId)
+                                  if (result?.data?.prototype) {
+                                    // 在新窗口预览
+                                    const win = window.open('', '_blank')
+                                    if (win) {
+                                      win.document.write(result.data.prototype.htmlCode)
+                                      win.document.close()
+                                    }
+                                  }
+                                }}
+                                className="flex-1"
+                              >
+                                <Eye className="w-4 h-4 mr-1" />
+                                预览
+                              </Button>
+                            )}
+                            {moduleId === 'mvp-prototype' && (
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => router.push(`/business-plan/mvp-generator?ideaTitle=${encodeURIComponent(ideaTitle)}&ideaDescription=${encodeURIComponent(ideaContent)}`)}
+                                className="flex-1"
+                              >
+                                <Edit className="w-4 h-4 mr-1" />
+                                实时调整
+                              </Button>
+                            )}
+                          </div>
+
+                          {/* 反馈评分 */}
+                          <div className="border-t pt-3">
+                            <div className="flex items-center justify-between mb-2">
+                              <span className="text-sm font-medium text-gray-700">您的评价:</span>
+                              <div className="flex items-center gap-1">
+                                {[1, 2, 3, 4, 5].map((rating) => (
+                                  <button
+                                    key={rating}
+                                    onClick={() => handleModuleFeedback(moduleId, rating)}
+                                    className={`w-5 h-5 ${
+                                      (moduleFeedback.get(moduleId)?.rating || 0) >= rating
+                                        ? 'text-yellow-400'
+                                        : 'text-gray-300'
+                                    } hover:text-yellow-400 transition-colors`}
+                                  >
+                                    <Star className="w-full h-full" fill="currentColor" />
+                                  </button>
+                                ))}
+                              </div>
+                            </div>
+
+                            {/* 满意度反馈 */}
+                            <div className="flex items-center justify-between mb-2">
+                              <span className="text-sm text-gray-600">内容是否有用?</span>
+                              <div className="flex gap-2">
+                                <button
+                                  onClick={() => handleHelpfulFeedback(moduleId, true)}
+                                  className={`p-1 rounded ${
+                                    moduleFeedback.get(moduleId)?.isHelpful === true
+                                      ? 'bg-green-100 text-green-600'
+                                      : 'bg-gray-100 text-gray-500 hover:bg-green-50'
+                                  }`}
+                                >
+                                  <ThumbsUp className="w-4 h-4" />
+                                </button>
+                                <button
+                                  onClick={() => handleHelpfulFeedback(moduleId, false)}
+                                  className={`p-1 rounded ${
+                                    moduleFeedback.get(moduleId)?.isHelpful === false
+                                      ? 'bg-red-100 text-red-600'
+                                      : 'bg-gray-100 text-gray-500 hover:bg-red-50'
+                                  }`}
+                                >
+                                  <ThumbsDown className="w-4 h-4" />
+                                </button>
+                              </div>
+                            </div>
+
+                            {/* 反馈按钮 */}
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => setShowFeedbackFor(showFeedbackFor === moduleId ? null : moduleId)}
+                              className="w-full"
+                            >
+                              <MessageSquare className="w-4 h-4 mr-2" />
+                              {showFeedbackFor === moduleId ? '收起反馈' : '提供反馈建议'}
+                            </Button>
+
+                            {/* 反馈输入区域 */}
+                            {showFeedbackFor === moduleId && (
+                              <div className="mt-3 space-y-3 p-3 bg-gray-50 rounded-lg">
+                                <div>
+                                  <Label htmlFor={`feedback-${moduleId}`} className="text-sm font-medium">
+                                    反馈建议:
+                                  </Label>
+                                  <Textarea
+                                    id={`feedback-${moduleId}`}
+                                    placeholder="请告诉我们您对这个模块的具体建议，比如需要调整哪些内容、增加什么功能等..."
+                                    value={moduleFeedback.get(moduleId)?.comment || ''}
+                                    onChange={(e) => handleFeedbackComment(moduleId, e.target.value)}
+                                    className="mt-1 text-sm"
+                                    rows={3}
+                                  />
+                                </div>
+                                <div className="flex gap-2">
+                                  <Button
+                                    size="sm"
+                                    onClick={() => handleRegenerateModule(moduleId)}
+                                    disabled={isRegenerating.get(moduleId) || !moduleFeedback.get(moduleId)?.comment?.trim()}
+                                    className="flex-1"
+                                  >
+                                    {isRegenerating.get(moduleId) ? (
+                                      <>
+                                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                        重新生成中...
+                                      </>
+                                    ) : (
+                                      <>
+                                        <RefreshCw className="w-4 h-4 mr-2" />
+                                        根据反馈重新生成
+                                      </>
+                                    )}
+                                  </Button>
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    onClick={() => setShowFeedbackFor(null)}
+                                  >
+                                    取消
+                                  </Button>
+                                </div>
+                              </div>
+                            )}
+                          </div>
                         </div>
                       </CardContent>
                     </Card>
