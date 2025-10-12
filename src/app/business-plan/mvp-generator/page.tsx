@@ -299,31 +299,77 @@ C) 自定义特定功能
       return
     }
 
-    addMessage('assistant', '正在修改功能...', { action: 'modifying', progress: 30 })
+    addMessage('assistant', '正在分析您的修改需求...', { action: 'modifying', progress: 20 })
 
-    // 模拟修改过程
-    await new Promise(resolve => setTimeout(resolve, 2000))
+    try {
+      // 构建修改请求数据
+      const requestData = {
+        ideaTitle: ideaContext.title,
+        ideaDescription: ideaContext.description,
+        targetUsers: ideaContext.targetUsers,
+        coreFeatures: ideaContext.coreFeatures,
+        industryType: '通用',
+        userRequirement: data.message,
+        modificationContext: {
+          currentVersion: currentVersion.version,
+          previousHtmlCode: currentVersion.htmlCode,
+          modificationRequest: data.message,
+          focusOnChanges: true
+        }
+      }
 
-    // 创建修改版本
-    const newVersion: MVPVersion = {
-      ...currentVersion,
-      id: `mvp_${Date.now()}`,
-      version: mvpVersions.length + 1,
-      htmlCode: modifyHtmlCode(currentVersion.htmlCode, data.message),
-      description: `${currentVersion.description} - 修改版`,
-      timestamp: new Date(),
-      changes: [...currentVersion.changes, `用户要求: ${data.message}`]
-    }
+      addMessage('assistant', '正在根据您的要求重新生成...', { action: 'modifying', progress: 50 })
 
-    setMvpVersions(prev => [...prev, newVersion])
-    setCurrentVersion(newVersion)
+      // 调用MVP生成API，传入修改上下文
+      const response = await fetch('/api/business-plan/modules/mvp-prototype', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(requestData)
+      })
 
-    addMessage('assistant', `✅ 功能修改完成！
+      if (!response.ok) {
+        throw new Error(`API调用失败: ${response.statusText}`)
+      }
+
+      const result = await response.json()
+
+      if (!result.success) {
+        throw new Error(result.error || 'MVP修改失败')
+      }
+
+      addMessage('assistant', '正在应用修改...', { action: 'modifying', progress: 80 })
+
+      // 创建修改版本
+      const newVersion: MVPVersion = {
+        id: `mvp_${Date.now()}`,
+        version: mvpVersions.length + 1,
+        htmlCode: result.data.prototype.htmlCode,
+        description: `${ideaContext.title} - v${mvpVersions.length + 1} (${data.message.slice(0, 30)}...)`,
+        timestamp: new Date(),
+        changes: [...currentVersion.changes, `用户要求: ${data.message}`]
+      }
+
+      setMvpVersions(prev => [...prev, newVersion])
+      setCurrentVersion(newVersion)
+
+      addMessage('assistant', `✅ 功能修改完成！
 
 🔄 更新内容：
 ${data.message}
 
-新版本 v${newVersion.version} 已生成。请在右侧查看效果，还有其他需要调整的吗？`)
+新版本 v${newVersion.version} 已生成。请在右侧查看效果，还有其他需要调整的吗？`, { action: 'completed', progress: 100 })
+
+    } catch (error) {
+      console.error('功能修改失败:', error)
+      addMessage('assistant', `修改过程中遇到了问题：${error instanceof Error ? error.message : '未知错误'}
+
+请尝试：
+1. 更详细地描述修改需求
+2. 简化修改范围
+3. 重新尝试
+
+需要我重新尝试吗？`)
+    }
   }
 
   const handleDesignAdjustment = async (data: any) => {
@@ -332,13 +378,98 @@ ${data.message}
       return
     }
 
-    addMessage('assistant', '正在调整设计...', { action: 'designing', progress: 40 })
+    addMessage('assistant', '正在分析设计调整需求...', { action: 'designing', progress: 20 })
 
-    await new Promise(resolve => setTimeout(resolve, 1500))
+    try {
+      // 构建设计调整请求数据
+      const requestData = {
+        ideaTitle: ideaContext.title,
+        ideaDescription: ideaContext.description,
+        targetUsers: ideaContext.targetUsers,
+        coreFeatures: ideaContext.coreFeatures,
+        industryType: '通用',
+        userRequirement: data.message,
+        designContext: {
+          currentVersion: currentVersion.version,
+          previousHtmlCode: currentVersion.htmlCode,
+          designAdjustmentRequest: data.message,
+          focusOnDesign: true,
+          preserveFunctionality: true
+        },
+        designPreferences: {
+          style: extractDesignStyle(data.message),
+          colorScheme: extractColorScheme(data.message)
+        }
+      }
 
-    addMessage('assistant', `🎨 设计调整完成！
+      addMessage('assistant', '正在应用设计调整...', { action: 'designing', progress: 60 })
 
-您的设计要求已应用到新版本中。如果效果不理想，请告诉我具体需要如何调整。`)
+      // 调用MVP生成API，传入设计调整上下文
+      const response = await fetch('/api/business-plan/modules/mvp-prototype', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(requestData)
+      })
+
+      if (!response.ok) {
+        throw new Error(`API调用失败: ${response.statusText}`)
+      }
+
+      const result = await response.json()
+
+      if (!result.success) {
+        throw new Error(result.error || 'MVP设计调整失败')
+      }
+
+      // 创建新版本
+      const newVersion: MVPVersion = {
+        id: `mvp_${Date.now()}`,
+        version: mvpVersions.length + 1,
+        htmlCode: result.data.prototype.htmlCode,
+        description: `${ideaContext.title} - v${mvpVersions.length + 1} (设计调整)`,
+        timestamp: new Date(),
+        changes: [...currentVersion.changes, `设计调整: ${data.message}`]
+      }
+
+      setMvpVersions(prev => [...prev, newVersion])
+      setCurrentVersion(newVersion)
+
+      addMessage('assistant', `🎨 设计调整完成！
+
+✨ 更新内容：
+${data.message}
+
+新版本 v${newVersion.version} 已应用设计调整。请在右侧查看效果，如果需要进一步调整，请告诉我！`, { action: 'completed', progress: 100 })
+
+    } catch (error) {
+      console.error('设计调整失败:', error)
+      addMessage('assistant', `设计调整过程中遇到了问题：${error instanceof Error ? error.message : '未知错误'}
+
+请尝试：
+1. 更具体地描述设计要求（如颜色、样式、布局等）
+2. 分步进行调整
+3. 重新尝试
+
+需要我重新尝试吗？`)
+    }
+  }
+
+  // 提取设计风格
+  const extractDesignStyle = (message: string): string => {
+    if (message.includes('现代') || message.includes('简约')) return 'modern'
+    if (message.includes('极简') || message.includes('minimalist')) return 'minimalist'
+    if (message.includes('企业') || message.includes('正式')) return 'corporate'
+    if (message.includes('创意') || message.includes('艺术')) return 'creative'
+    return 'modern'
+  }
+
+  // 提取配色方案
+  const extractColorScheme = (message: string): string => {
+    if (message.includes('蓝色') || message.includes('blue')) return 'blue'
+    if (message.includes('绿色') || message.includes('green')) return 'green'
+    if (message.includes('紫色') || message.includes('purple')) return 'purple'
+    if (message.includes('橙色') || message.includes('orange')) return 'orange'
+    return 'blue'
   }
 
   const handleGeneralRequest = async (message: string) => {
