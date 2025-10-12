@@ -136,7 +136,7 @@ export default function IntelligentBusinessPlanPage() {
     }
   }, [ideaTitleParam, ideaDescParam, source, useSimplifiedFormat])
 
-  const handleAnalyze = () => {
+  const handleAnalyze = async () => {
     setAnalyzing(true)
 
     if (useSimplifiedFormat) {
@@ -171,79 +171,92 @@ export default function IntelligentBusinessPlanPage() {
       return
     }
 
-    // 原有的分析逻辑（非简化版）
-    setTimeout(() => {
-      setAnalyzing(false)
+    // 调用AI分析API进行个性化分析
+    try {
+      console.log('🧠 调用AI分析API...')
 
-      // 设置创意特征
+      const response = await fetch('/api/business-plan/intelligent-analysis', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ideaTitle,
+          ideaDescription,
+          userLocation,
+          userBackground
+        })
+      })
+
+      if (!response.ok) {
+        throw new Error(`API调用失败: ${response.statusText}`)
+      }
+
+      const result = await response.json()
+
+      if (!result.success) {
+        throw new Error(result.error || 'AI分析失败')
+      }
+
+      console.log('✅ AI分析完成:', result.data)
+
+      // 设置AI分析结果
+      setIdeaCharacteristics(result.data.characteristics)
+      setPersonalizedRecommendations(result.data.recommendations)
+
+    } catch (error) {
+      console.error('❌ AI分析失败:', error)
+      alert('AI分析失败，请稍后重试')
+
+      // 降级：使用通用模板（保留原来的硬编码逻辑作为后备）
       setIdeaCharacteristics({
-        category: '教育科技',
+        category: '通用',
         technicalComplexity: '中等',
         fundingRequirement: '中等（5-20万）',
         competitionLevel: '中等',
         aiCapabilities: {
-          nlp: true,
+          nlp: false,
           cv: false,
-          ml: true,
-          recommendation: true,
+          ml: false,
+          recommendation: false,
           generation: false,
-          automation: true
+          automation: false
         }
       })
 
-      // 设置个性化推荐
       setPersonalizedRecommendations({
         techStackRecommendations: {
           beginner: {
-            primary: 'OpenAI API + Python Flask',
-            timeline: '1-2个月',
-            reason: '快速验证概念，成本低',
-            cost: '¥2000-5000/月'
+            primary: '根据您的创意选择合适的技术栈',
+            timeline: '1-3个月',
+            reason: '建议咨询技术专家',
+            cost: '待评估'
           }
         },
         researchChannels: {
-          online: [
-            '知乎教育话题社区调研',
-            '小红书学习方法内容分析',
-            '抖音教育类视频评论挖掘'
-          ],
-          offline: [
-            '北京高校学生访谈',
-            '海淀区教育机构实地调研',
-            '中关村创业咖啡馆交流'
-          ]
+          online: ['行业论坛', '社交媒体', '专业社区'],
+          offline: ['用户访谈', '实地调研', '行业活动']
         },
         offlineEvents: {
-          nationalEvents: [
-            {
-              name: 'GET教育科技大会',
-              time: '每年11月',
-              location: '北京',
-              cost: '¥2000-3000'
-            }
-          ],
-          localEvents: [
-            '北京教育创新沙龙',
-            'AI教育技术交流会',
-            '创业者周末活动'
-          ]
+          nationalEvents: [],
+          localEvents: ['本地创业活动', '行业交流会']
         },
         customizedTimeline: {
-          month1: { focus: '用户调研与MVP开发' },
-          month2: { focus: '产品迭代与种子用户获取' },
-          month3: { focus: '商业模式验证与融资准备' }
+          month1: { focus: '市场调研与需求验证' },
+          month2: { focus: 'MVP开发与测试' },
+          month3: { focus: '用户反馈与迭代' }
         },
         budgetPlan: {
           startupCosts: { total: 50000 },
-          monthlyCosts: { total: 15000 },
-          costOptimization: ['使用开源工具降低成本', '申请创业补贴', '共享办公空间']
+          monthlyCosts: { total: 10000 },
+          costOptimization: ['合理控制成本', '寻找免费资源', '申请政策支持']
         },
         teamRecommendations: {
-          coreTeam: ['全栈开发工程师', '教育产品经理', 'AI算法工程师'],
-          advisorTypes: ['教育行业专家', 'AI技术顾问']
+          coreTeam: ['技术负责人', '产品经理', '运营人员'],
+          advisorTypes: ['行业专家', '技术顾问']
         }
       })
-    }, 2000)
+    } finally {
+      setAnalyzing(false)
+    }
   }
 
   return (
