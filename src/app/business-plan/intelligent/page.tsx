@@ -171,11 +171,11 @@ export default function IntelligentBusinessPlanPage() {
       return
     }
 
-    // 调用AI分析API进行个性化分析
+    // 调用多AI交叉验证分析API进行个性化分析
     try {
-      console.log('🧠 调用AI分析API...')
+      console.log('🔬 调用多AI交叉验证分析API...')
 
-      const response = await fetch('/api/business-plan/intelligent-analysis', {
+      const response = await fetch('/api/business-plan/intelligent-analysis-verified', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -196,11 +196,13 @@ export default function IntelligentBusinessPlanPage() {
         throw new Error(result.error || 'AI分析失败')
       }
 
-      console.log('✅ AI分析完成:', result.data)
+      console.log('✅ 多AI交叉验证完成:', result.data)
+      console.log('📊 验证报告:', result.data.verification)
+      console.log('🎯 共识度:', result.data.metadata.consensusScore + '%')
 
-      // 设置AI分析结果
-      setIdeaCharacteristics(result.data.characteristics)
-      setPersonalizedRecommendations(result.data.recommendations)
+      // 设置经过验证的AI分析结果
+      setIdeaCharacteristics(result.data.verified.characteristics)
+      setPersonalizedRecommendations(result.data.verified.recommendations)
 
     } catch (error) {
       console.error('❌ AI分析失败:', error)
@@ -278,7 +280,7 @@ export default function IntelligentBusinessPlanPage() {
               </h1>
             </div>
             <p className="text-lg md:text-xl text-gray-600 max-w-4xl mx-auto mb-8">
-              基于创意特征实时适配的5阶段商业计划框架，提供AI技术栈推荐、需求发现渠道、线下调研活动等个性化指导
+              基于3个AI模型交叉验证的实时适配5阶段商业计划框架，提供AI技术栈推荐、需求发现渠道、线下调研活动等个性化指导
             </p>
             <div className="flex flex-wrap items-center justify-center gap-3">
               <div className="px-4 py-2 bg-blue-100 text-blue-700 rounded-full text-sm font-semibold flex items-center gap-2">
@@ -343,7 +345,7 @@ export default function IntelligentBusinessPlanPage() {
                   创意信息输入
                 </CardTitle>
                 <CardDescription className="text-base">
-                  输入您的创意，系统将实时分析特征并生成个性化推荐
+                  输入您的创意，DeepSeek、智谱GLM、通义千问将交叉验证并生成可信的个性化推荐
                 </CardDescription>
               </CardHeader>
               <CardContent className="p-6">
@@ -442,10 +444,10 @@ export default function IntelligentBusinessPlanPage() {
                   <div className="text-center">
                     <Loader2 className="w-12 h-12 mx-auto mb-4 text-blue-600 animate-spin" />
                     <h3 className="text-xl font-semibold text-blue-800 mb-2">
-                      正在实时分析创意特征...
+                      3个AI模型正在交叉验证您的创意...
                     </h3>
                     <p className="text-blue-600">
-                      AI正在分析您的创意，识别技术需求和市场特征
+                      DeepSeek、智谱GLM、通义千问正在并行分析，对比结果以提供可信数据
                     </p>
                   </div>
                 </CardContent>
