@@ -476,8 +476,9 @@ function applyModifications(
     // 修改标题
     if (request.includes('标题') || request.includes('title')) {
       const newTitle = extractContentFromRequest(modificationRequest, '标题')
+      console.log('  ✓ 修改标题为:', newTitle)
       modifiedHtml = modifiedHtml.replace(
-        /<h1 class="text-4xl.*?<\/h1>/s,
+        /<h1[^>]*class="text-4xl[^"]*"[^>]*>([\s\S]*?)<\/h1>/,
         `<h1 class="text-4xl md:text-6xl font-bold mb-6 animate-fade-in">\n                    ${newTitle}\n                </h1>`
       )
     }
@@ -485,8 +486,9 @@ function applyModifications(
     // 修改描述
     if (request.includes('描述') || request.includes('说明')) {
       const newDesc = extractContentFromRequest(modificationRequest, '描述')
+      console.log('  ✓ 修改描述为:', newDesc)
       modifiedHtml = modifiedHtml.replace(
-        /<p class="text-xl md:text-2xl.*?<\/p>/,
+        /<p[^>]*class="text-xl md:text-2xl[^"]*"[^>]*>([\s\S]*?)<\/p>/,
         `<p class="text-xl md:text-2xl mb-8 text-blue-100 max-w-3xl mx-auto">\n                    ${newDesc}\n                </p>`
       )
     }
@@ -494,6 +496,7 @@ function applyModifications(
     // 修改按钮文本
     if (request.includes('按钮')) {
       const newButtonText = extractContentFromRequest(modificationRequest, '按钮')
+      console.log('  ✓ 修改按钮为:', newButtonText)
       modifiedHtml = modifiedHtml.replace(
         /立即体验|免费试用/g,
         newButtonText
@@ -671,17 +674,27 @@ function applyDesignAdjustments(
  * 从用户请求中提取内容
  */
 function extractContentFromRequest(request: string, keyword: string): string {
-  // 尝试提取引号中的内容
-  const quoteMatch = request.match(/["'「](.*?)["'」]/)
-  if (quoteMatch) {
-    return quoteMatch[1]
+  // 尝试提取引号中的内容（支持中英文引号）
+  const quotePatterns = [
+    /"([^"]+)"/g,  // 英文双引号
+    /'([^']+)'/g,  // 英文单引号
+    /「([^」]+)」/g, // 中文引号
+    /『([^』]+)』/g  // 中文书名号
+  ]
+
+  for (const pattern of quotePatterns) {
+    const matches = Array.from(request.matchAll(pattern))
+    if (matches.length > 0) {
+      // 返回第一个匹配的内容
+      return matches[0][1].trim()
+    }
   }
 
   // 尝试提取关键词后的内容
   const patterns = [
-    new RegExp(`${keyword}[为是:：]+(.*?)(?:[，,。！!]|$)`),
-    new RegExp(`${keyword}.*?([^，,。！!]+)(?:[，,。！!]|$)`),
-    new RegExp(`添加.*?${keyword}.*?([^，,。！!]+)(?:[，,。！!]|$)`)
+    new RegExp(`${keyword}[为是:：]+([^，,。！!""'']+)`, 'i'),
+    new RegExp(`${keyword}.*?为\\s*([^，,。！!""'']+)`, 'i'),
+    new RegExp(`添加.*?${keyword}.*?([^，,。！!""'']+)`, 'i')
   ]
 
   for (const pattern of patterns) {
