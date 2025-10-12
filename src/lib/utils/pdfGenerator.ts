@@ -1,4 +1,4 @@
-import ReactPDF from '@react-pdf/renderer'
+import ReactPDF, { pdf } from '@react-pdf/renderer'
 import type { LandingCoachGuide } from './transformReportToGuide'
 
 /**
@@ -71,7 +71,9 @@ export async function generateGuidePDF(guide: LandingCoachGuide): Promise<Buffer
     )
 
     console.log('🔄 开始渲染PDF...')
-    const pdfBuffer = await ReactPDF.renderToBuffer(pdfDoc)
+    // 使用正确的API: pdf().toBuffer()
+    const pdfInstance = pdf(pdfDoc)
+    const pdfBuffer = await pdfInstance.toBuffer()
     console.log('✅ PDF生成成功，大小:', pdfBuffer.length, 'bytes')
 
     return Buffer.isBuffer(pdfBuffer) ? pdfBuffer : Buffer.from(pdfBuffer)
