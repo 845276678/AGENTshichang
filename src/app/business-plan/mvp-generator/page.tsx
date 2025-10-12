@@ -341,6 +341,12 @@ C) 自定义特定功能
         throw new Error(result.error || 'MVP修改失败')
       }
 
+      console.log('🔧 API返回的修改结果:', {
+        hasPrototype: !!result.data?.prototype,
+        htmlCodeLength: result.data?.prototype?.htmlCode?.length,
+        htmlPreview: result.data?.prototype?.htmlCode?.substring(0, 200)
+      })
+
       addMessage('assistant', '正在应用修改...', { action: 'modifying', progress: 80 })
 
       // 创建修改版本
@@ -355,6 +361,13 @@ C) 自定义特定功能
 
       setMvpVersions(prev => [...prev, newVersion])
       setCurrentVersion(newVersion)
+
+      console.log('✅ 新版本已设置:', {
+        versionId: newVersion.id,
+        version: newVersion.version,
+        htmlLength: newVersion.htmlCode.length,
+        changesCount: newVersion.changes.length
+      })
 
       addMessage('assistant', `✅ 功能修改完成！
 
@@ -425,6 +438,12 @@ ${data.message}
         throw new Error(result.error || 'MVP设计调整失败')
       }
 
+      console.log('🎨 API返回的设计调整结果:', {
+        hasPrototype: !!result.data?.prototype,
+        htmlCodeLength: result.data?.prototype?.htmlCode?.length,
+        htmlPreview: result.data?.prototype?.htmlCode?.substring(0, 200)
+      })
+
       // 创建新版本
       const newVersion: MVPVersion = {
         id: `mvp_${Date.now()}`,
@@ -437,6 +456,13 @@ ${data.message}
 
       setMvpVersions(prev => [...prev, newVersion])
       setCurrentVersion(newVersion)
+
+      console.log('✅ 新版本已设置:', {
+        versionId: newVersion.id,
+        version: newVersion.version,
+        htmlLength: newVersion.htmlCode.length,
+        changesCount: newVersion.changes.length
+      })
 
       addMessage('assistant', `🎨 设计调整完成！
 
@@ -705,9 +731,11 @@ ${data.message}
             <div className="flex-1 bg-white">
               {currentVersion ? (
                 <iframe
+                  key={currentVersion.id}
                   srcDoc={currentVersion.htmlCode}
                   className="w-full h-full border-0"
                   title="MVP预览"
+                  sandbox="allow-scripts allow-same-origin"
                 />
               ) : (
                 <div className="h-full flex items-center justify-center text-gray-500">
