@@ -165,10 +165,10 @@ export async function POST(request: NextRequest) {
 }
 
 /**
- * 构建分析Prompt
+ * 构建分析Prompt（增强版 - 提升内容质量）
  */
 function buildAnalysisPrompt(body: IntelligentAnalysisRequest): string {
-  return `你是一个专业的商业分析顾问。请对以下创意进行客观、准确的分析。
+  return `你是一个专业的商业分析顾问和创业导师。请对以下创意进行深入、详实、可操作的分析。
 
 **创意信息：**
 - 标题：${body.ideaTitle}
@@ -176,89 +176,442 @@ function buildAnalysisPrompt(body: IntelligentAnalysisRequest): string {
 - 所在城市：${body.userLocation || '未提供'}
 - 用户背景：${body.userBackground || '未提供'}
 
-**分析要求：**
+---
 
-1. **创意特征**（必须客观准确）
-   - category: 行业类别
-   - technicalComplexity: 技术复杂度（low/medium/high）
-   - fundingRequirement: 资金需求（客观估算）
-   - competitionLevel: 竞争程度（low/medium/high）
-   - aiCapabilities: AI能力需求（如实判断）
+## 📋 分析要求（所有描述必须详实具体）
 
-2. **竞品分析**（必须真实存在）
-   - 列出3个真实存在的竞品（不要编造）
-   - 如果确实没有直接竞品，说明"暂无直接竞品"
-   - 分析优劣势和差异化
+### 1. 创意特征分析
+- category: 精确的行业类别
+- technicalComplexity: 技术复杂度（low/medium/high）
+- fundingRequirement: 具体资金需求范围（如"5-10万元"）
+- competitionLevel: 竞争程度（low/medium/high）
+- aiCapabilities: AI能力需求的详细描述
 
-3. **技术栈推荐**（优先国产，必须真实可用）
-   - 推荐真实存在的技术和工具
-   - 优先：Trae.ai、腾讯云微搭、智谱GLM、阿里云等国产工具
-   - 给出学习时间线和成本估算
+---
 
-4. **线下活动**（必须是真实活动）
-   - 只推荐确实存在的活动
-   - 如果不确定具体时间，说明"需要查询最新信息"
-   - 优先推荐黑客松、创业大赛等
+### 2. 竞品分析（✨ 关键优化：必须相关且详实）
 
-5. **其他推荐**
-   - 调研渠道、时间线、预算、团队等
+**筛选标准（严格执行）：**
+- 必须是同领域的直接竞品或相似产品
+- 必须真实存在且可验证
+- 优先推荐国内创业服务平台（如创业邦、36氪、IT桔子）
+- 对于AI相关创意，推荐AI商业分析工具、创业辅导平台
 
-**输出格式：**
-严格JSON格式，不要编造数据，不确定的信息标注"待确认"。
+**不要推荐：**
+- 通用设计工具（如Canva）
+- 电商工具（如JungleScout）
+- 纯文档协作工具
+- 与创意关联性弱的产品
+
+**详细分析要求（每项至少80字）：**
+
+competitors数组中每个竞品必须包含：
+- name: 真实竞品名称
+- strength: 优势分析（80字以上）
+  * 具体功能特点（3-5点）
+  * 用户规模或市场份额（如果已知）
+  * 技术优势或商业模式亮点
+  * 为什么用户会选择它
+- weakness: 劣势分析（80字以上）
+  * 功能缺陷或体验痛点
+  * 定价过高或不灵活
+  * 技术限制
+  * 用户负面反馈
+- differentiation: 差异化分析（80字以上）
+  * 我们的创意如何解决它的劣势
+  * 我们的独特价值主张
+  * 目标用户群的差异
+  * 技术或商业模式的创新点
+
+**市场空白点分析（至少300字）：**
+marketGap必须包含：
+1. 现有解决方案的局限性（列举3-5个主要竞品的不足）
+2. 目标用户群的具体需求和痛点
+3. 我们的创意填补的空白（具体解决哪些痛点）
+4. 市场时机分析（为什么现在是好时机）
+5. 潜在风险提示
+
+示例格式：
+"当前创业服务市场存在明显的结构性缺陷。现有工具如XXX侧重XXX,缺乏XXX。据《2024中国创业者调研报告》显示,68%的早期创业者表示\"不知道如何验证创意\"。本平台的XXX机制填补了\"XXX\"的空白..."
+
+---
+
+### 3. 技术栈推荐（✨ 优先国产 + 学习路径）
+
+**推荐原则：**
+- 必须优先推荐中国本土产品
+- 无代码平台：Trae.ai、腾讯云微搭、钉钉宜搭、阿里云魔方
+- AI服务：智谱GLM、通义千问、DeepSeek、百度文心
+- 云服务：阿里云、腾讯云、华为云
+
+**techStackRecommendations.beginner必须包含：**
+
+primary: 主要推荐的技术栈组合
+
+reason: 推荐理由（至少100字）
+- 为什么适合用户背景
+- 技术成熟度和生态
+- 成本优势
+- 学习曲线
+
+timeline: 完整学习时间线（不只是总时间）
+
+learningPath: 分阶段学习路径（新增！）
+{
+  "phase1": {
+    "duration": "1-2个月",
+    "focus": "基础平台学习",
+    "resources": ["官方文档URL", "视频教程", "实战案例"],
+    "goal": "能够搭建简单应用"
+  },
+  "phase2": {
+    "duration": "2-3个月",
+    "focus": "AI功能集成",
+    "resources": ["API文档", "示例代码", "社区问答"],
+    "goal": "实现核心AI功能"
+  },
+  "phase3": {
+    "duration": "2-3个月",
+    "focus": "完整应用开发",
+    "goal": "发布MVP版本"
+  }
+}
+
+alternatives: 替代方案
+{
+  "noCode": "完全不需要编程的方案",
+  "lowCode": "少量代码的方案",
+  "fullCode": "需要编程基础的方案"
+}
+
+cost: 成本估算（具体数字范围）
+{
+  "learning": "线上课程约2000-5000元",
+  "development": "云服务月费1000-3000元",
+  "thirdPartyAPI": "AI API调用约500-2000元/月"
+}
+
+---
+
+### 4. 线下活动推荐（✨ 必须真实 + 详细信息）
+
+**推荐标准：**
+- 只推荐2025年Q4及以后的真实活动
+- 优先推荐：黑客松、创业大赛、开发者大会、创业路演
+- 每个活动必须包含完整信息
+
+**nationalEvents数组每个活动必须包含：**
+
+name: 活动全称
+
+time: 时间信息（必须明确）
+- 如果知道2025年具体时间，提供准确时间
+- 如果是年度固定活动，提供历史举办时间（如"往年在4-6月"）
+- 必须建议查询官网的URL
+- 格式示例："2025年3-9月（建议查询官网 cyds.org.cn 确认）"
+
+location: 具体地点（如果是${body.userLocation}本地活动，标注"本地活动"）
+
+cost: 费用信息（如"免费报名"、"需缴纳保证金"等）
+
+value: 参加价值（80字以上）
+- 对创业者的具体帮助
+- 历年参与规模和影响力
+- 可获得的资源（曝光、融资、导师等）
+
+officialWebsite: 官网链接（必须提供）
+
+applicationProcess: 报名流程（简要说明）
+
+confidence: 可信度（high/medium/low）
+
+示例：
+{
+  "name": "中国创新创业大赛",
+  "time": "2024年3-9月（2025年时间建议查询官网 cyds.org.cn）",
+  "location": "全国各赛区，${body.userLocation}有分赛区",
+  "cost": "免费报名",
+  "value": "全国最大规模创业大赛，往年参赛项目超10万个，可获得曝光和融资机会，优秀项目可获得种子资金和孵化资源",
+  "officialWebsite": "https://www.chuangye.org.cn",
+  "applicationProcess": "线上报名→初赛→复赛→全国总决赛",
+  "confidence": "high"
+}
+
+---
+
+### 5. 调研渠道（✨ 具体平台 + 使用方法）
+
+**researchChannels必须提供具体平台：**
+
+online: 线上调研渠道（根据创意类型定制）
+{
+  "socialMedia": [
+    {
+      "name": "小红书",
+      "reason": "适合调研年轻用户需求，可搜索\"创业\"、\"AI工具\"等关键词",
+      "method": "发布问卷、观察评论、私信用户访谈"
+    },
+    {
+      "name": "知乎",
+      "reason": "高质量用户群，可在\"创业\"、\"产品经理\"等话题下提问",
+      "method": "发起讨论、分析高赞回答、联系KOL"
+    }
+  ],
+  "professionalCommunities": [
+    {
+      "name": "Product Hunt中文版 - 少数派",
+      "reason": "科技产品早期用户聚集地",
+      "method": "发布产品原型，收集反馈"
+    },
+    {
+      "name": "V2EX创业板块",
+      "reason": "技术创业者社区",
+      "method": "发帖讨论，获取技术创业建议"
+    }
+  ],
+  "competitorAnalysis": {
+    "tools": ["企查查（查竞品融资）", "App Store评论（分析用户痛点）", "SimilarWeb（流量分析）"]
+  }
+}
+
+offline: 线下调研方式（结合用户城市）
+- 具体场所：如"${body.userLocation}本地：XXX创业咖啡、XXX孵化器"
+- 目标用户：创业孵化器、大学创业社团、创业者社群
+- 方法：1对1深度访谈（准备10个核心问题）、小范围产品演示
+
+---
+
+### 6. 预算规划（✨ 详细分项 + 具体数字）
+
+**budgetPlan必须包含详细分项：**
+
+startupCosts: 启动成本（根据用户背景和创意复杂度）
+{
+  "technology": {
+    "amount": "20000-30000元",
+    "items": ["域名服务器", "开发工具", "第三方服务初始化"]
+  },
+  "learning": {
+    "amount": "5000-10000元",
+    "items": ["在线课程", "技术书籍", "培训费用"]
+  },
+  "marketing": {
+    "amount": "10000-20000元",
+    "items": ["品牌设计", "初期推广", "内容制作"]
+  },
+  "legal": {
+    "amount": "5000-10000元",
+    "items": ["公司注册", "商标申请", "合同咨询"]
+  },
+  "total": "4-7万元",
+  "description": "基于${body.userBackground}的保守估算"
+}
+
+monthlyCosts: 月度成本分项
+{
+  "infrastructure": {
+    "amount": "2000-3000元",
+    "items": ["云服务器", "CDN", "数据库"]
+  },
+  "ai_api": {
+    "amount": "1000-2000元",
+    "items": ["AI模型调用费", "按量计费"]
+  },
+  "operations": {
+    "amount": "5000-8000元",
+    "items": ["人力成本（兼职）", "办公费用", "推广费用"]
+  },
+  "total": "0.8-1.3万元/月",
+  "scalingNote": "用户增长后需相应增加预算"
+}
+
+costOptimization: 成本优化建议（至少5条具体建议）
+[
+  "使用腾讯云、阿里云的创业扶持计划，可获得1-3万元代金券",
+  "选择国产AI模型（如智谱GLM），成本比OpenAI低60-70%",
+  "初期采用无代码/低代码平台，节省5-10万元开发成本",
+  "参加创业大赛获得种子资金和免费资源",
+  "加入创业孵化器，获得免费办公场地和导师指导"
+]
+
+---
+
+### 7. 风险提示（✨ 新增必备内容）
+
+**risks必须包含：**
+
+technical: 技术风险（2-3条）
+- 低代码平台的局限性
+- AI模型依赖风险
+- 技术债务风险
+
+market: 市场风险（2-3条）
+- 竞争风险
+- 用户付费意愿
+- 市场时机
+
+operation: 运营风险（2-3条）
+- 学习曲线
+- 用户获取成本
+- 团队能力
+
+financial: 财务风险（2-3条）
+- 资金需求
+- 成本增长
+- 现金流管理
+
+mitigation: 风险缓解建议（至少3条）
+- 先用MVP验证核心价值
+- 参加创业大赛获得种子资金
+- 寻找技术合伙人降低开发风险
+
+---
+
+### 8. 成功案例参考（✨ 新增必备内容）
+
+**successCases至少2-3个：**
+
+[
+  {
+    "name": "Notion",
+    "relevance": "同样面向非技术用户的工具类产品",
+    "keySuccess": "简单易用的界面 + 模板生态 + 社区驱动",
+    "takeaway": "重视用户体验，建立模板市场，培养KOL用户",
+    "timeline": "2016年创立，2020年估值20亿美元"
+  },
+  {
+    "name": "墨刀（国产原型工具）",
+    "relevance": "服务非技术背景的产品经理和创业者",
+    "keySuccess": "本土化 + 协作功能 + 教育内容",
+    "takeaway": "重视本土化需求，提供丰富的学习资源",
+    "timeline": "2014年成立，2019年完成B轮融资"
+  }
+]
+
+---
+
+### 9. 下一步行动计划（✨ 新增必备内容）
+
+**nextSteps必须提供分阶段计划：**
+
+week1: 第一周行动计划
+{
+  "title": "市场验证阶段",
+  "tasks": [
+    "在知乎、小红书发布需求调研问卷",
+    "访谈10个目标用户，记录痛点",
+    "研究3个核心竞品，完成SWOT分析"
+  ],
+  "deliverables": ["用户访谈记录", "竞品分析报告", "需求验证结论"],
+  "resources": ["问卷模板", "访谈提纲", "SWOT模板"]
+}
+
+week2_4: 第2-4周行动计划
+{
+  "title": "MVP设计阶段",
+  "tasks": [
+    "学习技术平台基础教程（预计20小时）",
+    "设计核心功能流程图",
+    "制作交互原型"
+  ],
+  "deliverables": ["功能流程图", "交互原型", "技术方案"],
+  "resources": ["平台官方文档", "原型设计教程"]
+}
+
+month2_3: 第2-3月行动计划
+{
+  "title": "MVP开发阶段",
+  "tasks": [
+    "基于推荐技术栈搭建基础应用",
+    "集成AI功能实现核心价值",
+    "邀请10个种子用户内测"
+  ],
+  "deliverables": ["MVP产品", "用户反馈报告"]
+}
+
+keyMilestones: 关键里程碑（2-3个）
+[
+  {
+    "milestone": "验证需求",
+    "criteria": "至少50%的受访用户表示愿意付费使用",
+    "decision": "通过则继续开发，否则调整方向"
+  },
+  {
+    "milestone": "完成MVP",
+    "criteria": "10个种子用户中至少7个给出正面评价",
+    "decision": "通过则申请创业大赛，否则迭代产品"
+  }
+]
+
+---
+
+## 📤 输出格式
+
+严格按照JSON格式输出，确保所有字段都有详实的内容：
 
 \`\`\`json
 {
-  "characteristics": {
-    "category": "...",
-    "technicalComplexity": "low/medium/high",
-    "fundingRequirement": "...",
-    "competitionLevel": "low/medium/high",
-    "aiCapabilities": { ... }
-  },
+  "characteristics": { ... },
   "competitorAnalysis": {
-    "competitors": [
-      {
-        "name": "真实竞品名称或'暂无直接竞品'",
-        "strength": "...",
-        "weakness": "...",
-        "differentiation": "..."
-      }
-    ],
-    "marketGap": "..."
+    "competitors": [ ... ],  // 每个竞品的描述至少80字
+    "marketGap": "..."  // 至少300字的深入分析
   },
   "recommendations": {
     "techStackRecommendations": {
       "beginner": {
-        "primary": "真实可用的技术栈",
+        "primary": "...",
+        "reason": "...",  // 至少100字
         "timeline": "...",
-        "reason": "...",
-        "cost": "..."
+        "learningPath": { ... },  // 分阶段学习路径
+        "alternatives": { ... },
+        "cost": { ... }  // 详细成本分项
       }
     },
     "offlineEvents": {
-      "nationalEvents": [
-        {
-          "name": "真实活动名称或'待确认'",
-          "time": "时间或'待查询'",
-          "location": "...",
-          "cost": "...",
-          "confidence": "high/medium/low"
-        }
-      ],
-      "localEvents": ["..."]
+      "nationalEvents": [ ... ],  // 每个活动包含完整信息
+      "localEvents": [ ... ]
     },
-    "researchChannels": { ... },
+    "researchChannels": {
+      "online": { ... },  // 具体平台名称和方法
+      "offline": [ ... ]
+    },
+    "budgetPlan": {
+      "startupCosts": { ... },  // 详细分项和具体金额
+      "monthlyCosts": { ... },
+      "costOptimization": [ ... ]  // 至少5条
+    },
     "customizedTimeline": { ... },
-    "budgetPlan": { ... },
     "teamRecommendations": { ... }
+  },
+  "risks": {
+    "technical": [ ... ],
+    "market": [ ... ],
+    "operation": [ ... ],
+    "financial": [ ... ],
+    "mitigation": [ ... ]
+  },
+  "successCases": [ ... ],  // 2-3个成功案例
+  "nextSteps": {
+    "week1": { ... },
+    "week2_4": { ... },
+    "month2_3": { ... },
+    "keyMilestones": [ ... ]
   }
 }
 \`\`\`
 
-**特别注意：**
-1. 不要编造不存在的产品、公司、活动
-2. 不确定的信息要明确标注
-3. 数据必须客观、可验证`
+---
+
+## ⚠️ 特别注意
+
+1. **不要编造数据**：所有竞品、活动、工具必须真实存在
+2. **描述详实**：每个重要描述至少80字，市场分析至少300字
+3. **数字具体**：成本用具体数字范围（如"3-5万元"），不用"适中"等模糊词
+4. **平台具体**：调研渠道要写具体平台名（如"小红书"而非"社交媒体"）
+5. **时间明确**：活动时间要么给准确时间，要么说明"待查询+官网链接"
+6. **优先国产**：技术栈必须优先推荐中国本土产品
+7. **风险提示**：必须包含风险分析，避免误导用户
+8. **行动指引**：必须提供分阶段的具体行动计划`
 }
 
 /**
@@ -467,7 +820,11 @@ function crossVerifyResults(
         customizedTimeline: dataList[0]?.recommendations?.customizedTimeline,
         budgetPlan: dataList[0]?.recommendations?.budgetPlan,
         teamRecommendations: dataList[0]?.recommendations?.teamRecommendations
-      }
+      },
+      // 新增的增强字段
+      risks: dataList[0]?.risks || {},
+      successCases: dataList[0]?.successCases || [],
+      nextSteps: dataList[0]?.nextSteps || {}
     },
     consensusScore
   }
@@ -540,14 +897,19 @@ function verifyTechStack(dataList: any[]): any {
   // 提取所有提到的技术
   const allTechnologies = new Set<string>()
   techStacks.forEach(stack => {
-    // 确保stack是字符串
-    const stackStr = typeof stack === 'string' ? stack : String(stack || '')
-    // 简单分词提取技术名称
-    const techs = stackStr.split(/[、+,，]/g)
-    techs.forEach(t => {
-      const trimmed = t.trim()
-      if (trimmed) allTechnologies.add(trimmed)
-    })
+    // 确保stack是字符串，如果是对象则跳过
+    if (typeof stack === 'string') {
+      // 简单分词提取技术名称
+      const techs = stack.split(/[、+,，]/g)
+      techs.forEach(t => {
+        const trimmed = t.trim()
+        if (trimmed) allTechnologies.add(trimmed)
+      })
+    } else if (typeof stack === 'object' && stack !== null) {
+      // 如果是对象,尝试获取其字符串表示
+      const stackStr = JSON.stringify(stack)
+      if (stackStr) allTechnologies.add(stackStr.substring(0, 50))
+    }
   })
 
   return {
@@ -556,7 +918,8 @@ function verifyTechStack(dataList: any[]): any {
       timeline: dataList[0]?.recommendations?.techStackRecommendations?.beginner?.timeline,
       reason: dataList[0]?.recommendations?.techStackRecommendations?.beginner?.reason,
       cost: dataList[0]?.recommendations?.techStackRecommendations?.beginner?.cost,
-      alternatives: Array.from(allTechnologies).slice(0, 8),
+      learningPath: dataList[0]?.recommendations?.techStackRecommendations?.beginner?.learningPath || {},
+      alternatives: dataList[0]?.recommendations?.techStackRecommendations?.beginner?.alternatives || Array.from(allTechnologies).slice(0, 8),
       verificationNotes: `${techStacks.length}个模型提供了技术栈建议`
     }
   }
