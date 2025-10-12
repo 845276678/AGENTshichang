@@ -1,8 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { handleApiError } from '@/lib/auth'
+import {
+  generateFunctionalMVP,
+  modifyFunctionalMVP,
+  adjustMVPDesign,
+  checkDeepSeekConfig,
+  type GenerateMVPRequest,
+  type ModifyMVPRequest,
+  type DesignAdjustmentRequest
+} from '@/lib/deepseek-client'
 
 interface MVPGenerationRequest {
   ideaDescription: string
+  ideaTitle?: string
   targetUsers: string[]
   coreFeatures: string[]
   industryType: string
@@ -73,30 +83,117 @@ export async function POST(request: NextRequest) {
     const selectedColors = colorSchemes[body.designPreferences?.colorScheme || 'blue']
 
     let htmlCode: string
+    let useDeepSeek = true
+
+    // 检查DeepSeek配置
+    const deepSeekCheck = checkDeepSeekConfig()
+    if (!deepSeekCheck.isConfigured) {
+      console.warn('⚠️ DeepSeek未配置，使用降级模板:', deepSeekCheck.error)
+      useDeepSeek = false
+    }
 
     // 如果有修改上下文，应用修改
     if (body.modificationContext) {
       console.log('🔧 应用功能修改:', body.modificationContext.modificationRequest)
-      htmlCode = applyModifications(
-        body.modificationContext.previousHtmlCode,
-        body.modificationContext.modificationRequest,
-        body
-      )
+
+      if (useDeepSeek) {
+        try {
+          // 使用DeepSeek API进行智能修改
+          const modifyRequest: ModifyMVPRequest = {
+            ideaDescription: body.ideaDescription,
+            ideaTitle: body.ideaTitle || body.ideaDescription.slice(0, 30),
+            targetUsers: body.targetUsers || ['目标用户'],
+            coreFeatures: body.coreFeatures || ['核心功能'],
+            industryType: body.industryType,
+            designPreferences: body.designPreferences,
+            previousHtmlCode: body.modificationContext.previousHtmlCode,
+            modificationRequest: body.modificationContext.modificationRequest
+          }
+
+          htmlCode = await modifyFunctionalMVP(modifyRequest)
+          console.log('✅ DeepSeek API成功生成修改版本')
+        } catch (error) {
+          console.error('❌ DeepSeek修改失败，使用降级方案:', error)
+          htmlCode = applyModifications(
+            body.modificationContext.previousHtmlCode,
+            body.modificationContext.modificationRequest,
+            body
+          )
+        }
+      } else {
+        // 降级：使用简单的字符串替换修改
+        htmlCode = applyModifications(
+          body.modificationContext.previousHtmlCode,
+          body.modificationContext.modificationRequest,
+          body
+        )
+      }
     }
     // 如果有设计上下文，应用设计调整
     else if (body.designContext) {
       console.log('🎨 应用设计调整:', body.designContext.designAdjustmentRequest)
-      htmlCode = applyDesignAdjustments(
-        body.designContext.previousHtmlCode,
-        body.designContext.designAdjustmentRequest,
-        selectedColors,
-        body.designPreferences?.style || 'modern'
-      )
+
+      if (useDeepSeek) {
+        try {
+          // 使用DeepSeek API进行设计调整
+          const designRequest: DesignAdjustmentRequest = {
+            ideaDescription: body.ideaDescription,
+            ideaTitle: body.ideaTitle || body.ideaDescription.slice(0, 30),
+            targetUsers: body.targetUsers || ['目标用户'],
+            coreFeatures: body.coreFeatures || ['核心功能'],
+            industryType: body.industryType,
+            designPreferences: body.designPreferences,
+            previousHtmlCode: body.designContext.previousHtmlCode,
+            designAdjustmentRequest: body.designContext.designAdjustmentRequest
+          }
+
+          htmlCode = await adjustMVPDesign(designRequest)
+          console.log('✅ DeepSeek API成功应用设计调整')
+        } catch (error) {
+          console.error('❌ DeepSeek设计调整失败，使用降级方案:', error)
+          htmlCode = applyDesignAdjustments(
+            body.designContext.previousHtmlCode,
+            body.designContext.designAdjustmentRequest,
+            selectedColors,
+            body.designPreferences?.style || 'modern'
+          )
+        }
+      } else {
+        // 降级：使用简单的CSS类替换
+        htmlCode = applyDesignAdjustments(
+          body.designContext.previousHtmlCode,
+          body.designContext.designAdjustmentRequest,
+          selectedColors,
+          body.designPreferences?.style || 'modern'
+        )
+      }
     }
-    // 否则生成新的模板
+    // 否则生成新的功能性MVP
     else {
-      console.log('✨ 生成新的MVP模板')
-      htmlCode = generateDefaultTemplate(body, selectedColors)
+      console.log('✨ 生成新的功能性MVP原型')
+
+      if (useDeepSeek) {
+        try {
+          // 使用DeepSeek API生成功能性MVP
+          const generateRequest: GenerateMVPRequest = {
+            ideaDescription: body.ideaDescription,
+            ideaTitle: body.ideaTitle || body.ideaDescription.slice(0, 30),
+            targetUsers: body.targetUsers || ['目标用户'],
+            coreFeatures: body.coreFeatures || ['核心功能1', '核心功能2', '核心功能3'],
+            industryType: body.industryType,
+            designPreferences: body.designPreferences
+          }
+
+          htmlCode = await generateFunctionalMVP(generateRequest)
+          console.log('✅ DeepSeek API成功生成功能性MVP')
+        } catch (error) {
+          console.error('❌ DeepSeek生成失败，使用降级模板:', error)
+          htmlCode = generateDefaultTemplate(body, selectedColors)
+        }
+      } else {
+        // 降级：使用静态模板
+        htmlCode = generateDefaultTemplate(body, selectedColors)
+      }
     }
 
     // 构建完整的原型数据
