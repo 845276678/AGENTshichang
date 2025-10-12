@@ -545,6 +545,233 @@ keyMilestones: 关键里程碑（2-3个）
 
 ---
 
+### 10. 执行过程支持（✨ 新增必备内容 - 后续支持）
+
+**executionSupport必须包含完整的执行支持体系：**
+
+commonChallenges: 常见执行障碍（分阶段列出）
+{
+  "weeklyCheckpoints": [
+    {
+      "week": 1,
+      "challenge": "用户访谈约不到人",
+      "solutions": [
+        "在知乎、小红书发帖招募,提供20-50元答谢费",
+        "加入创业者微信群/QQ群,先贡献价值再请教",
+        "联系大学创业社团,学生群体更愿意配合"
+      ],
+      "resources": ["问卷星访谈模板", "知乎问题示例链接"]
+    },
+    {
+      "week": 2,
+      "challenge": "技术学习进度缓慢,看不懂文档",
+      "solutions": [
+        "B站搜索'XX入门教程',视频比文档更易懂",
+        "找已在使用该技术的朋友1对1请教",
+        "降低标准:先用更简单的工具完成MVP"
+      ],
+      "resources": ["B站推荐UP主列表", "技术社群入口"]
+    }
+  ],
+  "phaseSpecific": {
+    "mvpDevelopment": [
+      {
+        "issue": "功能完成度只有30%,时间已过半",
+        "cause": "完美主义,功能设计过于复杂",
+        "solution": "立即砍掉非核心功能,专注1个核心价值",
+        "example": "Dropbox MVP只有文件同步,没有协作、版本等功能"
+      }
+    ],
+    "userTesting": [
+      {
+        "issue": "种子用户反馈冷淡,不愿付费",
+        "cause": "目标用户不精准 或 痛点不够痛",
+        "solution": "重新验证:这些人是否真的有这个痛点?",
+        "action": "访谈10个拒绝付费的用户,详细记录原因"
+      }
+    ]
+  }
+}
+
+decisionTrees: 应急决策树（关键决策点）
+[
+  {
+    "situation": "第1个月结束,用户验证结果不理想",
+    "question": "50%以上用户表示愿意付费使用?",
+    "ifYes": {
+      "action": "继续开发MVP",
+      "confidence": "high",
+      "nextStep": "开始技术学习和原型设计"
+    },
+    "ifNo": {
+      "action": "暂停开发,深挖需求",
+      "options": [
+        "调整目标用户群(可能找错人了)",
+        "调整解决方案(当前方案不够吸引)",
+        "放弃此方向,转向其他创意"
+      ],
+      "recommendation": "不要强行推进,沉没成本谬误会害死创业"
+    }
+  },
+  {
+    "situation": "技术学习2个月,还是做不出来",
+    "question": "是否愿意投入更多时间(再3-6个月)?",
+    "ifYes": {
+      "action": "继续学习,降低产品复杂度",
+      "suggestion": "找技术合伙人分担压力"
+    },
+    "ifNo": {
+      "action": "改用无代码方案 或 外包开发",
+      "cost": "外包MVP约5-10万元",
+      "risk": "外包质量难控制,建议找熟人推荐"
+    }
+  }
+]
+
+helpResources: 求助资源清单（分类详细）
+{
+  "technicalHelp": [
+    {
+      "type": "在线社区",
+      "platforms": [
+        { "name": "CSDN问答", "url": "ask.csdn.net", "bestFor": "具体技术问题" },
+        { "name": "SegmentFault", "url": "segmentfault.com", "bestFor": "前端/全栈问题" },
+        { "name": "V2EX技术板块", "url": "v2ex.com/go/programming", "bestFor": "技术选型建议" }
+      ],
+      "tips": "提问时贴上代码截图和错误信息,回复率更高"
+    },
+    {
+      "type": "付费咨询",
+      "services": [
+        { "name": "知乎付费咨询", "price": "100-500元/次", "bestFor": "技术方案评审" },
+        { "name": "码市技术顾问", "price": "300-1000元/小时", "bestFor": "疑难问题排查" }
+      ]
+    }
+  ],
+  "businessHelp": [
+    {
+      "type": "创业导师",
+      "channels": [
+        "创业邦星际学院(免费线上课程+导师答疑)",
+        "36氪企服平台(对接BP撰写、融资顾问)",
+        "本地孵化器(如${body.userLocation}创业广场,提供免费工位+导师)"
+      ]
+    },
+    {
+      "type": "同行交流",
+      "groups": [
+        "创业者微信群(搜索'${body.userLocation}创业群')",
+        "产品经理社区(人人都是产品经理、PMCAFF)",
+        "行业垂直社群(根据创意类型找对应社群)"
+      ],
+      "warning": "警惕割韭菜的'创业培训',先免费参与观察"
+    }
+  ],
+  "fundingHelp": [
+    {
+      "stage": "0-10万种子资金",
+      "options": [
+        "创业大赛奖金(中国创新创业大赛一等奖20万)",
+        "亲友借款(写借条,约定还款期)",
+        "兼职/副业收入(边打工边创业)",
+        "政府创业补贴(${body.userLocation}最高3万元创业补贴)"
+      ]
+    },
+    {
+      "stage": "10-50万天使轮",
+      "options": [
+        "天使投资人(通过创业邦、IT桔子找投资人)",
+        "孵化器投资(入驻孵化器,部分提供5-20万投资)",
+        "众筹(如京东众筹、淘宝造物,预售产品)"
+      ]
+    }
+  ],
+  "mentalHealthSupport": [
+    {
+      "issue": "焦虑、失眠、压力过大",
+      "suggestions": [
+        "每周至少1天完全休息,不想创业的事",
+        "加入创业者互助群,倾诉压力(不是孤军奋战)",
+        "设定'止损线':如X个月没进展就暂停",
+        "必要时寻求心理咨询(创业焦虑很常见)"
+      ],
+      "reminder": "创业不是生活的全部,健康第一"
+    }
+  ]
+}
+
+trackingTools: 进度追踪工具推荐
+{
+  "projectManagement": [
+    {
+      "tool": "Notion",
+      "use": "创建项目看板,记录每周进展",
+      "template": "创业项目管理模板(搜索Notion模板库)",
+      "benefit": "免费,界面友好,适合个人使用"
+    },
+    {
+      "tool": "飞书文档",
+      "use": "团队协作,任务分配和进度同步",
+      "benefit": "国产,集成IM+文档+日历"
+    }
+  ],
+  "metricsDashboard": [
+    {
+      "metric": "用户验证进度",
+      "trackWhat": "访谈人数、问卷回收、付费意愿比例",
+      "goal": "至少50%表示愿意付费"
+    },
+    {
+      "metric": "技术学习进度",
+      "trackWhat": "每周学习小时数、完成的教程章节",
+      "goal": "第1个月学完基础课程"
+    },
+    {
+      "metric": "MVP开发进度",
+      "trackWhat": "功能完成度(%)、bug数量、测试用户数",
+      "goal": "第3个月完成可用MVP"
+    }
+  ],
+  "weeklyReview": {
+    "questions": [
+      "本周完成了哪些任务?(具体列出)",
+      "遇到了哪些障碍?(技术/商业/个人)",
+      "下周的3个优先任务是什么?",
+      "是否需要调整计划?(连续2周无进展,必须调整)"
+    ],
+    "template": "周报模板下载链接(Notion/飞书)"
+  }
+}
+
+lessonsLearned: 经验教训库（真实案例）
+{
+  "successStories": [
+    {
+      "founder": "某健身App创始人(化名)",
+      "background": "健身教练转型,非技术背景",
+      "lesson": "用无代码工具(Trae.ai)3个月上线MVP,先验证需求再学编程",
+      "result": "MVP获得200付费用户后,再找技术合伙人重构",
+      "takeaway": "不要在验证需求前投入太多技术学习"
+    }
+  ],
+  "failureStories": [
+    {
+      "founder": "某教育平台创始人(化名)",
+      "mistake": "花6个月开发'完美产品',没做用户验证",
+      "result": "上线后发现目标用户根本不买单,浪费时间和钱",
+      "lesson": "先粗糙MVP测试,再迭代完善"
+    }
+  ],
+  "universalPrinciples": [
+    "精益创业:小步快跑,快速验证",
+    "聚焦核心:MVP只做1个核心功能",
+    "用户导向:每周至少和3个用户聊",
+    "灵活调整:数据说No就要认输,不要死磕"
+  ]
+}
+
+---
+
 ## 📤 输出格式
 
 严格按照JSON格式输出，确保所有字段都有详实的内容：
@@ -596,6 +823,29 @@ keyMilestones: 关键里程碑（2-3个）
     "week2_4": { ... },
     "month2_3": { ... },
     "keyMilestones": [ ... ]
+  },
+  "executionSupport": {
+    "commonChallenges": {
+      "weeklyCheckpoints": [ ... ],  // 每周常见挑战和解决方案
+      "phaseSpecific": { ... }  // 阶段性特定挑战
+    },
+    "decisionTrees": [ ... ],  // 关键决策点的应急决策树
+    "helpResources": {
+      "technicalHelp": [ ... ],  // 技术支持资源
+      "businessHelp": [ ... ],  // 商业支持资源
+      "fundingHelp": [ ... ],  // 融资支持资源
+      "mentalHealthSupport": [ ... ]  // 心理健康支持
+    },
+    "trackingTools": {
+      "projectManagement": [ ... ],  // 项目管理工具
+      "metricsDashboard": [ ... ],  // 指标追踪
+      "weeklyReview": { ... }  // 周报模板
+    },
+    "lessonsLearned": {
+      "successStories": [ ... ],  // 成功案例
+      "failureStories": [ ... ],  // 失败教训
+      "universalPrinciples": [ ... ]  // 通用原则
+    }
   }
 }
 \`\`\`
@@ -824,7 +1074,8 @@ function crossVerifyResults(
       // 新增的增强字段
       risks: dataList[0]?.risks || {},
       successCases: dataList[0]?.successCases || [],
-      nextSteps: dataList[0]?.nextSteps || {}
+      nextSteps: dataList[0]?.nextSteps || {},
+      executionSupport: dataList[0]?.executionSupport || {}
     },
     consensusScore
   }
