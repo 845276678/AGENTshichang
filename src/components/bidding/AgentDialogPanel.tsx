@@ -1,10 +1,11 @@
 'use client'
 
-import React from 'react'
+import React, { useState } from 'react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
-import { Heart } from 'lucide-react'
+import { Textarea } from '@/components/ui/textarea'
+import { Heart, Send, MessageCircle, ChevronDown, ChevronUp, Loader2, TrendingUp, TrendingDown } from 'lucide-react'
 import { SpeakingIndicator, ThinkingIndicator, BiddingIndicator, WaitingIndicator } from './StatusIndicators'
 import type { AIPersona } from '@/lib/ai-persona-enhanced'
 
@@ -50,6 +51,16 @@ interface AgentDialogPanelProps {
   onSupport: () => void
   currentBid?: number
   className?: string
+  // 新增：对话功能props
+  conversationMessages?: Array<{
+    role: 'agent' | 'user'
+    content: string
+    timestamp: Date
+    scoreChange?: number
+  }>
+  onSendReply?: (reply: string) => Promise<void>
+  remainingReplies?: number
+  isReplying?: boolean
 }
 
 // 状态颜色映射
@@ -230,8 +241,14 @@ export const AgentDialogPanel: React.FC<AgentDialogPanelProps> = ({
   currentPhase,
   onSupport,
   currentBid,
-  className = ''
+  className = '',
+  conversationMessages = [],
+  onSendReply,
+  remainingReplies = 0,
+  isReplying = false
 }) => {
+  const [userReply, setUserReply] = useState('')
+  const [showConversationHistory, setShowConversationHistory] = useState(false)
   const showBidInfo = currentBid !== undefined ||
     currentPhase === 'bidding' ||
     currentPhase === 'prediction' ||
@@ -508,6 +525,128 @@ export const AgentDialogPanel: React.FC<AgentDialogPanelProps> = ({
           </MotionDiv>
         )}
       </div>
+
+      {/* 6. 对话交互区域（新增） */}
+      {onSendReply && (
+        <div className="conversation-section mt-4 border-t border-gray-200 pt-4">
+          {/* 对话历史展开/折叠按钮 */}
+          {conversationMessages.length > 0 && (
+            <div className="mb-3">
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() => setShowConversationHistory(!showConversationHistory)}
+                className="w-full flex items-center justify-between text-xs text-gray-600 hover:bg-gray-50"
+              >
+                <div className="flex items-center gap-1">
+                  <MessageCircle className="w-3 h-3" />
+                  <span>对话历史 ({conversationMessages.length}条)</span>
+                </div>
+                {showConversationHistory ? (
+                  <ChevronUp className="w-3 h-3" />
+                ) : (
+                  <ChevronDown className="w-3 h-3" />
+                )}
+              </Button>
+
+              {/* 对话历史内容 */}
+              {showConversationHistory && (
+                <div className="mt-2 max-h-48 overflow-y-auto space-y-2 bg-gray-50 rounded-lg p-3">
+                  {conversationMessages.map((msg, idx) => (
+                    <div
+                      key={idx}
+                      className={`flex flex-col gap-1 ${
+                        msg.role === 'user' ? 'items-end' : 'items-start'
+                      }`}
+                    >
+                      {/* 消息气泡 */}
+                      <div
+                        className={`max-w-[85%] rounded-lg px-3 py-2 text-xs ${
+                          msg.role === 'user'
+                            ? 'bg-blue-500 text-white'
+                            : 'bg-white border border-gray-200 text-gray-800'
+                        }`}
+                      >
+                        {msg.content}
+                      </div>
+
+                      {/* 评分变化指示器 */}
+                      {msg.role === 'agent' && msg.scoreChange !== undefined && msg.scoreChange !== 0 && (
+                        <div
+                          className={`flex items-center gap-1 text-xs font-medium ${
+                            msg.scoreChange > 0 ? 'text-green-600' : 'text-red-600'
+                          }`}
+                        >
+                          {msg.scoreChange > 0 ? (
+                            <TrendingUp className="w-3 h-3" />
+                          ) : (
+                            <TrendingDown className="w-3 h-3" />
+                          )}
+                          <span>
+                            {msg.scoreChange > 0 ? '+' : ''}
+                            {msg.scoreChange}分
+                          </span>
+                        </div>
+                      )}
+
+                      {/* 时间戳 */}
+                      <span className="text-xs text-gray-400">
+                        {formatRelativeTime(msg.timestamp)}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* 输入框和发送按钮 */}
+          <div className="flex flex-col gap-2">
+            <Textarea
+              placeholder={
+                remainingReplies > 0
+                  ? `回复 ${agent.name} 的质疑...`
+                  : '已达到最大对话轮次'
+              }
+              value={userReply}
+              onChange={(e) => setUserReply(e.target.value)}
+              disabled={isReplying || remainingReplies === 0}
+              className="min-h-[80px] text-sm resize-none"
+            />
+
+            <div className="flex items-center justify-between">
+              {/* 剩余次数提示 */}
+              <span className="text-xs text-gray-500">
+                剩余回复次数: {remainingReplies}/3
+              </span>
+
+              {/* 发送按钮 */}
+              <Button
+                size="sm"
+                onClick={async () => {
+                  if (!userReply.trim()) return
+                  await onSendReply(userReply)
+                  setUserReply('')
+                }}
+                disabled={!userReply.trim() || isReplying || remainingReplies === 0}
+                className="flex items-center gap-1"
+              >
+                {isReplying ? (
+                  <>
+                    <Loader2 className="w-3 h-3 animate-spin" />
+                    <span>发送中...</span>
+                  </>
+                ) : (
+                  <>
+                    <Send className="w-3 h-3" />
+                    <span>发送</span>
+                  </>
+                )}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* 加载状态覆盖层 */}
       <AnimatePresence>

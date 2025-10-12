@@ -17,6 +17,7 @@ import { useBiddingWebSocket } from '@/hooks/useBiddingWebSocket'
 import { useAgentStates, PhasePermissionManager } from '@/hooks/useAgentStates'
 import { agentStateManager } from '@/services/AgentStateManager'
 import { tokenStorage } from '@/lib/token-storage'
+import { useAgentConversations } from '@/hooks/useAgentConversations'
 
 // Import our new components
 import { AgentDialogPanel, BiddingPhase, type AgentState } from './AgentDialogPanel'
@@ -131,6 +132,29 @@ export default function UnifiedBiddingStage({
     onPermissionUpdate: (permissions) => {
       console.log('Phase permissions updated:', permissions)
     }
+  })
+
+  // Agent对话管理 - 初始评分从currentBids获取
+  const initialScores = useMemo(() => {
+    const scores: Record<string, number> = {}
+    AI_PERSONAS.forEach(persona => {
+      scores[persona.id] = currentBids[persona.id] || 70 // 默认70分
+    })
+    return scores
+  }, [currentBids])
+
+  const {
+    conversations,
+    sendReply,
+    getConversation,
+    canReply,
+    getRemainingReplies
+  } = useAgentConversations({
+    sessionId: sessionId || '',
+    biddingId: ideaId,
+    originalIdea: ideaContent || '',
+    initialScores,
+    maxRepliesPerAgent: 3
   })
 
   // UI状态
@@ -623,27 +647,36 @@ export default function UnifiedBiddingStage({
       {/* Agent对话面板网格 */}
       <MotionDiv className="agents-grid-container">
         <div className={`agents-grid ${compactMode ? 'compact-mode' : ''}`}>
-          {AI_PERSONAS.map((agent, index) => (
-            <MotionDiv key={agent.id}>
-              <AgentDialogPanel
-                agent={agent}
-                state={agentStates[agent.id] || {
-                  id: agent.id,
-                  phase: 'idle',
-                  emotion: 'neutral',
-                  confidence: 0,
-                  lastActivity: new Date(),
-                  speakingIntensity: 0.8,
-                  isSupported: supportedAgents.has(agent.id)
-                }}
-                isActive={activeSpeaker === agent.id}
-                currentPhase={currentPhase}
-                onSupport={() => handleSupportAgent(agent.id)}
-                currentBid={currentBids[agent.id]}
-                className={`${compactMode ? 'compact' : ''}`}
-              />
-            </MotionDiv>
-          ))}
+          {AI_PERSONAS.map((agent, index) => {
+            const conversation = getConversation(agent.id)
+            return (
+              <MotionDiv key={agent.id}>
+                <AgentDialogPanel
+                  agent={agent}
+                  state={agentStates[agent.id] || {
+                    id: agent.id,
+                    phase: 'idle',
+                    emotion: 'neutral',
+                    confidence: 0,
+                    lastActivity: new Date(),
+                    speakingIntensity: 0.8,
+                    isSupported: supportedAgents.has(agent.id)
+                  }}
+                  isActive={activeSpeaker === agent.id}
+                  currentPhase={currentPhase}
+                  onSupport={() => handleSupportAgent(agent.id)}
+                  currentBid={currentBids[agent.id]}
+                  className={`${compactMode ? 'compact' : ''}`}
+                  conversationMessages={conversation?.messages || []}
+                  onSendReply={async (reply: string) => {
+                    await sendReply(agent.id, reply)
+                  }}
+                  remainingReplies={getRemainingReplies(agent.id)}
+                  isReplying={conversation?.isReplying || false}
+                />
+              </MotionDiv>
+            )
+          })}
         </div>
       </MotionDiv>
 
