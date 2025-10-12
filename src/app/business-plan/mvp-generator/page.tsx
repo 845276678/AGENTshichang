@@ -171,14 +171,18 @@ export default function MVPGeneratorPage() {
       return { type: 'generate_mvp', data: { message } }
     }
 
-    // 检测功能修改
-    if (lowerMessage.includes('修改') || lowerMessage.includes('调整') || lowerMessage.includes('改变')) {
-      return { type: 'modify_feature', data: { message } }
+    // 检测设计调整（优先级高于功能修改，因为设计相关的词汇更具体）
+    if (lowerMessage.includes('设计') || lowerMessage.includes('样式') || lowerMessage.includes('颜色') ||
+        lowerMessage.includes('配色') || lowerMessage.includes('布局') || lowerMessage.includes('风格') ||
+        lowerMessage.includes('美化') || lowerMessage.includes('外观')) {
+      return { type: 'adjust_design', data: { message } }
     }
 
-    // 检测设计调整
-    if (lowerMessage.includes('设计') || lowerMessage.includes('样式') || lowerMessage.includes('颜色')) {
-      return { type: 'adjust_design', data: { message } }
+    // 检测功能修改
+    if (lowerMessage.includes('修改') || lowerMessage.includes('调整') || lowerMessage.includes('改变') ||
+        lowerMessage.includes('添加') || lowerMessage.includes('删除') || lowerMessage.includes('增加') ||
+        lowerMessage.includes('优化') || lowerMessage.includes('更新')) {
+      return { type: 'modify_feature', data: { message } }
     }
 
     return { type: 'general', data: { message } }

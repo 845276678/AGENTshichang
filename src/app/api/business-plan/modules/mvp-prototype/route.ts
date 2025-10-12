@@ -6,10 +6,24 @@ interface MVPGenerationRequest {
   targetUsers: string[]
   coreFeatures: string[]
   industryType: string
+  userRequirement?: string
   designPreferences?: {
     colorScheme?: 'blue' | 'green' | 'purple' | 'orange'
     style?: 'modern' | 'minimalist' | 'corporate' | 'creative'
     includeAnimations?: boolean
+  }
+  modificationContext?: {
+    currentVersion: number
+    previousHtmlCode: string
+    modificationRequest: string
+    focusOnChanges: boolean
+  }
+  designContext?: {
+    currentVersion: number
+    previousHtmlCode: string
+    designAdjustmentRequest: string
+    focusOnDesign: boolean
+    preserveFunctionality: boolean
   }
 }
 
@@ -44,7 +58,9 @@ export async function POST(request: NextRequest) {
 
     console.log('🛠️ 开始生成MVP原型', {
       industry: body.industryType,
-      features: body.coreFeatures?.length || 0
+      features: body.coreFeatures?.length || 0,
+      hasModificationContext: !!body.modificationContext,
+      hasDesignContext: !!body.designContext
     })
 
     // 确定颜色方案
@@ -56,64 +72,36 @@ export async function POST(request: NextRequest) {
     }
     const selectedColors = colorSchemes[body.designPreferences?.colorScheme || 'blue']
 
-    // 构建AI提示词
-    const prompt = `你是一位资深的前端开发专家和UI/UX设计师。请基于以下创意生成一个完整的HTML前端原型。
+    let htmlCode: string
 
-创意描述：${body.ideaDescription}
-行业类型：${body.industryType}
-目标用户：${body.targetUsers?.join('、') || '通用用户'}
-核心功能：${body.coreFeatures?.join('、') || '基础功能'}
-设计风格：${body.designPreferences?.style || 'modern'}
-配色方案：主色调${selectedColors.primary}，辅助色${selectedColors.secondary}
-
-请生成一个专业的HTML原型，包括：
-
-1. **完整的HTML结构** - 使用语义化标签，包含：
-   - 响应式导航栏
-   - 吸引人的英雄区域（Hero Section）
-   - 功能特性展示区域（至少3个核心功能）
-   - 定价方案区域（可选，根据产品类型）
-   - 底部（Footer）
-
-2. **现代化的样式** - 使用Tailwind CSS CDN：
-   - 响应式设计（移动端、平板、桌面）
-   - 现代渐变和阴影效果
-   - 流畅的悬停和过渡动画
-   - 统一的设计系统
-
-3. **基础交互逻辑** - 使用原生JavaScript：
-   - 平滑滚动效果
-   - 响应式菜单切换
-   - 模拟按钮点击反馈
-   - 简单的表单验证
-
-4. **README文档** - 包含：
-   - 项目说明
-   - 技术栈介绍
-   - 使用方法
-   - 部署建议
-
-请以JSON格式返回，严格遵循以下结构：
-{
-  "htmlCode": "完整的HTML代码（包含<!DOCTYPE html>和所有标签）",
-  "jsCode": "JavaScript交互代码（可以嵌入HTML中的<script>标签内容）",
-  "readme": "README.md文档内容（Markdown格式）"
-}
-
-注意事项：
-- HTML代码必须是完整可运行的
-- 使用Tailwind CSS CDN，不需要单独的CSS文件
-- 所有文本内容使用中文
-- 代码要有清晰的注释
-- 确保在所有现代浏览器中都能正常工作`
-
-    // 使用模拟数据生成原型
-    console.log('正在生成MVP原型...')
-    await new Promise(resolve => setTimeout(resolve, 1000))
+    // 如果有修改上下文，应用修改
+    if (body.modificationContext) {
+      console.log('🔧 应用功能修改:', body.modificationContext.modificationRequest)
+      htmlCode = applyModifications(
+        body.modificationContext.previousHtmlCode,
+        body.modificationContext.modificationRequest,
+        body
+      )
+    }
+    // 如果有设计上下文，应用设计调整
+    else if (body.designContext) {
+      console.log('🎨 应用设计调整:', body.designContext.designAdjustmentRequest)
+      htmlCode = applyDesignAdjustments(
+        body.designContext.previousHtmlCode,
+        body.designContext.designAdjustmentRequest,
+        selectedColors,
+        body.designPreferences?.style || 'modern'
+      )
+    }
+    // 否则生成新的模板
+    else {
+      console.log('✨ 生成新的MVP模板')
+      htmlCode = generateDefaultTemplate(body, selectedColors)
+    }
 
     // 构建完整的原型数据
     const prototype: MVPPrototype = {
-      htmlCode: generateDefaultTemplate(body, selectedColors),
+      htmlCode,
       cssCode: '', // Tailwind CSS通过CDN引入，不需要单独的CSS
       jsCode: generateDefaultJS(),
       readme: generateDefaultReadme(body),
@@ -133,7 +121,7 @@ export async function POST(request: NextRequest) {
 
     console.log('✅ MVP原型生成完成', {
       htmlSize: prototype.htmlCode.length,
-      jsSize: prototype.jsCode.length
+      hasModification: !!body.modificationContext || !!body.designContext
     })
 
     return NextResponse.json({
@@ -432,6 +420,283 @@ ${body.coreFeatures?.map((f, i) => `${i + 1}. ${f}`).join('\n') || '- 基础展�
 ---
 
 **AI生成 · 仅供参考 · 建议根据实际需求调整**`
+}
+
+/**
+ * 应用功能修改
+ */
+function applyModifications(
+  previousHtml: string,
+  modificationRequest: string,
+  body: MVPGenerationRequest
+): string {
+  let modifiedHtml = previousHtml
+  const request = modificationRequest.toLowerCase()
+
+  console.log('🔧 开始应用修改:', modificationRequest)
+
+  // 1. 添加新功能/区块
+  if (request.includes('添加') || request.includes('增加') || request.includes('新增')) {
+    // 提取要添加的内容
+    if (request.includes('按钮')) {
+      const buttonHtml = `
+                <button class="bg-primary text-white px-6 py-3 rounded-lg font-semibold hover:opacity-90 transition-opacity shadow-lg" onclick="alert('新按钮点击！')">
+                    ${extractContentFromRequest(modificationRequest, '按钮')}
+                </button>`
+
+      // 在功能区域后添加
+      modifiedHtml = modifiedHtml.replace(
+        '</section>',
+        `    <div class="text-center mt-8">${buttonHtml}</div>\n    </section>`
+      )
+    }
+
+    if (request.includes('功能') || request.includes('特性')) {
+      const newFeatureHtml = `
+                <div class="text-center p-6 rounded-xl border border-gray-200 hover:shadow-lg transition-shadow bg-white">
+                    <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-900 mb-2">${extractContentFromRequest(modificationRequest, '功能')}</h3>
+                    <p class="text-gray-600">新增的功能特性</p>
+                </div>`
+
+      // 在功能网格中添加
+      modifiedHtml = modifiedHtml.replace(
+        '</div>\n            </div>\n        </section>',
+        `${newFeatureHtml}\n            </div>\n        </section>`
+      )
+    }
+  }
+
+  // 2. 修改现有内容
+  if (request.includes('修改') || request.includes('改成') || request.includes('换成')) {
+    // 修改标题
+    if (request.includes('标题') || request.includes('title')) {
+      const newTitle = extractContentFromRequest(modificationRequest, '标题')
+      modifiedHtml = modifiedHtml.replace(
+        /<h1 class="text-4xl.*?<\/h1>/s,
+        `<h1 class="text-4xl md:text-6xl font-bold mb-6 animate-fade-in">\n                    ${newTitle}\n                </h1>`
+      )
+    }
+
+    // 修改描述
+    if (request.includes('描述') || request.includes('说明')) {
+      const newDesc = extractContentFromRequest(modificationRequest, '描述')
+      modifiedHtml = modifiedHtml.replace(
+        /<p class="text-xl md:text-2xl.*?<\/p>/,
+        `<p class="text-xl md:text-2xl mb-8 text-blue-100 max-w-3xl mx-auto">\n                    ${newDesc}\n                </p>`
+      )
+    }
+
+    // 修改按钮文本
+    if (request.includes('按钮')) {
+      const newButtonText = extractContentFromRequest(modificationRequest, '按钮')
+      modifiedHtml = modifiedHtml.replace(
+        /立即体验|免费试用/g,
+        newButtonText
+      )
+    }
+  }
+
+  // 3. 删除元素
+  if (request.includes('删除') || request.includes('移除') || request.includes('去掉')) {
+    if (request.includes('按钮')) {
+      // 删除第一个按钮
+      modifiedHtml = modifiedHtml.replace(
+        /<button class="bg-white text-blue-600.*?<\/button>/s,
+        ''
+      )
+    }
+
+    if (request.includes('底部') || request.includes('footer')) {
+      modifiedHtml = modifiedHtml.replace(
+        /<footer.*?<\/footer>/s,
+        ''
+      )
+    }
+  }
+
+  // 4. 调整布局
+  if (request.includes('布局') || request.includes('排列')) {
+    if (request.includes('横向') || request.includes('水平')) {
+      modifiedHtml = modifiedHtml.replace(
+        /grid md:grid-cols-3/g,
+        'flex flex-row'
+      )
+    }
+
+    if (request.includes('竖向') || request.includes('垂直')) {
+      modifiedHtml = modifiedHtml.replace(
+        /grid md:grid-cols-3/g,
+        'flex flex-col'
+      )
+    }
+  }
+
+  console.log('✅ 修改应用完成')
+  return modifiedHtml
+}
+
+/**
+ * 应用设计调整
+ */
+function applyDesignAdjustments(
+  previousHtml: string,
+  designRequest: string,
+  colors: { primary: string; secondary: string },
+  style: string
+): string {
+  let modifiedHtml = previousHtml
+  const request = designRequest.toLowerCase()
+
+  console.log('🎨 开始应用设计调整:', designRequest)
+
+  // 1. 颜色调整
+  if (request.includes('颜色') || request.includes('配色') || request.includes('色调')) {
+    // 更新 Tailwind 配置中的颜色
+    const colorConfig = `        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '${colors.primary}',
+                        secondary: '${colors.secondary}'
+                    }
+                }
+            }
+        }`
+
+    modifiedHtml = modifiedHtml.replace(
+      /tailwind\.config = \{[\s\S]*?\}/,
+      colorConfig
+    )
+
+    // 替换具体的颜色类
+    if (request.includes('蓝色') || request.includes('blue')) {
+      modifiedHtml = modifiedHtml.replace(/from-blue-600 to-purple-600/g, 'from-blue-500 to-blue-700')
+      modifiedHtml = modifiedHtml.replace(/bg-blue-/g, 'bg-blue-')
+      modifiedHtml = modifiedHtml.replace(/text-blue-/g, 'text-blue-')
+    } else if (request.includes('绿色') || request.includes('green')) {
+      modifiedHtml = modifiedHtml.replace(/from-blue-600 to-purple-600/g, 'from-green-500 to-emerald-600')
+      modifiedHtml = modifiedHtml.replace(/bg-blue-100/g, 'bg-green-100')
+      modifiedHtml = modifiedHtml.replace(/text-blue-600/g, 'text-green-600')
+    } else if (request.includes('紫色') || request.includes('purple')) {
+      modifiedHtml = modifiedHtml.replace(/from-blue-600 to-purple-600/g, 'from-purple-500 to-pink-600')
+      modifiedHtml = modifiedHtml.replace(/bg-blue-100/g, 'bg-purple-100')
+      modifiedHtml = modifiedHtml.replace(/text-blue-600/g, 'text-purple-600')
+    } else if (request.includes('橙色') || request.includes('orange')) {
+      modifiedHtml = modifiedHtml.replace(/from-blue-600 to-purple-600/g, 'from-orange-500 to-red-600')
+      modifiedHtml = modifiedHtml.replace(/bg-blue-100/g, 'bg-orange-100')
+      modifiedHtml = modifiedHtml.replace(/text-blue-600/g, 'text-orange-600')
+    }
+  }
+
+  // 2. 风格调整
+  if (request.includes('风格') || request.includes('样式') || request.includes('style')) {
+    if (request.includes('极简') || request.includes('简约') || request.includes('minimalist')) {
+      // 简化设计，移除阴影和渐变
+      modifiedHtml = modifiedHtml.replace(/shadow-lg/g, 'shadow-sm')
+      modifiedHtml = modifiedHtml.replace(/shadow-xl/g, 'shadow-md')
+      modifiedHtml = modifiedHtml.replace(/from-.*? to-.*?"/g, 'bg-white"')
+    } else if (request.includes('现代') || request.includes('modern')) {
+      // 增强现代感，添加更多渐变和圆角
+      modifiedHtml = modifiedHtml.replace(/rounded-lg/g, 'rounded-2xl')
+      modifiedHtml = modifiedHtml.replace(/rounded-xl/g, 'rounded-3xl')
+    } else if (request.includes('企业') || request.includes('正式') || request.includes('corporate')) {
+      // 企业风格，使用深色和方正设计
+      modifiedHtml = modifiedHtml.replace(/rounded-lg/g, 'rounded')
+      modifiedHtml = modifiedHtml.replace(/rounded-xl/g, 'rounded-md')
+      modifiedHtml = modifiedHtml.replace(/from-blue-600 to-purple-600/g, 'bg-gray-800')
+    }
+  }
+
+  // 3. 字体大小调整
+  if (request.includes('字体') || request.includes('文字') || request.includes('大小')) {
+    if (request.includes('大') || request.includes('增大')) {
+      modifiedHtml = modifiedHtml.replace(/text-4xl/g, 'text-5xl')
+      modifiedHtml = modifiedHtml.replace(/text-xl/g, 'text-2xl')
+      modifiedHtml = modifiedHtml.replace(/text-lg/g, 'text-xl')
+    } else if (request.includes('小') || request.includes('减小')) {
+      modifiedHtml = modifiedHtml.replace(/text-4xl/g, 'text-3xl')
+      modifiedHtml = modifiedHtml.replace(/text-xl/g, 'text-lg')
+      modifiedHtml = modifiedHtml.replace(/text-2xl/g, 'text-xl')
+    }
+  }
+
+  // 4. 圆角调整
+  if (request.includes('圆角')) {
+    if (request.includes('增加') || request.includes('更圆')) {
+      modifiedHtml = modifiedHtml.replace(/rounded-lg/g, 'rounded-2xl')
+      modifiedHtml = modifiedHtml.replace(/rounded-xl/g, 'rounded-3xl')
+      modifiedHtml = modifiedHtml.replace(/rounded-full/g, 'rounded-full')
+    } else if (request.includes('减少') || request.includes('方正')) {
+      modifiedHtml = modifiedHtml.replace(/rounded-3xl/g, 'rounded-lg')
+      modifiedHtml = modifiedHtml.replace(/rounded-2xl/g, 'rounded-md')
+      modifiedHtml = modifiedHtml.replace(/rounded-xl/g, 'rounded')
+    }
+  }
+
+  // 5. 间距调整
+  if (request.includes('间距') || request.includes('留白')) {
+    if (request.includes('增加') || request.includes('更大')) {
+      modifiedHtml = modifiedHtml.replace(/py-20/g, 'py-32')
+      modifiedHtml = modifiedHtml.replace(/px-4/g, 'px-8')
+      modifiedHtml = modifiedHtml.replace(/gap-8/g, 'gap-12')
+    } else if (request.includes('减少') || request.includes('紧凑')) {
+      modifiedHtml = modifiedHtml.replace(/py-20/g, 'py-12')
+      modifiedHtml = modifiedHtml.replace(/px-8/g, 'px-4')
+      modifiedHtml = modifiedHtml.replace(/gap-12/g, 'gap-6')
+    }
+  }
+
+  // 6. 阴影调整
+  if (request.includes('阴影')) {
+    if (request.includes('增加') || request.includes('明显')) {
+      modifiedHtml = modifiedHtml.replace(/shadow-sm/g, 'shadow-lg')
+      modifiedHtml = modifiedHtml.replace(/shadow-md/g, 'shadow-xl')
+    } else if (request.includes('减少') || request.includes('淡化') || request.includes('去掉')) {
+      modifiedHtml = modifiedHtml.replace(/shadow-xl/g, 'shadow-md')
+      modifiedHtml = modifiedHtml.replace(/shadow-lg/g, 'shadow-sm')
+      modifiedHtml = modifiedHtml.replace(/shadow-md/g, 'shadow-sm')
+    }
+  }
+
+  console.log('✅ 设计调整应用完成')
+  return modifiedHtml
+}
+
+/**
+ * 从用户请求中提取内容
+ */
+function extractContentFromRequest(request: string, keyword: string): string {
+  // 尝试提取引号中的内容
+  const quoteMatch = request.match(/["'「](.*?)["'」]/)
+  if (quoteMatch) {
+    return quoteMatch[1]
+  }
+
+  // 尝试提取关键词后的内容
+  const patterns = [
+    new RegExp(`${keyword}[为是:：]+(.*?)(?:[，,。！!]|$)`),
+    new RegExp(`${keyword}.*?([^，,。！!]+)(?:[，,。！!]|$)`),
+    new RegExp(`添加.*?${keyword}.*?([^，,。！!]+)(?:[，,。！!]|$)`)
+  ]
+
+  for (const pattern of patterns) {
+    const match = request.match(pattern)
+    if (match && match[1]) {
+      return match[1].trim()
+    }
+  }
+
+  // 默认返回
+  return keyword === '按钮' ? '新按钮' :
+         keyword === '功能' ? '新功能' :
+         keyword === '标题' ? '更新的标题' :
+         keyword === '描述' ? '更新的描述' :
+         '新内容'
 }
 
 /**
