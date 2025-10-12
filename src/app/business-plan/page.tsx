@@ -507,24 +507,6 @@ export default function BusinessPlanPage() {
                     <Brain className="w-4 h-4 mr-2" />
                     智能化生成
                   </Button>
-                  <Button
-                    size="lg"
-                    variant="outline"
-                    className="bg-white/10 text-white hover:bg-white/20 border-white/40"
-                    onClick={() => router.push('/demo/modern-business-plan')}
-                  >
-                    <FileText className="w-4 h-4 mr-2" />
-                    查看现代化示例
-                  </Button>
-                  <Button
-                    size="lg"
-                    variant="ghost"
-                    className="text-white hover:bg-white/15"
-                    onClick={() => router.push('/demo/concise-business-plan')}
-                  >
-                    <ArrowRight className="w-4 h-4 mr-2" />
-                    体验精简版输出
-                  </Button>
                 </div>
                 <div className="hidden md:flex items-center gap-2 text-sm text-white/80">
                   <Compass className="w-5 h-5" />
