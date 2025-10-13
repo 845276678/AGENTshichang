@@ -14,7 +14,7 @@ const MotionDiv = ({ children, className, style, ...props }: { children: React.R
 const AnimatePresence = ({ children }: { children: React.ReactNode }) => <>{children}</>
 
 import { type AIMessage } from '@/lib/ai-persona-system'
-import { MaturityScoreCard, WorkshopRecommendations, ImprovementSuggestions } from '@/components/maturity'
+import { AnimatedMaturityScoreCard, WorkshopRecommendations, ImprovementSuggestions } from '@/components/maturity'
 import type { MaturityScoreResult } from '@/lib/business-plan/maturity-scorer'
 import { useBiddingWebSocket } from '@/hooks/useBiddingWebSocket'
 import { useAgentStates, PhasePermissionManager } from '@/hooks/useAgentStates'
@@ -901,8 +901,14 @@ export default function UnifiedBiddingStage({
 
           {maturityAssessment && (
             <>
-              {/* 成熟度评分卡 */}
-              <MaturityScoreCard assessment={maturityAssessment} />
+              {/* 成熟度评分卡 - 带动画效果 */}
+              <AnimatedMaturityScoreCard
+                assessment={maturityAssessment}
+                enableSound={enableSound}
+                onAnimationComplete={() => {
+                  console.log('✨ 评估动画完成')
+                }}
+              />
 
               {/* 工作坊推荐 - 只在解锁时显示 */}
               {maturityAssessment.workshopAccess.unlocked && (

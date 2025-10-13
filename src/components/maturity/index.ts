@@ -2,6 +2,7 @@
 // Spec: CREATIVE_MATURITY_PLAN_ENHANCED.md v4.1 (Task 10)
 
 export { MaturityScoreCard } from './MaturityScoreCard';
+export { AnimatedMaturityScoreCard } from './AnimatedMaturityScoreCard';
 export { WorkshopRecommendations } from './WorkshopRecommendations';
 export { ImprovementSuggestions } from './ImprovementSuggestions';
 export { ScoreRadarChart } from './ScoreRadarChart';
