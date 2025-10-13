@@ -30,7 +30,7 @@ export default defineConfig({
   // 共享配置
   use: {
     // Base URL
-    baseURL: process.env.BASE_URL || 'http://localhost:4000',
+    baseURL: process.env.BASE_URL || 'http://localhost:3000',
 
     // 截图配置
     screenshot: 'only-on-failure',
@@ -72,8 +72,8 @@ export default defineConfig({
 
   // 本地开发服务器配置
   webServer: {
-    command: 'npm run dev',
-    url: 'http://localhost:4000',
+    command: 'npm run dev -- --port 3000',
+    url: 'http://localhost:3000',
     reuseExistingServer: !process.env.CI,
     timeout: 120 * 1000,
   },

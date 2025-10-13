@@ -5,7 +5,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/db'
+import { prisma } from '@/lib/prisma'
 import { generateWorkshopReport, type WorkshopReportData } from '@/lib/workshop/pdf-generator'
 import { z } from 'zod'
 

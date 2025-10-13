@@ -133,12 +133,12 @@ export function useWorkshopSession({
   const autoSaveTimerRef = useRef<NodeJS.Timeout>()
   const lastSaveDataRef = useRef<string>('')
 
-  // API调用：加载或创建会话
-  const loadOrCreateSession = useCallback(async (): Promise<void> => {
-    setState(prev => ({ ...prev, isLoading: true, error: null }))
+  // API调用：重新加载会话
+  const refreshSession = useCallback(async (): Promise<void> => {
+    setState(prev => ({ ...prev, isLoading: true, error: null, session: null }))
 
     try {
-      console.log(`🔄 加载工作坊会话: ${workshopId}`)
+      console.log(`🔄 刷新工作坊会话: ${workshopId}`)
 
       // 尝试加载现有会话
       const loadResponse = await fetch(
@@ -148,7 +148,7 @@ export function useWorkshopSession({
       if (loadResponse.ok) {
         const loadData: SessionApiResponse = await loadResponse.json()
         if (loadData.success && loadData.data) {
-          console.log(`✅ 加载现有会话成功: ${loadData.data.id}`)
+          console.log(`✅ 刷新现有会话成功: ${loadData.data.id}`)
           setState(prev => ({
             ...prev,
             session: loadData.data!,
@@ -190,11 +190,11 @@ export function useWorkshopSession({
       onSessionLoaded?.(createData.data!)
 
     } catch (error) {
-      console.error('❌ 会话加载失败:', error)
+      console.error('❌ 会话刷新失败:', error)
       setState(prev => ({
         ...prev,
         isLoading: false,
-        error: error instanceof Error ? error.message : '未知错误'
+        error: error instanceof Error ? error.message : '刷新失败'
       }))
     }
   }, [workshopId, userId, onSessionLoaded])
@@ -381,10 +381,88 @@ export function useWorkshopSession({
     }
   }, [state.session, state.hasUnsavedChanges, autoSave, saveInterval, saveSession])
 
-  // 初始化：加载会话
+  // 初始化：加载会话 (移除依赖项避免无限循环)
   useEffect(() => {
-    loadOrCreateSession()
-  }, [loadOrCreateSession])
+    let isMounted = true
+
+    const initializeSession = async () => {
+      if (state.session || state.isLoading) return
+
+      setState(prev => ({ ...prev, isLoading: true, error: null }))
+
+      try {
+        console.log(`🔄 初始化工作坊会话: ${workshopId}`)
+
+        // 尝试加载现有会话
+        const loadResponse = await fetch(
+          `/api/workshop/session?workshopId=${workshopId}&userId=${userId}`
+        )
+
+        if (loadResponse.ok) {
+          const loadData: SessionApiResponse = await loadResponse.json()
+          if (loadData.success && loadData.data && isMounted) {
+            console.log(`✅ 加载现有会话成功: ${loadData.data.id}`)
+            setState(prev => ({
+              ...prev,
+              session: loadData.data!,
+              isLoading: false,
+              lastSaveAt: new Date(loadData.data!.updatedAt)
+            }))
+
+            lastSaveDataRef.current = JSON.stringify(loadData.data!.formData)
+            onSessionLoaded?.(loadData.data!)
+            return
+          }
+        }
+
+        // 404或其他错误 - 创建新会话
+        console.log('📝 创建新的工作坊会话')
+        const createResponse = await fetch('/api/workshop/session', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(createDefaultSession(workshopId, userId))
+        })
+
+        if (!createResponse.ok) {
+          throw new Error(`创建会话失败: ${createResponse.status}`)
+        }
+
+        const createData: SessionApiResponse = await createResponse.json()
+        if (!createData.success || !createData.data) {
+          throw new Error(createData.error || '创建会话返回无效数据')
+        }
+
+        if (isMounted) {
+          console.log(`✅ 创建新会话成功: ${createData.data.id}`)
+          setState(prev => ({
+            ...prev,
+            session: createData.data!,
+            isLoading: false,
+            lastSaveAt: new Date()
+          }))
+
+          lastSaveDataRef.current = JSON.stringify(createData.data!.formData)
+          onSessionLoaded?.(createData.data!)
+        }
+
+      } catch (error) {
+        console.error('❌ 会话初始化失败:', error)
+        if (isMounted) {
+          setState(prev => ({
+            ...prev,
+            isLoading: false,
+            error: error instanceof Error ? error.message : '初始化失败'
+          }))
+        }
+      }
+    }
+
+    initializeSession()
+
+    return () => {
+      isMounted = false
+    }
+  }, [workshopId, userId]) // 只依赖于基本参数
 
   // 清理：组件卸载时保存
   useEffect(() => {
@@ -410,7 +488,7 @@ export function useWorkshopSession({
     completeStep,
     addConversationMessage,
     completeWorkshop,
-    refreshSession: loadOrCreateSession,
+    refreshSession,
 
     // 计算属性
     isComplete: state.session?.status === 'COMPLETED',

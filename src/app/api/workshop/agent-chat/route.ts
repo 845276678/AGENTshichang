@@ -13,7 +13,7 @@ import {
   FALLBACK_RESPONSES,
   WORKSHOP_AGENT_CONFIG
 } from '@/lib/workshop/agent-prompts'
-import { prisma } from '@/lib/db'
+import { prisma } from '@/lib/prisma'
 
 // OpenAI配置
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY

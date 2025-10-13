@@ -6,7 +6,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/db'
+import { prisma } from '@/lib/prisma'
 import { z } from 'zod'
 
 // 请求验证Schema
@@ -74,11 +74,13 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
         workshopId: existingSession.workshopId,
         userId: existingSession.userId,
         currentStep: existingSession.currentStep,
+        totalSteps: existingSession.totalSteps,
         status: existingSession.status,
         formData: existingSession.formData,
         conversationHistory: existingSession.conversationHistory,
         progress: calculateProgress(existingSession),
         completedSteps: extractCompletedSteps(existingSession),
+        lastSaveAt: existingSession.lastActivityAt?.toISOString(),
         createdAt: existingSession.createdAt.toISOString(),
         updatedAt: existingSession.updatedAt.toISOString()
       }
@@ -125,6 +127,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
     if (existingSession) {
       console.log(`⚠️ 发现现有会话，返回现有会话: ${existingSession.id}`)
+
+      // 计算并返回完整的会话数据
       return NextResponse.json({
         success: true,
         data: {
@@ -132,15 +136,28 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
           workshopId: existingSession.workshopId,
           userId: existingSession.userId,
           currentStep: existingSession.currentStep,
+          totalSteps: existingSession.totalSteps,
           status: existingSession.status,
           formData: existingSession.formData,
           conversationHistory: existingSession.conversationHistory,
           progress: calculateProgress(existingSession),
           completedSteps: extractCompletedSteps(existingSession),
+          lastSaveAt: existingSession.lastActivityAt?.toISOString(),
           createdAt: existingSession.createdAt.toISOString(),
           updatedAt: existingSession.updatedAt.toISOString()
         }
       })
+    }
+
+    // 获取工作坊总步骤数
+    const getTotalSteps = (workshopId: string): number => {
+      const stepsMap: Record<string, number> = {
+        'demand-validation': 4,
+        'mvp-builder': 4,
+        'growth-hacking': 3,
+        'profit-model': 3
+      }
+      return stepsMap[workshopId] || 4
     }
 
     // 创建新会话
@@ -149,6 +166,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         workshopId: validatedData.workshopId,
         userId: validatedData.userId,
         currentStep: validatedData.currentStep,
+        totalSteps: getTotalSteps(validatedData.workshopId),
         status: 'IN_PROGRESS',
         formData: validatedData.formData,
         conversationHistory: validatedData.conversationHistory,
@@ -165,11 +183,13 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         workshopId: newSession.workshopId,
         userId: newSession.userId,
         currentStep: newSession.currentStep,
+        totalSteps: newSession.totalSteps,
         status: newSession.status,
         formData: newSession.formData,
         conversationHistory: newSession.conversationHistory,
         progress: 0,
         completedSteps: [],
+        lastSaveAt: newSession.lastActivityAt?.toISOString(),
         createdAt: newSession.createdAt.toISOString(),
         updatedAt: newSession.updatedAt.toISOString()
       }
