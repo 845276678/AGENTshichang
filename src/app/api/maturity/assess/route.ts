@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { MaturityScorer } from '@/lib/business-plan/maturity-scorer';
+import { saveMaturityAssessment } from '@/lib/database/maturity-assessment';
 import type { AIMessage } from '@/types/maturity-score';
 
 /**
@@ -92,6 +93,19 @@ export async function POST(request: NextRequest) {
       recommendationCount: recommendations.length,
       topPriority: recommendations[0]?.workshopId
     });
+
+    // 保存到数据库
+    try {
+      await saveMaturityAssessment({
+        ideaId,
+        userId,
+        sessionId,
+        assessment
+      });
+    } catch (dbError) {
+      console.error('⚠️ 保存评估结果到数据库失败（继续返回结果）', dbError);
+      // 不阻断流程，继续返回评估结果
+    }
 
     // 构建响应
     const response = {

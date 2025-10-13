@@ -805,3 +805,55 @@ model QuestionnaireDraft {
   @@index([expiresAt])
   @@map("questionnaire_draft")
 }
+
+// ============================================
+// 创意成熟度评估系统 v2.0 (10分制)
+// Added: 2025-01-15
+// Spec: IDEA_MATURITY_SYSTEM.md v2.0
+// ============================================
+
+// 成熟度评估结果表 (10分制)
+model MaturityAssessment {
+  id                String   @id @default(cuid())
+  ideaId            String   @map("idea_id")
+  userId            String   @map("user_id")
+  sessionId         String   @map("session_id")
+
+  // 评分结果 (10分制)
+  totalScore        Float    @map("total_score")         // 1.0-10.0
+  level             String   @map("level")               // LOW/GRAY_LOW/MEDIUM/GRAY_HIGH/HIGH
+  confidence        Float    @map("confidence")          // 0.5-1.0
+
+  // 5个维度详情
+  dimensions        Json     @map("dimensions")          // DimensionScores
+
+  // The Mom Test信号统计
+  validSignals      Json     @map("valid_signals")       // ValidSignals
+  invalidSignals    Json     @map("invalid_signals")     // InvalidSignals
+
+  // 专家共识
+  expertConsensus   Json     @map("expert_consensus")    // ExpertConsensus
+
+  // 评分原因块
+  scoringReasons    Json     @map("scoring_reasons")     // ScoringReason[]
+
+  // 薄弱维度列表
+  weakDimensions    String[] @map("weak_dimensions")     // 用于工作坊推荐
+
+  // 工作坊解锁状态
+  workshopUnlocked  Boolean  @map("workshop_unlocked")   // totalScore >= 5.0
+
+  // 元数据
+  scoringVersion    String   @map("scoring_version")     // "1.0.0"
+
+  // 时间戳
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+
+  @@index([ideaId, createdAt])
+  @@index([userId, createdAt])
+  @@index([sessionId])
+  @@index([totalScore])
+  @@index([level])
+  @@map("maturity_assessments")
+}
