@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState, useEffect, useMemo, useCallback } from 'react'
+import { useRouter } from 'next/navigation'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -85,6 +86,8 @@ export default function UnifiedBiddingStage({
   onPhaseChange,
   className = ''
 }: UnifiedBiddingStageProps) {
+  const router = useRouter()
+
   // WebSocket连接状态
   const {
     isConnected,
@@ -907,7 +910,9 @@ export default function UnifiedBiddingStage({
                   recommendations={maturityAssessment.workshopAccess.recommendations}
                   onWorkshopSelect={(workshopId) => {
                     console.log('🎓 用户选择工作坊:', workshopId)
-                    // TODO: 跳转到工作坊页面
+                    // 跳转到工作坊页面，并传递评估ID
+                    const assessmentId = maturityAssessment.assessmentId || ideaId
+                    router.push(`/workshop/${workshopId}?assessment=${assessmentId}`)
                   }}
                 />
               )}
