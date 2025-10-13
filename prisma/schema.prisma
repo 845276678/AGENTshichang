@@ -857,3 +857,59 @@ model MaturityAssessment {
   @@index([level])
   @@map("maturity_assessments")
 }
+
+// ============================================
+// 工作坊系统 (Workshop System)
+// Added: 2025-01-15
+// Spec: week4_workshop_interactive_plan.md
+// ============================================
+
+// 工作坊会话表
+model WorkshopSession {
+  id                String   @id @default(cuid())
+  workshopId        String   @map("workshop_id")        // 工作坊类型: demand-validation, mvp-builder, growth-hacking, profit-model
+  userId            String   @map("user_id")
+  assessmentId      String?  @map("assessment_id")      // 关联的成熟度评估ID
+
+  // 进度追踪
+  currentStep       Int      @default(1)                // 当前步骤
+  totalSteps        Int      @map("total_steps")        // 总步骤数
+  completedSteps    Int[]    @map("completed_steps")    // 已完成步骤列表
+  progressPercentage Float   @default(0)                // 完成百分比
+
+  // 表单数据
+  formData          Json     @default("{}") @map("form_data")  // 用户填写的表单内容
+
+  // Agent对话历史
+  conversationHistory Json   @default("[]") @map("conversation_history")  // AgentMessage[]
+
+  // 状态
+  status            WorkshopStatus @default(IN_PROGRESS)
+  startedAt         DateTime @default(now()) @map("started_at")
+  completedAt       DateTime? @map("completed_at")
+  lastActivityAt    DateTime @updatedAt @map("last_activity_at")
+
+  // 成果输出
+  pdfReportUrl      String?  @map("pdf_report_url")    // PDF报告下载链接
+  pdfGeneratedAt    DateTime? @map("pdf_generated_at")
+
+  // 元数据
+  metadata          Json?    @default("{}")            // 额外元数据（如时长、评分等）
+
+  // 时间戳
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+
+  @@index([userId])
+  @@index([workshopId])
+  @@index([assessmentId])
+  @@index([status, createdAt])
+  @@map("workshop_sessions")
+}
+
+// 工作坊状态枚举
+enum WorkshopStatus {
+  IN_PROGRESS      // 进行中
+  COMPLETED        // 已完成
+  ABANDONED        // 已放弃
+}
