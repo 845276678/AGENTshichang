@@ -28,6 +28,7 @@ import {
   Settings,
   Bot
 } from 'lucide-react'
+import { useSoundEffects } from '@/hooks/useSoundEffects'
 
 // 导入相关组件和Hooks
 import WorkshopProgress from './WorkshopProgress'
@@ -133,6 +134,9 @@ export default function WorkshopSessionManager({
   onSessionAbandoned,
   className = ''
 }: WorkshopSessionManagerProps) {
+  // 音效系统
+  const { playSound } = useSoundEffects(true, 0.6)
+
   // 会话管理Hook
   const {
     session,
@@ -225,6 +229,9 @@ export default function WorkshopSessionManager({
     try {
       console.log(`🎯 工作坊表单提交:`, formData)
 
+      // 播放工作坊完成音效
+      await playSound('workshop-unlock')
+
       const success = await completeWorkshop()
       if (success) {
         setShowSaveConfirm(true)
@@ -233,7 +240,7 @@ export default function WorkshopSessionManager({
     } catch (error) {
       console.error('❌ 完成工作坊失败:', error)
     }
-  }, [completeWorkshop])
+  }, [completeWorkshop, playSound])
 
   // 处理Agent交互
   const handleAgentInteraction = useCallback(async (
@@ -258,10 +265,12 @@ export default function WorkshopSessionManager({
   const handleManualSave = useCallback(async () => {
     const success = await saveSession()
     if (success) {
+      // 播放保存音效
+      await playSound('form-save')
       setShowSaveConfirm(true)
       setTimeout(() => setShowSaveConfirm(false), 2000)
     }
-  }, [saveSession])
+  }, [saveSession, playSound])
 
   // 重置工作坊
   const handleResetWorkshop = useCallback(async () => {

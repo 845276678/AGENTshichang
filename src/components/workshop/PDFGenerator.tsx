@@ -33,6 +33,7 @@ import {
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { type WorkshopSession } from '@/hooks/useWorkshopSession'
+import { useSoundEffects } from '@/hooks/useSoundEffects'
 
 // 组件Props接口
 export interface PDFGeneratorProps {
@@ -65,6 +66,9 @@ export default function PDFGenerator({
   onShare,
   className = ''
 }: PDFGeneratorProps) {
+  // 音效系统
+  const { playSound } = useSoundEffects(true, 0.5)
+
   // 状态管理
   const [config, setConfig] = useState<PDFConfig>({
     userProfile: {
@@ -166,6 +170,9 @@ export default function PDFGenerator({
 
       setGeneratedPDF({ filename, blob, url })
       setStatus('success')
+
+      // 播放PDF生成成功音效
+      await playSound('pdf-download')
 
       console.log(`✅ PDF生成成功`, {
         filename,
