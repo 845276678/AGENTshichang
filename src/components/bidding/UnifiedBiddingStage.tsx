@@ -13,6 +13,8 @@ const MotionDiv = ({ children, className, style, ...props }: { children: React.R
 const AnimatePresence = ({ children }: { children: React.ReactNode }) => <>{children}</>
 
 import { type AIMessage } from '@/lib/ai-persona-system'
+import { MaturityScoreCard, WorkshopRecommendations, ImprovementSuggestions } from '@/components/maturity'
+import type { MaturityScoreResult } from '@/lib/business-plan/maturity-scorer'
 import { useBiddingWebSocket } from '@/hooks/useBiddingWebSocket'
 import { useAgentStates, PhasePermissionManager } from '@/hooks/useAgentStates'
 import { agentStateManager } from '@/services/AgentStateManager'
@@ -163,6 +165,11 @@ export default function UnifiedBiddingStage({
   const [compactMode, setCompactMode] = useState(false)
   const [isCreatingPlan, setIsCreatingPlan] = useState(false)
 
+  // 创意成熟度评估状态
+  const [maturityAssessment, setMaturityAssessment] = useState<MaturityScoreResult | null>(null)
+  const [isEvaluating, setIsEvaluating] = useState(false)
+  const [evaluationError, setEvaluationError] = useState<string | null>(null)
+
   // 用户补充状态
   const [userSupplement, setUserSupplement] = useState('')
   const [supplementHistory, setSupplementHistory] = useState<Array<{
@@ -206,6 +213,63 @@ export default function UnifiedBiddingStage({
       return () => clearTimeout(startTimer)
     }
   }, [sessionId, ideaContent, isConnected, wsPhase, startBidding])
+
+  // 自动触发创意成熟度评估 - 当进入RESULT_DISPLAY阶段时
+  useEffect(() => {
+    const triggerMaturityAssessment = async () => {
+      if (currentPhase !== BiddingPhase.RESULT_DISPLAY) return
+      if (maturityAssessment || isEvaluating) return // 避免重复评估
+      if (!ideaId || !sessionId) return
+      if (aiMessages.length === 0 || Object.keys(currentBids).length === 0) return
+
+      console.log('🎯 触发创意成熟度评估...')
+      setIsEvaluating(true)
+      setEvaluationError(null)
+
+      try {
+        const response = await fetch('/api/maturity/assess', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            ideaId,
+            userId: sessionId, // 使用sessionId作为userId
+            sessionId,
+            aiMessages: aiMessages.map(msg => ({
+              id: msg.id,
+              personaId: msg.personaId,
+              content: msg.content,
+              emotion: msg.emotion,
+              phase: msg.phase,
+              timestamp: msg.timestamp
+            })),
+            bids: currentBids
+          })
+        })
+
+        if (!response.ok) {
+          throw new Error(`评估失败: ${response.status}`)
+        }
+
+        const result = await response.json()
+
+        if (result.success && result.data) {
+          console.log('✅ 创意成熟度评估完成:', result.data)
+          setMaturityAssessment(result.data)
+        } else {
+          throw new Error(result.error || '评估返回数据无效')
+        }
+      } catch (error) {
+        console.error('❌ 创意成熟度评估失败:', error)
+        setEvaluationError(error instanceof Error ? error.message : '未知错误')
+      } finally {
+        setIsEvaluating(false)
+      }
+    }
+
+    triggerMaturityAssessment()
+  }, [currentPhase, ideaId, sessionId, aiMessages, currentBids, maturityAssessment, isEvaluating])
 
   // 处理AI消息更新Agent状态 - 为每个agent显示其最新消息
   useEffect(() => {
@@ -775,80 +839,137 @@ export default function UnifiedBiddingStage({
 
       {/* 结果阶段 - 商业计划生成 */}
       {currentPhase === BiddingPhase.RESULT_DISPLAY && (
-        <Card className="w-full max-w-4xl mx-auto border-2 border-green-200 bg-gradient-to-r from-green-50 to-blue-50">
-          <CardContent className="p-6">
-            <div className="text-center space-y-4">
-              <div className="flex items-center justify-center gap-2 mb-4">
-                <Trophy className="w-8 h-8 text-yellow-500" />
-                <h2 className="text-2xl font-bold text-gray-800">🎉 AI竞价完成！</h2>
-              </div>
+        <div className="space-y-6 w-full max-w-4xl mx-auto">
+          {/* 竞价结果摘要 */}
+          <Card className="border-2 border-green-200 bg-gradient-to-r from-green-50 to-blue-50">
+            <CardContent className="p-6">
+              <div className="text-center space-y-4">
+                <div className="flex items-center justify-center gap-2 mb-4">
+                  <Trophy className="w-8 h-8 text-yellow-500" />
+                  <h2 className="text-2xl font-bold text-gray-800">🎉 AI竞价完成！</h2>
+                </div>
 
-              <div className="bg-white p-4 rounded-lg shadow-md mb-6">
-                <h3 className="text-lg font-semibold mb-3">竞价结果摘要</h3>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-green-600">¥{highestBid}</div>
-                    <div className="text-gray-600">最高出价</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-blue-600">{Object.keys(currentBids).length}</div>
-                    <div className="text-gray-600">参与专家</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-purple-600">{aiMessages.length}</div>
-                    <div className="text-gray-600">专家评论</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-orange-600">{supportedAgents.size}</div>
-                    <div className="text-gray-600">获得支持</div>
+                <div className="bg-white p-4 rounded-lg shadow-md mb-6">
+                  <h3 className="text-lg font-semibold mb-3">竞价结果摘要</h3>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                    <div className="text-center">
+                      <div className="text-2xl font-bold text-green-600">¥{highestBid}</div>
+                      <div className="text-gray-600">最高出价</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-2xl font-bold text-blue-600">{Object.keys(currentBids).length}</div>
+                      <div className="text-gray-600">参与专家</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-2xl font-bold text-purple-600">{aiMessages.length}</div>
+                      <div className="text-gray-600">专家评论</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-2xl font-bold text-orange-600">{supportedAgents.size}</div>
+                      <div className="text-gray-600">获得支持</div>
+                    </div>
                   </div>
                 </div>
               </div>
+            </CardContent>
+          </Card>
 
-              <div className="space-y-3">
+          {/* 创意成熟度评估结果 */}
+          {isEvaluating && (
+            <Card className="border-2 border-blue-200 bg-gradient-to-r from-blue-50 to-purple-50">
+              <CardContent className="p-8 text-center">
+                <Loader2 className="w-12 h-12 mx-auto mb-4 text-blue-600 animate-spin" />
+                <h3 className="text-xl font-bold text-gray-800 mb-2">正在分析创意成熟度...</h3>
+                <p className="text-gray-600">AI专家团队正在基于The Mom Test理论对您的创意进行深度评估</p>
+              </CardContent>
+            </Card>
+          )}
+
+          {evaluationError && (
+            <Card className="border-2 border-red-200 bg-red-50">
+              <CardContent className="p-4">
+                <div className="flex items-center gap-2 text-red-800">
+                  <AlertCircle className="w-5 h-5" />
+                  <p className="font-medium">评估失败: {evaluationError}</p>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {maturityAssessment && (
+            <>
+              {/* 成熟度评分卡 */}
+              <MaturityScoreCard assessment={maturityAssessment} />
+
+              {/* 工作坊推荐 - 只在解锁时显示 */}
+              {maturityAssessment.workshopAccess.unlocked && (
+                <WorkshopRecommendations
+                  recommendations={maturityAssessment.workshopAccess.recommendations}
+                  onWorkshopSelect={(workshopId) => {
+                    console.log('🎓 用户选择工作坊:', workshopId)
+                    // TODO: 跳转到工作坊页面
+                  }}
+                />
+              )}
+
+              {/* 改进建议 - 分数低于8.0时显示 */}
+              {maturityAssessment.totalScore < 8.0 && (
+                <ImprovementSuggestions
+                  weakDimensions={maturityAssessment.weakDimensions}
+                  dimensions={maturityAssessment.dimensions}
+                  invalidSignals={maturityAssessment.invalidSignals}
+                />
+              )}
+            </>
+          )}
+
+          {/* 操作按钮 */}
+          <Card className="border-2 border-green-200 bg-gradient-to-r from-green-50 to-blue-50">
+            <CardContent className="p-6">
+              <div className="text-center space-y-4">
                 <p className="text-lg text-gray-700">
                   🎯 恭喜！您的创意已通过AI专家团队的全面评估和竞价
                 </p>
                 <p className="text-gray-600">
                   基于专家讨论和竞价结果，系统将为您生成专业的商业计划书
                 </p>
-              </div>
 
-              <div className="flex flex-col sm:flex-row gap-4 justify-center mt-6">
-                <Button
-                  onClick={handleGenerateBusinessPlan}
-                  disabled={isCreatingPlan}
-                  className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-3 text-lg font-semibold rounded-full shadow-lg transform hover:scale-105 transition-all duration-200 disabled:opacity-80 disabled:hover:scale-100 disabled:cursor-not-allowed"
-                >
-                  {isCreatingPlan ? (
-                    <>
-                      <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                      正在生成...
-                    </>
-                  ) : (
-                    <>
-                      <FileText className="w-5 h-5 mr-2" />
-                      生成商业计划书
-                    </>
-                  )}
-                </Button>
+                <div className="flex flex-col sm:flex-row gap-4 justify-center mt-6">
+                  <Button
+                    onClick={handleGenerateBusinessPlan}
+                    disabled={isCreatingPlan}
+                    className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-3 text-lg font-semibold rounded-full shadow-lg transform hover:scale-105 transition-all duration-200 disabled:opacity-80 disabled:hover:scale-100 disabled:cursor-not-allowed"
+                  >
+                    {isCreatingPlan ? (
+                      <>
+                        <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                        正在生成...
+                      </>
+                    ) : (
+                      <>
+                        <FileText className="w-5 h-5 mr-2" />
+                        生成商业计划书
+                      </>
+                    )}
+                  </Button>
 
-                <Button
-                  variant="outline"
-                  onClick={() => handleViewDetailedReport()}
-                  className="border-2 border-blue-500 text-blue-600 hover:bg-blue-50 px-8 py-3 text-lg font-semibold rounded-full shadow-lg transform hover:scale-105 transition-all duration-200"
-                >
-                  <TrendingUp className="w-5 h-5 mr-2" />
-                  查看详细报告
-                </Button>
-              </div>
+                  <Button
+                    variant="outline"
+                    onClick={() => handleViewDetailedReport()}
+                    className="border-2 border-blue-500 text-blue-600 hover:bg-blue-50 px-8 py-3 text-lg font-semibold rounded-full shadow-lg transform hover:scale-105 transition-all duration-200"
+                  >
+                    <TrendingUp className="w-5 h-5 mr-2" />
+                    查看详细报告
+                  </Button>
+                </div>
 
-              <div className="text-xs text-gray-500 mt-4">
-                💡 商业计划书将基于AI专家的讨论内容和出价分析自动生成
+                <div className="text-xs text-gray-500 mt-4">
+                  💡 商业计划书将基于AI专家的讨论内容和出价分析自动生成
+                </div>
               </div>
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        </div>
       )}
 
       {/* 设置面板 */}
