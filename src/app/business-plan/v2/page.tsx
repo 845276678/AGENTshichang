@@ -114,7 +114,7 @@ export default function BusinessPlanV2Page() {
       <div className="container py-10 space-y-8">
         <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
           <div className="flex flex-col gap-3">
-            <h1 className="text-3xl font-semibold">商业计划书生成（新增场景流程）</h1>
+            <h1 className="text-3xl font-semibold">创意实现建议生成（新增场景流程）</h1>
             <p className="text-muted-foreground">
               提交创意后系统将先生成场景可行性报告，再进行专业级的阶段式生成商业计划，涉及 DeepSeek、智谱 GLM、阿里通义千问三大模型。
             </p>

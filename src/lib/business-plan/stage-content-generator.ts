@@ -32,7 +32,7 @@ export interface StageOutput {
 }
 
 /**
- * 商业计划书9个阶段的详细生成器
+ * 创意实现建议9个阶段的详细生成器
  */
 export class StageContentGenerator {
   private aiService = AIServiceFactory

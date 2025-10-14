@@ -111,7 +111,7 @@ export async function POST(request: NextRequest) {
     })
   } catch (error) {
     logger.error("Generate business plan API failed", { route: "/api/generate-business-plan" }, error as Error)
-    const message = error instanceof Error ? error.message : "生成商业计划书失败"
+    const message = error instanceof Error ? error.message : "生成创意实现建议失败"
     return NextResponse.json({ success: false, error: message }, { status: 500 })
   }
 }
@@ -320,7 +320,7 @@ async function createResearchReportFromBusinessPlan(ideaId: string, userId: stri
     // 创建ResearchReport记录
     const report = await ResearchReportService.create(userId, {
       ideaId: ideaId,
-      creditsCost: 0 // 通过商业计划生成的报告免费
+      creditsCost: 0 // 通过创意实现建议的报告免费
     })
 
     // 更新报告内容
@@ -331,7 +331,7 @@ async function createResearchReportFromBusinessPlan(ideaId: string, userId: stri
       dataSources: reportData.dataSources,
       mvpGuidance: reportData.mvpGuidance,
       businessModel: reportData.businessModel,
-      summary: `基于AI商业计划生成器创建的《${state.scenario?.ideaTitle || '创意项目'}》深度分析报告`,
+      summary: `基于AI创意实现建议器创建的《${state.scenario?.ideaTitle || '创意项目'}》深度分析报告`,
       status: 'COMPLETED',
       progress: 100
     })

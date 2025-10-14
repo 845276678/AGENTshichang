@@ -148,7 +148,7 @@ function convertToLandingCoachGuide(plan: SimplifiedBusinessPlan): LandingCoachG
 }
 
 /**
- * 直接生成商业计划书API
+ * 直接生成创意实现建议API
  * 跳过AI竞价环节，使用简化版4模块结构快速生成
  */
 export async function POST(request: NextRequest) {
@@ -163,7 +163,7 @@ export async function POST(request: NextRequest) {
       }, { status: 400 })
     }
 
-    console.log('🚀 开始直接生成商业计划书', {
+    console.log('🚀 开始直接生成创意实现建议', {
       title: body.ideaTitle,
       description: body.ideaDescription.slice(0, 100) + '...',
       source: body.source,
@@ -245,7 +245,7 @@ export async function POST(request: NextRequest) {
     // 4. 转换为兼容的显示格式并返回结果
     const landingCoachGuide = convertToLandingCoachGuide(plan)
 
-    console.log('✅ 商业计划书生成完成', {
+    console.log('✅ 创意实现建议生成完成', {
       ideaTitle: plan.metadata.ideaTitle,
       maturityScore: plan.metadata.maturityScore,
       contentDepth: plan.metadata.contentDepth,
@@ -266,7 +266,7 @@ export async function POST(request: NextRequest) {
     })
 
   } catch (error) {
-    console.error('❌ 直接生成商业计划书失败:', error)
+    console.error('❌ 直接生成创意实现建议失败:', error)
     return handleApiError(error)
   }
 }

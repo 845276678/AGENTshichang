@@ -124,7 +124,7 @@ export default function SimplifiedBusinessPlanDisplay({
         <Card className="w-80 text-center">
           <CardContent className="space-y-4 p-8">
             <Brain className="mx-auto h-10 w-10 animate-spin text-primary" />
-            <p className="text-sm text-muted-foreground">正在生成简化版商业计划书...</p>
+            <p className="text-sm text-muted-foreground">正在生成简化版创意实现建议...</p>
           </CardContent>
         </Card>
       </div>
@@ -157,7 +157,7 @@ export default function SimplifiedBusinessPlanDisplay({
           </div>
           <div className="space-y-1">
             <h1 className="text-2xl font-bold">{plan.metadata.ideaTitle}</h1>
-            <p className="text-sm text-muted-foreground">简化版商业计划书</p>
+            <p className="text-sm text-muted-foreground">简化版创意实现建议</p>
           </div>
         </div>
 

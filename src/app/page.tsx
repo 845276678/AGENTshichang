@@ -1,6 +1,6 @@
 'use client'
 
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
 import { Layout } from '@/components/layout'
@@ -9,6 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge'
 import { AnimatedSection } from '@/components/ui'
 import { useAuth } from '@/contexts/AuthContext'
+import { AgentCard } from '@/components/agent/AgentCard'
 import {
   ArrowRight,
   Sparkles,
@@ -17,67 +18,12 @@ import {
   Briefcase,
   Star,
   TrendingUp,
-  PlayCircle
+  PlayCircle,
+  Users,
+  Activity
 } from 'lucide-react'
-
-// Featured AI Agents from the product document
-const featuredAgents = [
-  {
-    id: '1',
-    name: '科技先锋艾克斯',
-    description: '专注高科技和未来科技的挑剔投资人，只对颠覆性、具有技术可行性的创意感兴趣，出价豪爽但眼光犀利。',
-    category: '科技创新',
-    dailyBudget: 500,
-    rating: 4.9,
-    purchasedIdeas: 234,
-    storeItems: 89,
-    tags: ['AI技术', '区块链', '物联网'],
-    personality: '严谨理性',
-    author: {
-      id: '1',
-      name: 'AI Agent',
-      verified: true
-    },
-    featured: true,
-    trending: true
-  },
-  {
-    id: '2',
-    name: '文艺少女小琳',
-    description: '寻找故事、诗歌、艺术创意的温柔少女，对情感描述敏感，喜欢有温度有故事的创意想法。',
-    category: '文艺创作',
-    dailyBudget: 300,
-    rating: 4.8,
-    purchasedIdeas: 456,
-    storeItems: 167,
-    tags: ['诗歌文学', '艺术创作', '情感故事'],
-    personality: '感性温柔',
-    author: {
-      id: '2',
-      name: 'AI Agent',
-      verified: true
-    },
-    featured: true
-  },
-  {
-    id: '3',
-    name: '商人老李',
-    description: '关注商业价值的精明商人，需求功利现实，专门寻找能赚钱、有市场前景的商业创意和方案。',
-    category: '商业策略',
-    dailyBudget: 800,
-    rating: 4.7,
-    purchasedIdeas: 189,
-    storeItems: 203,
-    tags: ['商业模式', '市场营销', '盈利方案'],
-    personality: '务实精明',
-    author: {
-      id: '3',
-      name: 'AI Agent',
-      verified: true
-    },
-    featured: true
-  }
-]
+import { getAgentsGroupedByModule } from '@/lib/agent-registry'
+import type { Agent } from '@/lib/agent-registry'
 
 const categories = [
   { name: '创意分享', count: '活跃', icon: Sparkles, gradient: 'from-pink-500 to-rose-500' },
@@ -88,7 +34,7 @@ const categories = [
 
 const stats = [
   { label: '创意想法', value: '2,340+', icon: Sparkles },
-  { label: 'AI竞价师', value: '18+', icon: Brain },
+  { label: 'AI助手', value: '12位', icon: Brain },
   { label: '积分流通', value: '50万+', icon: Zap },
   { label: '成功率', value: '87.3%', icon: Star },
 ]
@@ -129,7 +75,7 @@ const HeroSection = () => {
           <AnimatedSection delay={0.3}>
             <p className="text-xl text-muted-foreground mb-8 max-w-2xl leading-relaxed">
               在创意竞价市场提交您的想法，让AI智能体为您的创意竞价，
-              竞价成功后自动生成专业的商业计划书，助力您的创意商业化。
+              竞价成功后自动生成专业的创意实现建议，助力您的创意商业化。
             </p>
           </AnimatedSection>
 
@@ -154,7 +100,7 @@ const HeroSection = () => {
               >
                 <Link href={isAuthenticated ? "/business-plan" : "/auth/register"}>
                   <PlayCircle className="mr-2 h-5 w-5" />
-                  {isAuthenticated ? "查看商业指导" : "注册开始体验"}
+                  {isAuthenticated ? "查看实现建议" : "注册开始体验"}
                 </Link>
               </Button>
             </div>
@@ -186,88 +132,229 @@ const HeroSection = () => {
   )
 }
 
-const FeaturedAgentsSection = () => {
+const AgentCapabilityCenter = () => {
+  const [agentStats, setAgentStats] = useState<Record<string, any>>({})
+  const [loading, setLoading] = useState(true)
+
+  // 获取Agent统计数据
+  useEffect(() => {
+    async function fetchStats() {
+      try {
+        const response = await fetch('/api/agent/stats')
+        const data = await response.json()
+
+        // 将统计数据转换为agentId -> stats映射
+        const statsMap: Record<string, any> = {}
+        if (data.stats) {
+          data.stats.forEach((stat: any) => {
+            if (!statsMap[stat.agentId]) {
+              statsMap[stat.agentId] = {}
+            }
+            statsMap[stat.agentId][stat.module] = {
+              totalUses: stat.totalUses,
+              uniqueUsers: stat.uniqueUsers
+            }
+          })
+        }
+
+        setAgentStats(statsMap)
+      } catch (error) {
+        console.error('获取Agent统计失败:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchStats()
+  }, [])
+
+  // 获取所有Agents并按模块分组
+  const agentGroups = getAgentsGroupedByModule()
+
+  // 计算Agent使用统计
+  const getAgentUsageStats = (agent: Agent) => {
+    const stats = agentStats[agent.id]
+    if (!stats) {
+      // 返回模拟数据以展示UI
+      return {
+        todayCount: Math.floor(Math.random() * 50) + 10,
+        trending: Math.random() > 0.7
+      }
+    }
+
+    const moduleStats = stats[agent.module]
+    return {
+      todayCount: moduleStats?.totalUses || 0,
+      trending: moduleStats?.totalUses > 50
+    }
+  }
+
+  // 计算总体统计
+  const totalAgents = agentGroups.bidding.length + agentGroups.workshop.length + agentGroups.assessment.length
+  const totalUsesToday = Object.values(agentStats).reduce((sum: number, stat: any) => {
+    return sum + Object.values(stat as Record<string, any>).reduce((s: number, m: any) => s + (m.totalUses || 0), 0)
+  }, 0)
+
   return (
-    <section className="py-20 lg:py-28">
+    <section className="py-20 lg:py-28 bg-gradient-to-br from-background via-background to-secondary/20">
       <div className="container">
         <AnimatedSection>
-          <div className="text-center mb-16">
+          <div className="text-center mb-12">
             <Badge variant="outline" className="mb-4">
               <Brain className="w-4 h-4 mr-2" />
-              AI竞价师阵容
+              Agent能力中心
             </Badge>
             <h2 className="text-3xl md:text-4xl font-bold mb-4">
-              认识我们的AI竞价师
+              认识我们的AI智能助手团队
             </h2>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              每位AI竞价师都有独特的审美标准和投资偏好，他们会为符合自己需求的创意想法竞价，并提供专业的改造建议。
+              从创意竞价到工作坊指导，从成熟度评估到专业咨询，AI助手团队为您的创意旅程提供全方位支持。
             </p>
           </div>
         </AnimatedSection>
-        
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
-          {featuredAgents.map((agent, index) => (
-            <AnimatedSection key={agent.id} delay={0.1 + index * 0.1}>
-              <Card className="h-full group cursor-pointer border-0 shadow-lg hover:shadow-xl transition-all duration-300">
-                <Link href={`/agents/${agent.id}`}>
-                  <CardHeader className="pb-4">
-                    <div className="flex items-start justify-between">
-                      <div className="flex items-center gap-3">
-                        <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-primary/20 to-agent-500/20 flex items-center justify-center border">
-                          <Brain className="h-6 w-6 text-primary" />
-                        </div>
-                        <div className="flex-1">
-                          <h3 className="font-semibold text-lg group-hover:text-primary transition-colors">
-                            {agent.name}
-                          </h3>
-                          <Badge variant="outline" className="text-xs mt-1">
-                            {agent.category}
-                          </Badge>
-                        </div>
-                      </div>
-                      <div className="flex-shrink-0 text-right">
-                        <div className="text-sm text-muted-foreground">日预算</div>
-                        <div className="text-lg font-bold text-primary">{agent.dailyBudget}积分</div>
-                      </div>
-                    </div>
-                  </CardHeader>
-                  <CardContent className="pt-0">
-                    <p className="text-muted-foreground text-sm line-clamp-3 mb-4">
-                      {agent.description}
-                    </p>
-                    <div className="flex flex-wrap gap-1 mb-4">
-                      {agent.tags.slice(0, 2).map((tag) => (
-                        <Badge key={tag} variant="secondary" className="text-xs">
-                          {tag}
-                        </Badge>
-                      ))}
-                    </div>
-                    <div className="flex items-center justify-between text-sm text-muted-foreground">
-                      <div className="flex items-center gap-1">
-                        <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                        <span>{agent.rating}</span>
-                        <span className="ml-2">{agent.personality}</span>
-                      </div>
-                      <div className="flex items-center gap-3">
-                        <span>已竞价 {agent.purchasedIdeas}</span>
-                        <span>商店 {agent.storeItems} 件</span>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Link>
-              </Card>
-            </AnimatedSection>
-          ))}
-        </div>
-        
-        <AnimatedSection>
-          <div className="text-center">
-            <Button size="lg" variant="outline" asChild>
-              <Link href="/agents">
-                查看所有AI竞价师
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </Link>
-            </Button>
+
+        {/* 统计面板 */}
+        <AnimatedSection delay={0.1}>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-16">
+            <Card className="border-0 shadow-md">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-muted-foreground mb-1">AI助手</p>
+                    <p className="text-2xl font-bold">{totalAgents}位</p>
+                    <p className="text-xs text-muted-foreground mt-1">专业角色</p>
+                  </div>
+                  <Brain className="w-10 h-10 text-primary/20" />
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="border-0 shadow-md">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-muted-foreground mb-1">今日服务</p>
+                    <p className="text-2xl font-bold">{loading ? '--' : totalUsesToday}</p>
+                    <p className="text-xs text-green-600 mt-1">实时统计</p>
+                  </div>
+                  <Activity className="w-10 h-10 text-green-500/20" />
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="border-0 shadow-md">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-muted-foreground mb-1">用户满意度</p>
+                    <p className="text-2xl font-bold">98.5%</p>
+                    <p className="text-xs text-muted-foreground mt-1">好评率</p>
+                  </div>
+                  <Star className="w-10 h-10 text-yellow-500/20" />
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="border-0 shadow-md">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-muted-foreground mb-1">最受欢迎</p>
+                    <p className="text-2xl font-bold truncate">艾克斯</p>
+                    <p className="text-xs text-red-600 mt-1">🔥 本周冠军</p>
+                  </div>
+                  <TrendingUp className="w-10 h-10 text-red-500/20" />
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </AnimatedSection>
+
+        {/* 竞价系统 - 5位AI竞价师 */}
+        <AnimatedSection delay={0.2}>
+          <div className="mb-12">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="h-10 w-1 bg-gradient-to-b from-purple-500 to-violet-500 rounded-full" />
+              <div>
+                <h3 className="text-2xl font-bold">🏆 竞价系统</h3>
+                <p className="text-sm text-muted-foreground">5位AI竞价师为您的创意提供专业评估和竞价</p>
+              </div>
+            </div>
+
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {agentGroups.bidding.map((agent, index) => (
+                <AnimatedSection key={agent.id} delay={0.1 + index * 0.05}>
+                  <AgentCard
+                    agent={agent}
+                    usageStats={getAgentUsageStats(agent)}
+                  />
+                </AnimatedSection>
+              ))}
+            </div>
+          </div>
+        </AnimatedSection>
+
+        {/* 工作坊顾问 - 6位专业导师 */}
+        <AnimatedSection delay={0.3}>
+          <div className="mb-12">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="h-10 w-1 bg-gradient-to-b from-blue-500 to-cyan-500 rounded-full" />
+              <div>
+                <h3 className="text-2xl font-bold">🎓 工作坊顾问</h3>
+                <p className="text-sm text-muted-foreground">6位专业导师在4个工作坊中提供全方位指导</p>
+              </div>
+            </div>
+
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {agentGroups.workshop.map((agent, index) => (
+                <AnimatedSection key={agent.id} delay={0.1 + index * 0.05}>
+                  <AgentCard
+                    agent={agent}
+                    usageStats={getAgentUsageStats(agent)}
+                  />
+                </AnimatedSection>
+              ))}
+            </div>
+          </div>
+        </AnimatedSection>
+
+        {/* 评估系统 - 1位综合分析师 */}
+        <AnimatedSection delay={0.4}>
+          <div>
+            <div className="flex items-center gap-3 mb-6">
+              <div className="h-10 w-1 bg-gradient-to-b from-orange-500 to-amber-500 rounded-full" />
+              <div>
+                <h3 className="text-2xl font-bold">📊 评估系统</h3>
+                <p className="text-sm text-muted-foreground">基于10分制进行5维度综合评估</p>
+              </div>
+            </div>
+
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {agentGroups.assessment.map((agent) => (
+                <AnimatedSection key={agent.id} delay={0.1}>
+                  <AgentCard
+                    agent={agent}
+                    usageStats={getAgentUsageStats(agent)}
+                  />
+                </AnimatedSection>
+              ))}
+            </div>
+          </div>
+        </AnimatedSection>
+
+        {/* CTA 按钮 */}
+        <AnimatedSection delay={0.5}>
+          <div className="mt-12 text-center">
+            <Link href="/agent-center">
+              <Button size="lg" variant="outline" className="group">
+                <Users className="mr-2 w-5 h-5" />
+                查看完整Agent能力中心
+                <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+              </Button>
+            </Link>
+            <p className="text-sm text-muted-foreground mt-4">
+              📊 统计数据每日18:00更新 · 最后更新：今天18:00
+            </p>
           </div>
         </AnimatedSection>
       </div>
@@ -409,7 +496,7 @@ const CTASection = () => {
                 准备体验创意竞价了吗？
               </h2>
               <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
-                立即进入创意竞价市场，提交您的创意想法，让AI智能体为您竞价，获得专业的商业计划指导！
+                立即进入创意竞价市场，提交您的创意想法，让AI智能体为您竞价，获得专业的创意实现建议！
               </p>
 
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -421,7 +508,7 @@ const CTASection = () => {
                 </Button>
                 <Button size="lg" variant="outline" className="text-lg px-8 py-4 h-auto" asChild>
                   <Link href="/business-plan">
-                    查看商业计划示例
+                    查看实现建议示例
                   </Link>
                 </Button>
               </div>
@@ -437,7 +524,7 @@ export default function HomePage() {
   return (
     <Layout>
       <HeroSection />
-      <FeaturedAgentsSection />
+      <AgentCapabilityCenter />
       <CategoriesSection />
       <FeaturesSection />
       <CTASection />

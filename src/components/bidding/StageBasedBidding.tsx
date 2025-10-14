@@ -245,7 +245,7 @@ const CreativeInputForm = ({
               ) : (
                 <div className="flex items-center justify-center gap-2">
                   <FileText className="w-5 h-5 group-hover:scale-110 transition-transform" />
-                  直接生成商业计划书
+                  直接生成创意实现建议
                 </div>
               )}
             </Button>
@@ -440,7 +440,7 @@ export default function StageBasedBidding({
       // 从创意内容中提取标题（前50个字符）或使用默认标题
       const extractedTitle = ideaContent.trim().substring(0, 50).replace(/\n/g, ' ') || '创意项目'
 
-      // 跳转到商业计划生成页面，使用简化版格式
+      // 跳转到创意实现建议页面，使用简化版格式
       const params = new URLSearchParams({
         ideaTitle: extractedTitle,
         ideaDescription: ideaContent,

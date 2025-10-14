@@ -140,8 +140,8 @@ export default function IntelligentBusinessPlanPage() {
     setAnalyzing(true)
 
     if (useSimplifiedFormat) {
-      // 直接生成简化版商业计划书
-      console.log('🎯 开始生成简化版商业计划书...')
+      // 直接生成简化版创意实现建议
+      console.log('🎯 开始生成简化版创意实现建议...')
 
       // 构建BiddingSnapshot数据
       const snapshot = {
@@ -158,7 +158,7 @@ export default function IntelligentBusinessPlanPage() {
         }
       }
 
-      // 重定向到商业计划书页面，并开始生成
+      // 重定向到创意实现建议页面，并开始生成
       const params = new URLSearchParams({
         ideaTitle: ideaTitle,
         ideaDescription: ideaDescription,
@@ -276,7 +276,7 @@ export default function IntelligentBusinessPlanPage() {
                 <Brain className="w-8 h-8 text-white" />
               </div>
               <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                智能化商业计划生成
+                智能化创意实现建议
               </h1>
             </div>
             <p className="text-lg md:text-xl text-gray-600 max-w-4xl mx-auto mb-8">
@@ -318,7 +318,7 @@ export default function IntelligentBusinessPlanPage() {
                         ✅ 已从竞价页面导入创意
                       </h3>
                       <p className="text-sm text-green-700">
-                        系统已自动填充您的创意信息,您可以继续编辑或直接开始分析生成个性化商业计划书
+                        系统已自动填充您的创意信息,您可以继续编辑或直接开始分析生成个性化创意实现建议
                       </p>
                     </div>
                     {ideaCategoryParam && (

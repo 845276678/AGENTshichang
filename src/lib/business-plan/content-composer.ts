@@ -18,14 +18,14 @@ export interface ComposeGuideOptions {
 export interface ComposedBusinessPlan {
   guide: BusinessPlanGuide
   metadata: BusinessPlanMetadata
-  simplifiedPlan?: SimplifiedBusinessPlan // 🆕 简化版商业计划书
+  simplifiedPlan?: SimplifiedBusinessPlan // 🆕 简化版创意实现建议
 }
 
 /**
- * 根据成熟度评分生成差异化的商业计划书
+ * 根据成熟度评分生成差异化的创意实现建议
  * - LOW/GRAY_LOW (1-5分): 聚焦引导模板 (The Mom Test 问题清单)
- * - MEDIUM (5-7分): 详细商业计划书 (15-25页) 或 简化版4模块 (8-12页)
- * - GRAY_HIGH/HIGH (7-10分): 投资级商业计划书 (30-50页) 或 简化版4模块 (12-18页)
+ * - MEDIUM (5-7分): 详细创意实现建议 (15-25页) 或 简化版4模块 (8-12页)
+ * - GRAY_HIGH/HIGH (7-10分): 投资级创意实现建议 (30-50页) 或 简化版4模块 (12-18页)
  */
 export async function composeBusinessPlanGuide(
   snapshot: BiddingSnapshot,
@@ -35,7 +35,7 @@ export async function composeBusinessPlanGuide(
 
   // 🆕 优先使用简化版4模块格式
   if (useSimplifiedFormat) {
-    console.log(`🎯 使用简化版4模块格式生成商业计划书`);
+    console.log(`🎯 使用简化版4模块格式生成创意实现建议`);
 
     const simplifiedGenerator = new SimplifiedBusinessPlanGenerator();
     const simplifiedPlan = await simplifiedGenerator.generateSimplifiedPlan(snapshot, maturityScore);
@@ -150,8 +150,8 @@ export async function composeBusinessPlanGuide(
     return { guide, metadata };
   }
 
-  // 🟡 MEDIUM: 详细商业计划书 (当前逻辑)
-  console.log(`📊 创意成熟度${maturityScore?.level || 'MEDIUM'} (${maturityScore?.totalScore || 'N/A'}/10)，生成详细商业计划书`);
+  // 🟡 MEDIUM: 详细创意实现建议 (当前逻辑)
+  console.log(`📊 创意成熟度${maturityScore?.level || 'MEDIUM'} (${maturityScore?.totalScore || 'N/A'}/10)，生成详细创意实现建议`);
 
   const { guide, metadata } = await buildCoreGuide(snapshot)
 
@@ -191,7 +191,7 @@ export async function composeBusinessPlanGuide(
 }
 
 /**
- * 将简化版商业计划书转换为兼容的guide格式
+ * 将简化版创意实现建议转换为兼容的guide格式
  * 保持现有API的兼容性，同时支持新的简化版展示
  */
 function convertSimplifiedToGuide(simplifiedPlan: SimplifiedBusinessPlan): BusinessPlanGuide {
@@ -199,7 +199,7 @@ function convertSimplifiedToGuide(simplifiedPlan: SimplifiedBusinessPlan): Busin
     ...BASE_LANDING_COACH_TEMPLATE,
 
     // 基本信息
-    title: `${simplifiedPlan.metadata.ideaTitle} - 简化版商业计划书`,
+    title: `${simplifiedPlan.metadata.ideaTitle} - 简化版创意实现建议`,
     introduction: `本计划书采用简化版4模块结构，为《${simplifiedPlan.metadata.ideaTitle}》提供清晰的商业化路径。`,
 
     // 当前形势分析 - 映射用户市场模块
@@ -260,7 +260,7 @@ function convertSimplifiedToGuide(simplifiedPlan: SimplifiedBusinessPlan): Busin
 
     // 专家洞察
     expertInsights: {
-      summary: `简化版商业计划书，适配成熟度${simplifiedPlan.metadata.maturityLevel}的创意`,
+      summary: `简化版创意实现建议，适配成熟度${simplifiedPlan.metadata.maturityLevel}的创意`,
       keyQuotes: [],
       consensusPoints: [
         '采用4模块结构，结构清晰易懂',

@@ -289,7 +289,7 @@ const MobileMenu = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void 
                   className="block rounded-sm px-3 py-2 text-sm hover:bg-accent transition-colors"
                   onClick={onClose}
                 >
-                  商业计划生成
+                  创意实现建议
                 </Link>
                 <Link
                   href="/marketplace"
@@ -306,11 +306,11 @@ const MobileMenu = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void 
                   创意分类
                 </Link>
                 <Link
-                  href="/agents"
+                  href="/agent-center"
                   className="block rounded-sm px-3 py-2 text-sm hover:bg-accent transition-colors"
                   onClick={onClose}
                 >
-                  AI竞价师
+                  Agent能力中心
                 </Link>
                 <Link
                   href="/cart"
@@ -434,7 +434,7 @@ export function Header({ className }: HeaderProps) {
               href="/business-plan"
               className="text-sm font-medium transition-colors hover:text-primary"
             >
-              商业计划生成
+              创意实现建议
             </Link>
             <Link
               href="/marketplace"
@@ -449,10 +449,10 @@ export function Header({ className }: HeaderProps) {
               创意分类
             </Link>
             <Link
-              href="/agents"
+              href="/agent-center"
               className="text-sm font-medium transition-colors hover:text-primary"
             >
-              AI竞价师
+              Agent能力中心
             </Link>
             <Link
               href="/payment"

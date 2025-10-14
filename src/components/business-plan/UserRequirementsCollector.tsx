@@ -100,7 +100,7 @@ const REQUIREMENT_CATEGORIES: RequirementCategory[] = [
   {
     id: 'business_focus',
     name: '商业关注重点',
-    description: '您最希望在商业计划书中突出哪些方面？',
+    description: '您最希望在创意实现建议中突出哪些方面？',
     icon: Target,
     allowCustom: true,
     multiple: true,
@@ -158,7 +158,7 @@ const REQUIREMENT_CATEGORIES: RequirementCategory[] = [
   {
     id: 'target_audience',
     name: '目标受众',
-    description: '这份商业计划书主要面向哪些人群？',
+    description: '这份创意实现建议主要面向哪些人群？',
     icon: Users,
     allowCustom: true,
     multiple: false,
@@ -292,7 +292,7 @@ const REQUIREMENT_CATEGORIES: RequirementCategory[] = [
   {
     id: 'timeline_priority',
     name: '时间优先级',
-    description: '希望商业计划书重点关注哪个时间段？',
+    description: '希望创意实现建议重点关注哪个时间段？',
     icon: Clock,
     allowCustom: false,
     multiple: false,
@@ -443,7 +443,7 @@ export const UserRequirementsCollector: React.FC<UserRequirementsCollectorProps>
               <div>
                 <CardTitle className="text-2xl mb-2">需求定制化分析</CardTitle>
                 <CardDescription className="text-base">
-                  为 "<span className="font-medium text-primary">{ideaData.title}</span>" 定制最符合您期望的商业计划书
+                  为 "<span className="font-medium text-primary">{ideaData.title}</span>" 定制最符合您期望的创意实现建议
                 </CardDescription>
               </div>
               <Badge variant="outline" className="text-lg px-3 py-1">
@@ -454,7 +454,7 @@ export const UserRequirementsCollector: React.FC<UserRequirementsCollectorProps>
           <CardContent>
             <Progress value={(currentStep / REQUIREMENT_CATEGORIES.length) * 100} className="h-3" />
             <p className="text-sm text-muted-foreground mt-2">
-              通过回答几个简单问题，我们将为您生成最贴合需求的商业计划书
+              通过回答几个简单问题，我们将为您生成最贴合需求的创意实现建议
             </p>
           </CardContent>
         </Card>
@@ -740,7 +740,7 @@ const RequirementsAnalysisStep: React.FC<{
             AI智能分析中
           </CardTitle>
           <CardDescription className="text-blue-700">
-            正在基于您的需求和创意特点，生成专属的商业计划书方案
+            正在基于您的需求和创意特点，生成专属的创意实现建议方案
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -814,7 +814,7 @@ const AnalysisResultsStep: React.FC<{
             AI需求分析完成
           </CardTitle>
           <CardDescription className="text-green-700">
-            基于您的需求，我们为您定制了专属的商业计划书生成方案
+            基于您的需求，我们为您定制了专属的创意实现建议生成方案
           </CardDescription>
         </CardHeader>
       </Card>
@@ -950,7 +950,7 @@ const AnalysisResultsStep: React.FC<{
         </Button>
         <Button onClick={onConfirm} size="lg" className="flex items-center gap-2">
           <CheckCircle className="w-4 h-4" />
-          确认并开始生成商业计划书
+          确认并开始生成创意实现建议
         </Button>
       </div>
     </motion.div>

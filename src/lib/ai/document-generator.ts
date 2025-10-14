@@ -428,7 +428,7 @@ AI Agent信息:
       templates.push(DocumentTemplates.find(t => t.id === 'technical-architecture')!)
     }
 
-    // 商业计划书是必需的
+    // 创意实现建议是必需的
     templates.push(DocumentTemplates.find(t => t.id === 'business-plan')!)
 
     return templates.filter(Boolean)

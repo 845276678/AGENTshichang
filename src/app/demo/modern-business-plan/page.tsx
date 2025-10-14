@@ -223,7 +223,7 @@ export default function ModernBusinessPlanDemo() {
 
   // 转换数据为现代化格式
   const mockPlanData = {
-    title: `${mockIdeaData.title} 商业计划书`,
+    title: `${mockIdeaData.title} 创意实现建议`,
     ideaData: {
       title: mockIdeaData.title,
       category: mockIdeaData.category,
@@ -264,7 +264,7 @@ export default function ModernBusinessPlanDemo() {
             </Badge>
 
             <h1 className="text-5xl md:text-7xl font-bold bg-gradient-to-r from-gray-900 via-blue-800 to-purple-800 bg-clip-text text-transparent">
-              商业计划书
+              创意实现建议
             </h1>
 
             <h2 className="text-2xl md:text-3xl font-medium text-gray-600">
@@ -272,7 +272,7 @@ export default function ModernBusinessPlanDemo() {
             </h2>
 
             <p className="text-lg text-gray-600 max-w-3xl mx-auto leading-relaxed">
-              体验全新的现代化商业计划书界面设计，采用最新的设计语言和交互模式，
+              体验全新的现代化创意实现建议界面设计，采用最新的设计语言和交互模式，
               为您带来更加流畅、美观、直观的阅读体验。
             </p>
           </div>
@@ -511,7 +511,7 @@ export default function ModernBusinessPlanDemo() {
           className="text-center pt-16 pb-8"
         >
           <p className="text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-            这是商业计划书现代化界面设计的演示页面。新的设计采用了最新的 UI/UX 趋势，
+            这是创意实现建议现代化界面设计的演示页面。新的设计采用了最新的 UI/UX 趋势，
             包括玻璃拟态效果、流畅动画、智能交互等现代设计元素，为用户带来更加优雅和高效的使用体验。
           </p>
         </motion.section>

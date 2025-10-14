@@ -913,3 +913,42 @@ enum WorkshopStatus {
   COMPLETED        // 已完成
   ABANDONED        // 已放弃
 }
+
+// ============================================
+// Agent使用统计系统
+// Added: 2025-01-15
+// ============================================
+
+// Agent使用日志表（原始记录）
+model AgentUsageLog {
+  id          String   @id @default(cuid())
+  userId      String?  @map("user_id")          // 用户ID（可选，未登录用户为null）
+  agentId     String   @map("agent_id")         // Agent标识 (tech-pioneer-alex/alex/maturity-assessor等)
+  module      String   @map("module")           // 所在模块 (bidding/workshop/assessment)
+  action      String   @map("action")           // 具体动作 (bid/chat/evaluate/view等)
+  sessionId   String?  @map("session_id")       // 关联的会话ID
+  metadata    Json?    @map("metadata")         // 额外信息
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  @@index([agentId, module, createdAt])
+  @@index([userId, agentId])
+  @@index([createdAt])
+  @@map("agent_usage_logs")
+}
+
+// Agent使用统计表（聚合数据，每日18:00更新）
+model AgentUsageStats {
+  id              String   @id @default(cuid())
+  agentId         String   @map("agent_id")
+  module          String   @map("module")
+  date            DateTime @map("date")          // 统计日期（YYYY-MM-DD 00:00:00）
+  totalUses       Int      @default(0) @map("total_uses")        // 总使用次数
+  uniqueUsers     Int      @default(0) @map("unique_users")      // 唯一用户数
+  lastUpdatedAt   DateTime @updatedAt @map("last_updated_at")    // 最后更新时间
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  @@unique([agentId, module, date])
+  @@index([agentId, module])
+  @@index([date])
+  @@map("agent_usage_stats")
+}

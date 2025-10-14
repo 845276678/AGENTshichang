@@ -41,7 +41,7 @@ export class BusinessPlanSessionService {
         }
 
         if (user.credits < BUSINESS_PLAN_CREDIT_COST) {
-          throw new Error(`积分不足，需要 ${BUSINESS_PLAN_CREDIT_COST} 积分生成商业计划书`)
+          throw new Error(`积分不足，需要 ${BUSINESS_PLAN_CREDIT_COST} 积分生成创意实现建议`)
         }
 
         await tx.user.update({
@@ -57,7 +57,7 @@ export class BusinessPlanSessionService {
             userId: input.userId,
             amount: -BUSINESS_PLAN_CREDIT_COST,
             type: CreditTransactionType.BUSINESS_PLAN_COST,
-            description: '生成商业计划书',
+            description: '生成创意实现建议',
             balanceBefore: user.credits,
             balanceAfter: user.credits - BUSINESS_PLAN_CREDIT_COST,
             relatedId: input.ideaId ?? undefined

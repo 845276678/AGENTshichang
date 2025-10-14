@@ -9,7 +9,7 @@ import type { BiddingSnapshot } from './types'
 import type { MaturityScoreResult } from '@/types/maturity-score'
 
 /**
- * 简化版商业计划书生成器
+ * 简化版创意实现建议生成器
  *
  * 核心特点：
  * 1. 4个核心模块，结构清晰
@@ -25,13 +25,13 @@ export class SimplifiedBusinessPlanGenerator {
   }
 
   /**
-   * 生成简化版商业计划书
+   * 生成简化版创意实现建议
    */
   async generateSimplifiedPlan(
     snapshot: BiddingSnapshot,
     maturityScore?: MaturityScoreResult
   ): Promise<SimplifiedBusinessPlan> {
-    console.log('🚀 开始生成简化版商业计划书...')
+    console.log('🚀 开始生成简化版创意实现建议...')
 
     // 1. 确定内容深度
     const contentDepth = this.determineContentDepth(maturityScore)
@@ -71,7 +71,7 @@ export class SimplifiedBusinessPlanGenerator {
       }
     }
 
-    console.log('✅ 简化版商业计划书生成完成')
+    console.log('✅ 简化版创意实现建议生成完成')
     return plan
   }
 

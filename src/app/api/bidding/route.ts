@@ -914,7 +914,7 @@ async function generateBusinessReport(sessionId: string, session: BiddingSession
     nextSteps: [
       '技术原型开发',
       '市场验证测试',
-      '商业计划书制定',
+      '创意实现建议制定',
       '寻找合作伙伴或投资'
     ],
     timestamp: Date.now(),

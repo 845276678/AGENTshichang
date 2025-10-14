@@ -27,7 +27,7 @@ export function ImprovementSuggestions({ assessment }: ImprovementSuggestionsPro
                 🎉 您的创意已非常成熟！
               </h4>
               <p className="text-sm text-green-800">
-                创意质量达到高水平，可以直接参加所有工作坊或生成商业计划书。
+                创意质量达到高水平，可以直接参加所有工作坊或生成创意实现建议。
                 继续保持这个水平，祝您创业顺利！
               </p>
             </div>

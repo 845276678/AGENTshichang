@@ -762,7 +762,7 @@ function generateNextSteps(
     nextSteps.push('🔄 生成后可以根据结果反馈进行迭代优化')
   } else {
     nextSteps.push('🎉 创意信息非常完善,可以生成高质量的商业计划内容')
-    nextSteps.push('🚀 建议选择所有模块进行完整的商业计划生成')
+    nextSteps.push('🚀 建议选择所有模块进行完整的创意实现建议')
   }
 
   return nextSteps

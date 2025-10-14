@@ -314,9 +314,9 @@ export const ConciseChaptersList: React.FC<{
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-xl font-semibold mb-2">商业计划书概览</h2>
+                <h2 className="text-xl font-semibold mb-2">创意实现建议概览</h2>
                 <p className="text-muted-foreground">
-                  精简版商业计划书，核心内容一目了然，支持按需展开详细分析
+                  精简版创意实现建议，核心内容一目了然，支持按需展开详细分析
                 </p>
               </div>
               <div className="text-right space-y-1">

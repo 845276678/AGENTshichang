@@ -123,7 +123,7 @@ function GeneratingContent() {
               <XCircle className="w-8 h-8 text-red-600" />
             )}
             <CardTitle className="text-2xl">
-              {status === 'success' ? '生成成功！' : status === 'error' ? '生成失败' : 'AI商业计划生成中'}
+              {status === 'success' ? '生成成功！' : status === 'error' ? '生成失败' : 'AI创意实现建议中'}
             </CardTitle>
           </div>
         </CardHeader>
@@ -147,7 +147,7 @@ function GeneratingContent() {
                     AI正在分析您的创意
                   </p>
                   <p className="text-sm text-blue-700">
-                    基于专家评估和竞价结果，我们正在为您生成个性化的商业计划书。这通常需要30-60秒，请稍候...
+                    基于专家评估和竞价结果，我们正在为您生成个性化的创意实现建议。这通常需要30-60秒，请稍候...
                   </p>
                 </div>
               </div>
@@ -158,7 +158,7 @@ function GeneratingContent() {
                 <CheckCircle className="w-5 h-5 text-green-600 mt-0.5" />
                 <div>
                   <p className="text-sm text-green-900 font-medium mb-1">
-                    商业计划书已生成
+                    创意实现建议已生成
                   </p>
                   <p className="text-sm text-green-700">
                     正在为您跳转到商业计划页面，您可以在那里查看完整的分析报告...

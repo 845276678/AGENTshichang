@@ -158,7 +158,7 @@ export const BusinessPlanGenerationWorkspace: React.FC<BusinessPlanGenerationWor
           <CardHeader>
             <div className="flex justify-between items-start">
               <div>
-                <CardTitle className="text-2xl mb-2">AI商业计划书生成器</CardTitle>
+                <CardTitle className="text-2xl mb-2">AI创意实现建议生成器</CardTitle>
                 <CardDescription className="text-base">
                   为 "<span className="font-medium text-primary">{ideaData.title}</span>" 生成完整的商业化方案
                 </CardDescription>
@@ -335,7 +335,7 @@ export const BusinessPlanGenerationWorkspace: React.FC<BusinessPlanGenerationWor
                   <div className="text-center py-12">
                     <Clock className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
                     <h3 className="text-lg font-medium mb-2">等待生成完成</h3>
-                    <p className="text-muted-foreground">完整的商业计划书正在生成中...</p>
+                    <p className="text-muted-foreground">完整的创意实现建议正在生成中...</p>
                   </div>
                 )}
               </TabsContent>
@@ -625,7 +625,7 @@ const ResultsPanel: React.FC<{
         <CardHeader>
           <CardTitle className="text-green-800 flex items-center gap-2">
             <CheckCircle className="w-6 h-6" />
-            商业计划书生成成功！
+            创意实现建议生成成功！
           </CardTitle>
           <CardDescription className="text-green-700">
             完整的商业化方案已生成完毕，包含 {finalPlan.sections.length} 个专业章节

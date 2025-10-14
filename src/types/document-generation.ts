@@ -163,7 +163,7 @@ export const DocumentTemplates: DocumentTemplate[] = [
   },
   {
     id: 'business-plan',
-    name: '商业计划书',
+    name: '创意实现建议',
     pages: 5,
     category: 'business',
     sections: [

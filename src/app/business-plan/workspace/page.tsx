@@ -28,7 +28,7 @@ export default function WorkspacePage() {
       <BusinessPlanGenerationWorkspace
         ideaData={ideaData}
         onComplete={(plan) => {
-          console.log('商业计划生成完成:', plan)
+          console.log('创意实现建议完成:', plan)
         }}
         onSave={(draft) => {
           console.log('草稿已保存:', draft)

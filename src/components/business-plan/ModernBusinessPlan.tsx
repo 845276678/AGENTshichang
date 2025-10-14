@@ -192,7 +192,7 @@ export const ModernBusinessPlan: React.FC<ModernBusinessPlanProps> = ({
           <div className="space-y-4">
             <Badge variant="secondary" className="px-4 py-2 text-sm font-medium rounded-full">
               <Sparkles className="w-4 h-4 mr-2" />
-              AI 生成的商业计划书
+              AI 生成的创意实现建议
             </Badge>
 
             <h1 className="text-4xl md:text-6xl font-bold bg-gradient-to-r from-gray-900 via-blue-800 to-purple-800 bg-clip-text text-transparent dark:from-white dark:via-blue-200 dark:to-purple-200">
@@ -328,7 +328,7 @@ export const ModernBusinessPlan: React.FC<ModernBusinessPlanProps> = ({
           className="flex flex-col sm:flex-row items-center justify-between space-y-4 sm:space-y-0 space-x-0 sm:space-x-4"
         >
           <div>
-            <h2 className="text-2xl font-bold mb-2">商业计划书内容</h2>
+            <h2 className="text-2xl font-bold mb-2">创意实现建议内容</h2>
             <p className="text-muted-foreground">
               {planData.chapters.length} 个核心章节 • 约 {planData.metadata.totalReadingTime} 分钟阅读
             </p>
@@ -411,11 +411,11 @@ export const ModernBusinessPlan: React.FC<ModernBusinessPlanProps> = ({
               <div className="space-y-4">
                 <div className="flex items-center justify-center">
                   <Star className="w-8 h-8 text-yellow-400 mr-2" />
-                  <h3 className="text-2xl font-bold">商业计划书已生成完成</h3>
+                  <h3 className="text-2xl font-bold">创意实现建议已生成完成</h3>
                 </div>
 
                 <p className="text-gray-300 max-w-2xl mx-auto">
-                  您的 {planData.ideaData.title} 商业计划书已完成 {planData.metadata.completionRate}% 的内容生成。
+                  您的 {planData.ideaData.title} 创意实现建议已完成 {planData.metadata.completionRate}% 的内容生成。
                   现在可以导出使用，或继续完善详细内容。
                 </p>
 

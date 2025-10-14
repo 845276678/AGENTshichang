@@ -129,7 +129,7 @@ export const ConciseBusinessPlan: React.FC<ConciseBusinessPlanProps> = ({
       {/* 操作栏 */}
       <div className="flex items-center justify-between py-4">
         <div className="space-y-1">
-          <h2 className="text-xl font-semibold text-gray-900">商业计划书内容</h2>
+          <h2 className="text-xl font-semibold text-gray-900">创意实现建议内容</h2>
           <p className="text-sm text-gray-600">
             每章节核心内容已精炼至一页，点击"展开详情"查看完整分析
           </p>
@@ -226,7 +226,7 @@ export const ConciseBusinessPlan: React.FC<ConciseBusinessPlanProps> = ({
       <Card className="bg-gray-50">
         <CardContent className="pt-6">
           <div className="text-center space-y-3">
-            <h3 className="text-lg font-semibold text-gray-900">📋 商业计划书生成完成</h3>
+            <h3 className="text-lg font-semibold text-gray-900">📋 创意实现建议生成完成</h3>
             <p className="text-gray-600 max-w-2xl mx-auto">
               本计划书已完成 {planData.metadata.completionRate}%，包含 {planData.chapters.length} 个核心章节。
               您可以继续完善细节内容，或直接导出使用。

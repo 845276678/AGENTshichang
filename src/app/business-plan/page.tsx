@@ -57,7 +57,7 @@ export default function BusinessPlanPage() {
     isLoading: Boolean(sessionId || reportId || autoGenerate),
     progress: 0,
     stage: source === 'marketplace' ? '正在处理竞价结果...' :
-           source === 'direct-generation' ? '正在生成简化版商业计划书...' :
+           source === 'direct-generation' ? '正在生成简化版创意实现建议...' :
            '正在载入数据...'
   })
   const [guide, setGuide] = useState<LandingCoachGuide | null>(null)
@@ -109,7 +109,7 @@ export default function BusinessPlanPage() {
         setLoadingState({
           isLoading: true,
           progress: 60,
-          stage: '商业计划生成中，请稍候刷新'
+          stage: '创意实现建议中，请稍候刷新'
         })
         return
       }
@@ -131,7 +131,7 @@ export default function BusinessPlanPage() {
     }
   }
 
-  // 直接生成商业计划书的函数
+  // 直接生成创意实现建议的函数
   const generateDirectBusinessPlan = async () => {
     try {
       setError(null)
@@ -143,7 +143,7 @@ export default function BusinessPlanPage() {
         stage: '正在准备创意分析...'
       })
 
-      console.log('🚀 开始直接生成商业计划书', {
+      console.log('🚀 开始直接生成创意实现建议', {
         ideaTitle,
         ideaDescription,
         useSimplifiedFormat
@@ -163,7 +163,7 @@ export default function BusinessPlanPage() {
         stage: '正在调用AI专家团队...'
       })
 
-      // 调用API生成商业计划书
+      // 调用API生成创意实现建议
       const response = await fetch('/api/business-plan/generate-direct', {
         method: 'POST',
         headers: {
@@ -176,7 +176,7 @@ export default function BusinessPlanPage() {
       setLoadingState({
         isLoading: true,
         progress: 60,
-        stage: '正在生成商业计划书...'
+        stage: '正在生成创意实现建议...'
       })
 
       if (!response.ok) {
@@ -186,7 +186,7 @@ export default function BusinessPlanPage() {
       const result = await response.json()
 
       if (!result.success) {
-        throw new Error(result.error || '生成商业计划书失败')
+        throw new Error(result.error || '生成创意实现建议失败')
       }
 
       setLoadingState({
@@ -201,14 +201,14 @@ export default function BusinessPlanPage() {
       setLoadingState({
         isLoading: false,
         progress: 100,
-        stage: '商业计划书生成完成'
+        stage: '创意实现建议生成完成'
       })
 
-      console.log('✅ 商业计划书生成完成')
+      console.log('✅ 创意实现建议生成完成')
 
     } catch (error) {
-      console.error('直接生成商业计划书失败:', error)
-      setError(error instanceof Error ? error.message : '生成商业计划书失败')
+      console.error('直接生成创意实现建议失败:', error)
+      setError(error instanceof Error ? error.message : '生成创意实现建议失败')
       setLoadingState({
         isLoading: false,
         progress: 0,
@@ -413,7 +413,7 @@ export default function BusinessPlanPage() {
     if (navigator.share) {
       try {
         await navigator.share({
-          title: `${displayIdeaTitle || "AI 商业计划"} - 创意落地指南`,
+          title: `${displayIdeaTitle || "AI 创意实现"} - 创意落地指南`,
           text: `查看我的创意《${displayIdeaTitle || 'AI商业计划'}》的专业落地指南`,
           url: shareUrl
         })
@@ -431,10 +431,10 @@ export default function BusinessPlanPage() {
     }
   }
 
-  const heroTitle = displayIdeaTitle ? `为《${displayIdeaTitle}》生成商业计划书` : 'AI 商业计划生成中心'
+  const heroTitle = displayIdeaTitle ? `为《${displayIdeaTitle}》生成创意实现建议` : 'AI 创意实现建议中心'
   const heroSubtitle = displayIdeaTitle
-    ? '系统检测到当前创意，选择合适的方式即可生成完整的商业计划书和落地指南。'
-    : '整合调研、竞价与多模型能力，帮助你在几分钟内获得可执行的商业计划书。'
+    ? '系统检测到当前创意，选择合适的方式即可生成完整的创意实现建议和落地指南。'
+    : '整合调研、竞价与多模型能力，帮助你在几分钟内获得可执行的创意实现建议。'
 
   const featureHighlights = [
     {
@@ -461,11 +461,11 @@ export default function BusinessPlanPage() {
     },
     {
       title: '使用智能生成器',
-      description: '进入新版生成流程，回答澄清问题后系统会分阶段完成整份商业计划书。'
+      description: '进入新版生成流程，回答澄清问题后系统会分阶段完成整份创意实现建议。'
     },
     {
       title: '浏览示例与模板',
-      description: '先查看现代化商业计划书展示，了解输出风格再开始创作。'
+      description: '先查看现代化创意实现建议展示，了解输出风格再开始创作。'
     }
   ]
 
@@ -479,7 +479,7 @@ export default function BusinessPlanPage() {
               <div className="absolute inset-0 opacity-30 bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.4),_transparent_60%)]" />
               <CardHeader className="relative z-10 space-y-4">
                 <Badge variant="secondary" className="w-fit bg-white/20 text-white border-white/30">
-                  智能商业计划中心
+                  智能创意实现中心
                 </Badge>
                 <CardTitle className="text-3xl md:text-4xl font-semibold">
                   {heroTitle}
@@ -592,7 +592,7 @@ export default function BusinessPlanPage() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Brain className="w-6 h-6 text-blue-600" />
-                {source === 'marketplace' ? 'AI 正在生成商业计划书' : 'AI 正在整理报告'}
+                {source === 'marketplace' ? 'AI 正在生成创意实现建议' : 'AI 正在整理报告'}
               </CardTitle>
               <CardDescription>
                 {source === 'marketplace'
@@ -658,7 +658,7 @@ export default function BusinessPlanPage() {
 
               <div className="text-xs text-muted-foreground text-center">
                 {source === 'marketplace'
-                  ? 'AI 正在根据竞价结果生成专业的商业计划书和落地指南...'
+                  ? 'AI 正在根据竞价结果生成专业的创意实现建议和落地指南...'
                   : 'AI 正在解析调研报告、提炼要点并生成执行建议...'
                 }
               </div>

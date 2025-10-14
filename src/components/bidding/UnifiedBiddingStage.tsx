@@ -387,7 +387,7 @@ export default function UnifiedBiddingStage({
     return `${mins}:${secs.toString().padStart(2, '0')}`
   }
 
-  // 处理商业计划生成
+  // 处理创意实现建议
   const handleGenerateBusinessPlan = async () => {
     console.log('🚀 handleGenerateBusinessPlan called')
 
@@ -840,7 +840,7 @@ export default function UnifiedBiddingStage({
         </Card>
       )}
 
-      {/* 结果阶段 - 商业计划生成 */}
+      {/* 结果阶段 - 创意实现建议 */}
       {currentPhase === BiddingPhase.RESULT_DISPLAY && (
         <div className="space-y-6 w-full max-w-4xl mx-auto">
           {/* 竞价结果摘要 */}
@@ -942,7 +942,7 @@ export default function UnifiedBiddingStage({
                   🎯 恭喜！您的创意已通过AI专家团队的全面评估和竞价
                 </p>
                 <p className="text-gray-600">
-                  基于专家讨论和竞价结果，系统将为您生成专业的商业计划书
+                  基于专家讨论和竞价结果，系统将为您生成专业的创意实现建议
                 </p>
 
                 <div className="flex flex-col sm:flex-row gap-4 justify-center mt-6">
@@ -959,7 +959,7 @@ export default function UnifiedBiddingStage({
                     ) : (
                       <>
                         <FileText className="w-5 h-5 mr-2" />
-                        生成商业计划书
+                        生成创意实现建议
                       </>
                     )}
                   </Button>
@@ -975,7 +975,7 @@ export default function UnifiedBiddingStage({
                 </div>
 
                 <div className="text-xs text-gray-500 mt-4">
-                  💡 商业计划书将基于AI专家的讨论内容和出价分析自动生成
+                  💡 创意实现建议将基于AI专家的讨论内容和出价分析自动生成
                 </div>
               </div>
             </CardContent>

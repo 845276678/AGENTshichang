@@ -60,7 +60,7 @@ export interface BiddingSnapshot {
 
 /**
  * 用户项目上下文信息
- * 用于生成个性化的商业计划书建议
+ * 用于生成个性化的创意实现建议建议
  */
 export interface UserProjectContext {
   // 项目基本信息

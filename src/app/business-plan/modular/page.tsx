@@ -674,7 +674,7 @@ export default function ModularBusinessPlanPage() {
           <div className="flex items-center justify-center gap-2 mb-4">
             <Sparkles className="w-8 h-8 text-blue-600" />
             <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-              模块化商业计划生成
+              模块化创意实现建议
             </h1>
           </div>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">

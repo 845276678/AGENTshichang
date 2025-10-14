@@ -99,7 +99,7 @@ export const ConciseBusinessPlanIntegration: React.FC<ConciseBusinessPlanIntegra
       const totalPages = chapters.length * 1 // 每章节1页
 
       return {
-        title: `${ideaData.title} 商业计划书`,
+        title: `${ideaData.title} 创意实现建议`,
         ideaData: {
           title: ideaData.title,
           category: ideaData.category,
@@ -130,7 +130,7 @@ export const ConciseBusinessPlanIntegration: React.FC<ConciseBusinessPlanIntegra
       // 触发下载
       const link = document.createElement('a')
       link.href = exportUrl
-      link.download = `${ideaData.title}_商业计划书.${format}`
+      link.download = `${ideaData.title}_创意实现建议.${format}`
       document.body.appendChild(link)
       link.click()
       document.body.removeChild(link)
@@ -144,8 +144,8 @@ export const ConciseBusinessPlanIntegration: React.FC<ConciseBusinessPlanIntegra
     // 实现分享功能
     if (navigator.share) {
       navigator.share({
-        title: `${ideaData.title} 商业计划书`,
-        text: `查看${ideaData.title}的完整商业计划书`,
+        title: `${ideaData.title} 创意实现建议`,
+        text: `查看${ideaData.title}的完整创意实现建议`,
         url: window.location.href
       })
     } else {
@@ -163,7 +163,7 @@ export const ConciseBusinessPlanIntegration: React.FC<ConciseBusinessPlanIntegra
           transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
           className="w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full"
         />
-        <span className="ml-3 text-gray-600">正在生成简洁版商业计划书...</span>
+        <span className="ml-3 text-gray-600">正在生成简洁版创意实现建议...</span>
       </div>
     )
   }

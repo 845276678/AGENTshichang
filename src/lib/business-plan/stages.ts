@@ -70,7 +70,7 @@ export const BUSINESS_PLAN_STAGES: BusinessPlanStageConfig[] = [
     name: '投资展示与融资材料',
     aiProvider: 'DEEPSEEK',
     estimatedTime: '8-12分钟',
-    deliverables: ['投资者Pitch Deck', '商业计划书摘要', '关键数据指标', '投资亮点总结', 'FAQ问答'],
+    deliverables: ['投资者Pitch Deck', '创意实现建议摘要', '关键数据指标', '投资亮点总结', 'FAQ问答'],
     dependencies: ['business_model_design', 'financial_planning', 'implementation_roadmap']
   }
 ]

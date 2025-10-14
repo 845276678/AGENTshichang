@@ -142,7 +142,7 @@ export const BusinessPlanProgressTracker: React.FC<BusinessPlanProgressTrackerPr
                 <FileText className="w-5 h-5 text-white" />
               </div>
               <div>
-                <CardTitle>AI商业计划书生成进度</CardTitle>
+                <CardTitle>AI创意实现建议生成进度</CardTitle>
                 <CardDescription>
                   基于3个AI服务，8个专业阶段生成完整方案
                 </CardDescription>

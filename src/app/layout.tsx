@@ -16,7 +16,7 @@ export const metadata: Metadata = {
     default: 'AI创意家园 - AI Agent Market - 发现、部署、变现AI智能体',
     template: '%s | AI创意家园'
   },
-  description: '全球最大的AI智能体交易平台。发现强大的AI智能体，即时部署，变现您的创意。AI创意竞价、专家评估、商业计划生成一站式服务。',
+  description: '全球最大的AI智能体交易平台。发现强大的AI智能体，即时部署，变现您的创意。AI创意竞价、专家评估、创意实现建议一站式服务。',
   keywords: [
     'AI智能体',
     'AI创意竞价',

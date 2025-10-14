@@ -292,7 +292,7 @@ AI能力集成多个大语言模型API，包括GPT-4、文心一言、通义千�
             <div className="flex justify-between items-start">
               <div>
                 <CardTitle className="text-2xl mb-2">
-                  简化版商业计划书演示
+                  简化版创意实现建议演示
                 </CardTitle>
                 <p className="text-muted-foreground">
                   体验新的一页一章节设计，核心内容一目了然，支持按需展开详细分析
@@ -421,7 +421,7 @@ AI能力集成多个大语言模型API，包括GPT-4、文心一言、通义千�
               <FileText className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
               <h3 className="text-lg font-medium mb-2">还没有生成的章节</h3>
               <p className="text-muted-foreground mb-6">
-                点击"开始生成"按钮，体验AI智能生成简化版商业计划书
+                点击"开始生成"按钮，体验AI智能生成简化版创意实现建议
               </p>
               <Button onClick={handleStartGeneration} disabled={isGenerating}>
                 <Play className="w-4 h-4 mr-2" />
@@ -437,9 +437,9 @@ AI能力集成多个大语言模型API，包括GPT-4、文心一言、通义千�
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <h4 className="font-medium text-blue-900">正在生成商业计划书...</h4>
+                  <h4 className="font-medium text-blue-900">正在生成创意实现建议...</h4>
                   <p className="text-sm text-blue-700">
-                    AI正在分析您的创意并生成个性化的商业计划书内容
+                    AI正在分析您的创意并生成个性化的创意实现建议内容
                   </p>
                 </div>
                 <div className="text-right">
@@ -458,8 +458,8 @@ AI能力集成多个大语言模型API，包括GPT-4、文心一言、通义千�
         {/* 底部信息 */}
         <div className="mt-12 text-center text-sm text-muted-foreground">
           <p>
-            这是商业计划书简化版功能的演示页面。在实际使用中，用户可以先进行需求收集，
-            然后AI会根据个人需求生成定制化的简化版商业计划书。
+            这是创意实现建议简化版功能的演示页面。在实际使用中，用户可以先进行需求收集，
+            然后AI会根据个人需求生成定制化的简化版创意实现建议。
           </p>
         </div>
       </div>

@@ -127,7 +127,7 @@ export default function TermsPage() {
                     <li>创意提交和展示平台</li>
                     <li>AI驱动的创意分析和评估服务</li>
                     <li>创意竞价和交易系统</li>
-                    <li>商业计划生成工具</li>
+                    <li>创意实现建议工具</li>
                     <li>用户社区和交流功能</li>
                   </ul>
                 </section>

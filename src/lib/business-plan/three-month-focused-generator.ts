@@ -2,7 +2,7 @@ import type { BusinessPlanStageConfig } from '@/types/business-plan'
 import { AIServiceFactory, AIProvider } from '@/lib/ai-services'
 
 /**
- * 3个月聚焦实战商业计划生成器
+ * 3个月聚焦实战创意实现建议器
  * 重点关注：技术栈选择、需求发现渠道、线下调研活动
  */
 export class ThreeMonthFocusedGenerator {

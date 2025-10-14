@@ -147,7 +147,7 @@ function GrayLowZoneContent({
             </li>
             <li className="flex items-start">
               <span className="text-purple-500 mr-2">✓</span>
-              <span>初步商业计划书（15-25页）</span>
+              <span>初步创意实现建议（15-25页）</span>
             </li>
           </ul>
         </div>
@@ -216,7 +216,7 @@ function GrayHighZoneContent({
               已接近<span className="font-semibold">方案阶段</span>。
             </p>
             <p className="text-gray-700 mt-2 text-sm">
-              补充验证数据后，您将获得投资级商业计划书，可直接用于融资路演。
+              补充验证数据后，您将获得投资级创意实现建议，可直接用于融资路演。
             </p>
           </div>
         </div>
@@ -233,7 +233,7 @@ function GrayHighZoneContent({
           <ul className="space-y-2 text-sm text-gray-700">
             <li className="flex items-start">
               <span className="text-green-500 mr-2">✓</span>
-              <span><span className="font-medium">投资级商业计划书</span>（30-50页PDF）</span>
+              <span><span className="font-medium">投资级创意实现建议</span>（30-50页PDF）</span>
             </li>
             <li className="flex items-start">
               <span className="text-green-500 mr-2">✓</span>
