@@ -30,6 +30,7 @@ import {
   Target,
   Lightbulb,
   AlertCircle,
+  Heart,
   TrendingUp
 } from 'lucide-react'
 import { DEPARTMENTS, type DepartmentId } from '@/app/solo-company/page'
