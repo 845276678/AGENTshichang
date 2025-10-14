@@ -299,6 +299,13 @@ const MobileMenu = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void 
                   专业工作坊
                 </Link>
                 <Link
+                  href="/solo-company"
+                  className="block rounded-sm px-3 py-2 text-sm hover:bg-accent transition-colors"
+                  onClick={onClose}
+                >
+                  一人公司
+                </Link>
+                <Link
                   href="/categories"
                   className="block rounded-sm px-3 py-2 text-sm hover:bg-accent transition-colors"
                   onClick={onClose}
@@ -441,6 +448,12 @@ export function Header({ className }: HeaderProps) {
               className="text-sm font-medium transition-colors hover:text-primary"
             >
               专业工作坊
+            </Link>
+            <Link
+              href="/solo-company"
+              className="text-sm font-medium transition-colors hover:text-primary"
+            >
+              一人公司
             </Link>
             <Link
               href="/categories"

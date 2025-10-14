@@ -16,6 +16,7 @@ import {
   Zap,
   Brain,
   Briefcase,
+  Building2,
   Star,
   TrendingUp,
   PlayCircle,
@@ -29,6 +30,7 @@ const categories = [
   { name: '创意分享', count: '活跃', icon: Sparkles, gradient: 'from-pink-500 to-rose-500' },
   { name: '创意竞价', count: '实时', icon: TrendingUp, gradient: 'from-purple-500 to-violet-500' },
   { name: '专业工作坊', count: '丰富', icon: Briefcase, gradient: 'from-blue-500 to-cyan-500' },
+  { name: '一人公司', count: '智能', icon: Building2, gradient: 'from-green-500 to-emerald-500' },
   { name: '积分经济', count: '循环', icon: Zap, gradient: 'from-orange-500 to-amber-500' },
 ]
 
@@ -377,12 +379,13 @@ const CategoriesSection = () => {
           </div>
         </AnimatedSection>
         
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-6">
           {categories.map((categoryItem, index) => (
             <AnimatedSection key={categoryItem.name} delay={0.1 + index * 0.05}>
               <Link href={
                 categoryItem.name === '创意竞价' ? '/marketplace' :
                 categoryItem.name === '专业工作坊' ? '/workshops' :
+                categoryItem.name === '一人公司' ? '/solo-company' :
                 categoryItem.name === '创意分享' ? '/categories' :
                 categoryItem.name === '积分经济' ? '/payment' :
                 `/categories/${categoryItem.name.toLowerCase()}`
