@@ -35,6 +35,7 @@
         "db:studio": "npx prisma studio",
         "db:reset": "npx prisma db push --force-reset",
         "db:migrate": "npx prisma migrate dev",
+        "db:migrate:agent-budget": "node scripts/migrate-agent-budget.js",
         "setup:local": "npm run db:generate && npm run db:push",
         "health": "curl -s http://localhost:4000/api/health/simple | jq .",
         "health:full": "curl -s http://localhost:4000/api/health | jq .",
