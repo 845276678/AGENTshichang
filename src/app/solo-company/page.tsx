@@ -92,32 +92,49 @@ export default function SoloCompanyPage() {
   const currentDate = new Date()
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* 页面头部 */}
-      <div className="bg-white border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between py-6">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-blue-600 rounded-xl flex items-center justify-center">
-                <Building2 className="w-6 h-6 text-white" />
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
+      {/* 页面头部 - 重新设计 */}
+      <div className="relative bg-white/80 backdrop-blur-lg border-b border-white/20 shadow-sm">
+        {/* 装饰性背景 */}
+        <div className="absolute inset-0 bg-gradient-to-r from-purple-500/5 via-blue-500/5 to-indigo-500/5" />
+        <div className="absolute top-0 right-0 w-96 h-32 bg-gradient-to-l from-purple-500/10 to-transparent blur-3xl" />
+
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between py-8">
+            <div className="flex items-center gap-6">
+              <div className="relative">
+                <div className="w-16 h-16 bg-gradient-to-br from-purple-600 via-blue-600 to-indigo-600 rounded-2xl flex items-center justify-center shadow-xl shadow-purple-500/25">
+                  <Building2 className="w-8 h-8 text-white" />
+                </div>
+                <div className="absolute -top-1 -right-1 w-6 h-6 bg-gradient-to-r from-orange-400 to-pink-400 rounded-full flex items-center justify-center">
+                  <span className="text-xs text-white font-bold">CEO</span>
+                </div>
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">我的一人公司</h1>
-                <p className="text-gray-600">像CEO一样规划你的每一天</p>
+                <h1 className="text-3xl font-bold bg-gradient-to-r from-gray-900 via-purple-900 to-indigo-900 bg-clip-text text-transparent">
+                  我的一人公司
+                </h1>
+                <p className="text-lg text-gray-600 mt-1">像CEO一样规划你的每一天，掌控六大核心部门</p>
               </div>
             </div>
 
-            <div className="flex items-center gap-3">
-              <Badge variant="outline" className="text-sm">
-                <Clock className="w-3 h-3 mr-1" />
-                {currentDate.toLocaleDateString('zh-CN', {
-                  month: 'long',
-                  day: 'numeric',
-                  weekday: 'short'
-                })}
-              </Badge>
-              <Button size="sm">
-                <Plus className="w-4 h-4 mr-1" />
+            <div className="flex items-center gap-4">
+              <div className="bg-white/70 backdrop-blur-sm rounded-xl px-4 py-2 border border-white/30 shadow-sm">
+                <div className="flex items-center gap-2 text-sm font-medium text-gray-700">
+                  <Clock className="w-4 h-4 text-blue-500" />
+                  {currentDate.toLocaleDateString('zh-CN', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                    weekday: 'long'
+                  })}
+                </div>
+              </div>
+              <Button
+                size="lg"
+                className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white shadow-lg shadow-purple-500/25 border-0 px-6"
+              >
+                <Plus className="w-5 h-5 mr-2" />
                 新增计划
               </Button>
             </div>
@@ -125,8 +142,8 @@ export default function SoloCompanyPage() {
         </div>
       </div>
 
-      {/* 主要内容 */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      {/* 主要内容区域 - 优化布局 */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
         <SoloCompanyDashboard />
       </div>
     </div>

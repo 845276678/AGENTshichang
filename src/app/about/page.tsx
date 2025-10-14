@@ -212,7 +212,7 @@ export default function AboutPage() {
                 <CardTitle className="text-center text-2xl">联系我们</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-6 text-center">
                   <div className="space-y-2">
                     <Mail className="w-8 h-8 mx-auto text-primary" />
                     <h3 className="font-semibold">邮箱</h3>
@@ -232,6 +232,19 @@ export default function AboutPage() {
                     <h3 className="font-semibold">Twitter</h3>
                     <p className="text-sm text-muted-foreground">
                       @aiagentmarket
+                    </p>
+                  </div>
+                  <div className="space-y-2">
+                    <h3 className="font-semibold">微信</h3>
+                    <div className="flex items-center justify-center">
+                      <img
+                        src="/wechat-qr.jpg"
+                        alt="微信二维码"
+                        className="w-36 h-36 object-cover rounded-md border"
+                      />
+                    </div>
+                    <p className="text-sm text-muted-foreground">
+                      扫码添加微信，遇到问题可直接联系我为您解决
                     </p>
                   </div>
                 </div>
