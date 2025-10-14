@@ -27,8 +27,8 @@ import type { Agent } from '@/lib/agent-registry'
 
 const categories = [
   { name: '创意分享', count: '活跃', icon: Sparkles, gradient: 'from-pink-500 to-rose-500' },
-  { name: 'AI竞价市场', count: '实时', icon: TrendingUp, gradient: 'from-purple-500 to-violet-500' },
-  { name: '创意商店', count: '丰富', icon: Briefcase, gradient: 'from-blue-500 to-cyan-500' },
+  { name: '创意竞价', count: '实时', icon: TrendingUp, gradient: 'from-purple-500 to-violet-500' },
+  { name: '专业工作坊', count: '丰富', icon: Briefcase, gradient: 'from-blue-500 to-cyan-500' },
   { name: '积分经济', count: '循环', icon: Zap, gradient: 'from-orange-500 to-amber-500' },
 ]
 
@@ -380,7 +380,13 @@ const CategoriesSection = () => {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
           {categories.map((categoryItem, index) => (
             <AnimatedSection key={categoryItem.name} delay={0.1 + index * 0.05}>
-              <Link href={`/categories/${categoryItem.name.toLowerCase()}`}>
+              <Link href={
+                categoryItem.name === '创意竞价' ? '/marketplace' :
+                categoryItem.name === '专业工作坊' ? '/workshops' :
+                categoryItem.name === '创意分享' ? '/categories' :
+                categoryItem.name === '积分经济' ? '/payment' :
+                `/categories/${categoryItem.name.toLowerCase()}`
+              }>
                 <Card className="h-full group cursor-pointer hover:shadow-xl transition-all duration-300 border-0 bg-background/50 backdrop-blur">
                   <CardContent className="p-6 text-center">
                     <motion.div 
@@ -431,7 +437,7 @@ const FeaturesSection = () => {
         <AnimatedSection>
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold mb-4">
-              为什么选择创意交易市场？
+              为什么选择AI创意竞价？
             </h2>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
               加入数千名创意者的生态社区，体验前所未有的创意价值转换模式，让想法真正产生回报。
