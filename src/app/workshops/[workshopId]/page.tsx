@@ -85,59 +85,32 @@ export default function WorkshopPage({ params }: WorkshopPageProps) {
     notFound()
   }
 
-  // 加载状态
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-blue-600" />
-          <p className="text-gray-600">正在验证用户身份...</p>
-        </div>
-      </div>
-    )
-  }
-
-  // 未登录状态
-  if (!user) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-        <Card className="max-w-md w-full">
-          <CardContent className="pt-6 text-center">
-            <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <LogIn className="w-8 h-8 text-blue-600" />
-            </div>
-            <h2 className="text-xl font-semibold mb-2">需要登录</h2>
-            <p className="text-gray-600 mb-6">
-              请先登录您的账户以访问{config.title}
-            </p>
-            <div className="space-y-3">
-              <Link href="/auth/login">
-                <Button className="w-full bg-blue-600 hover:bg-blue-700">
-                  立即登录
-                </Button>
-              </Link>
-              <Link href="/auth/register">
-                <Button variant="outline" className="w-full">
-                  注册新账户
-                </Button>
-              </Link>
-            </div>
-            <p className="text-xs text-gray-500 mt-4">
-              登录后即可使用所有工作坊功能
-            </p>
-          </CardContent>
-        </Card>
-      </div>
-    )
-  }
+  // 不再阻塞未登录用户，允许以匿名身份体验，避免身份验证卡住导致无内容
 
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="container mx-auto px-4 py-8">
-        <WorkshopDashboard
-          workshopId={workshopId}
-          userId={user.id}
-        />
+        {/* 未登录时以 anonymous 运行，支持体验与填表；登录后可持续保存 */}
+        {(!user && isLoading) ? (
+          <div className="text-center">
+            <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-blue-600" />
+            <p className="text-gray-600">正在加载...</p>
+          </div>
+        ) : (
+          <>
+            {!user && (
+              <Card className="mb-4">
+                <CardContent className="py-3 text-sm text-gray-600">
+                  当前以游客模式体验。<Link href="/auth/login" className="text-blue-600 underline">登录</Link> 后可云端保存进度。
+                </CardContent>
+              </Card>
+            )}
+            <WorkshopDashboard
+              workshopId={workshopId}
+              userId={user?.id || 'anonymous'}
+            />
+          </>
+        )}
       </div>
     </div>
   )
