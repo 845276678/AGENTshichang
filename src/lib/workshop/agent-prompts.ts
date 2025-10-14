@@ -1,12 +1,11 @@
 /**
  * 工作坊 AI Agent 提示词模板
  *
- * 复用竞价系统中的6个专业Agent，为工作坊场景定制专门的提示词
- * 每个Agent在不同工作坊中扮演不同角色，提供专业指导
+ * 使用统一的Agent注册表，确保Agent配置的一致性
  */
 
-// 从竞价系统导入Agent定义
-import { AI_PERSONAS } from '@/lib/ai-persona-enhanced'
+// 从Agent注册表导入工作坊Agent配置
+import { WORKSHOP_AGENTS, type WorkshopAgent } from '@/lib/agent-registry'
 
 // 工作坊类型定义
 export type WorkshopId = 'demand-validation' | 'mvp-builder' | 'growth-hacking' | 'profit-model'
@@ -32,14 +31,15 @@ export interface AgentMessage {
   }
 }
 
-// 工作坊Agent配置
+// 工作坊Agent配置 - 从agent-registry动态生成，确保与注册表同步
+// 每个工作坊定义Agent在该工作坊中的具体角色和专长
 export const WORKSHOP_AGENT_CONFIG = {
   'demand-validation': {
     title: '需求验证实验室',
     description: '通过科学的方法验证您的创意是否解决了真实需求',
     agents: {
       'alex': {
-        role: '产品战略专家',
+        role: '战略顾问',
         focus: '目标客户分析与市场定位',
         expertise: ['客户细分', '痛点识别', '竞争分析', '市场规模评估'],
         personality: '逻辑严谨，善于数据分析，会提出尖锐的战略问题'
@@ -51,7 +51,7 @@ export const WORKSHOP_AGENT_CONFIG = {
         personality: '细致入微，善于倾听，能发现用户的潜在需求'
       },
       'marcus': {
-        role: '技术实现专家',
+        role: '技术架构专家',
         focus: '解决方案可行性评估',
         expertise: ['技术架构', '实现复杂度', '开发成本', '技术风险'],
         personality: '实用主义，关注可行性，会提出技术约束和建议'
@@ -69,7 +69,7 @@ export const WORKSHOP_AGENT_CONFIG = {
         personality: '数字敏感，风险意识强，会从财务角度审视项目'
       },
       'lisa': {
-        role: '营销推广专家',
+        role: '运营增长专家',
         focus: '市场推广与品牌建设',
         expertise: ['品牌定位', '推广策略', '渠道选择', '客户获取'],
         personality: '创意十足，善于沟通，能提出有效的营销方案'
@@ -82,37 +82,37 @@ export const WORKSHOP_AGENT_CONFIG = {
     description: '快速构建最小可行产品，验证核心价值假设',
     agents: {
       'alex': {
-        role: '产品经理',
+        role: '战略顾问',
         focus: '产品定义与功能优先级',
         expertise: ['产品规划', '功能定义', '用户故事', 'MoSCoW优先级'],
         personality: '目标导向，善于平衡需求与资源，会推动产品决策'
       },
       'sophia': {
-        role: '用户体验专家',
+        role: '用户研究专家',
         focus: '用户体验与界面设计',
         expertise: ['用户流程', '界面设计', '可用性测试', '用户反馈'],
         personality: '用户至上，注重细节，会从用户角度审视产品'
       },
       'marcus': {
-        role: '技术架构师',
+        role: '技术架构专家',
         focus: '技术方案与开发实现',
         expertise: ['技术选型', '架构设计', '开发规划', '性能优化'],
         personality: '技术驱动，追求最佳实践，会提出技术建议和约束'
       },
       'elena': {
-        role: '敏捷教练',
+        role: '商业模式专家',
         focus: '开发流程与项目管理',
         expertise: ['敏捷开发', '项目管理', '团队协作', '交付节奏'],
         personality: '流程优化，团队协调，会推动高效的开发流程'
       },
       'david': {
-        role: '质量保障专家',
+        role: '财务分析专家',
         focus: '测试策略与质量控制',
         expertise: ['测试策略', '质量标准', '风险控制', '上线准备'],
         personality: '严谨细致，风险意识强，会关注质量和稳定性'
       },
       'lisa': {
-        role: '产品运营专家',
+        role: '运营增长专家',
         focus: '产品运营与数据分析',
         expertise: ['运营策略', '数据分析', '用户增长', '产品迭代'],
         personality: '数据驱动，增长导向，会关注产品的市场表现'
@@ -125,31 +125,31 @@ export const WORKSHOP_AGENT_CONFIG = {
     description: '运用数据驱动的方法实现快速增长',
     agents: {
       'alex': {
-        role: '增长战略专家',
+        role: '战略顾问',
         focus: '增长战略与目标设定',
         expertise: ['增长策略', '北极星指标', '增长模型', 'OKR设定'],
         personality: '战略思维，目标导向，善于制定增长战略和规划'
       },
       'sophia': {
-        role: '用户行为专家',
+        role: '用户研究专家',
         focus: '用户行为分析与优化',
         expertise: ['用户行为分析', '转化优化', '用户画像', '行为预测'],
         personality: '用户洞察，行为分析，能深度理解用户行为模式'
       },
       'marcus': {
-        role: '产品增长专家',
+        role: '技术架构专家',
         focus: '产品功能与增长机制',
         expertise: ['产品增长', '功能优化', 'A/B测试', '增长机制设计'],
         personality: '产品思维，实验导向，善于通过产品驱动增长'
       },
       'elena': {
-        role: '营销增长专家',
+        role: '商业模式专家',
         focus: '营销渠道与获客策略',
         expertise: ['渠道营销', '内容营销', '社交媒体', '病毒营销'],
         personality: '营销创新，渠道整合，能设计有效的营销增长策略'
       },
       'david': {
-        role: '数据分析专家',
+        role: '财务分析专家',
         focus: '数据分析与增长度量',
         expertise: ['数据分析', '增长指标', '漏斗分析', '留存分析'],
         personality: '数据驱动，分析严谨，通过数据发现增长机会'
@@ -168,43 +168,48 @@ export const WORKSHOP_AGENT_CONFIG = {
     description: '设计可持续的盈利模式和商业架构',
     agents: {
       'alex': {
-        role: '商业战略顾问',
+        role: '战略顾问',
         focus: '商业模式创新与战略规划',
         expertise: ['商业模式画布', '战略规划', '竞争策略', '价值创造'],
         personality: '战略视野，创新思维，善于设计可持续的商业模式'
       },
       'sophia': {
-        role: '客户价值专家',
+        role: '用户研究专家',
         focus: '客户关系与价值主张',
         expertise: ['价值主张设计', '客户关系管理', '客户细分', '服务设计'],
         personality: '客户中心，价值导向，深度理解客户需求和价值创造'
       },
       'marcus': {
-        role: '运营效率专家',
+        role: '技术架构专家',
         focus: '运营模式与效率优化',
         expertise: ['运营模式', '流程优化', '成本控制', '效率提升'],
         personality: '效率导向，流程优化，关注运营效率和成本控制'
       },
       'elena': {
-        role: '资源整合专家',
+        role: '商业模式专家',
         focus: '资源配置与合作伙伴',
         expertise: ['资源整合', '合作伙伴', '供应链', '生态构建'],
         personality: '资源整合，生态思维，善于构建合作伙伴网络'
       },
       'david': {
-        role: '财务建模专家',
+        role: '财务分析专家',
         focus: '财务模型与盈利分析',
         expertise: ['财务建模', '盈利分析', '投资回报', '财务规划'],
         personality: '财务严谨，数字敏感，通过财务角度评估商业可行性'
       },
       'lisa': {
-        role: '市场拓展专家',
+        role: '运营增长专家',
         focus: '市场开拓与规模化',
         expertise: ['市场拓展', '规模化策略', '国际化', '品牌建设'],
         personality: '市场敏锐，拓展导向，善于发现市场机会和扩张策略'
       }
     }
   }
+}
+
+// 辅助函数：从注册表获取Agent基础信息
+function getAgentFromRegistry(agentId: AgentId): WorkshopAgent | undefined {
+  return WORKSHOP_AGENTS.find(agent => agent.id === agentId)
 }
 
 // Agent基础提示词模板
@@ -220,25 +225,28 @@ export const AGENT_BASE_PROMPT = {
 ## 工作坊背景
 - 工作坊：{workshopTitle}
 - 目标：{workshopDescription}
-- 当前步骤：{currentStep}
+- 当前步骤：第{currentStep}步
 - 用户已填写：{completedFields}
 
-## 互动规则
-1. 保持你的专业角色和个性特点
-2. 基于用户填写的内容提供专业反馈
-3. 提出有价值的启发式问题
-4. 分享相关的案例或最佳实践
-5. 给出具体可执行的建议
-6. 如果发现用户理解有误，温和地纠正
-7. 每次回复控制在200字以内，保持简洁实用
+## 互动原则
+1. 保持你的专业角色和个性特点，像真实专家一样自然对话
+2. 根据用户输入质量调整回复方式：
+   - 如果输入过于空泛（如"AI项目"），引导用户描述具体场景和问题
+   - 如果输入充实，给予深入的专业分析
+3. 提出启发性问题帮助用户深入思考
+4. 分享相关案例或最佳实践（可以简短）
+5. 给出2-3条具体可执行的建议
+6. 如果发现用户理解有误，温和地指出并解释
+7. 控制在150-200字，保持专业但不生硬
 
-## 回复格式
-- 主要反馈（60-120字）
-- 启发性问题（1-2个问题）
-- 具体建议（2-3个要点）
-- 相关资源（可选）
+## 回复风格
+不要按照固定格式（"反馈-问题-建议"）机械输出，而是像真实专家交流那样：
+- 先对用户输入给出总体评价
+- 自然地穿插问题和建议
+- 用对话的方式而不是列表的方式表达
+- 可以用"我注意到..."、"我建议你..."、"有没有考虑过..."这样的自然表达
 
-记住：你的目标是帮助用户深入思考并完善他们的创意或方案。`,
+记住：你的目标是像一位经验丰富的导师一样，帮助用户深入思考并完善方案。`,
 
   user: `## 用户输入上下文
 工作坊：{workshopTitle}
@@ -376,13 +384,30 @@ export function generateAgentPrompt({
   }
 }
 
-// 格式化对话历史
+// 格式化对话历史 - 增强版本，包含更多上下文
 function formatConversationHistory(history: AgentMessage[]): string {
-  if (history.length === 0) return '无对话历史'
+  if (history.length === 0) return '这是本次工作坊的首次对话'
 
-  return history.slice(-5).map(msg =>
-    `${msg.agentId}: ${msg.content}`
-  ).join('\n')
+  // 取最近10条消息（而不是5条），保留更完整的上下文
+  const recentMessages = history.slice(-10)
+
+  return recentMessages.map((msg, index) => {
+    const timestamp = new Date(msg.timestamp).toLocaleTimeString('zh-CN', {
+      hour: '2-digit',
+      minute: '2-digit'
+    })
+    const agentName = getAgentFromRegistry(msg.agentId as AgentId)?.name || msg.agentId
+    const msgType = {
+      'question': '提问',
+      'feedback': '反馈',
+      'suggestion': '建议',
+      'validation': '验证',
+      'case_study': '案例',
+      'knowledge': '知识'
+    }[msg.type] || '消息'
+
+    return `[${timestamp}] ${agentName}(${msgType}): ${msg.content}`
+  }).join('\n\n')
 }
 
 // 获取工作坊推荐的Agent
@@ -428,6 +453,107 @@ export const FALLBACK_RESPONSES = {
 
 // 导出配置
 export {
-  WORKSHOP_AGENT_CONFIG as WorkshopConfig,
-  AI_PERSONAS
+  WORKSHOP_AGENT_CONFIG as WorkshopConfig
+}
+
+/**
+ * 检测用户输入质量并生成引导提示词
+ * 返回null表示输入质量良好，返回字符串表示需要引导
+ */
+export function detectInputQuality(userInput: string): {
+  quality: 'good' | 'vague' | 'too_short' | 'generic' | 'empty'
+  guidancePrompt?: string
+} {
+  const trimmed = userInput.trim()
+  const words = trimmed.split(/\s+/).filter(w => w.length > 1)
+
+  // 空输入
+  if (!trimmed || trimmed.length < 3) {
+    return {
+      quality: 'empty',
+      guidancePrompt: `用户尚未填写内容。请友好地引导：
+"我注意到这个部分还是空白的。不用担心，让我帮你梳理一下思路。
+
+你可以从以下角度思考：
+1. 你想解决什么具体问题？
+2. 谁会遇到这个问题？
+3. 现在他们是怎么处理的？
+
+先简单描述一下你的想法，我们一起完善。"`
+    }
+  }
+
+  // 过短（少于10个字）
+  if (words.length < 3 || trimmed.length < 10) {
+    return {
+      quality: 'too_short',
+      guidancePrompt: `用户输入过于简短："${trimmed}"
+
+请引导用户补充更多信息：
+"'${trimmed}'这个方向很有意思！不过能否再详细描述一下？
+
+比如：
+- 具体是什么场景下的${trimmed}？
+- 面向哪些用户？
+- 要解决他们的什么问题？
+
+多一些细节会帮助我们更好地分析可行性。"`
+    }
+  }
+
+  // 通用词汇堆砌（AI+、互联网+、区块链+等）
+  const genericPatterns = [
+    /^(ai|人工智能|互联网|科技|技术|创意|项目|平台|系统|app|应用)[\+\s]*(创意|项目|平台|系统|想法|idea|concept|应用)?$/i,
+    /^(ai|互联网|科技|区块链|大数据|云计算)[\+\s]*$/i,
+    /^做一个(ai|app|平台|系统|网站)/i
+  ]
+
+  if (genericPatterns.some(pattern => pattern.test(trimmed))) {
+    return {
+      quality: 'generic',
+      guidancePrompt: `用户输入过于笼统："${trimmed}"
+
+请引导用户聚焦具体场景：
+"${trimmed}的方向很广，让我们聚焦到具体场景上。
+
+请回答这几个问题：
+1. 用户是谁？（学生、白领、企业、创作者...）
+2. 他们遇到什么问题？（越具体越好）
+3. 你的方案如何解决这个问题？
+
+举个例子：'AI+教育'可以聚焦为'帮助小学老师自动生成个性化作业的AI助手'。"`
+    }
+  }
+
+  // 缺少关键要素检查
+  const hasUserMention = /用户|客户|人群|学生|老师|家长|白领|企业|商家/i.test(trimmed)
+  const hasProblemMention = /问题|痛点|需求|困难|挑战|麻烦/i.test(trimmed)
+  const hasSolutionMention = /解决|提供|帮助|实现|优化|改进|让|使得/i.test(trimmed)
+
+  const missingElements = []
+  if (!hasUserMention) missingElements.push('目标用户')
+  if (!hasProblemMention) missingElements.push('具体问题')
+  if (!hasSolutionMention) missingElements.push('解决方案')
+
+  if (missingElements.length >= 2) {
+    return {
+      quality: 'vague',
+      guidancePrompt: `用户输入缺少关键要素（${missingElements.join('、')}）："${trimmed}"
+
+请引导用户补充：
+"你的想法有一定基础，不过我需要了解更多细节：
+
+目前描述中缺少：${missingElements.join('、')}
+
+建议你按照这个框架补充：
+- 【谁】会用这个产品/服务？
+- 【什么问题】困扰着他们？
+- 【如何】解决这个问题？
+
+这样我能给你更有针对性的建议。"`
+    }
+  }
+
+  // 输入质量良好
+  return { quality: 'good' }
 }

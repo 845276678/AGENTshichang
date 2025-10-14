@@ -126,10 +126,55 @@ function formatBulletList(items: string[] | undefined, limit = 2): string {
     .join('\n')
 }
 
+/**
+ * 智能截断文本 - 在合适的位置截断，保持语义完整
+ */
 function truncateText(value: string, max = 120): string {
   if (value.length <= max) {
     return value
   }
+
+  // 尝试在句号、问号、感叹号处截断
+  const sentenceEnd = /[。！？.!?]/g
+  let lastMatch: RegExpExecArray | null = null
+  let match: RegExpExecArray | null
+
+  while ((match = sentenceEnd.exec(value)) !== null) {
+    if (match.index < max) {
+      lastMatch = match
+    } else {
+      break
+    }
+  }
+
+  // 如果找到了合适的句子结尾
+  if (lastMatch && lastMatch.index > max * 0.6) {
+    return value.slice(0, lastMatch.index + 1)
+  }
+
+  // 否则尝试在逗号、分号处截断
+  const punctuation = /[，；,;]/g
+  lastMatch = null
+
+  while ((match = punctuation.exec(value)) !== null) {
+    if (match.index < max) {
+      lastMatch = match
+    } else {
+      break
+    }
+  }
+
+  if (lastMatch && lastMatch.index > max * 0.7) {
+    return value.slice(0, lastMatch.index + 1) + '…'
+  }
+
+  // 最后在空格处截断，避免截断单词
+  const lastSpace = value.lastIndexOf(' ', max - 1)
+  if (lastSpace > max * 0.8) {
+    return value.slice(0, lastSpace) + '…'
+  }
+
+  // 实在找不到好的截断点，直接截断
   return `${value.slice(0, max - 1)}…`
 }
 

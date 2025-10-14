@@ -1,5 +1,6 @@
 import { AI_PERSONAS } from '@/lib/ai-persona-system'
 import type { AIPersona } from '@/lib/ai-persona-system'
+import { getAgentBudget, deductAgentBudget, hasEnoughBudget } from '@/lib/agent-budget'
 
 export type BidPhase = 'warmup' | 'discussion' | 'bidding' | 'prediction' | 'result'
 export type PersonaTheme = 'market' | 'technology' | 'product' | 'general'
@@ -20,56 +21,6 @@ export interface PersonaBidResult {
   bidAmount: number
   confidence: number
   comment: string
-}
-
-// Agent每日预算管理
-interface AgentDailyBudget {
-  personaId: string
-  dailyLimit: number
-  remainingBudget: number
-  lastResetDate: string // YYYY-MM-DD格式
-}
-
-const DAILY_BUDGET_LIMIT = 2000
-const agentBudgets: Map<string, AgentDailyBudget> = new Map()
-
-// 获取当前日期字符串
-function getTodayString(): string {
-  return new Date().toISOString().split('T')[0]
-}
-
-// 重置agent预算(如果是新的一天)
-function resetBudgetIfNeeded(personaId: string): void {
-  const today = getTodayString()
-  const budget = agentBudgets.get(personaId)
-
-  if (!budget || budget.lastResetDate !== today) {
-    agentBudgets.set(personaId, {
-      personaId,
-      dailyLimit: DAILY_BUDGET_LIMIT,
-      remainingBudget: DAILY_BUDGET_LIMIT,
-      lastResetDate: today
-    })
-  }
-}
-
-// 获取agent剩余预算
-function getRemainingBudget(personaId: string): number {
-  resetBudgetIfNeeded(personaId)
-  return agentBudgets.get(personaId)?.remainingBudget ?? DAILY_BUDGET_LIMIT
-}
-
-// 扣除agent预算
-function deductBudget(personaId: string, amount: number): boolean {
-  resetBudgetIfNeeded(personaId)
-  const budget = agentBudgets.get(personaId)
-
-  if (!budget || budget.remainingBudget < amount) {
-    return false
-  }
-
-  budget.remainingBudget -= amount
-  return true
 }
 
 const BASE_NEUTRAL_SCORE = 60
@@ -398,19 +349,19 @@ export function generatePersonaComment(
   ].join('\n')
 }
 
-const deriveBidAmount = (
+const deriveBidAmount = async (
   personaId: string,
   score: number,
   baseOffset: number,
   previousBids: Record<string, number> = {}
-) => {
+): Promise<number> => {
   // 如果分数太低(不匹配人设)，直接返回0
   if (score < 30) {
     return 0
   }
 
   // 检查剩余预算
-  const remainingBudget = getRemainingBudget(personaId)
+  const remainingBudget = await getAgentBudget(personaId).then(b => b.remainingBudget)
   if (remainingBudget <= 0) {
     return 0
   }
@@ -439,39 +390,59 @@ const resolveTheme = (phase: BidPhase, explicitTheme?: PersonaTheme): PersonaThe
   return 'general'
 }
 
-export function generateBiddingRound(context: PersonaBidContext): PersonaBidResult[] {
+export async function generateBiddingRound(context: PersonaBidContext): Promise<PersonaBidResult[]> {
   const { ideaContent, phase, round, previousBids = {}, highlights = [], theme } = context
   const resolvedTheme = resolveTheme(phase, theme)
   const currentBidMap = new Map(Object.entries(previousBids))
 
-  return AI_PERSONAS.map(persona => {
-    const score = calculatePersonaScore(persona, ideaContent, resolvedTheme, currentBidMap)
-    const bidAmount = deriveBidAmount(persona.id, score, round * 10, previousBids)
-    const comment = generatePersonaComment(persona, score, ideaContent, highlights)
+  // 为每个persona生成出价（并行处理）
+  const results = await Promise.all(
+    AI_PERSONAS.map(async (persona) => {
+      const score = calculatePersonaScore(persona, ideaContent, resolvedTheme, currentBidMap)
+      const bidAmount = await deriveBidAmount(persona.id, score, round * 10, previousBids)
+      const comment = generatePersonaComment(persona, score, ideaContent, highlights)
 
-    // 只有在实际出价时才扣除预算
-    if (bidAmount > 0 && phase === 'bidding') {
-      deductBudget(persona.id, bidAmount)
-    }
+      // 只有在实际出价时才扣除预算
+      if (bidAmount > 0 && phase === 'bidding') {
+        const result = await deductAgentBudget(persona.id, bidAmount)
+        if (!result.success) {
+          // 预算扣除失败，返回0出价
+          console.warn(`[Agent Budget] ${persona.id} 预算扣除失败: ${result.error}`)
+          return {
+            persona,
+            personaId: persona.id,
+            score,
+            bidAmount: 0,
+            confidence: clamp(score / 100, 0.3, 0.95),
+            comment: comment + '\n\n（注：我的预算已用完，暂时无法出价）'
+          }
+        }
+      }
 
-    return {
-      persona,
-      personaId: persona.id,
-      score,
-      bidAmount,
-      confidence: clamp(score / 100, 0.3, 0.95),
-      comment
-    }
-  })
+      return {
+        persona,
+        personaId: persona.id,
+        score,
+        bidAmount,
+        confidence: clamp(score / 100, 0.3, 0.95),
+        comment
+      }
+    })
+  )
+
+  return results
 }
 
 // 导出预算管理函数供外部使用
-export function getAgentRemainingBudget(personaId: string): number {
-  return getRemainingBudget(personaId)
+export async function getAgentRemainingBudget(personaId: string): Promise<number> {
+  const budget = await getAgentBudget(personaId)
+  return budget.remainingBudget
 }
 
-export function resetAgentBudget(personaId: string): void {
-  resetBudgetIfNeeded(personaId)
+export async function resetAgentBudget(personaId: string): Promise<void> {
+  // 这个函数已经在agent-budget.ts中实现，这里只是重新导出
+  const { resetAgentBudget: reset } = await import('@/lib/agent-budget')
+  await reset(personaId)
 }
 
 /**
