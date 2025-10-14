@@ -29,7 +29,8 @@ import {
   BarChart3,
   Target,
   Lightbulb,
-  AlertCircle
+  AlertCircle,
+  TrendingUp
 } from 'lucide-react'
 import { DEPARTMENTS, type DepartmentId } from '@/app/solo-company/page'
 import TaskForm from '@/components/solo-company/TaskForm'
