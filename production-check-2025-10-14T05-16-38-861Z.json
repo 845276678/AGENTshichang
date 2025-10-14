@@ -1,0 +1,52 @@
+{
+  "url": "https://aijiayuan.top/marketplace",
+  "timestamp": "2025-10-14T05:16:36.848Z",
+  "checks": {
+    "performance": {
+      "metrics": [],
+      "status": "success"
+    },
+    "resources": {
+      "mainFrame": {
+        "id": "24728ACE41C62B79EF677A2F85807166",
+        "loaderId": "E431AF067E111BFE385F572DA677EC74",
+        "url": "https://aijiayuan.top/marketplace/bidding",
+        "domainAndRegistry": "aijiayuan.top",
+        "securityOrigin": "https://aijiayuan.top",
+        "securityOriginDetails": {
+          "isLocalhost": false
+        },
+        "mimeType": "text/html",
+        "adFrameStatus": {
+          "adFrameType": "none"
+        },
+        "secureContextType": "Secure",
+        "crossOriginIsolatedContextType": "NotIsolated",
+        "gatedAPIFeatures": []
+      },
+      "subFrames": [],
+      "status": "success"
+    },
+    "javascript": {
+      "result": {
+        "title": "AI创意家园 - AI Agent Market - 发现、部署、变现AI智能体",
+        "url": "https://aijiayuan.top/marketplace/bidding",
+        "readyState": "complete",
+        "errors": "no error handler",
+        "viewport": {
+          "width": 764,
+          "height": 433
+        }
+      },
+      "status": "success"
+    },
+    "console": {
+      "errors": [],
+      "status": "success"
+    },
+    "network": {
+      "failedRequests": [],
+      "status": "success"
+    }
+  }
+}

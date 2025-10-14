@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react'
 
 import { useRouter } from 'next/navigation'
-import { useBiddingWebSocket, useBiddingWebSocketOriginal } from '@/hooks/useBiddingWebSocket'
+import { useFixedBiddingWebSocket, useBiddingWebSocketOriginal } from '@/hooks/useFixedBiddingWebSocket'
 import { tokenStorage } from '@/lib/token-storage'
 import { useAuth } from '@/contexts/AuthContext'
 import EnhancedBiddingStage from './EnhancedBiddingStage'

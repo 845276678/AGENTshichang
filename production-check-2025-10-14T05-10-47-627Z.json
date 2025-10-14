@@ -1,0 +1,52 @@
+{
+  "url": "http://localhost:3000",
+  "timestamp": "2025-10-14T05:10:45.610Z",
+  "checks": {
+    "performance": {
+      "metrics": [],
+      "status": "success"
+    },
+    "resources": {
+      "mainFrame": {
+        "id": "79A38D194597CC31A0CDB9F9BC87EC51",
+        "loaderId": "51CB063FAB89FF064A8980B22E28FE85",
+        "url": "http://localhost:3000/",
+        "domainAndRegistry": "",
+        "securityOrigin": "http://localhost:3000",
+        "securityOriginDetails": {
+          "isLocalhost": true
+        },
+        "mimeType": "text/html",
+        "adFrameStatus": {
+          "adFrameType": "none"
+        },
+        "secureContextType": "SecureLocalhost",
+        "crossOriginIsolatedContextType": "NotIsolated",
+        "gatedAPIFeatures": []
+      },
+      "subFrames": [],
+      "status": "success"
+    },
+    "javascript": {
+      "result": {
+        "title": "AI创意家园 - AI Agent Market - 发现、部署、变现AI智能体",
+        "url": "http://localhost:3000/",
+        "readyState": "complete",
+        "errors": "no error handler",
+        "viewport": {
+          "width": 764,
+          "height": 433
+        }
+      },
+      "status": "success"
+    },
+    "console": {
+      "errors": [],
+      "status": "success"
+    },
+    "network": {
+      "failedRequests": [],
+      "status": "success"
+    }
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "url": "https://aijiayuan.top",
+  "timestamp": "2025-10-14T05:21:19.486Z",
+  "testIdea": {
+    "title": "智能化宠物健康监测系统",
+    "description": "开发一款结合IoT传感器和AI分析的宠物健康监测设备，能够24小时监测宠物的体温、心率、活动量等生命体征，并通过手机App为宠物主人提供健康报告和异常预警。设备小巧便携，可穿戴式设计，适合各种大小的宠物。",
+    "category": "TECH"
+  },
+  "dialogueResults": {
+    "messages": [],
+    "totalDuration": 60257,
+    "isComplete": false
+  },
+  "biddingResults": {
+    "bids": [],
+    "winner": null,
+    "status": "unknown",
+    "totalBids": 0
+  },
+  "dialogueIntegrity": {
+    "error": "Cannot read properties of undefined (reading 'score')",
+    "score": 0,
+    "status": "error"
+  },
+  "status": "completed"
+}

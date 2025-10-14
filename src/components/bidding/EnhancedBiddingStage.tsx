@@ -32,7 +32,7 @@ import {
   type VisualEffectConfig
 } from '@/lib/visual-effects-config'
 import { AI_PERSONAS, type AIMessage } from '@/lib/ai-persona-system'
-import { useBiddingWebSocket } from '@/hooks/useBiddingWebSocket'
+import { useFixedBiddingWebSocket } from '@/hooks/useFixedBiddingWebSocket'
 
 interface EnhancedBiddingStageProps {
   ideaId: string
@@ -57,20 +57,34 @@ export default function EnhancedBiddingStage({
     connectionStatus,
     currentPhase,
     timeRemaining,
-    viewerCount,
     aiMessages,
-    activeSpeaker,
     currentBids,
     highestBid,
-    supportedPersona,
-    supportPersona,
+    forceShowDialogs,
+    sendMessage,
     startBidding,
-    reconnect,
-    sendSupplement
-  } = useBiddingWebSocket({
-    ideaId,
-    autoConnect: true
-  })
+    reconnect
+  } = useFixedBiddingWebSocket(ideaId)
+
+  // 模拟缺失的状态
+  const viewerCount = 12;
+  const activeSpeaker = aiMessages.length > 0 ? aiMessages[0].personaId : null;
+  const supportedPersona = null;
+
+  // 实现缺失的函数
+  const supportPersona = (personaId: string) => {
+    sendMessage({
+      type: 'support_persona',
+      payload: { personaId }
+    });
+  };
+
+  const sendSupplement = (supplementData: string) => {
+    return sendMessage({
+      type: 'user_supplement',
+      payload: { content: supplementData }
+    });
+  };
 
   // 视觉效果设置状态
   const [effectConfig, setEffectConfig] = useState<VisualEffectConfig>(() =>

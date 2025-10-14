@@ -16,7 +16,7 @@ const AnimatePresence = ({ children }: { children: React.ReactNode }) => <>{chil
 import { type AIMessage } from '@/lib/ai-persona-system'
 import { AnimatedMaturityScoreCard, WorkshopRecommendations, ImprovementSuggestions } from '@/components/maturity'
 import type { MaturityScoreResult } from '@/lib/business-plan/maturity-scorer'
-import { useBiddingWebSocket } from '@/hooks/useBiddingWebSocket'
+import { useFixedBiddingWebSocket } from '@/hooks/useFixedBiddingWebSocket'
 import { useAgentStates, PhasePermissionManager } from '@/hooks/useAgentStates'
 import { agentStateManager } from '@/services/AgentStateManager'
 import { tokenStorage } from '@/lib/token-storage'
@@ -94,20 +94,34 @@ export default function UnifiedBiddingStage({
     connectionStatus,
     currentPhase: wsPhase,
     timeRemaining,
-    viewerCount,
     aiMessages,
-    activeSpeaker,
     currentBids,
     highestBid,
-    supportedPersona,
-    supportPersona,
+    forceShowDialogs,
+    sendMessage,
     startBidding,
-    sendSupplement,
     reconnect
-  } = useBiddingWebSocket({
-    ideaId,
-    autoConnect: true
-  })
+  } = useFixedBiddingWebSocket(ideaId);
+
+  // 模拟缺失的状态
+  const viewerCount = 15;
+  const activeSpeaker = aiMessages.length > 0 ? aiMessages[0].personaId : null;
+  const supportedPersona = null;
+
+  // 实现缺失的函数
+  const supportPersona = (personaId: string) => {
+    sendMessage({
+      type: 'support_persona',
+      payload: { personaId }
+    });
+  };
+
+  const sendSupplement = (supplementData: string) => {
+    return sendMessage({
+      type: 'user_supplement',
+      payload: { content: supplementData }
+    });
+  };
 
   // 映射阶段
   const currentPhase = mapWebSocketPhase(wsPhase)
