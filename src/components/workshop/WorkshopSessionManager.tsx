@@ -33,6 +33,7 @@ import { useSoundEffects } from '@/hooks/useSoundEffects'
 // 导入相关组件和Hooks
 import WorkshopProgress from './WorkshopProgress'
 import DemandValidationForm from './forms/DemandValidationForm'
+import MVPBuilderForm from './forms/MVPBuilderForm'
 import AgentConversation from './AgentConversation'
 import {
   useWorkshopSession,
@@ -42,6 +43,7 @@ import {
 import { useAgentChat } from '@/hooks/useAgentChat'
 import {
   type DemandValidationForm as DemandValidationFormType,
+  type MVPBuilderForm as MVPBuilderFormType,
   type WorkshopFormData,
   calculateFormProgress
 } from '@/lib/workshop/form-schemas'
@@ -89,12 +91,11 @@ function renderWorkshopForm(
       )
 
     case 'mvp-builder':
-      // TODO: 实现MVP构建表单
       return (
-        <div className="text-center py-12">
-          <h3 className="text-lg font-semibold mb-2">MVP构建工作坊</h3>
-          <p className="text-gray-600">即将推出...</p>
-        </div>
+        <MVPBuilderForm
+          {...commonProps}
+          initialData={initialData as Partial<MVPBuilderFormType>}
+        />
       )
 
     case 'growth-hacking':
@@ -186,7 +187,7 @@ export default function WorkshopSessionManager({
     workshopId,
     sessionId: session?.id || '',
     currentStep: session?.currentStep || 1,
-    totalSteps: 4, // 根据工作坊类型调整
+    totalSteps: workshopId === 'mvp-builder' ? 5 : 4, // MVP工作坊有5步
     formData: session?.formData || {},
     onMessageReceived: (message) => {
       // 将Agent消息保存到会话历史
@@ -431,7 +432,7 @@ export default function WorkshopSessionManager({
                   agentId={agentId}
                   sessionId={session.id}
                   currentStep={session.currentStep}
-                  totalSteps={4}
+                  totalSteps={workshopId === 'mvp-builder' ? 5 : 4}
                   formData={session.formData}
                   isRecommended={true}
                 />

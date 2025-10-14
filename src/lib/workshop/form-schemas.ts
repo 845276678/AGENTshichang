@@ -97,84 +97,138 @@ export type DemandValidationForm = z.infer<typeof DemandValidationFormSchema>
 // MVP构建工作坊 (MVP Builder)
 // ============================================
 
-// 核心功能定义Schema
+// 问题定义Schema
+const ProblemStatementSchema = z.object({
+  coreProblemSolved: z.string()
+    .min(20, '核心问题描述至少20个字符')
+    .max(300, '核心问题描述不超过300个字符'),
+
+  targetUser: z.string()
+    .min(10, '目标用户描述至少10个字符')
+    .max(200, '目标用户描述不超过200个字符'),
+
+  existingSolutions: z.array(z.string().min(5, '现有解决方案描述至少5个字符'))
+    .max(3, '现有解决方案最多3个')
+    .default([]),
+
+  userPainLevel: z.number()
+    .min(1, '用户痛苦程度至少为1')
+    .max(10, '用户痛苦程度最高为10')
+    .default(5)
+})
+
+// 核心功能定义Schema（使用MoSCoW框架）
 const CoreFeaturesSchema = z.object({
   mustHave: z.array(z.string().min(5, '功能描述至少5个字符'))
     .min(1, '至少填写1个必须功能')
-    .max(8, '必须功能最多8个'),
+    .max(5, '必须功能最多5个，保持MVP简单'),
 
   shouldHave: z.array(z.string().min(5, '功能描述至少5个字符'))
-    .max(6, '应该功能最多6个'),
+    .max(3, '应该功能最多3个'),
 
   couldHave: z.array(z.string().min(5, '功能描述至少5个字符'))
-    .max(8, '可以功能最多8个'),
+    .max(3, '可以功能最多3个'),
 
-  wontHave: z.array(z.string().min(5, '功能描述至少5个字符'))
-    .max(5, '不会功能最多5个')
+  featurePriorityMatrix: z.array(z.object({
+    feature: z.string().min(3, '功能名称至少3个字符'),
+    impact: z.enum(['high', 'medium', 'low'], {
+      errorMap: () => ({ message: '请选择功能影响度' })
+    }),
+    effort: z.enum(['high', 'medium', 'low'], {
+      errorMap: () => ({ message: '请选择开发难度' })
+    })
+  })).max(8, '功能优先级矩阵最多8个功能').default([])
 })
 
-// 用户故事Schema
-const UserStorySchema = z.object({
-  role: z.string()
-    .min(3, '用户角色至少3个字符')
-    .max(50, '用户角色不超过50个字符'),
+// MVP验证计划Schema（新增）
+const MVPValidationSchema = z.object({
+  successMetrics: z.array(z.string().min(5, '成功指标描述至少5个字符'))
+    .min(2, '至少定义2个成功指标')
+    .max(4, '成功指标最多4个'),
 
-  goal: z.string()
-    .min(10, '目标描述至少10个字符')
-    .max(200, '目标描述不超过200个字符'),
-
-  benefit: z.string()
-    .min(10, '收益描述至少10个字符')
-    .max(200, '收益描述不超过200个字符'),
-
-  priority: z.enum(['high', 'medium', 'low'], {
-    errorMap: () => ({ message: '请选择优先级' })
+  testingApproach: z.enum(['prototype', 'landing_page', 'wizard_of_oz', 'concierge', 'fake_door'], {
+    errorMap: () => ({ message: '请选择验证方法' })
   }),
 
-  estimatedEffort: z.number()
-    .min(1, '工作量估算至少为1')
-    .max(10, '工作量估算最高为10')
+  validationTimeline: z.string()
+    .min(10, '验证时间计划至少10个字符')
+    .max(200, '验证时间计划不超过200个字符'),
+
+  budgetRange: z.enum(['under_5k', '5k_to_20k', '20k_to_50k', 'over_50k'], {
+    errorMap: () => ({ message: '请选择预算范围' })
+  }),
+
+  targetUserCount: z.number()
+    .min(10, '目标验证用户至少10人')
+    .max(1000, '目标验证用户不超过1000人')
+    .default(50),
+
+  keyAssumptions: z.array(z.string().min(10, '假设描述至少10个字符'))
+    .min(1, '至少列出1个关键假设')
+    .max(5, '关键假设最多5个')
 })
 
-// 技术方案Schema
-const TechnicalPlanSchema = z.object({
-  architecture: z.string()
-    .min(20, '技术架构描述至少20个字符')
-    .max(500, '技术架构描述不超过500个字符'),
+// 实施计划Schema（简化版）
+const ImplementationPlanSchema = z.object({
+  developmentApproach: z.enum(['no_code', 'low_code', 'custom_development', 'outsourced'], {
+    errorMap: () => ({ message: '请选择开发方式' })
+  }),
 
-  techStack: z.array(z.string().min(2, '技术名称至少2个字符'))
-    .min(1, '至少选择1个技术')
-    .max(10, '最多选择10个技术'),
+  techStack: z.array(z.string().min(2, '技术栈名称至少2个字符'))
+    .max(5, '技术栈选择不超过5个，保持简单'),
 
-  infrastructure: z.string()
-    .min(10, '基础设施描述至少10个字符')
-    .max(300, '基础设施描述不超过300个字符'),
+  keyResources: z.array(z.string().min(3, '资源描述至少3个字符'))
+    .max(5, '关键资源最多5个'),
 
-  thirdPartyServices: z.array(z.string().min(2, '服务名称至少2个字符'))
-    .max(8, '第三方服务最多8个')
+  firstMilestone: z.string()
+    .min(15, '第一个里程碑描述至少15个字符')
+    .max(200, '第一个里程碑描述不超过200个字符'),
+
+  riskFactors: z.array(z.string().min(10, '风险因素描述至少10个字符'))
+    .max(3, '风险因素最多3个'),
+
+  estimatedDevelopmentTime: z.enum(['under_1_month', '1_to_3_months', '3_to_6_months', 'over_6_months'], {
+    errorMap: () => ({ message: '请选择预计开发时间' })
+  })
 })
 
-// 原型设计Schema
-const PrototypeSchema = z.object({
-  wireframeUrl: z.string().url('请输入有效的线框图链接').optional().or(z.literal('')),
+// 中国合规性检查Schema（新增）
+const ChinaComplianceSchema = z.object({
+  platformType: z.enum(['website', 'app', 'mini_program', 'h5', 'other'], {
+    errorMap: () => ({ message: '请选择平台类型' })
+  }),
 
-  designPrinciples: z.array(z.string().min(5, '设计原则描述至少5个字符'))
-    .min(1, '至少填写1个设计原则')
-    .max(6, '设计原则最多6个'),
+  needsIcpFiling: z.boolean().default(true),
 
-  keyInteractions: z.array(z.string().min(5, '交互描述至少5个字符'))
-    .min(1, '至少填写1个关键交互')
-    .max(8, '关键交互最多8个')
+  needsBusinessLicense: z.boolean().default(false),
+
+  involvePayment: z.boolean().default(false),
+
+  targetAudience: z.enum(['b2c', 'b2b', 'c2c', 'internal'], {
+    errorMap: () => ({ message: '请选择目标受众类型' })
+  }),
+
+  dataCollection: z.enum(['none', 'basic', 'sensitive', 'personal_id'], {
+    errorMap: () => ({ message: '请选择数据收集程度' })
+  }),
+
+  complianceNotes: z.string()
+    .max(500, '合规备注不超过500个字符')
+    .default(''),
+
+  acknowledgeCompliance: z.boolean()
+    .refine(val => val === true, {
+      message: '必须确认已了解相关合规要求'
+    })
 })
 
-// MVP构建完整表单Schema
+// MVP构建完整表单Schema（重新设计）
 export const MVPBuilderFormSchema = z.object({
+  problemStatement: ProblemStatementSchema,
   coreFeatures: CoreFeaturesSchema,
-  userStories: z.array(UserStorySchema)
-    .min(1, '至少创建1个用户故事')
-    .max(10, '用户故事最多10个'),
-  technicalPlan: TechnicalPlanSchema,
-  prototype: PrototypeSchema
+  mvpValidation: MVPValidationSchema,
+  implementationPlan: ImplementationPlanSchema,
+  chinaCompliance: ChinaComplianceSchema
 })
 
 export type MVPBuilderForm = z.infer<typeof MVPBuilderFormSchema>
@@ -434,10 +488,11 @@ export const WORKSHOP_STEPS = {
     { id: 4, title: '验证计划', fields: ['validationPlan'] }
   ],
   'mvp-builder': [
-    { id: 1, title: '核心功能定义', fields: ['coreFeatures'] },
-    { id: 2, title: '用户故事创建', fields: ['userStories'] },
-    { id: 3, title: '技术方案设计', fields: ['technicalPlan'] },
-    { id: 4, title: '原型设计', fields: ['prototype'] }
+    { id: 1, title: '问题与用户定义', fields: ['problemStatement'] },
+    { id: 2, title: 'MVP功能规划', fields: ['coreFeatures'] },
+    { id: 3, title: 'MVP验证策略', fields: ['mvpValidation'] },
+    { id: 4, title: '实施计划制定', fields: ['implementationPlan'] },
+    { id: 5, title: '中国合规检查', fields: ['chinaCompliance'] }
   ],
   'growth-hacking': [
     { id: 1, title: '增长目标设定', fields: ['growthGoals'] },

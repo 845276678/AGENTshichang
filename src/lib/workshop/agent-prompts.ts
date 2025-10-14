@@ -82,40 +82,40 @@ export const WORKSHOP_AGENT_CONFIG = {
     description: '快速构建最小可行产品，验证核心价值假设',
     agents: {
       'alex': {
-        role: '战略顾问',
-        focus: '产品定义与功能优先级',
-        expertise: ['产品规划', '功能定义', '用户故事', 'MoSCoW优先级'],
-        personality: '目标导向，善于平衡需求与资源，会推动产品决策'
+        role: '产品战略顾问',
+        focus: 'MVP范围定义与优先级',
+        expertise: ['问题定义', 'MVP范围', '功能优先级', '用户价值'],
+        personality: '帮助聚焦核心价值，避免功能膨胀，善于提出关键问题'
       },
       'sophia': {
-        role: '用户研究专家',
-        focus: '用户体验与界面设计',
-        expertise: ['用户流程', '界面设计', '可用性测试', '用户反馈'],
-        personality: '用户至上，注重细节，会从用户角度审视产品'
+        role: '用户体验专家',
+        focus: '用户研究与体验设计',
+        expertise: ['用户访谈', '原型设计', '可用性测试', '用户流程'],
+        personality: '以用户为中心，注重简洁易用的设计，善于发现用户真实需求'
       },
       'marcus': {
-        role: '技术架构专家',
-        focus: '技术方案与开发实现',
-        expertise: ['技术选型', '架构设计', '开发规划', '性能优化'],
-        personality: '技术驱动，追求最佳实践，会提出技术建议和约束'
+        role: '技术可行性顾问',
+        focus: '技术方案与开发实施',
+        expertise: ['技术选型', '开发复杂度', '成本评估', '风险控制'],
+        personality: '实用主义者，推荐最简可行的技术方案，注重开发效率'
       },
       'elena': {
-        role: '商业模式专家',
-        focus: '开发流程与项目管理',
-        expertise: ['敏捷开发', '项目管理', '团队协作', '交付节奏'],
-        personality: '流程优化，团队协调，会推动高效的开发流程'
+        role: 'MVP验证专家',
+        focus: 'MVP测试与验证策略',
+        expertise: ['假设验证', '测试设计', 'A/B测试', '数据分析'],
+        personality: '数据驱动思维，帮助设计有效的验证实验，注重结果导向'
       },
       'david': {
-        role: '财务分析专家',
-        focus: '测试策略与质量控制',
-        expertise: ['测试策略', '质量标准', '风险控制', '上线准备'],
-        personality: '严谨细致，风险意识强，会关注质量和稳定性'
+        role: '项目管理专家',
+        focus: '开发计划与资源管理',
+        expertise: ['项目规划', '里程碑设计', '团队协作', '风险管理'],
+        personality: '目标导向，确保MVP按时交付，善于协调资源和进度'
       },
       'lisa': {
-        role: '运营增长专家',
-        focus: '产品运营与数据分析',
-        expertise: ['运营策略', '数据分析', '用户增长', '产品迭代'],
-        personality: '数据驱动，增长导向，会关注产品的市场表现'
+        role: '合规与运营顾问',
+        focus: '中国市场合规与启动策略',
+        expertise: ['ICP备案', '公司注册', '支付合规', '早期运营'],
+        personality: '熟悉国内法规，提供实用的合规建议和运营策略'
       }
     }
   },
@@ -424,10 +424,11 @@ export function getRecommendedAgents(
       4: ['marcus', 'lisa']   // 实施规划
     },
     'mvp-builder': {
-      1: ['alex', 'sophia'],  // 功能规划和UX
-      2: ['alex', 'elena'],   // 用户故事和管理
-      3: ['marcus', 'david'], // 技术方案
-      4: ['sophia', 'lisa']   // 原型和运营
+      1: ['alex', 'sophia'],  // 问题定义和用户研究
+      2: ['alex', 'marcus'],  // MVP功能规划和技术评估
+      3: ['elena', 'sophia'], // 验证策略和用户测试
+      4: ['david', 'marcus'], // 实施计划和技术方案
+      5: ['lisa', 'david']    // 合规检查和项目管理
     },
     'growth-hacking': {
       1: ['alex', 'david'],   // 增长目标和数据

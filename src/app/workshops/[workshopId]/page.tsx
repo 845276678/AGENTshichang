@@ -36,8 +36,8 @@ const WORKSHOP_CONFIG: Record<WorkshopId, {
   },
   'mvp-builder': {
     title: 'MVP构建工作坊',
-    description: '从想法到产品原型，学会构建最小可行产品（MVP）的核心方法',
-    estimatedTime: '60-90分钟',
+    description: '快速构建最小可行产品，验证核心价值假设，包含中国市场合规指导',
+    estimatedTime: '80-100分钟',
     difficulty: '中级'
   },
   'growth-hacking': {

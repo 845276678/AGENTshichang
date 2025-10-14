@@ -58,16 +58,17 @@ const WORKSHOP_CONFIGS = {
   },
   'mvp-builder': {
     title: 'MVP构建工作坊',
-    description: '设计最小可行产品，快速验证市场假设',
+    description: '快速构建最小可行产品，验证核心价值假设，包含中国合规指导',
     icon: Play,
     color: 'green',
-    duration: '45-60分钟',
+    duration: '80-100分钟',
     difficulty: '中级',
     benefits: [
-      '定义核心功能',
-      '创建用户故事',
-      '选择技术方案',
-      '设计产品原型'
+      '明确问题和用户定义',
+      'MVP功能规划（MoSCoW）',
+      '设计验证策略',
+      '制定实施计划',
+      '完成中国合规检查'
     ]
   },
   'growth-hacking': {
