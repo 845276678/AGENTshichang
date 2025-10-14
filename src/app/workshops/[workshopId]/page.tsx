@@ -8,10 +8,18 @@
  * - profit-model: 商业模式设计
  */
 
+'use client'
+
+import React from 'react'
+
 import { notFound } from 'next/navigation'
-import { Metadata } from 'next'
+import { useAuth } from '@/contexts/AuthContext'
 import WorkshopDashboard from '@/components/workshop/WorkshopDashboard'
 import { type WorkshopId } from '@/hooks/useWorkshopSession'
+import { Card, CardContent } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Loader2, LogIn } from 'lucide-react'
+import Link from 'next/link'
 
 // 工作坊配置
 const WORKSHOP_CONFIG: Record<WorkshopId, {
@@ -52,46 +60,75 @@ interface WorkshopPageProps {
   }
 }
 
-// 生成动态元数据
-export async function generateMetadata({
-  params
-}: WorkshopPageProps): Promise<Metadata> {
-  const workshopId = params.workshopId as WorkshopId
-  const config = WORKSHOP_CONFIG[workshopId]
+// NOTE: Metadata generation removed because this is now a client component
+// Dynamic metadata will be handled at runtime via document.title or similar
 
-  if (!config) {
-    return {
-      title: '工作坊不存在 - AI智能体市场',
-      description: '您访问的工作坊页面不存在'
-    }
-  }
-
-  return {
-    title: `${config.title} - AI智能体市场`,
-    description: config.description,
-    keywords: ['工作坊', '创业', '商业验证', config.title],
-    openGraph: {
-      title: config.title,
-      description: config.description,
-      type: 'website'
-    }
-  }
-}
-
-// 生成静态路径
-export async function generateStaticParams() {
-  return Object.keys(WORKSHOP_CONFIG).map((workshopId) => ({
-    workshopId
-  }))
-}
+// NOTE: generateStaticParams() removed because this is now a client component
+// The workshop routes will be handled dynamically
 
 export default function WorkshopPage({ params }: WorkshopPageProps) {
   const workshopId = params.workshopId as WorkshopId
   const config = WORKSHOP_CONFIG[workshopId]
+  const { user, isLoading } = useAuth()
+
+  // Set document title dynamically for client-side component
+  React.useEffect(() => {
+    if (config) {
+      document.title = `${config.title} - AI智能体市场`
+    } else {
+      document.title = '工作坊不存在 - AI智能体市场'
+    }
+  }, [config])
 
   // 如果工作坊不存在，返回404
   if (!config) {
     notFound()
+  }
+
+  // 加载状态
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-blue-600" />
+          <p className="text-gray-600">正在验证用户身份...</p>
+        </div>
+      </div>
+    )
+  }
+
+  // 未登录状态
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+        <Card className="max-w-md w-full">
+          <CardContent className="pt-6 text-center">
+            <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <LogIn className="w-8 h-8 text-blue-600" />
+            </div>
+            <h2 className="text-xl font-semibold mb-2">需要登录</h2>
+            <p className="text-gray-600 mb-6">
+              请先登录您的账户以访问{config.title}
+            </p>
+            <div className="space-y-3">
+              <Link href="/auth/login">
+                <Button className="w-full bg-blue-600 hover:bg-blue-700">
+                  立即登录
+                </Button>
+              </Link>
+              <Link href="/auth/register">
+                <Button variant="outline" className="w-full">
+                  注册新账户
+                </Button>
+              </Link>
+            </div>
+            <p className="text-xs text-gray-500 mt-4">
+              登录后即可使用所有工作坊功能
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+    )
   }
 
   return (
@@ -99,7 +136,7 @@ export default function WorkshopPage({ params }: WorkshopPageProps) {
       <div className="container mx-auto px-4 py-8">
         <WorkshopDashboard
           workshopId={workshopId}
-          userId="test-user-week4"
+          userId={user.id}
         />
       </div>
     </div>
