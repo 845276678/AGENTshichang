@@ -1,4 +1,114 @@
-﻿# AI创意竞价平台
+﻿## AI Agent 市场（AI Agent Market）
+
+一个面向创意者与开发者的 AI Agent 平台：提交创意、AI 投资者竞价、工作坊指导完善方案，并输出可落地的商业计划与执行建议。
+
+在线体验：`https://aijiayuan.top`
+
+### 目录
+- 概览
+- 平台功能
+- 架构概述
+- 主要模块
+- 快速开始
+- 部署与运维
+- 文档索引
+- 目录结构（简）
+- 版权与联系
+
+---
+
+### 概览
+AI Agent 市场提供从创意提交、AI 评估竞价、专业工作坊到商业计划生成的一体化流程，帮助个人或团队快速完成从想法到验证的闭环。
+
+### 平台功能
+- 创意竞价与增强：提交想法，AI 竞价评估与补充完善
+- 专业工作坊：需求验证、MVP 构建、增长黑客、商业模式等流程化指导（支持匿名体验）
+- 商业计划生成：模块化生成报告与可执行建议
+- 仪表盘与监控：运行指标、性能监控、告警联动
+
+相关文档：
+- `docs/product/platform-features.md`
+- `deliverables/03-用户体验设计.md`
+
+### 架构概述
+- 前端：Next.js(App Router) + TypeScript + Tailwind + Framer Motion
+- 后端接口：Next.js API Routes（/src/app/api/...）
+- 数据层：Prisma + PostgreSQL（`prisma/schema.prisma`）
+- 监控与运维：Prometheus + Alertmanager + Grafana（参考 `docker/`）
+
+架构说明：
+- `docs/architecture/ai-agent-system.md`
+- `docs/architecture/ai-agent-system-technical-docs.md`
+- `deliverables/01-技术架构设计文档.md`
+
+### 主要模块
+- 市场与竞价：`src/components/bidding/*`，`src/app/marketplace`
+- 工作坊体系：`src/app/workshops` 与 `src/components/workshop/*`，会话管理 Hook `src/hooks/useWorkshopSession.ts`
+- 商业计划生成：`src/lib/business-plan/*` 与页面 `src/app/business-plan`
+- 账户与权限：`src/contexts/AuthContext.tsx`，`src/app/auth/*`
+- 监控：`src/components/monitoring/*`，`src/app/api/monitoring/*`
+
+### 快速开始
+1) 克隆与安装
+```bash
+git clone <your-repo>
+cd AIagentshichang
+npm install
+```
+
+2) 环境变量与数据库
+- 参考 `docs/operations/production-runbook.md`、`docs/guides/deployment/deployment-guide.md`
+- 配置数据库连接后执行：
+```bash
+npx prisma migrate deploy
+npx prisma generate
+```
+
+3) 本地运行
+```bash
+npm run dev
+```
+访问：`http://localhost:3000`
+
+### 部署与运维
+- 部署指南：`docs/guides/deployment/deployment-guide.md`
+- 生产运行手册：`docs/operations/production-runbook.md`
+- 监控告警配置：`docker/prometheus`、`docker/alertmanager`、`docker/grafana`
+
+### 文档索引
+- 产品与功能：`docs/product/platform-features.md`
+- 架构与技术：
+  - `docs/architecture/ai-agent-system.md`
+  - `docs/architecture/ai-agent-system-technical-docs.md`
+- 开发与部署：
+  - `docs/guides/development/development-guide.md`
+  - `docs/guides/deployment/deployment-guide.md`
+- 数据库：`docs/reference/database-schema.sql`，`prisma/schema.prisma`
+- 事件与变更：`docs/incidents/2025-incident-dossier.md`（以及 `docs/incidents/archive/`）
+- 对外交付：
+  - `deliverables/01-技术架构设计文档.md`
+  - `deliverables/02-商业计划书.md`
+  - `deliverables/03-用户体验设计.md`
+
+### 目录结构（简）
+```
+src/
+  app/                # Next.js 路由与页面
+  components/         # UI 与业务组件
+  hooks/              # 自定义 Hook（含工作坊会话）
+  lib/                # 业务逻辑与服务（含 business-plan/*）
+  types/              # 类型定义
+docs/                 # 产品、架构、运维与指南
+docker/               # 监控与周边服务配置
+prisma/               # 数据模型与迁移
+deliverables/         # 对外交付材料
+```
+
+### 版权与联系
+- 版权：本项目仅供学习与内部演示，未经许可请勿商用。
+- 联系方式：在“关于我们”页面查看微信二维码（`/about`），或邮箱 `contact@aiagentmarket.com`。
+
+# AI创意竞价平台
 
 专注于AI创意竞价和AI指导书生成的现代化平台，基于Next.js 14构建。
 
