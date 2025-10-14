@@ -348,7 +348,7 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
             className="flex items-center space-x-2 rounded-lg bg-green-50 p-3 text-green-700 dark:bg-green-900/20 dark:text-green-400"
           >
             <CheckCircle className="h-4 w-4 flex-shrink-0" />
-            <span className="text-sm">注册成功！请查看您的邮箱激活账户</span>
+            <span className="text-sm">注册成功！您已获得2000积分奖励，请查看邮箱激活账户</span>
           </motion.div>
         )}
       </motion.form>

@@ -24,7 +24,7 @@ model User {
   role                 UserRole              @default(USER)
   isEmailVerified      Boolean               @default(false) @map("is_email_verified")
   isPhoneVerified      Boolean               @default(false) @map("is_phone_verified")
-  credits              Int                   @default(1000)
+  credits              Int                   @default(2000)
   level                UserLevel             @default(BRONZE)
   totalSpent           Int                   @default(0) @map("total_spent")
   totalEarned          Int                   @default(0) @map("total_earned")

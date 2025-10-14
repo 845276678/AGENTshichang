@@ -59,7 +59,7 @@ export async function POST(request: NextRequest) {
       },
       token: result.token,
       refreshToken: result.refreshToken
-    }, '注册成功')
+    }, '注册成功！您已获得2000积分奖励')
 
   } catch (error) {
     return handleApiError(error)

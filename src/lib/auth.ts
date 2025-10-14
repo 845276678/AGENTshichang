@@ -120,7 +120,7 @@ export async function registerUser(userData: {
       passwordHash: hashedPassword,
       firstName,
       lastName,
-      credits: 10000, // 注册赠送10000积分
+      credits: 2000, // 注册赠送2000积分
     }
   })
 
@@ -128,11 +128,11 @@ export async function registerUser(userData: {
   await prisma.creditTransaction.create({
     data: {
       userId: user.id,
-      amount: 10000,
+      amount: 2000,
       type: 'REGISTER_BONUS',
       description: '注册奖励',
       balanceBefore: 0,
-      balanceAfter: 10000
+      balanceAfter: 2000
     }
   })
 
