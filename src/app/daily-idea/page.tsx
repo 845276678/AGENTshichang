@@ -29,9 +29,9 @@ interface UserFeedback {
 }
 
 export default function DailyIdeaPage() {
-  const [dailyIdea, setDailyIdea] = useState&lt;DailyIdea | null&gt;(null);
+  const [dailyIdea, setDailyIdea] = useState<DailyIdea | null>(null);
   const [feedback, setFeedback] = useState('');
-  const [feedbackType, setFeedbackType] = useState&lt;UserFeedback['type']&gt;('improvement');
+  const [feedbackType, setFeedbackType] = useState<UserFeedback['type']>('improvement');
   const [userPoints, setUserPoints] = useState(0);
   const [timeToNext, setTimeToNext] = useState(0);
   const [showThinkingTools, setShowThinkingTools] = useState(false);
