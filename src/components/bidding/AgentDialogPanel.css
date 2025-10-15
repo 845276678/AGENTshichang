@@ -120,6 +120,8 @@
   line-height: 1.68;
   letter-spacing: 0.005em;
   padding: 1.25rem 1.5rem;
+  max-height: none;
+  overflow: visible;
 }
 
 .bubble-content {
@@ -243,11 +245,10 @@
   }
 
   .dialog-bubble {
-    max-width: 300px;
+    max-width: 100%;
     font-size: 0.875rem;
     padding: 10px 12px;
-    max-height: 200px;
-    overflow-y: auto;
+    overflow: visible;
   }
 }
 
@@ -262,11 +263,10 @@
   }
 
   .dialog-bubble {
-    max-width: 280px;
+    max-width: 100%;
     font-size: 0.875rem;
     padding: 8px 10px;
-    max-height: 180px;
-    overflow-y: auto;
+    overflow: visible;
   }
 
   .agent-name {
@@ -298,11 +298,10 @@
   }
 
   .dialog-bubble {
-    max-width: 240px;
+    max-width: 100%;
     font-size: 0.75rem;
     padding: 6px 8px;
-    max-height: 150px;
-    overflow-y: auto;
+    overflow: visible;
   }
 
   .agent-name {
@@ -333,11 +332,10 @@
   }
 
   .dialog-bubble {
-    max-width: 200px;
+    max-width: 100%;
     font-size: 0.7rem;
     padding: 4px 6px;
-    max-height: 120px;
-    overflow-y: auto;
+    overflow: visible;
   }
 
   /* 简化头像 */
