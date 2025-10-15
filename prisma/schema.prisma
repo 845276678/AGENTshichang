@@ -57,6 +57,13 @@ model User {
   achievements         UserAchievement[]
   biddingBehaviors     UserBiddingBehavior[]
   sessions             UserSession[]
+  dailyIdeaFeedbacks   DailyIdeaFeedback[]
+  dailyIdeaFeedbackVotes DailyIdeaFeedbackVote[]
+  dailyIdeaEngagements DailyIdeaEngagement[]
+  userPoints           UserPoints?
+  userPointTransactions UserPointTransaction[]
+  ideaGrowthTrees      IdeaGrowthTree[]
+  pressureTestResults  PressureTestResult[]
 
   @@map("users")
 }
@@ -976,5 +983,284 @@ model AgentBudget {
   @@index([agentId, date])
   @@index([date])
   @@map("agent_budgets")
+}
+
+// ============================================
+// 每日一创意系统 (Daily Idea System)
+// Added: 2025-01-15
+// Purpose: 实现每日创意推送、用户反馈和积分奖励机制
+// ============================================
+
+// 每日创意表
+model DailyIdea {
+  id                 String           @id @default(cuid())
+  title              String           @map("title")                   // 创意标题
+  description        String           @map("description")             // 创意描述
+  maturity           Int              @map("maturity")                // 成熟度 0-100
+  domain             String[]         @map("domain")                  // 领域标签
+  guidingQuestions   String[]         @map("guiding_questions")       // 引导问题
+  implementationHints String[]        @map("implementation_hints")    // 实施提示
+  publishDate        DateTime         @map("publish_date")            // 发布日期 (YYYY-MM-DD 08:00:00)
+  isActive           Boolean          @default(true) @map("is_active") // 是否激活
+  viewCount          Int              @default(0) @map("view_count")   // 查看次数
+  feedbackCount      Int              @default(0) @map("feedback_count") // 反馈次数
+  averageRating      Float?           @map("average_rating")          // 平均评分
+  metadata           Json?            @map("metadata")                // 额外元数据
+  createdAt          DateTime         @default(now()) @map("created_at")
+  updatedAt          DateTime         @updatedAt @map("updated_at")
+
+  // 关联关系
+  feedbacks          DailyIdeaFeedback[]
+  userEngagements    DailyIdeaEngagement[]
+
+  @@unique([publishDate])
+  @@index([publishDate, isActive])
+  @@index([isActive, createdAt])
+  @@map("daily_ideas")
+}
+
+// 用户反馈表
+model DailyIdeaFeedback {
+  id            String                @id @default(cuid())
+  dailyIdeaId   String               @map("daily_idea_id")
+  userId        String               @map("user_id")
+  type          DailyIdeaFeedbackType @map("type")             // 反馈类型
+  content       String               @map("content")           // 反馈内容
+  qualityScore  Float                @map("quality_score")     // AI评估质量分 0-100
+  helpfulness   Float                @default(0) @map("helpfulness") // 社区投票有用性 0-100
+  pointsAwarded Int                  @map("points_awarded")    // 获得积分
+  isVerified    Boolean              @default(false) @map("is_verified") // 是否经过人工验证
+  metadata      Json?                @map("metadata")          // 额外元数据
+  createdAt     DateTime             @default(now()) @map("created_at")
+  updatedAt     DateTime             @updatedAt @map("updated_at")
+
+  // 关联关系
+  dailyIdea     DailyIdea            @relation(fields: [dailyIdeaId], references: [id], onDelete: Cascade)
+  user          User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  votes         DailyIdeaFeedbackVote[]
+
+  @@unique([dailyIdeaId, userId])
+  @@index([userId, createdAt])
+  @@index([dailyIdeaId, qualityScore])
+  @@map("daily_idea_feedbacks")
+}
+
+// 反馈投票表
+model DailyIdeaFeedbackVote {
+  id         String            @id @default(cuid())
+  feedbackId String            @map("feedback_id")
+  userId     String            @map("user_id")
+  voteType   FeedbackVoteType  @map("vote_type")        // HELPFUL/NOT_HELPFUL
+  createdAt  DateTime          @default(now()) @map("created_at")
+
+  // 关联关系
+  feedback   DailyIdeaFeedback @relation(fields: [feedbackId], references: [id], onDelete: Cascade)
+  user       User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([feedbackId, userId])
+  @@index([feedbackId])
+  @@map("daily_idea_feedback_votes")
+}
+
+// 用户参与记录表
+model DailyIdeaEngagement {
+  id          String    @id @default(cuid())
+  dailyIdeaId String    @map("daily_idea_id")
+  userId      String    @map("user_id")
+  hasViewed   Boolean   @default(false) @map("has_viewed")     // 是否查看过
+  hasFeedback Boolean   @default(false) @map("has_feedback")   // 是否提交反馈
+  hasShared   Boolean   @default(false) @map("has_shared")     // 是否分享过
+  viewDuration Int?     @map("view_duration")                  // 查看时长(秒)
+  engagementScore Float @default(0) @map("engagement_score")   // 参与度评分
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  // 关联关系
+  dailyIdea   DailyIdea @relation(fields: [dailyIdeaId], references: [id], onDelete: Cascade)
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([dailyIdeaId, userId])
+  @@index([userId, createdAt])
+  @@map("daily_idea_engagements")
+}
+
+// 用户积分表
+model UserPoints {
+  id           String   @id @default(cuid())
+  userId       String   @unique @map("user_id")
+  totalPoints  Int      @default(0) @map("total_points")       // 总积分
+  dailyPoints  Int      @default(0) @map("daily_points")       // 今日获得积分
+  weeklyPoints Int      @default(0) @map("weekly_points")      // 本周获得积分
+  lastResetAt  DateTime @default(now()) @map("last_reset_at")  // 上次重置时间
+  streakDays   Int      @default(0) @map("streak_days")        // 连续参与天数
+  bestStreak   Int      @default(0) @map("best_streak")        // 最佳连续记录
+  level        Int      @default(1) @map("level")              // 用户等级
+  experience   Int      @default(0) @map("experience")         // 经验值
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  // 关联关系
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  transactions UserPointTransaction[]
+
+  @@index([totalPoints])
+  @@index([level])
+  @@map("user_points")
+}
+
+// 积分交易记录表
+model UserPointTransaction {
+  id          String                  @id @default(cuid())
+  userId      String                  @map("user_id")
+  pointsId    String                  @map("points_id")
+  type        PointTransactionType    @map("type")                 // 交易类型
+  amount      Int                     @map("amount")               // 积分数量
+  reason      String?                 @map("reason")               // 交易原因
+  relatedId   String?                 @map("related_id")           // 关联ID（如反馈ID）
+  balance     Int                     @map("balance")              // 交易后余额
+  metadata    Json?                   @map("metadata")             // 额外元数据
+  createdAt   DateTime                @default(now()) @map("created_at")
+
+  // 关联关系
+  user        User                    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userPoints  UserPoints              @relation(fields: [pointsId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+  @@index([type, createdAt])
+  @@map("user_point_transactions")
+}
+
+// 创意生长树数据表
+model IdeaGrowthTree {
+  id              String              @id @default(cuid())
+  userId          String              @map("user_id")
+  rootIdeaId      String              @map("root_idea_id")        // 根创意ID
+  title           String              @map("title")                // 生长树标题
+  description     String?             @map("description")          // 描述
+  treeData        Json                @map("tree_data")            // 树状结构数据
+  totalNodes      Int                 @default(1) @map("total_nodes") // 总节点数
+  maxDepth        Int                 @default(1) @map("max_depth")   // 最大深度
+  isPublic        Boolean             @default(false) @map("is_public") // 是否公开
+  viewCount       Int                 @default(0) @map("view_count")   // 查看次数
+  metadata        Json?               @map("metadata")             // 额外元数据
+  createdAt       DateTime            @default(now()) @map("created_at")
+  updatedAt       DateTime            @updatedAt @map("updated_at")
+
+  // 关联关系
+  user            User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  modifications   IdeaModification[]
+
+  @@index([userId, createdAt])
+  @@index([rootIdeaId])
+  @@map("idea_growth_trees")
+}
+
+// 创意修改记录表
+model IdeaModification {
+  id          String         @id @default(cuid())
+  treeId      String         @map("tree_id")
+  nodeId      String         @map("node_id")              // 节点ID
+  parentId    String?        @map("parent_id")            // 父节点ID
+  content     String         @map("content")              // 修改内容
+  reason      String?        @map("reason")               // 修改原因
+  impact      ModificationImpact @map("impact")          // 影响程度
+  tags        String[]       @map("tags")                 // 标签
+  maturity    Int            @map("maturity")             // 成熟度 0-100
+  metadata    Json?          @map("metadata")             // 额外元数据
+  createdAt   DateTime       @default(now()) @map("created_at")
+
+  // 关联关系
+  tree        IdeaGrowthTree @relation(fields: [treeId], references: [id], onDelete: Cascade)
+
+  @@index([treeId, createdAt])
+  @@index([nodeId])
+  @@map("idea_modifications")
+}
+
+// 压力测试场景表
+model PressureTestScenario {
+  id                 String                @id @default(cuid())
+  title              String                @map("title")                    // 场景标题
+  description        String                @map("description")              // 场景描述
+  type               PressureScenarioType  @map("type")                     // 场景类型
+  severity           Int                   @map("severity")                 // 严重程度 1-3
+  domain             String[]              @map("domain")                   // 适用领域
+  questions          String[]              @map("questions")                // 测试问题
+  isPersonalized     Boolean               @default(false) @map("is_personalized") // 是否个性化
+  usageCount         Int                   @default(0) @map("usage_count")  // 使用次数
+  averageScore       Float?                @map("average_score")            // 平均得分
+  metadata           Json?                 @map("metadata")                 // 额外元数据
+  isActive           Boolean               @default(true) @map("is_active")  // 是否激活
+  createdAt          DateTime              @default(now()) @map("created_at")
+  updatedAt          DateTime              @updatedAt @map("updated_at")
+
+  // 关联关系
+  testResults        PressureTestResult[]
+
+  @@index([type, isActive])
+  @@index([domain])
+  @@map("pressure_test_scenarios")
+}
+
+// 压力测试结果表
+model PressureTestResult {
+  id                String               @id @default(cuid())
+  scenarioId        String               @map("scenario_id")
+  userId            String               @map("user_id")
+  ideaId            String?              @map("idea_id")                  // 关联的创意ID
+  answers           Json                 @map("answers")                  // 用户答案
+  overallScore      Float                @map("overall_score")            // 总体得分
+  dimensionScores   Json                 @map("dimension_scores")         // 各维度得分
+  recommendations   String[]             @map("recommendations")          // 改进建议
+  contingencyPlans  String[]             @map("contingency_plans")        // 应急计划
+  completionTime    Int                  @map("completion_time")          // 完成时长(秒)
+  metadata          Json?                @map("metadata")                 // 额外元数据
+  createdAt         DateTime             @default(now()) @map("created_at")
+
+  // 关联关系
+  scenario          PressureTestScenario @relation(fields: [scenarioId], references: [id], onDelete: Cascade)
+  user              User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+  @@index([scenarioId])
+  @@index([ideaId])
+  @@map("pressure_test_results")
+}
+
+// 枚举定义
+enum DailyIdeaFeedbackType {
+  IMPROVEMENT      // 改进建议
+  IMPLEMENTATION   // 实施方案
+  MARKET_INSIGHT   // 市场洞察
+  RISK_ANALYSIS    // 风险分析
+}
+
+enum FeedbackVoteType {
+  HELPFUL          // 有用
+  NOT_HELPFUL      // 无用
+}
+
+enum PointTransactionType {
+  DAILY_PARTICIPATION    // 每日参与
+  QUALITY_FEEDBACK      // 质量反馈
+  HELPFUL_VOTE          // 被点赞
+  WEEKLY_STREAK         // 连续参与奖励
+  PREMIUM_FEATURE       // 积分消费
+  SYSTEM_ADJUSTMENT     // 系统调整
+}
+
+enum ModificationImpact {
+  MINOR             // 轻微调整
+  MAJOR             // 重大修改
+  PIVOT             // 方向转变
+}
+
+enum PressureScenarioType {
+  FUNDING           // 资金压力
+  COMPETITION       // 竞争压力
+  MARKET            // 市场压力
+  TECHNICAL         // 技术压力
+  REGULATORY        // 监管压力
+  OPERATIONAL       // 运营压力
 }
 

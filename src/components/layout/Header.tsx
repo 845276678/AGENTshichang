@@ -17,7 +17,10 @@ import {
   PlusCircle,
   ChevronDown,
   ShoppingCart,
-  Gift
+  Gift,
+  Lightbulb,
+  GitBranch,
+  Zap
 } from 'lucide-react'
 
 interface HeaderProps {
@@ -190,6 +193,30 @@ const UserMenu = () => {
                 每日签到
               </Link>
               <Link
+                href="/daily-idea"
+                className="flex items-center gap-2 rounded-sm px-3 py-2 text-sm hover:bg-accent transition-colors"
+                onClick={() => setIsOpen(false)}
+              >
+                <Lightbulb className="h-4 w-4" />
+                每日一创意
+              </Link>
+              <Link
+                href="/idea-growth-tree"
+                className="flex items-center gap-2 rounded-sm px-3 py-2 text-sm hover:bg-accent transition-colors"
+                onClick={() => setIsOpen(false)}
+              >
+                <GitBranch className="h-4 w-4" />
+                创意生长树
+              </Link>
+              <Link
+                href="/pressure-test"
+                className="flex items-center gap-2 rounded-sm px-3 py-2 text-sm hover:bg-accent transition-colors"
+                onClick={() => setIsOpen(false)}
+              >
+                <Zap className="h-4 w-4" />
+                创意压力台
+              </Link>
+              <Link
                 href="/dashboard"
                 className="flex items-center gap-2 rounded-sm px-3 py-2 text-sm hover:bg-accent transition-colors"
                 onClick={() => setIsOpen(false)}
@@ -283,6 +310,27 @@ const MobileMenu = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void 
                   onClick={onClose}
                 >
                   创意竞价
+                </Link>
+                <Link
+                  href="/daily-idea"
+                  className="block rounded-sm px-3 py-2 text-sm hover:bg-accent transition-colors"
+                  onClick={onClose}
+                >
+                  每日一创意
+                </Link>
+                <Link
+                  href="/idea-growth-tree"
+                  className="block rounded-sm px-3 py-2 text-sm hover:bg-accent transition-colors"
+                  onClick={onClose}
+                >
+                  创意生长树
+                </Link>
+                <Link
+                  href="/pressure-test"
+                  className="block rounded-sm px-3 py-2 text-sm hover:bg-accent transition-colors"
+                  onClick={onClose}
+                >
+                  创意压力台
                 </Link>
                 <Link
                   href="/business-plan"
@@ -436,6 +484,24 @@ export function Header({ className }: HeaderProps) {
               className="text-sm font-medium transition-colors hover:text-primary"
             >
               创意竞价
+            </Link>
+            <Link
+              href="/daily-idea"
+              className="text-sm font-medium transition-colors hover:text-primary"
+            >
+              每日一创意
+            </Link>
+            <Link
+              href="/idea-growth-tree"
+              className="text-sm font-medium transition-colors hover:text-primary"
+            >
+              创意生长树
+            </Link>
+            <Link
+              href="/pressure-test"
+              className="text-sm font-medium transition-colors hover:text-primary"
+            >
+              创意压力台
             </Link>
             <Link
               href="/business-plan"
