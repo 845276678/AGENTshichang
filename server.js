@@ -1,4 +1,5 @@
 // Load environment variables from .env.local
+// Force rebuild: 2025-10-15
 require('dotenv').config({ path: '.env.local' });
 
 // Set UTF-8 encoding
