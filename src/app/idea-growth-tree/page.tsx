@@ -131,9 +131,9 @@ const nodeTypes: NodeTypes = {
 };
 
 export default function IdeaGrowthTreePage() {
-  const [trees, setTrees] = useState&lt;IdeaGrowthTree[]&gt;([]);
-  const [selectedTree, setSelectedTree] = useState&lt;IdeaGrowthTree | null&gt;(null);
-  const [timeline, setTimeline] = useState&lt;TimelineEvent[]&gt;([]);
+  const [trees, setTrees] = useState<IdeaGrowthTree[]>([]);
+  const [selectedTree, setSelectedTree] = useState<IdeaGrowthTree | null>(null);
+  const [timeline, setTimeline] = useState<TimelineEvent[]>([]);
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   const [loading, setLoading] = useState(true);
@@ -180,8 +180,8 @@ export default function IdeaGrowthTreePage() {
     const flowEdges: Edge[] = [];
 
     // 构建节点层级映射
-    const nodesByLevel: Record&lt;number, IdeaNode[]&gt; = {};
-    const visited = new Set&lt;string&gt;();
+    const nodesByLevel: Record<number, IdeaNode[]> = {};
+    const visited = new Set<string>();
 
     // 找到根节点
     const rootNodes = tree.nodes.filter(node => !node.parentId);
@@ -323,173 +323,173 @@ export default function IdeaGrowthTreePage() {
 
   if (loading) {
     return (
-      &lt;div className="container mx-auto px-4 py-8"&gt;
-        &lt;div className="animate-pulse"&gt;
-          &lt;div className="h-8 bg-gray-200 rounded w-1/3 mb-6"&gt;&lt;/div&gt;
-          &lt;div className="h-96 bg-gray-200 rounded"&gt;&lt;/div&gt;
-        &lt;/div&gt;
-      &lt;/div&gt;
+      <div className="container mx-auto px-4 py-8">
+        <div className="animate-pulse">
+          <div className="h-8 bg-gray-200 rounded w-1/3 mb-6"></div>
+          <div className="h-96 bg-gray-200 rounded"></div>
+        </div>
+      </div>
     );
   }
 
   return (
-    &lt;div className="container mx-auto px-4 py-8"&gt;
-      &lt;div className="flex justify-between items-center mb-8"&gt;
-        &lt;div&gt;
-          &lt;h1 className="text-3xl font-bold text-gray-900"&gt;创意生长树&lt;/h1&gt;
-          &lt;p className="text-gray-600 mt-2"&gt;追踪你的创意演化历程&lt;/p&gt;
-        &lt;/div&gt;
-        &lt;div className="flex gap-4"&gt;
-          &lt;Dialog open={showNewNodeDialog} onOpenChange={setShowNewNodeDialog}&gt;
-            &lt;DialogTrigger asChild&gt;
-              &lt;Button className="flex items-center gap-2"&gt;
-                &lt;Plus className="w-4 h-4" /&gt;
+    <div className="container mx-auto px-4 py-8">
+      <div className="flex justify-between items-center mb-8">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">创意生长树</h1>
+          <p className="text-gray-600 mt-2">追踪你的创意演化历程</p>
+        </div>
+        <div className="flex gap-4">
+          <Dialog open={showNewNodeDialog} onOpenChange={setShowNewNodeDialog}>
+            <DialogTrigger asChild>
+              <Button className="flex items-center gap-2">
+                <Plus className="w-4 h-4" />
                 添加节点
-              &lt;/Button&gt;
-            &lt;/DialogTrigger&gt;
-            &lt;DialogContent&gt;
-              &lt;DialogHeader&gt;
-                &lt;DialogTitle&gt;添加创意节点&lt;/DialogTitle&gt;
-                &lt;DialogDescription&gt;
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>添加创意节点</DialogTitle>
+                <DialogDescription>
                   记录你的创意演化过程
-                &lt;/DialogDescription&gt;
-              &lt;/DialogHeader&gt;
-              &lt;div className="space-y-4"&gt;
-                &lt;div&gt;
-                  &lt;label className="block text-sm font-medium mb-2"&gt;创意内容&lt;/label&gt;
-                  &lt;Textarea
+                </DialogDescription>
+              </DialogHeader>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium mb-2">创意内容</label>
+                  <Textarea
                     value={newNodeData.content}
-                    onChange={(e) =&gt; setNewNodeData(prev =&gt; ({ ...prev, content: e.target.value }))}
+                    onChange={(e) => setNewNodeData(prev => ({ ...prev, content: e.target.value }))}
                     placeholder="描述你的创意修改..."
                     className="min-h-20"
-                  /&gt;
-                &lt;/div&gt;
-                &lt;div&gt;
-                  &lt;label className="block text-sm font-medium mb-2"&gt;修改原因&lt;/label&gt;
-                  &lt;Input
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-2">修改原因</label>
+                  <Input
                     value={newNodeData.reason}
-                    onChange={(e) =&gt; setNewNodeData(prev =&gt; ({ ...prev, reason: e.target.value }))}
+                    onChange={(e) => setNewNodeData(prev => ({ ...prev, reason: e.target.value }))}
                     placeholder="为什么做这个修改？"
-                  /&gt;
-                &lt;/div&gt;
-                &lt;div&gt;
-                  &lt;label className="block text-sm font-medium mb-2"&gt;影响程度&lt;/label&gt;
-                  &lt;Select value={newNodeData.impact} onValueChange={(value: any) =&gt; setNewNodeData(prev =&gt; ({ ...prev, impact: value }))}&gt;
-                    &lt;SelectTrigger&gt;
-                      &lt;SelectValue /&gt;
-                    &lt;/SelectTrigger&gt;
-                    &lt;SelectContent&gt;
-                      &lt;SelectItem value="MINOR"&gt;轻微调整&lt;/SelectItem&gt;
-                      &lt;SelectItem value="MAJOR"&gt;重大修改&lt;/SelectItem&gt;
-                      &lt;SelectItem value="PIVOT"&gt;方向转变&lt;/SelectItem&gt;
-                    &lt;/SelectContent&gt;
-                  &lt;/Select&gt;
-                &lt;/div&gt;
-                &lt;div&gt;
-                  &lt;label className="block text-sm font-medium mb-2"&gt;标签&lt;/label&gt;
-                  &lt;Input
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-2">影响程度</label>
+                  <Select value={newNodeData.impact} onValueChange={(value: any) => setNewNodeData(prev => ({ ...prev, impact: value }))}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="MINOR">轻微调整</SelectItem>
+                      <SelectItem value="MAJOR">重大修改</SelectItem>
+                      <SelectItem value="PIVOT">方向转变</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-2">标签</label>
+                  <Input
                     value={newNodeData.tags}
-                    onChange={(e) =&gt; setNewNodeData(prev =&gt; ({ ...prev, tags: e.target.value }))}
+                    onChange={(e) => setNewNodeData(prev => ({ ...prev, tags: e.target.value }))}
                     placeholder="用逗号分隔多个标签"
-                  /&gt;
-                &lt;/div&gt;
-                &lt;div className="flex gap-2"&gt;
-                  &lt;Button onClick={addNewNode} className="flex-1"&gt;添加节点&lt;/Button&gt;
-                  &lt;Button variant="outline" onClick={() =&gt; setShowNewNodeDialog(false)}&gt;取消&lt;/Button&gt;
-                &lt;/div&gt;
-              &lt;/div&gt;
-            &lt;/DialogContent&gt;
-          &lt;/Dialog&gt;
-          &lt;Button variant="outline" className="flex items-center gap-2"&gt;
-            &lt;Share2 className="w-4 h-4" /&gt;
+                  />
+                </div>
+                <div className="flex gap-2">
+                  <Button onClick={addNewNode} className="flex-1">添加节点</Button>
+                  <Button variant="outline" onClick={() => setShowNewNodeDialog(false)}>取消</Button>
+                </div>
+              </div>
+            </DialogContent>
+          </Dialog>
+          <Button variant="outline" className="flex items-center gap-2">
+            <Share2 className="w-4 h-4" />
             分享
-          &lt;/Button&gt;
-          &lt;Button variant="outline" className="flex items-center gap-2"&gt;
-            &lt;Download className="w-4 h-4" /&gt;
+          </Button>
+          <Button variant="outline" className="flex items-center gap-2">
+            <Download className="w-4 h-4" />
             导出
-          &lt;/Button&gt;
-        &lt;/div&gt;
-      &lt;/div&gt;
+          </Button>
+        </div>
+      </div>
 
-      &lt;div className="grid grid-cols-1 lg:grid-cols-4 gap-6"&gt;
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         {/* 左侧时间轴 */}
-        &lt;div className="lg:col-span-1"&gt;
-          &lt;Card className="h-full"&gt;
-            &lt;CardHeader&gt;
-              &lt;CardTitle className="flex items-center gap-2"&gt;
-                &lt;Clock className="w-5 h-5" /&gt;
+        <div className="lg:col-span-1">
+          <Card className="h-full">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Clock className="w-5 h-5" />
                 演化时间轴
-              &lt;/CardTitle&gt;
-              &lt;CardDescription&gt;
+              </CardTitle>
+              <CardDescription>
                 按时间顺序查看创意变化
-              &lt;/CardDescription&gt;
-            &lt;/CardHeader&gt;
-            &lt;CardContent&gt;
-              &lt;ScrollArea className="h-96"&gt;
-                &lt;div className="space-y-4"&gt;
-                  {timeline.map((event, index) =&gt; (
-                    &lt;div key={event.id} className="relative"&gt;
-                      {index &lt; timeline.length - 1 && (
-                        &lt;div className="absolute left-2 top-8 w-0.5 h-full bg-gray-200"&gt;&lt;/div&gt;
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ScrollArea className="h-96">
+                <div className="space-y-4">
+                  {timeline.map((event, index) => (
+                    <div key={event.id} className="relative">
+                      {index < timeline.length - 1 && (
+                        <div className="absolute left-2 top-8 w-0.5 h-full bg-gray-200"></div>
                       )}
-                      &lt;div className="flex items-start gap-3"&gt;
-                        &lt;div className={`w-4 h-4 rounded-full border-2 bg-white flex-shrink-0 mt-1 ${
+                      <div className="flex items-start gap-3">
+                        <div className={`w-4 h-4 rounded-full border-2 bg-white flex-shrink-0 mt-1 ${
                           event.impact === 'PIVOT' ? 'border-purple-400' :
                           event.impact === 'MAJOR' ? 'border-blue-400' : 'border-yellow-400'
-                        }`} /&gt;
-                        &lt;div className="flex-1 min-w-0"&gt;
-                          &lt;div className="text-sm font-medium text-gray-900 mb-1"&gt;
+                        }`} />
+                        <div className="flex-1 min-w-0">
+                          <div className="text-sm font-medium text-gray-900 mb-1">
                             {event.content.substring(0, 80)}
-                            {event.content.length &gt; 80 && '...'}
-                          &lt;/div&gt;
-                          &lt;div className="flex items-center gap-2 mb-2"&gt;
-                            &lt;Badge className={`text-xs ${getImpactColor(event.impact)}`}&gt;
+                            {event.content.length > 80 && '...'}
+                          </div>
+                          <div className="flex items-center gap-2 mb-2">
+                            <Badge className={`text-xs ${getImpactColor(event.impact)}`}>
                               {getImpactLabel(event.impact)}
-                            &lt;/Badge&gt;
-                            &lt;span className="text-xs text-gray-500"&gt;
+                            </Badge>
+                            <span className="text-xs text-gray-500">
                               {new Date(event.timestamp).toLocaleDateString()}
-                            &lt;/span&gt;
-                          &lt;/div&gt;
+                            </span>
+                          </div>
                           {event.reason && (
-                            &lt;div className="text-xs text-gray-600 mb-2"&gt;
+                            <div className="text-xs text-gray-600 mb-2">
                               原因: {event.reason}
-                            &lt;/div&gt;
+                            </div>
                           )}
-                          {event.tags.length &gt; 0 && (
-                            &lt;div className="flex flex-wrap gap-1"&gt;
-                              {event.tags.map((tag, tagIndex) =&gt; (
-                                &lt;Badge key={tagIndex} variant="outline" className="text-xs"&gt;
+                          {event.tags.length > 0 && (
+                            <div className="flex flex-wrap gap-1">
+                              {event.tags.map((tag, tagIndex) => (
+                                <Badge key={tagIndex} variant="outline" className="text-xs">
                                   {tag}
-                                &lt;/Badge&gt;
+                                </Badge>
                               ))}
-                            &lt;/div&gt;
+                            </div>
                           )}
-                        &lt;/div&gt;
-                      &lt;/div&gt;
-                    &lt;/div&gt;
+                        </div>
+                      </div>
+                    </div>
                   ))}
-                &lt;/div&gt;
-              &lt;/ScrollArea&gt;
-            &lt;/CardContent&gt;
-          &lt;/Card&gt;
-        &lt;/div&gt;
+                </div>
+              </ScrollArea>
+            </CardContent>
+          </Card>
+        </div>
 
         {/* 右侧树状图 */}
-        &lt;div className="lg:col-span-3"&gt;
-          &lt;Card className="h-full"&gt;
-            &lt;CardHeader&gt;
-              &lt;CardTitle className="flex items-center gap-2"&gt;
-                &lt;GitBranch className="w-5 h-5" /&gt;
+        <div className="lg:col-span-3">
+          <Card className="h-full">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <GitBranch className="w-5 h-5" />
                 创意演化图
-              &lt;/CardTitle&gt;
-              &lt;CardDescription&gt;
+              </CardTitle>
+              <CardDescription>
                 可视化展示创意的分支和发展
-              &lt;/CardDescription&gt;
-            &lt;/CardHeader&gt;
-            &lt;CardContent&gt;
-              &lt;div className="h-96 border rounded-lg"&gt;
-                {nodes.length &gt; 0 ? (
-                  &lt;ReactFlow
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="h-96 border rounded-lg">
+                {nodes.length > 0 ? (
+                  <ReactFlow
                     nodes={nodes}
                     edges={edges}
                     onNodesChange={onNodesChange}
@@ -498,78 +498,78 @@ export default function IdeaGrowthTreePage() {
                     nodeTypes={nodeTypes}
                     fitView
                     fitViewOptions={{ padding: 0.2 }}
-                  &gt;
-                    &lt;Controls /&gt;
-                    &lt;Background variant="dots" gap={12} size={1} /&gt;
-                  &lt;/ReactFlow&gt;
+                  >
+                    <Controls />
+                    <Background variant="dots" gap={12} size={1} />
+                  </ReactFlow>
                 ) : (
-                  &lt;div className="flex items-center justify-center h-full text-gray-500"&gt;
-                    &lt;div className="text-center"&gt;
-                      &lt;GitBranch className="w-12 h-12 mx-auto mb-3 text-gray-400" /&gt;
-                      &lt;p&gt;暂无创意树数据&lt;/p&gt;
-                      &lt;p className="text-sm"&gt;添加第一个创意节点开始记录&lt;/p&gt;
-                    &lt;/div&gt;
-                  &lt;/div&gt;
+                  <div className="flex items-center justify-center h-full text-gray-500">
+                    <div className="text-center">
+                      <GitBranch className="w-12 h-12 mx-auto mb-3 text-gray-400" />
+                      <p>暂无创意树数据</p>
+                      <p className="text-sm">添加第一个创意节点开始记录</p>
+                    </div>
+                  </div>
                 )}
-              &lt;/div&gt;
-            &lt;/CardContent&gt;
-          &lt;/Card&gt;
-        &lt;/div&gt;
-      &lt;/div&gt;
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
 
       {/* 统计信息 */}
       {selectedTree && (
-        &lt;div className="grid grid-cols-1 md:grid-cols-4 gap-6 mt-8"&gt;
-          &lt;Card&gt;
-            &lt;CardContent className="pt-6"&gt;
-              &lt;div className="flex items-center gap-2"&gt;
-                &lt;Target className="w-5 h-5 text-blue-600" /&gt;
-                &lt;div&gt;
-                  &lt;div className="text-2xl font-bold"&gt;{selectedTree.totalNodes}&lt;/div&gt;
-                  &lt;div className="text-sm text-gray-600"&gt;总节点数&lt;/div&gt;
-                &lt;/div&gt;
-              &lt;/div&gt;
-            &lt;/CardContent&gt;
-          &lt;/Card&gt;
-          &lt;Card&gt;
-            &lt;CardContent className="pt-6"&gt;
-              &lt;div className="flex items-center gap-2"&gt;
-                &lt;TrendingUp className="w-5 h-5 text-green-600" /&gt;
-                &lt;div&gt;
-                  &lt;div className="text-2xl font-bold"&gt;{selectedTree.maxDepth}&lt;/div&gt;
-                  &lt;div className="text-sm text-gray-600"&gt;最大深度&lt;/div&gt;
-                &lt;/div&gt;
-              &lt;/div&gt;
-            &lt;/CardContent&gt;
-          &lt;/Card&gt;
-          &lt;Card&gt;
-            &lt;CardContent className="pt-6"&gt;
-              &lt;div className="flex items-center gap-2"&gt;
-                &lt;Zap className="w-5 h-5 text-purple-600" /&gt;
-                &lt;div&gt;
-                  &lt;div className="text-2xl font-bold"&gt;
-                    {selectedTree.nodes.filter(n =&gt; n.impact === 'PIVOT').length}
-                  &lt;/div&gt;
-                  &lt;div className="text-sm text-gray-600"&gt;方向转变&lt;/div&gt;
-                &lt;/div&gt;
-              &lt;/div&gt;
-            &lt;/CardContent&gt;
-          &lt;/Card&gt;
-          &lt;Card&gt;
-            &lt;CardContent className="pt-6"&gt;
-              &lt;div className="flex items-center gap-2"&gt;
-                &lt;Clock className="w-5 h-5 text-orange-600" /&gt;
-                &lt;div&gt;
-                  &lt;div className="text-2xl font-bold"&gt;
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mt-8">
+          <Card>
+            <CardContent className="pt-6">
+              <div className="flex items-center gap-2">
+                <Target className="w-5 h-5 text-blue-600" />
+                <div>
+                  <div className="text-2xl font-bold">{selectedTree.totalNodes}</div>
+                  <div className="text-sm text-gray-600">总节点数</div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="pt-6">
+              <div className="flex items-center gap-2">
+                <TrendingUp className="w-5 h-5 text-green-600" />
+                <div>
+                  <div className="text-2xl font-bold">{selectedTree.maxDepth}</div>
+                  <div className="text-sm text-gray-600">最大深度</div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="pt-6">
+              <div className="flex items-center gap-2">
+                <Zap className="w-5 h-5 text-purple-600" />
+                <div>
+                  <div className="text-2xl font-bold">
+                    {selectedTree.nodes.filter(n => n.impact === 'PIVOT').length}
+                  </div>
+                  <div className="text-sm text-gray-600">方向转变</div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="pt-6">
+              <div className="flex items-center gap-2">
+                <Clock className="w-5 h-5 text-orange-600" />
+                <div>
+                  <div className="text-2xl font-bold">
                     {Math.floor((new Date().getTime() - new Date(selectedTree.createdAt).getTime()) / (1000 * 60 * 60 * 24))}
-                  &lt;/div&gt;
-                  &lt;div className="text-sm text-gray-600"&gt;存在天数&lt;/div&gt;
-                &lt;/div&gt;
-              &lt;/div&gt;
-            &lt;/CardContent&gt;
-          &lt;/Card&gt;
-        &lt;/div&gt;
+                  </div>
+                  <div className="text-sm text-gray-600">存在天数</div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
       )}
-    &lt;/div&gt;
+    </div>
   );
 }

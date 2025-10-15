@@ -133,215 +133,215 @@ export default function DailyIdeaPage() {
 
   if (loading) {
     return (
-      &lt;div className="container mx-auto px-4 py-8"&gt;
-        &lt;div className="max-w-4xl mx-auto"&gt;
-          &lt;div className="animate-pulse"&gt;
-            &lt;div className="h-8 bg-gray-200 rounded w-1/3 mb-6"&gt;&lt;/div&gt;
-            &lt;div className="h-64 bg-gray-200 rounded mb-4"&gt;&lt;/div&gt;
-          &lt;/div&gt;
-        &lt;/div&gt;
-      &lt;/div&gt;
+      <div className="container mx-auto px-4 py-8">
+        <div className="max-w-4xl mx-auto">
+          <div className="animate-pulse">
+            <div className="h-8 bg-gray-200 rounded w-1/3 mb-6"></div>
+            <div className="h-64 bg-gray-200 rounded mb-4"></div>
+          </div>
+        </div>
+      </div>
     );
   }
 
   if (!dailyIdea) {
     return (
-      &lt;div className="container mx-auto px-4 py-8"&gt;
-        &lt;div className="max-w-4xl mx-auto text-center"&gt;
-          &lt;h1 className="text-2xl font-bold mb-4"&gt;暂无今日创意&lt;/h1&gt;
-          &lt;p className="text-gray-600"&gt;请稍后重试&lt;/p&gt;
-        &lt;/div&gt;
-      &lt;/div&gt;
+      <div className="container mx-auto px-4 py-8">
+        <div className="max-w-4xl mx-auto text-center">
+          <h1 className="text-2xl font-bold mb-4">暂无今日创意</h1>
+          <p className="text-gray-600">请稍后重试</p>
+        </div>
+      </div>
     );
   }
 
   return (
-    &lt;div className="container mx-auto px-4 py-8"&gt;
-      &lt;div className="max-w-4xl mx-auto"&gt;
+    <div className="container mx-auto px-4 py-8">
+      <div className="max-w-4xl mx-auto">
         {/* 页面标题和积分显示 */}
-        &lt;div className="flex justify-between items-center mb-8"&gt;
-          &lt;div&gt;
-            &lt;h1 className="text-3xl font-bold text-gray-900"&gt;每日一创意&lt;/h1&gt;
-            &lt;p className="text-gray-600 mt-2"&gt;每天8点刷新，培养你的创意思维&lt;/p&gt;
-          &lt;/div&gt;
-          &lt;div className="flex items-center gap-4"&gt;
-            &lt;div className="flex items-center gap-2 bg-amber-50 px-4 py-2 rounded-lg"&gt;
-              &lt;Trophy className="w-5 h-5 text-amber-600" /&gt;
-              &lt;span className="font-semibold text-amber-700"&gt;{userPoints} 积分&lt;/span&gt;
-            &lt;/div&gt;
-            &lt;div className="flex items-center gap-2 bg-blue-50 px-4 py-2 rounded-lg"&gt;
-              &lt;Clock className="w-5 h-5 text-blue-600" /&gt;
-              &lt;span className="font-mono text-blue-700"&gt;{formatTime(timeToNext)}&lt;/span&gt;
-            &lt;/div&gt;
-          &lt;/div&gt;
-        &lt;/div&gt;
+        <div className="flex justify-between items-center mb-8">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">每日一创意</h1>
+            <p className="text-gray-600 mt-2">每天8点刷新，培养你的创意思维</p>
+          </div>
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 bg-amber-50 px-4 py-2 rounded-lg">
+              <Trophy className="w-5 h-5 text-amber-600" />
+              <span className="font-semibold text-amber-700">{userPoints} 积分</span>
+            </div>
+            <div className="flex items-center gap-2 bg-blue-50 px-4 py-2 rounded-lg">
+              <Clock className="w-5 h-5 text-blue-600" />
+              <span className="font-mono text-blue-700">{formatTime(timeToNext)}</span>
+            </div>
+          </div>
+        </div>
 
         {/* 今日创意卡片 */}
-        &lt;Card className="mb-8 shadow-lg"&gt;
-          &lt;CardHeader&gt;
-            &lt;div className="flex justify-between items-start"&gt;
-              &lt;div className="flex-1"&gt;
-                &lt;CardTitle className="text-2xl mb-2"&gt;{dailyIdea.title}&lt;/CardTitle&gt;
-                &lt;CardDescription className="text-base"&gt;{dailyIdea.description}&lt;/CardDescription&gt;
-              &lt;/div&gt;
-              &lt;div className="flex flex-col items-end gap-2"&gt;
-                &lt;Badge className={`${getMaturityColor(dailyIdea.maturity)} px-3 py-1`}&gt;
+        <Card className="mb-8 shadow-lg">
+          <CardHeader>
+            <div className="flex justify-between items-start">
+              <div className="flex-1">
+                <CardTitle className="text-2xl mb-2">{dailyIdea.title}</CardTitle>
+                <CardDescription className="text-base">{dailyIdea.description}</CardDescription>
+              </div>
+              <div className="flex flex-col items-end gap-2">
+                <Badge className={`${getMaturityColor(dailyIdea.maturity)} px-3 py-1`}>
                   {getMaturityLabel(dailyIdea.maturity)}
-                &lt;/Badge&gt;
-                &lt;div className="text-sm text-gray-500"&gt;
+                </Badge>
+                <div className="text-sm text-gray-500">
                   成熟度: {dailyIdea.maturity}%
-                &lt;/div&gt;
-              &lt;/div&gt;
-            &lt;/div&gt;
-          &lt;/CardHeader&gt;
-          &lt;CardContent&gt;
-            &lt;div className="mb-4"&gt;
-              &lt;Progress value={dailyIdea.maturity} className="h-2" /&gt;
-            &lt;/div&gt;
+                </div>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="mb-4">
+              <Progress value={dailyIdea.maturity} className="h-2" />
+            </div>
 
             {/* 领域标签 */}
-            &lt;div className="flex flex-wrap gap-2 mb-6"&gt;
-              {dailyIdea.domain.map((tag, index) =&gt; (
-                &lt;Badge key={index} variant="secondary"&gt;
+            <div className="flex flex-wrap gap-2 mb-6">
+              {dailyIdea.domain.map((tag, index) => (
+                <Badge key={index} variant="secondary">
                   {tag}
-                &lt;/Badge&gt;
+                </Badge>
               ))}
-            &lt;/div&gt;
+            </div>
 
             {/* 操作按钮 */}
-            &lt;div className="flex gap-4 mb-6"&gt;
-              &lt;Button
-                onClick={() =&gt; setShowThinkingTools(!showThinkingTools)}
+            <div className="flex gap-4 mb-6">
+              <Button
+                onClick={() => setShowThinkingTools(!showThinkingTools)}
                 variant="outline"
                 className="flex items-center gap-2"
-              &gt;
-                &lt;TrendingUp className="w-4 h-4" /&gt;
+              >
+                <TrendingUp className="w-4 h-4" />
                 {showThinkingTools ? '隐藏' : '展开'}思考工具
-              &lt;/Button&gt;
-              &lt;Button variant="outline" className="flex items-center gap-2"&gt;
-                &lt;Heart className="w-4 h-4" /&gt;
+              </Button>
+              <Button variant="outline" className="flex items-center gap-2">
+                <Heart className="w-4 h-4" />
                 收藏
-              &lt;/Button&gt;
-              &lt;Button variant="outline" className="flex items-center gap-2"&gt;
-                &lt;Share2 className="w-4 h-4" /&gt;
+              </Button>
+              <Button variant="outline" className="flex items-center gap-2">
+                <Share2 className="w-4 h-4" />
                 分享
-              &lt;/Button&gt;
-            &lt;/div&gt;
+              </Button>
+            </div>
 
             {/* 思考工具展开区域 */}
             {showThinkingTools && (
-              &lt;div className="border rounded-lg p-6 bg-gray-50 mb-6"&gt;
-                &lt;h3 className="font-semibold text-lg mb-4"&gt;思考引导&lt;/h3&gt;
+              <div className="border rounded-lg p-6 bg-gray-50 mb-6">
+                <h3 className="font-semibold text-lg mb-4">思考引导</h3>
 
-                &lt;div className="grid md:grid-cols-2 gap-6"&gt;
-                  &lt;div&gt;
-                    &lt;h4 className="font-medium text-gray-900 mb-3"&gt;引导问题&lt;/h4&gt;
-                    &lt;ul className="space-y-2"&gt;
-                      {dailyIdea.guidingQuestions.map((question, index) =&gt; (
-                        &lt;li key={index} className="flex items-start gap-2"&gt;
-                          &lt;span className="text-blue-600 font-medium"&gt;•&lt;/span&gt;
-                          &lt;span className="text-gray-700"&gt;{question}&lt;/span&gt;
-                        &lt;/li&gt;
+                <div className="grid md:grid-cols-2 gap-6">
+                  <div>
+                    <h4 className="font-medium text-gray-900 mb-3">引导问题</h4>
+                    <ul className="space-y-2">
+                      {dailyIdea.guidingQuestions.map((question, index) => (
+                        <li key={index} className="flex items-start gap-2">
+                          <span className="text-blue-600 font-medium">•</span>
+                          <span className="text-gray-700">{question}</span>
+                        </li>
                       ))}
-                    &lt;/ul&gt;
-                  &lt;/div&gt;
+                    </ul>
+                  </div>
 
-                  &lt;div&gt;
-                    &lt;h4 className="font-medium text-gray-900 mb-3"&gt;实施提示&lt;/h4&gt;
-                    &lt;ul className="space-y-2"&gt;
-                      {dailyIdea.implementationHints.map((hint, index) =&gt; (
-                        &lt;li key={index} className="flex items-start gap-2"&gt;
-                          &lt;span className="text-green-600 font-medium"&gt;✓&lt;/span&gt;
-                          &lt;span className="text-gray-700"&gt;{hint}&lt;/span&gt;
-                        &lt;/li&gt;
+                  <div>
+                    <h4 className="font-medium text-gray-900 mb-3">实施提示</h4>
+                    <ul className="space-y-2">
+                      {dailyIdea.implementationHints.map((hint, index) => (
+                        <li key={index} className="flex items-start gap-2">
+                          <span className="text-green-600 font-medium">✓</span>
+                          <span className="text-gray-700">{hint}</span>
+                        </li>
                       ))}
-                    &lt;/ul&gt;
-                  &lt;/div&gt;
-                &lt;/div&gt;
-              &lt;/div&gt;
+                    </ul>
+                  </div>
+                </div>
+              </div>
             )}
-          &lt;/CardContent&gt;
-        &lt;/Card&gt;
+          </CardContent>
+        </Card>
 
         {/* 反馈提交区域 */}
-        &lt;Card&gt;
-          &lt;CardHeader&gt;
-            &lt;CardTitle className="flex items-center gap-2"&gt;
-              &lt;MessageCircle className="w-5 h-5" /&gt;
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <MessageCircle className="w-5 h-5" />
               分享你的想法
-            &lt;/CardTitle&gt;
-            &lt;CardDescription&gt;
+            </CardTitle>
+            <CardDescription>
               提供有价值的反馈可获得积分奖励
-            &lt;/CardDescription&gt;
-          &lt;/CardHeader&gt;
-          &lt;CardContent&gt;
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
             {hasSubmittedToday ? (
-              &lt;div className="text-center py-8 text-gray-500"&gt;
-                &lt;Star className="w-12 h-12 mx-auto mb-3 text-gray-400" /&gt;
-                &lt;p&gt;今日已提交反馈，明天再来吧！&lt;/p&gt;
-              &lt;/div&gt;
+              <div className="text-center py-8 text-gray-500">
+                <Star className="w-12 h-12 mx-auto mb-3 text-gray-400" />
+                <p>今日已提交反馈，明天再来吧！</p>
+              </div>
             ) : (
-              &lt;div className="space-y-4"&gt;
+              <div className="space-y-4">
                 {/* 反馈类型选择 */}
-                &lt;div&gt;
-                  &lt;label className="block text-sm font-medium text-gray-700 mb-2"&gt;
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
                     反馈类型
-                  &lt;/label&gt;
-                  &lt;div className="flex flex-wrap gap-2"&gt;
+                  </label>
+                  <div className="flex flex-wrap gap-2">
                     {[
                       { value: 'improvement', label: '改进建议', desc: '如何优化这个创意' },
                       { value: 'implementation', label: '实施方案', desc: '具体落地步骤' },
                       { value: 'market_insight', label: '市场洞察', desc: '市场机会分析' },
                       { value: 'risk_analysis', label: '风险分析', desc: '潜在问题识别' }
-                    ].map((type) =&gt; (
-                      &lt;Button
+                    ].map((type) => (
+                      <Button
                         key={type.value}
                         variant={feedbackType === type.value ? 'default' : 'outline'}
                         size="sm"
-                        onClick={() =&gt; setFeedbackType(type.value as UserFeedback['type'])}
+                        onClick={() => setFeedbackType(type.value as UserFeedback['type'])}
                         className="flex flex-col items-start p-3 h-auto"
-                      &gt;
-                        &lt;span className="font-medium"&gt;{type.label}&lt;/span&gt;
-                        &lt;span className="text-xs opacity-70"&gt;{type.desc}&lt;/span&gt;
-                      &lt;/Button&gt;
+                      >
+                        <span className="font-medium">{type.label}</span>
+                        <span className="text-xs opacity-70">{type.desc}</span>
+                      </Button>
                     ))}
-                  &lt;/div&gt;
-                &lt;/div&gt;
+                  </div>
+                </div>
 
                 {/* 反馈内容 */}
-                &lt;div&gt;
-                  &lt;label className="block text-sm font-medium text-gray-700 mb-2"&gt;
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
                     反馈内容 (最少100字获得积分)
-                  &lt;/label&gt;
-                  &lt;Textarea
+                  </label>
+                  <Textarea
                     value={feedback}
-                    onChange={(e) =&gt; setFeedback(e.target.value)}
+                    onChange={(e) => setFeedback(e.target.value)}
                     placeholder="请详细描述你的想法和建议..."
                     className="min-h-32"
-                  /&gt;
-                  &lt;div className="flex justify-between items-center mt-2"&gt;
-                    &lt;span className="text-sm text-gray-500"&gt;
+                  />
+                  <div className="flex justify-between items-center mt-2">
+                    <span className="text-sm text-gray-500">
                       {feedback.length} / 最少100字
-                    &lt;/span&gt;
-                    &lt;span className="text-sm text-green-600"&gt;
+                    </span>
+                    <span className="text-sm text-green-600">
                       预计获得: {Math.min(8, Math.floor(feedback.length / 50) + 2)} 积分
-                    &lt;/span&gt;
-                  &lt;/div&gt;
-                &lt;/div&gt;
+                    </span>
+                  </div>
+                </div>
 
                 {/* 提交按钮 */}
-                &lt;Button
+                <Button
                   onClick={submitFeedback}
-                  disabled={feedback.length &lt; 100}
+                  disabled={feedback.length < 100}
                   className="w-full"
-                &gt;
+                >
                   提交反馈
-                &lt;/Button&gt;
-              &lt;/div&gt;
+                </Button>
+              </div>
             )}
-          &lt;/CardContent&gt;
-        &lt;/Card&gt;
-      &lt;/div&gt;
-    &lt;/div&gt;
+          </CardContent>
+        </Card>
+      </div>
+    </div>
   );
 }
