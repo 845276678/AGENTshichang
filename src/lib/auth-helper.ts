@@ -1,5 +1,5 @@
 import { NextRequest } from 'next/server';
-import { prisma } from '@/lib/database';
+import { prisma } from '@/lib/prisma';
 import jwt from 'jsonwebtoken';
 
 /**
@@ -102,21 +102,15 @@ export async function requireAdmin(request: NextRequest) {
 }
 
 /**
- * 验证用户是否已验证邮箱
+ * 从请求中获取用户信息的简化辅助函数（可选用户）
  */
-export async function requireEmailVerification(request: NextRequest) {
-  const authResult = await getUserFromToken(request);
-
-  if (!authResult.success) {
-    return authResult;
+export async function getUserFromRequest(request: NextRequest) {
+  try {
+    const authResult = await getUserFromToken(request);
+    return authResult.success ? authResult.user : null;
+  } catch (error) {
+    // 忽略错误，返回null表示未登录
+    console.warn('getUserFromRequest error (ignored):', error);
+    return null;
   }
-
-  if (!authResult.user.isEmailVerified) {
-    return {
-      success: false,
-      error: '需要先验证邮箱'
-    };
-  }
-
-  return authResult;
 }
