@@ -2,14 +2,15 @@
   "name": "ai-agent-marketplace",
   "build": {
     "buildCommand": "npm run build",
-    "installCommand": "npm install",
+    "installCommand": "npm ci --frozen-lockfile",
     "outputDirectory": ".next"
   },
   "start": {
     "startCommand": "node server.js"
   },
   "env": {
-    "NODE_ENV": "production"
+    "NODE_ENV": "production",
+    "NEXT_TELEMETRY_DISABLED": "1"
   },
   "regions": ["hkg"],
   "plan": "pro"
