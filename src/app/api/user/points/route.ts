@@ -6,8 +6,22 @@ import { getUserFromRequest } from '@/lib/auth-helper';
 export async function GET(request: NextRequest) {
   try {
     const user = await getUserFromRequest(request);
+
+    // 如果用户未登录，返回默认值而不是错误
     if (!user) {
-      return NextResponse.json({ error: '请先登录' }, { status: 401 });
+      return NextResponse.json({
+        points: 0,
+        dailyPoints: 0,
+        weeklyPoints: 0,
+        streakDays: 0,
+        bestStreak: 0,
+        level: 1,
+        experience: 0,
+        experienceToNextLevel: 100,
+        currentLevelProgress: 0,
+        recentTransactions: [],
+        isGuest: true
+      });
     }
 
     // 获取用户积分信息
@@ -47,7 +61,10 @@ export async function GET(request: NextRequest) {
         bestStreak: newUserPoints.bestStreak,
         level: newUserPoints.level,
         experience: newUserPoints.experience,
-        recentTransactions: []
+        experienceToNextLevel: 100,
+        currentLevelProgress: 0,
+        recentTransactions: [],
+        isGuest: false
       });
     }
 
@@ -71,11 +88,26 @@ export async function GET(request: NextRequest) {
         amount: tx.amount,
         reason: tx.reason,
         createdAt: tx.createdAt
-      }))
+      })),
+      isGuest: false
     });
 
   } catch (error) {
     console.error('获取用户积分失败:', error);
-    return NextResponse.json({ error: '服务器错误' }, { status: 500 });
+    // 即使出错也返回默认值，避免500错误
+    return NextResponse.json({
+      points: 0,
+      dailyPoints: 0,
+      weeklyPoints: 0,
+      streakDays: 0,
+      bestStreak: 0,
+      level: 1,
+      experience: 0,
+      experienceToNextLevel: 100,
+      currentLevelProgress: 0,
+      recentTransactions: [],
+      isGuest: true,
+      error: '获取积分信息失败'
+    });
   }
 }
