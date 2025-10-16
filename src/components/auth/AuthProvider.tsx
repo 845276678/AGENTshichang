@@ -131,6 +131,28 @@ interface AuthProviderInnerProps {
   }> | undefined;
 }
 
+// Public routes that don't require authentication
+const PUBLIC_ROUTES = [
+  '/',
+  '/workshops',
+  '/workshops/demand-validation',
+  '/workshops/mvp-builder',
+  '/workshops/growth-hacking',
+  '/workshops/profit-model',
+  '/marketplace',
+  '/daily-idea',
+  '/idea-growth-tree',
+  '/pressure-test',
+  '/business-plan',
+  '/solo-company',
+  '/categories',
+  '/agent-center',
+  '/payment',
+  '/about',
+  '/auth/login',
+  '/auth/register',
+];
+
 const AuthProviderInner: React.FC<AuthProviderInnerProps> = ({
   children,
   loadingComponent: CustomLoadingComponent,
@@ -140,6 +162,14 @@ const AuthProviderInner: React.FC<AuthProviderInnerProps> = ({
   const auth = useAuth();
   const [showWarning, setShowWarning] = useState(false);
   const [expiresIn, setExpiresIn] = useState(0);
+  const [currentPath, setCurrentPath] = useState('/');
+
+  // Track current pathname for public route check
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setCurrentPath(window.location.pathname);
+    }
+  }, []);
 
   // Handle session warning events
   useEffect(() => {
@@ -186,8 +216,11 @@ const AuthProviderInner: React.FC<AuthProviderInnerProps> = ({
     await auth.logout();
   };
 
-  // Show loading component while initializing
-  if (!auth.isInitialized) {
+  // Show loading component while initializing ONLY for protected routes
+  const isPublicRoute = PUBLIC_ROUTES.includes(currentPath) ||
+                       currentPath.startsWith('/workshops/');
+
+  if (!auth.isInitialized && !isPublicRoute) {
     const LoadingComponent = CustomLoadingComponent || AuthLoading;
     return <LoadingComponent />;
   }
