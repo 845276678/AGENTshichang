@@ -383,8 +383,8 @@ export default function WorkshopDashboard({
           <TabsContent value="workshop">
             {session && (
               <>
-                {/* 显示智能功能说明 */}
-                {(workshopId === 'mvp-builder' || workshopId === 'demand-validation') && (
+                {/* 只在MVP工作坊显示智能功能说明 */}
+                {workshopId === 'mvp-builder' && (
                   <SmartWorkshopGuide workshopType={workshopId} />
                 )}
 

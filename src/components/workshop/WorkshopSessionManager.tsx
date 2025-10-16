@@ -86,7 +86,7 @@ function renderWorkshopForm(
   switch (workshopId) {
     case 'demand-validation':
       return (
-        <EnhancedDemandValidationForm
+        <DemandValidationForm
           {...commonProps}
           initialData={initialData as Partial<DemandValidationFormType>}
         />
