@@ -20,6 +20,7 @@ import React, { Suspense, lazy } from 'react'
 
 import { notFound } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
+import { Layout } from '@/components/layout'
 import { type WorkshopId } from '@/hooks/useWorkshopSession'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -141,27 +142,29 @@ export default function WorkshopPage({ params }: WorkshopPageProps) {
     notFound()
   }
 
-  // 快速显示基础布局，避免空白页面
+  // 使用Layout包装，确保导航栏一致
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="container mx-auto px-4 py-8">
-        {/* 未登录时的提示 - 立即显示 */}
-        {!user && !isLoading && (
-          <Card className="mb-4">
-            <CardContent className="py-3 text-sm text-gray-600">
-              当前以游客模式体验。<Link href="/auth/login" className="text-blue-600 underline">登录</Link> 后可云端保存进度。
-            </CardContent>
-          </Card>
-        )}
+    <Layout>
+      <div className="min-h-screen bg-gray-50">
+        <div className="container mx-auto px-4 py-8">
+          {/* 未登录时的提示 - 立即显示 */}
+          {!user && !isLoading && (
+            <Card className="mb-4">
+              <CardContent className="py-3 text-sm text-gray-600">
+                当前以游客模式体验。<Link href="/auth/login" className="text-blue-600 underline">登录</Link> 后可云端保存进度。
+              </CardContent>
+            </Card>
+          )}
 
-        {/* 懒加载工作坊主要组件 */}
-        <Suspense fallback={<WorkshopSkeleton config={config} />}>
-          <WorkshopDashboard
-            workshopId={workshopId}
-            userId={user?.id || 'anonymous'}
-          />
-        </Suspense>
+          {/* 懒加载工作坊主要组件 */}
+          <Suspense fallback={<WorkshopSkeleton config={config} />}>
+            <WorkshopDashboard
+              workshopId={workshopId}
+              userId={user?.id || 'anonymous'}
+            />
+          </Suspense>
+        </div>
       </div>
-    </div>
+    </Layout>
   )
 }
