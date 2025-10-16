@@ -35,6 +35,7 @@ import {
 import WorkshopSessionManager from '@/components/workshop/WorkshopSessionManager'
 import WorkshopProgress from '@/components/workshop/WorkshopProgress'
 import PDFGenerator from '@/components/workshop/PDFGenerator'
+import SmartWorkshopGuide from '@/components/workshop/SmartWorkshopGuide'
 import {
   useWorkshopSession,
   type WorkshopId
@@ -381,14 +382,21 @@ export default function WorkshopDashboard({
           {/* 工作坊页面 */}
           <TabsContent value="workshop">
             {session && (
-              <WorkshopSessionManager
-                workshopId={workshopId}
-                userId={userId}
-                onSessionComplete={(completedSession) => {
-                  setActiveTab('report')
-                  onComplete?.(completedSession, completedSession.formData)
-                }}
-              />
+              <>
+                {/* 显示智能功能说明 */}
+                {(workshopId === 'mvp-builder' || workshopId === 'demand-validation') && (
+                  <SmartWorkshopGuide workshopType={workshopId} />
+                )}
+
+                <WorkshopSessionManager
+                  workshopId={workshopId}
+                  userId={userId}
+                  onSessionComplete={(completedSession) => {
+                    setActiveTab('report')
+                    onComplete?.(completedSession, completedSession.formData)
+                  }}
+                />
+              </>
             )}
           </TabsContent>
 

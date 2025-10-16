@@ -1,3 +1,9 @@
+import dotenv from 'dotenv'
+import path from 'path'
+
+// 加载环境变量
+dotenv.config({ path: path.join(__dirname, '../.env.local') })
+
 import { PrismaClient } from '@prisma/client';
 import { DailyIdeaService } from '../src/lib/services/daily-idea.service';
 // import { AIProvider } from '../src/lib/ai-services'; // 可在line 46使用aiProvider参数指定AI提供商

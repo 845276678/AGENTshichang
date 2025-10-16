@@ -1,0 +1,52 @@
+{
+  "url": "https://aijiayuan.top",
+  "timestamp": "2025-10-15T07:05:34.986Z",
+  "checks": {
+    "performance": {
+      "metrics": [],
+      "status": "success"
+    },
+    "resources": {
+      "mainFrame": {
+        "id": "658C22427CACE40DE17453905217C80B",
+        "loaderId": "1D01BC2764D742199526CC55C895050A",
+        "url": "https://aijiayuan.top/",
+        "domainAndRegistry": "aijiayuan.top",
+        "securityOrigin": "https://aijiayuan.top",
+        "securityOriginDetails": {
+          "isLocalhost": false
+        },
+        "mimeType": "text/html",
+        "adFrameStatus": {
+          "adFrameType": "none"
+        },
+        "secureContextType": "Secure",
+        "crossOriginIsolatedContextType": "NotIsolated",
+        "gatedAPIFeatures": []
+      },
+      "subFrames": [],
+      "status": "success"
+    },
+    "javascript": {
+      "result": {
+        "title": "AI创意家园 - AI Agent Market - 发现、部署、变现AI智能体",
+        "url": "https://aijiayuan.top/",
+        "readyState": "complete",
+        "errors": "no error handler",
+        "viewport": {
+          "width": 764,
+          "height": 433
+        }
+      },
+      "status": "success"
+    },
+    "console": {
+      "errors": [],
+      "status": "success"
+    },
+    "network": {
+      "failedRequests": [],
+      "status": "success"
+    }
+  }
+}

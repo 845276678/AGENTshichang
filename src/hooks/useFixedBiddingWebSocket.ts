@@ -269,6 +269,18 @@ export function useFixedBiddingWebSocket(ideaId: string) {
 
   // 修复10: 添加调试信息和状态监控
   useEffect(() => {
+    if (typeof window === 'undefined') {
+      return
+    }
+
+    const debugEnabled =
+      process.env.NODE_ENV !== 'production' ||
+      window.localStorage.getItem('AI_BIDDING_DEBUG') === '1'
+
+    if (!debugEnabled) {
+      return
+    }
+
     const interval = setInterval(() => {
       console.log(`🔍 Debug Info:`, {
         connected: isConnected,

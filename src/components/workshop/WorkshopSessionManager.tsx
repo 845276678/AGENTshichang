@@ -33,7 +33,9 @@ import { useSoundEffects } from '@/hooks/useSoundEffects'
 // 导入相关组件和Hooks
 import WorkshopProgress from './WorkshopProgress'
 import DemandValidationForm from './forms/DemandValidationForm'
+import EnhancedDemandValidationForm from './EnhancedDemandValidationForm'
 import MVPBuilderForm from './forms/MVPBuilderForm'
+import EnhancedMVPBuilderForm from './EnhancedMVPBuilderForm'
 import AgentConversation from './AgentConversation'
 import {
   useWorkshopSession,
@@ -84,7 +86,7 @@ function renderWorkshopForm(
   switch (workshopId) {
     case 'demand-validation':
       return (
-        <DemandValidationForm
+        <EnhancedDemandValidationForm
           {...commonProps}
           initialData={initialData as Partial<DemandValidationFormType>}
         />
@@ -92,7 +94,7 @@ function renderWorkshopForm(
 
     case 'mvp-builder':
       return (
-        <MVPBuilderForm
+        <EnhancedMVPBuilderForm
           {...commonProps}
           initialData={initialData as Partial<MVPBuilderFormType>}
         />

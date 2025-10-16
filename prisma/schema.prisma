@@ -60,6 +60,8 @@ model User {
   dailyIdeaFeedbacks   DailyIdeaFeedback[]
   dailyIdeaFeedbackVotes DailyIdeaFeedbackVote[]
   dailyIdeaEngagements DailyIdeaEngagement[]
+  dailyIdeaDebates     IdeaDebate[]              // 新增：创意辩论记录
+  pointTransactions    PointTransaction[]        // 新增：积分交易记录
   userPoints           UserPoints?
   userPointTransactions UserPointTransaction[]
   ideaGrowthTrees      IdeaGrowthTree[]
@@ -1012,6 +1014,7 @@ model DailyIdea {
   // 关联关系
   feedbacks          DailyIdeaFeedback[]
   userEngagements    DailyIdeaEngagement[]
+  debates            IdeaDebate[]                // 新增：智能辩论记录
 
   @@unique([publishDate])
   @@index([publishDate, isActive])
@@ -1262,5 +1265,76 @@ enum PressureScenarioType {
   TECHNICAL         // 技术压力
   REGULATORY        // 监管压力
   OPERATIONAL       // 运营压力
+}
+
+// ============================================
+// 智能辩论系统 (AI Debate System)
+// Added: 2025-10-15
+// Purpose: 实现用户与AI的创意辩论功能，帮助用户完善创意想法
+// ============================================
+
+// 创意辩论记录表
+model IdeaDebate {
+  id                String              @id @default(cuid())
+  dailyIdeaId       String              @map("daily_idea_id")
+  userId            String              @map("user_id")
+  userComment       String              @map("user_comment")             // 用户评论
+  commentType       DebateCommentType   @map("comment_type")             // 评论类型
+  commentQuality    Float               @map("comment_quality")          // 评论质量分 1-10
+  aiResponse        String              @map("ai_response")              // AI回应内容
+  aiResponseType    DebateResponseType  @map("ai_response_type")         // AI回应类型
+  aiPersona         String              @map("ai_persona")               // AI角色
+  aiReasoning       String?             @map("ai_reasoning")             // AI推理过程
+  followUpQuestions String[]            @map("follow_up_questions")      // 后续引导问题
+  improvements      String[]            @map("improvements")             // 改进建议
+  pointsAwarded     Int                 @default(0) @map("points_awarded") // 获得积分
+  metadata          Json?               @map("metadata")                 // 额外元数据
+  createdAt         DateTime            @default(now()) @map("created_at")
+
+  // 关联关系
+  dailyIdea         DailyIdea           @relation(fields: [dailyIdeaId], references: [id], onDelete: Cascade)
+  user              User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([dailyIdeaId, createdAt])
+  @@index([userId, createdAt])
+  @@index([commentQuality])
+  @@map("idea_debates")
+}
+
+// 积分交易记录表 (通用)
+model PointTransaction {
+  id            String               @id @default(cuid())
+  userId        String               @map("user_id")
+  type          PointTransactionType @map("type")                    // 交易类型
+  amount        Int                  @map("amount")                  // 积分数量 (可为负)
+  reason        String?              @map("reason")                  // 交易原因
+  relatedId     String?              @map("related_id")              // 关联ID
+  balanceBefore Int                  @map("balance_before")          // 交易前余额
+  balanceAfter  Int                  @map("balance_after")           // 交易后余额
+  metadata      Json?                @map("metadata")                // 额外元数据
+  createdAt     DateTime             @default(now()) @map("created_at")
+
+  // 关联关系
+  user          User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+  @@index([type, createdAt])
+  @@map("point_transactions")
+}
+
+// 辩论相关枚举
+enum DebateCommentType {
+  CRITIQUE          // 批评质疑
+  SUGGESTION        // 改进建议
+  QUESTION          // 疑问询问
+  PRAISE            // 赞扬认同
+  GENERAL           // 一般评论
+}
+
+enum DebateResponseType {
+  AGREE             // 赞同扩展
+  DISAGREE          // 礼貌反驳
+  GUIDE             // 引导思考
+  EXPAND            // 深化扩展
 }
 

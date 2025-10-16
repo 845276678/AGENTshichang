@@ -123,6 +123,74 @@ export default function UnifiedBiddingStage({
     });
   };
 
+  const toIsoString = useCallback((value: unknown): string => {
+    if (value instanceof Date) {
+      return value.toISOString()
+    }
+    if (typeof value === 'number') {
+      const parsed = new Date(value)
+      return Number.isNaN(parsed.getTime()) ? new Date().toISOString() : parsed.toISOString()
+    }
+    const parsed = value ? new Date(value as string) : new Date()
+    return Number.isNaN(parsed.getTime()) ? new Date().toISOString() : parsed.toISOString()
+  }, [])
+
+  const normalizedBids = useMemo(() => {
+    const normalized: Record<string, number> = {}
+    Object.entries(currentBids).forEach(([personaId, rawBid]) => {
+      const bidValue = typeof rawBid === 'number' ? rawBid : Number(rawBid)
+      if (!Number.isNaN(bidValue)) {
+        normalized[personaId] = Math.max(0, Math.round(bidValue * 100) / 100)
+      }
+    })
+    return normalized
+  }, [currentBids])
+
+  const participantsData = useMemo(() => {
+    const seen = new Set<string>()
+    return aiMessages.reduce<Array<{
+      personaId: string
+      name: string
+      specialty: string
+      bidAmount: number
+      participated: boolean
+    }>>((result, msg) => {
+      if (seen.has(msg.personaId)) {
+        return result
+      }
+      seen.add(msg.personaId)
+      const persona = AI_PERSONAS.find(p => p.id === msg.personaId)
+      result.push({
+        personaId: msg.personaId,
+        name: persona?.name || msg.personaId,
+        specialty: persona?.specialty || '',
+        bidAmount: normalizedBids[msg.personaId] || 0,
+        participated: true
+      })
+      return result
+    }, [])
+  }, [aiMessages, normalizedBids])
+
+  const expertDiscussionsPayload = useMemo(() => {
+    return aiMessages.map(msg => ({
+      personaId: msg.personaId,
+      personaName: AI_PERSONAS.find(p => p.id === msg.personaId)?.name || msg.personaId,
+      content: msg.content || '',
+      emotion: msg.emotion || 'neutral',
+      bidValue: msg.bidValue,
+      timestamp: toIsoString(msg.timestamp)
+    }))
+  }, [aiMessages, toIsoString])
+
+  const expertAnalysisForReport = useMemo(() => {
+    return aiMessages.map(msg => ({
+      expert: AI_PERSONAS.find(p => p.id === msg.personaId)?.name || msg.personaId,
+      content: msg.content,
+      emotion: msg.emotion,
+      timestamp: msg.timestamp
+    }))
+  }, [aiMessages])
+
   // 映射阶段
   const currentPhase = mapWebSocketPhase(wsPhase)
 
@@ -237,7 +305,7 @@ export default function UnifiedBiddingStage({
       if (currentPhase !== BiddingPhase.RESULT_DISPLAY) return
       if (maturityAssessment || isEvaluating) return // 避免重复评估
       if (!ideaId || !sessionId) return
-      if (aiMessages.length === 0 || Object.keys(currentBids).length === 0) return
+      if (aiMessages.length === 0) return
 
       console.log('🎯 触发创意成熟度评估...')
       setIsEvaluating(true)
@@ -261,7 +329,7 @@ export default function UnifiedBiddingStage({
               phase: msg.phase,
               timestamp: msg.timestamp
             })),
-            bids: currentBids
+            bids: Object.keys(normalizedBids).length > 0 ? normalizedBids : {}
           })
         })
 
@@ -286,7 +354,7 @@ export default function UnifiedBiddingStage({
     }
 
     triggerMaturityAssessment()
-  }, [currentPhase, ideaId, sessionId, aiMessages, currentBids, maturityAssessment, isEvaluating])
+  }, [currentPhase, ideaId, sessionId, aiMessages, normalizedBids, maturityAssessment, isEvaluating])
 
   // 处理AI消息更新Agent状态 - 为每个agent显示其最新消息
   useEffect(() => {
@@ -420,14 +488,6 @@ export default function UnifiedBiddingStage({
       console.log('highestBid:', highestBid)
       console.log('aiMessages count:', aiMessages.length)
 
-      const normalizedBids: Record<string, number> = {}
-      Object.entries(currentBids || {}).forEach(([personaId, value]) => {
-        const bidNumber = typeof value === 'number' ? value : Number(value)
-        if (!Number.isNaN(bidNumber)) {
-          normalizedBids[personaId] = bidNumber
-        }
-      })
-
       const bidEntries = Object.entries(normalizedBids)
       let winningPersonaId: string | null = null
       let winningBidValue = -Infinity
@@ -456,29 +516,6 @@ export default function UnifiedBiddingStage({
         ? bidEntries.reduce((total, [, bid]) => total + bid, 0) / bidEntries.length
         : (typeof highestBid === 'number' ? highestBid : 0)
 
-      const toIsoString = (value: unknown): string => {
-        if (value instanceof Date) {
-          return value.toISOString()
-        }
-        const parsed = value ? new Date(value as string) : new Date()
-        return Number.isNaN(parsed.getTime()) ? new Date().toISOString() : parsed.toISOString()
-      }
-
-      const participantsData = aiMessages
-        .filter((msg, index, self) =>
-          index === self.findIndex(m => m.personaId === msg.personaId)
-        )
-        .map(msg => {
-          const p = AI_PERSONAS.find(persona => persona.id === msg.personaId)
-          return {
-            personaId: msg.personaId,
-            name: p?.name || msg.personaId,
-            specialty: p?.specialty || '',
-            bidAmount: normalizedBids[msg.personaId] || 0,
-            participated: true
-          }
-        })
-
       // Extract user context from idea and supplements for personalized recommendations
       const userContext = extractUserContext({
         ideaContent: ideaContent || '',
@@ -498,14 +535,7 @@ export default function UnifiedBiddingStage({
           bids: normalizedBids,
           participants: participantsData
         },
-        expertDiscussions: aiMessages.map(msg => ({
-          personaId: msg.personaId,
-          personaName: AI_PERSONAS.find(p => p.id === msg.personaId)?.name || msg.personaId,
-          content: msg.content || '',
-          emotion: msg.emotion || 'neutral',
-          bidValue: msg.bidValue,
-          timestamp: toIsoString(msg.timestamp)
-        })),
+        expertDiscussions: expertDiscussionsPayload,
         metadata: {
           sessionDuration: Date.now() - (new Date().getTime()),
           totalMessages: aiMessages.length,
@@ -545,18 +575,13 @@ export default function UnifiedBiddingStage({
       ideaContent,
       biddingResults: {
         highestBid,
-        averageBid: Object.values(currentBids).length > 0
-          ? Object.values(currentBids).reduce((a, b) => a + b, 0) / Object.values(currentBids).length
+        averageBid: Object.values(normalizedBids).length > 0
+          ? Object.values(normalizedBids).reduce((a, b) => a + b, 0) / Object.values(normalizedBids).length
           : 0,
-        totalBids: Object.keys(currentBids).length,
+        totalBids: Object.keys(normalizedBids).length,
         currentBids
       },
-      expertAnalysis: aiMessages.map(msg => ({
-        expert: AI_PERSONAS.find(p => p.id === msg.personaId)?.name || msg.personaId,
-        content: msg.content,
-        emotion: msg.emotion,
-        timestamp: msg.timestamp
-      })),
+      expertAnalysis: expertAnalysisForReport,
       sessionStats: {
         messagesCount: aiMessages.length,
         supportCount: supportedAgents.size,

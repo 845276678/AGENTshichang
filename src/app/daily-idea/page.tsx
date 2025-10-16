@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
 import { Progress } from '@/components/ui/progress';
-import { Clock, Star, Heart, MessageCircle, Share2, Trophy, TrendingUp } from 'lucide-react';
+import { Clock, Star, Heart, MessageCircle, Share2, Trophy, TrendingUp, Brain, Send, User, Bot } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface DailyIdea {
@@ -28,6 +28,17 @@ interface UserFeedback {
   quality: number;
 }
 
+interface DebateMessage {
+  id: string;
+  type: 'user' | 'ai';
+  content: string;
+  timestamp: Date;
+  aiPersona?: string;
+  responseType?: 'agree' | 'disagree' | 'guide' | 'expand';
+  followUpQuestions?: string[];
+  suggestions?: string[];
+}
+
 export default function DailyIdeaPage() {
   const [dailyIdea, setDailyIdea] = useState<DailyIdea | null>(null);
   const [feedback, setFeedback] = useState('');
@@ -37,6 +48,12 @@ export default function DailyIdeaPage() {
   const [showThinkingTools, setShowThinkingTools] = useState(false);
   const [hasSubmittedToday, setHasSubmittedToday] = useState(false);
   const [loading, setLoading] = useState(true);
+
+  // 智能辩论相关状态
+  const [showDebate, setShowDebate] = useState(false);
+  const [debateMessages, setDebateMessages] = useState<DebateMessage[]>([]);
+  const [debateInput, setDebateInput] = useState('');
+  const [debateLoading, setDebateLoading] = useState(false);
 
   useEffect(() => {
     fetchTodayIdea();
@@ -109,6 +126,89 @@ export default function DailyIdeaPage() {
       }
     } catch (error) {
       toast.error('提交失败，请重试');
+    }
+  };
+
+  // 智能辩论功能
+  const startDebate = async (comment: string) => {
+    if (!comment.trim()) {
+      toast.error('请输入你的观点');
+      return;
+    }
+
+    setDebateLoading(true);
+
+    // 添加用户消息
+    const userMessage: DebateMessage = {
+      id: Date.now().toString(),
+      type: 'user',
+      content: comment,
+      timestamp: new Date()
+    };
+
+    setDebateMessages(prev => [...prev, userMessage]);
+    setDebateInput('');
+
+    try {
+      const response = await fetch('/api/daily-idea/debate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ideaId: dailyIdea?.id,
+          userComment: comment,
+          commentType: 'general'
+        })
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+
+        // 添加AI回复
+        const aiMessage: DebateMessage = {
+          id: (Date.now() + 1).toString(),
+          type: 'ai',
+          content: data.debate.aiResponse.content,
+          timestamp: new Date(),
+          aiPersona: data.debate.aiResponse.aiPersona || '创意导师',
+          responseType: data.debate.aiResponse.responseType,
+          followUpQuestions: data.debate.aiResponse.followUpQuestions,
+          suggestions: data.debate.aiResponse.suggestions
+        };
+
+        setDebateMessages(prev => [...prev, aiMessage]);
+
+        if (data.debate.pointsEarned > 0) {
+          setUserPoints(prev => prev + data.debate.pointsEarned);
+          toast.success(`精彩的观点！获得 ${data.debate.pointsEarned} 积分`);
+        }
+      } else {
+        const error = await response.json();
+        toast.error(error.message || '辩论失败');
+      }
+    } catch (error) {
+      toast.error('网络错误，请重试');
+    } finally {
+      setDebateLoading(false);
+    }
+  };
+
+  const getResponseTypeColor = (type?: string) => {
+    switch (type) {
+      case 'agree': return 'text-green-600 bg-green-50';
+      case 'disagree': return 'text-red-600 bg-red-50';
+      case 'guide': return 'text-blue-600 bg-blue-50';
+      case 'expand': return 'text-purple-600 bg-purple-50';
+      default: return 'text-gray-600 bg-gray-50';
+    }
+  };
+
+  const getResponseTypeLabel = (type?: string) => {
+    switch (type) {
+      case 'agree': return '赞同';
+      case 'disagree': return '质疑';
+      case 'guide': return '引导';
+      case 'expand': return '扩展';
+      default: return '回应';
     }
   };
 
@@ -218,6 +318,14 @@ export default function DailyIdeaPage() {
                 <TrendingUp className="w-4 h-4" />
                 {showThinkingTools ? '隐藏' : '展开'}思考工具
               </Button>
+              <Button
+                onClick={() => setShowDebate(!showDebate)}
+                variant={showDebate ? 'default' : 'outline'}
+                className="flex items-center gap-2"
+              >
+                <Brain className="w-4 h-4" />
+                {showDebate ? '隐藏' : '智能'}辩论
+              </Button>
               <Button variant="outline" className="flex items-center gap-2">
                 <Heart className="w-4 h-4" />
                 收藏
@@ -257,6 +365,156 @@ export default function DailyIdeaPage() {
                       ))}
                     </ul>
                   </div>
+                </div>
+              </div>
+            )}
+
+            {/* 智能辩论区域 */}
+            {showDebate && (
+              <div className="border rounded-lg p-6 bg-gradient-to-br from-blue-50 to-purple-50 mb-6">
+                <div className="flex items-center gap-2 mb-4">
+                  <Brain className="w-5 h-5 text-blue-600" />
+                  <h3 className="font-semibold text-lg">AI智能辩论</h3>
+                  <Badge variant="secondary" className="text-xs">
+                    与AI进行创意讨论，完善你的想法
+                  </Badge>
+                </div>
+
+                {/* 对话历史 */}
+                <div className="space-y-4 mb-4 max-h-96 overflow-y-auto">
+                  {debateMessages.length === 0 && (
+                    <div className="text-center py-8 text-gray-500">
+                      <MessageCircle className="w-12 h-12 mx-auto mb-3 text-gray-400" />
+                      <p>发表你的观点，开始与AI的智能辩论！</p>
+                      <p className="text-sm mt-1">AI会赞同你说得对的，反驳你说得错的，引导你说得不完善的</p>
+                    </div>
+                  )}
+
+                  {debateMessages.map((message) => (
+                    <div
+                      key={message.id}
+                      className={`flex gap-3 ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}
+                    >
+                      {message.type === 'ai' && (
+                        <div className="flex-shrink-0">
+                          <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">
+                            <Bot className="w-4 h-4 text-blue-600" />
+                          </div>
+                        </div>
+                      )}
+
+                      <div className={`max-w-lg ${message.type === 'user' ? 'order-2' : ''}`}>
+                        <div
+                          className={`rounded-lg p-3 ${
+                            message.type === 'user'
+                              ? 'bg-blue-600 text-white'
+                              : 'bg-white border shadow-sm'
+                          }`}
+                        >
+                          {message.type === 'ai' && message.responseType && (
+                            <div className="flex items-center gap-2 mb-2">
+                              <Badge className={`text-xs ${getResponseTypeColor(message.responseType)}`}>
+                                {getResponseTypeLabel(message.responseType)}
+                              </Badge>
+                              <span className="text-xs text-gray-500">
+                                {message.aiPersona}
+                              </span>
+                            </div>
+                          )}
+                          <p className="text-sm">{message.content}</p>
+                        </div>
+
+                        {/* AI回复的后续问题和建议 */}
+                        {message.type === 'ai' && (message.followUpQuestions || message.suggestions) && (
+                          <div className="mt-2 space-y-2">
+                            {message.followUpQuestions && message.followUpQuestions.length > 0 && (
+                              <div className="bg-blue-50 rounded-lg p-3">
+                                <h5 className="text-xs font-medium text-blue-700 mb-1">进一步思考：</h5>
+                                <ul className="text-xs text-blue-600 space-y-1">
+                                  {message.followUpQuestions.map((question, index) => (
+                                    <li key={index} className="flex items-start gap-1">
+                                      <span>•</span>
+                                      <span>{question}</span>
+                                    </li>
+                                  ))}
+                                </ul>
+                              </div>
+                            )}
+
+                            {message.suggestions && message.suggestions.length > 0 && (
+                              <div className="bg-green-50 rounded-lg p-3">
+                                <h5 className="text-xs font-medium text-green-700 mb-1">改进建议：</h5>
+                                <ul className="text-xs text-green-600 space-y-1">
+                                  {message.suggestions.map((suggestion, index) => (
+                                    <li key={index} className="flex items-start gap-1">
+                                      <span>✓</span>
+                                      <span>{suggestion}</span>
+                                    </li>
+                                  ))}
+                                </ul>
+                              </div>
+                            )}
+                          </div>
+                        )}
+
+                        <div className="text-xs text-gray-400 mt-1">
+                          {message.timestamp.toLocaleTimeString()}
+                        </div>
+                      </div>
+
+                      {message.type === 'user' && (
+                        <div className="flex-shrink-0 order-1">
+                          <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center">
+                            <User className="w-4 h-4 text-white" />
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+
+                  {debateLoading && (
+                    <div className="flex gap-3 justify-start">
+                      <div className="flex-shrink-0">
+                        <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">
+                          <Bot className="w-4 h-4 text-blue-600" />
+                        </div>
+                      </div>
+                      <div className="bg-white border shadow-sm rounded-lg p-3 max-w-lg">
+                        <div className="flex items-center gap-2">
+                          <div className="animate-spin w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full"></div>
+                          <span className="text-sm text-gray-500">AI正在思考中...</span>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* 输入区域 */}
+                <div className="flex gap-2">
+                  <Textarea
+                    value={debateInput}
+                    onChange={(e) => setDebateInput(e.target.value)}
+                    placeholder="分享你对这个创意的看法、质疑或改进建议..."
+                    className="flex-1 min-h-16 resize-none"
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        startDebate(debateInput);
+                      }
+                    }}
+                  />
+                  <Button
+                    onClick={() => startDebate(debateInput)}
+                    disabled={!debateInput.trim() || debateLoading}
+                    className="self-end"
+                  >
+                    <Send className="w-4 h-4" />
+                  </Button>
+                </div>
+
+                <div className="text-xs text-gray-500 mt-2 flex items-center gap-2">
+                  <span>💡</span>
+                  <span>提示：AI会根据你的观点进行赞同、质疑或引导，帮你完善创意。高质量的讨论可获得额外积分！</span>
                 </div>
               </div>
             )}
