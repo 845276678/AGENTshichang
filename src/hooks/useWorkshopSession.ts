@@ -381,12 +381,13 @@ export function useWorkshopSession({
     }
   }, [state.session, state.hasUnsavedChanges, autoSave, saveInterval, saveSession])
 
-  // 初始化：加载会话 (移除依赖项避免无限循环)
+  // 初始化：加载会话 (修复无限循环问题)
   useEffect(() => {
     let isMounted = true
 
     const initializeSession = async () => {
-      if (state.session || state.isLoading) return
+      // 只有在没有会话且未初始化时才执行
+      if (state.session) return
 
       setState(prev => ({ ...prev, isLoading: true, error: null }))
 
@@ -462,7 +463,7 @@ export function useWorkshopSession({
     return () => {
       isMounted = false
     }
-  }, [workshopId, userId]) // 只依赖于基本参数
+  }, [workshopId, userId, onSessionLoaded]) // 添加回调依赖项
 
   // 清理：组件卸载时保存
   useEffect(() => {
