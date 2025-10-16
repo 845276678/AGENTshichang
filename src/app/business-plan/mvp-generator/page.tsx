@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useRef, useEffect } from 'react'
+import React, { useState, useRef, useEffect, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { Layout } from '@/components/layout'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -47,7 +47,7 @@ interface MVPVersion {
   changes: string[]
 }
 
-export default function MVPGeneratorPage() {
+function MVPGeneratorContent() {
   const searchParams = useSearchParams()
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
@@ -784,5 +784,22 @@ ${data.message}
         </div>
       </div>
     </Layout>
+  )
+}
+
+export default function MVPGeneratorPage() {
+  return (
+    <Suspense fallback={
+      <Layout>
+        <div className="h-screen flex items-center justify-center">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+            <p className="text-muted-foreground">页面加载中...</p>
+          </div>
+        </div>
+      </Layout>
+    }>
+      <MVPGeneratorContent />
+    </Suspense>
   )
 }

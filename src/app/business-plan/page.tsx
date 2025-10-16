@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { motion } from 'framer-motion'
 
@@ -11,7 +11,6 @@ import { Badge } from '@/components/ui/badge'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import {
   ArrowLeft,
-  ArrowRight,
   Download,
   Share2,
   AlertCircle,
@@ -26,7 +25,7 @@ import {
 } from 'lucide-react'
 
 import LandingCoachDisplay from '@/components/business-plan/LandingCoachDisplay'
-import { transformReportToGuide, generateGuideMarkdown, validateReportForGuide } from '@/lib/utils/transformReportToGuide'
+import { generateGuideMarkdown } from '@/lib/utils/transformReportToGuide'
 import type { LandingCoachGuide } from '@/lib/utils/transformReportToGuide'
 import { useAuth } from '@/hooks/useAuth'
 
@@ -36,7 +35,9 @@ interface LoadingState {
   stage: string
 }
 
-export default function BusinessPlanPage() {
+export const dynamic = 'force-dynamic'
+
+function BusinessPlanContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const { token, isInitialized } = useAuth()
@@ -49,7 +50,7 @@ export default function BusinessPlanPage() {
   const source = searchParams.get('source') // 来源：ai-bidding, marketplace, direct-generation 或其他
   const winningBid = searchParams.get('winningBid')
   const winner = searchParams.get('winner')
-  const guideCost = searchParams.get('guideCost') // 动态价格
+  // const guideCost = searchParams.get('guideCost') // 动态价格
   const useSimplifiedFormat = searchParams.get('useSimplifiedFormat') === 'true'
   const autoGenerate = searchParams.get('autoGenerate') === 'true'
 
@@ -780,6 +781,30 @@ export default function BusinessPlanPage() {
   }
 
   return null
+}
+
+export default function BusinessPlanPage() {
+  return (
+    <Suspense fallback={
+      <Layout>
+        <div className="min-h-screen flex items-center justify-center">
+          <Card className="w-96">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Loader2 className="w-5 h-5 animate-spin text-blue-600" />
+                加载中
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-sm text-muted-foreground">正在准备页面...</div>
+            </CardContent>
+          </Card>
+        </div>
+      </Layout>
+    }>
+      <BusinessPlanContent />
+    </Suspense>
+  )
 }
 
 

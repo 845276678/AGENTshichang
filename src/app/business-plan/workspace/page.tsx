@@ -1,11 +1,13 @@
 'use client'
 
-import React from 'react'
+import React, { Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { Layout } from '@/components/layout'
 import { BusinessPlanGenerationWorkspace } from '@/components/business-plan/BusinessPlanGenerationWorkspace'
 
-export default function WorkspacePage() {
+export const dynamic = 'force-dynamic'
+
+function WorkspaceContent() {
   const searchParams = useSearchParams()
 
   // 从URL参数获取创意数据
@@ -35,5 +37,13 @@ export default function WorkspacePage() {
         }}
       />
     </Layout>
+  )
+}
+
+export default function WorkspacePage() {
+  return (
+    <Suspense fallback={<Layout><div className="container py-12">加载中...</div></Layout>}>
+      <WorkspaceContent />
+    </Suspense>
   )
 }

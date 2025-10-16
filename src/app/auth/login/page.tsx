@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, Suspense } from 'react';
 import { motion } from 'framer-motion';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { AuthBackground } from '@/components/auth/AuthBackground';
@@ -10,7 +10,9 @@ import { useAuth } from '@/contexts/AuthContext';
 
 type AuthMode = 'login' | 'forgot-password';
 
-export default function LoginPage() {
+export const dynamic = 'force-dynamic'
+
+function LoginContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { login, isLoggingIn, error } = useAuth();
@@ -188,5 +190,13 @@ export default function LoginPage() {
         </motion.div>
       </div>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading...</div>}>
+      <LoginContent />
+    </Suspense>
   );
 }

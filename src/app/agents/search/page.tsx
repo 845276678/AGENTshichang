@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect, useMemo } from 'react'
+import React, { useState, useEffect, useMemo, Suspense } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
 import { Layout } from '@/components/layout'
@@ -28,7 +28,7 @@ import Link from 'next/link'
 
 const ITEMS_PER_PAGE = 12
 
-const SearchResultsPage = () => {
+const SearchResultsContent = () => {
   const searchParams = useSearchParams()
   const router = useRouter()
   const [searchTerm, setSearchTerm] = useState('')
@@ -658,4 +658,10 @@ const SearchResultsPage = () => {
   )
 }
 
-export default SearchResultsPage
+export default function SearchResultsPage() {
+  return (
+    <Suspense fallback={<Layout><div className="container py-12">Loading...</div></Layout>}>
+      <SearchResultsContent />
+    </Suspense>
+  )
+}

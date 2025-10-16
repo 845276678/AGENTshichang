@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { Layout } from '@/components/layout'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -40,7 +40,7 @@ interface CollaborationResult {
   implementationSuggestions: string[]
 }
 
-export default function CollaborationResultPage() {
+function CollaborationResultContent() {
   const searchParams = useSearchParams()
   const [showDocumentGeneration, setShowDocumentGeneration] = useState(false)
   const [collaborationResult, setCollaborationResult] = useState<CollaborationResult | null>(null)
@@ -353,5 +353,24 @@ export default function CollaborationResultPage() {
         )}
       </div>
     </Layout>
+  )
+}
+
+export default function CollaborationResultPage() {
+  return (
+    <Suspense fallback={
+      <Layout>
+        <div className="container mx-auto px-4 py-8">
+          <div className="flex items-center justify-center h-64">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+              <p className="text-muted-foreground">页面加载中...</p>
+            </div>
+          </div>
+        </div>
+      </Layout>
+    }>
+      <CollaborationResultContent />
+    </Suspense>
   )
 }

@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { Layout } from '@/components/layout'
 import { RealtimeRecommendationDisplay } from '@/components/business-plan/RealtimeRecommendationDisplay'
@@ -72,7 +72,7 @@ type PersonalizedRecommendations = {
   }
 }
 
-export default function IntelligentBusinessPlanPage() {
+function IntelligentBusinessPlanContent() {
   const searchParams = useSearchParams()
 
   // 从URL参数获取创意信息
@@ -472,5 +472,13 @@ export default function IntelligentBusinessPlanPage() {
         </div>
       </div>
     </Layout>
+  )
+}
+
+export default function IntelligentBusinessPlanPage() {
+  return (
+    <Suspense fallback={<Layout><div className="container py-12">加载中...</div></Layout>}>
+      <IntelligentBusinessPlanContent />
+    </Suspense>
   )
 }
