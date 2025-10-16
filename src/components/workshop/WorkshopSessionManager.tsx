@@ -33,7 +33,6 @@ import { useSoundEffects } from '@/hooks/useSoundEffects'
 // 导入相关组件和Hooks
 import WorkshopProgress from './WorkshopProgress'
 import DemandValidationForm from './forms/DemandValidationForm'
-import EnhancedDemandValidationForm from './EnhancedDemandValidationForm'
 import MVPBuilderForm from './forms/MVPBuilderForm'
 import EnhancedMVPBuilderForm from './EnhancedMVPBuilderForm'
 import AgentConversation from './AgentConversation'

@@ -9,60 +9,7 @@
  */
 
 import { type DemandValidationForm } from './form-schemas'
-
-// 简化的AI服务接口（内联版本）
-interface AIServiceInterface {
-  generateResponse(request: { prompt: string; systemPrompt?: string }): Promise<string>
-}
-
-const simpleAIService: AIServiceInterface = {
-  async generateResponse(request: { prompt: string; systemPrompt?: string }): Promise<string> {
-    // 简单的规则匹配生成回复
-    const prompt = request.prompt
-
-    if (prompt.includes('目标客户') || prompt.includes('客户群体')) {
-      return `基于你的描述，建议更具体地定义目标客户：
-
-1. 明确客户的基本特征（年龄、职业、收入水平）
-2. 分析客户的具体需求和痛点
-3. 确定客户的行为模式和偏好
-4. 评估客户的支付能力和意愿
-
-这样能帮助你更精准地验证需求假设。`
-    }
-
-    if (prompt.includes('问题') || prompt.includes('痛点')) {
-      return `关于问题描述，建议从以下角度完善：
-
-1. 问题的具体表现和影响程度
-2. 问题发生的频率和场景
-3. 现有解决方案的不足之处
-4. 问题给用户造成的具体损失
-
-这将帮助你更好地验证问题的真实性和严重性。`
-    }
-
-    if (prompt.includes('解决方案') || prompt.includes('价值')) {
-      return `关于解决方案价值，建议考虑：
-
-1. 解决方案的独特优势和差异化价值
-2. 与现有方案的对比分析
-3. 客户愿意支付的价格范围
-4. 解决方案的可操作性和实用性
-
-这有助于验证价值主张的有效性。`
-    }
-
-    return `感谢你的描述。为了更好地帮助你完善假设，建议考虑以下几个方面：
-
-1. 具体化描述：避免模糊的表达，用具体的例子说明
-2. 量化指标：尽可能用数字和数据支撑你的观点
-3. 验证方法：思考如何用最低成本验证这些假设
-4. 风险评估：考虑假设可能错误的情况和应对方案
-
-继续完善这些细节将大大提高需求验证的效果。`
-  }
-}
+import { workshopAIService } from '@/lib/ai/workshop-ai-service'
 
 // 需求验证假设类型
 export interface DemandValidationAssumption {
@@ -168,7 +115,7 @@ class DemandValidationClarificationService {
 `
 
     try {
-      const response = await simpleAIService.generateResponse({
+      const response = await workshopAIService.generateResponse({
         prompt,
         systemPrompt: `你是专业的需求验证顾问。专注于帮助创业者明确和验证他们的客户需求假设。你的回答应该具体、可执行，帮助用户制定清晰的验证计划。`,
         temperature: 0.7,
@@ -176,7 +123,7 @@ class DemandValidationClarificationService {
       })
 
       // 解析AI回复
-      const analysisMatch = response.match(/\{[\s\S]*\}/)
+      const analysisMatch = response.content.match(/\{[\s\S]*\}/)
       if (analysisMatch) {
         const analysis = JSON.parse(analysisMatch[0])
         return {
@@ -328,7 +275,7 @@ ${session.analysis.missing_info.join(', ')}
 }
 `
 
-      const response = await simpleAIService.generateResponse({
+      const response = await workshopAIService.generateResponse({
         prompt,
         systemPrompt: '你是需求验证专家，帮助创业者明确客户需求假设。回答要具体、实用，避免空泛的建议。',
         temperature: 0.8,
@@ -336,7 +283,7 @@ ${session.analysis.missing_info.join(', ')}
       })
 
       // 解析更新后的假设
-      const jsonMatch = response.match(/\{[\s\S]*\}/)
+      const jsonMatch = response.content.match(/\{[\s\S]*\}/)
       let updated_assumption = { ...session.refined_assumption }
 
       if (jsonMatch) {
@@ -352,7 +299,7 @@ ${session.analysis.missing_info.join(', ')}
       }
 
       // 提取回复内容（移除JSON部分）
-      const aiResponse = response.replace(/\{[\s\S]*\}/, '').trim()
+      const aiResponse = response.content.replace(/\{[\s\S]*\}/, '').trim()
 
       // 更新会话
       session.conversation.push({
