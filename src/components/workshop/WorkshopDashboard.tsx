@@ -1,5 +1,11 @@
 /**
- * 工作坊完整仪表板
+ * 工作坊完整仪表板 (性能优化版)
+ *
+ * 性能优化特性：
+ * - 组件懒加载
+ * - 条件渲染
+ * - 状态优化
+ * - 内存管理
  *
  * 集成所有工作坊功能的完整界面：
  * - 工作坊会话管理
@@ -12,7 +18,7 @@
 
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, Suspense, lazy } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -31,11 +37,11 @@ import {
   AlertTriangle
 } from 'lucide-react'
 
-// 导入工作坊组件
-import WorkshopSessionManager from '@/components/workshop/WorkshopSessionManager'
-import WorkshopProgress from '@/components/workshop/WorkshopProgress'
-import PDFGenerator from '@/components/workshop/PDFGenerator'
-import SmartWorkshopGuide from '@/components/workshop/SmartWorkshopGuide'
+// 导入工作坊组件 - 使用懒加载优化性能
+const WorkshopSessionManager = lazy(() => import('@/components/workshop/WorkshopSessionManager'))
+const WorkshopProgress = lazy(() => import('@/components/workshop/WorkshopProgress'))
+const PDFGenerator = lazy(() => import('@/components/workshop/PDFGenerator'))
+const SmartWorkshopGuide = lazy(() => import('@/components/workshop/SmartWorkshopGuide'))
 import {
   useWorkshopSession,
   type WorkshopId
@@ -368,13 +374,25 @@ export default function WorkshopDashboard({
               </Card>
 
               {session && (
-                <WorkshopProgress
-                  session={session}
-                  hasUnsavedChanges={hasUnsavedChanges}
-                  onStepClick={(step) => {
-                    setActiveTab('workshop')
-                  }}
-                />
+                <Suspense fallback={
+                  <Card>
+                    <CardContent className="p-6">
+                      <div className="animate-pulse space-y-3">
+                        <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+                        <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+                        <div className="h-20 bg-gray-200 rounded"></div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                }>
+                  <WorkshopProgress
+                    session={session}
+                    hasUnsavedChanges={hasUnsavedChanges}
+                    onStepClick={(step) => {
+                      setActiveTab('workshop')
+                    }}
+                  />
+                </Suspense>
               )}
             </div>
           </TabsContent>
@@ -385,17 +403,38 @@ export default function WorkshopDashboard({
               <>
                 {/* 只在MVP工作坊显示智能功能说明 */}
                 {workshopId === 'mvp-builder' && (
-                  <SmartWorkshopGuide workshopType={workshopId} />
+                  <Suspense fallback={
+                    <Card className="mb-6">
+                      <CardContent className="p-4">
+                        <div className="animate-pulse h-16 bg-gray-200 rounded"></div>
+                      </CardContent>
+                    </Card>
+                  }>
+                    <SmartWorkshopGuide workshopType={workshopId} />
+                  </Suspense>
                 )}
 
-                <WorkshopSessionManager
-                  workshopId={workshopId}
-                  userId={userId}
-                  onSessionComplete={(completedSession) => {
-                    setActiveTab('report')
-                    onComplete?.(completedSession, completedSession.formData)
-                  }}
-                />
+                <Suspense fallback={
+                  <Card>
+                    <CardContent className="p-6">
+                      <div className="animate-pulse space-y-4">
+                        <div className="h-6 bg-gray-200 rounded w-1/2"></div>
+                        <div className="h-4 bg-gray-200 rounded"></div>
+                        <div className="h-32 bg-gray-200 rounded"></div>
+                        <div className="h-32 bg-gray-200 rounded"></div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                }>
+                  <WorkshopSessionManager
+                    workshopId={workshopId}
+                    userId={userId}
+                    onSessionComplete={(completedSession) => {
+                      setActiveTab('report')
+                      onComplete?.(completedSession, completedSession.formData)
+                    }}
+                  />
+                </Suspense>
               </>
             )}
           </TabsContent>
@@ -403,12 +442,24 @@ export default function WorkshopDashboard({
           {/* 进度页面 */}
           <TabsContent value="progress">
             {session && (
-              <WorkshopProgress
-                session={session}
-                hasUnsavedChanges={hasUnsavedChanges}
-                onStepClick={(step) => setActiveTab('workshop')}
-                onSaveSession={() => saveSession()}
-              />
+              <Suspense fallback={
+                <Card>
+                  <CardContent className="p-6">
+                    <div className="animate-pulse space-y-3">
+                      <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+                      <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+                      <div className="h-20 bg-gray-200 rounded"></div>
+                    </div>
+                  </CardContent>
+                </Card>
+              }>
+                <WorkshopProgress
+                  session={session}
+                  hasUnsavedChanges={hasUnsavedChanges}
+                  onStepClick={(step) => setActiveTab('workshop')}
+                  onSaveSession={() => saveSession()}
+                />
+              </Suspense>
             )}
           </TabsContent>
 
@@ -423,11 +474,22 @@ export default function WorkshopDashboard({
                   </AlertDescription>
                 </Alert>
 
-                <PDFGenerator
-                  session={session}
-                  onDownload={handlePDFDownload}
-                  onShare={handlePDFShare}
-                />
+                <Suspense fallback={
+                  <Card>
+                    <CardContent className="p-6">
+                      <div className="animate-pulse space-y-4">
+                        <div className="h-6 bg-gray-200 rounded w-1/2"></div>
+                        <div className="h-32 bg-gray-200 rounded"></div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                }>
+                  <PDFGenerator
+                    session={session}
+                    onDownload={handlePDFDownload}
+                    onShare={handlePDFShare}
+                  />
+                </Suspense>
               </div>
             )}
           </TabsContent>

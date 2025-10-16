@@ -1,5 +1,11 @@
 /**
- * 工作坊动态页面
+ * 工作坊动态页面 (性能优化版)
+ *
+ * 性能优化特性：
+ * - 懒加载大型组件
+ * - 渐进式内容加载
+ * - Suspense边界
+ * - 代码分割
  *
  * 支持的工作坊类型：
  * - demand-validation: 需求验证实验室
@@ -10,16 +16,18 @@
 
 'use client'
 
-import React from 'react'
+import React, { Suspense, lazy } from 'react'
 
 import { notFound } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
-import WorkshopDashboard from '@/components/workshop/WorkshopDashboard'
 import { type WorkshopId } from '@/hooks/useWorkshopSession'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Loader2, LogIn } from 'lucide-react'
+import { Loader2, LogIn, Target, Play, Trophy, Calendar } from 'lucide-react'
 import Link from 'next/link'
+
+// 懒加载大型组件 - 实现代码分割
+const WorkshopDashboard = lazy(() => import('@/components/workshop/WorkshopDashboard'))
 
 // 工作坊配置
 const WORKSHOP_CONFIG: Record<WorkshopId, {
@@ -27,31 +35,79 @@ const WORKSHOP_CONFIG: Record<WorkshopId, {
   description: string
   estimatedTime: string
   difficulty: string
+  icon: React.ComponentType<any>
+  color: string
 }> = {
   'demand-validation': {
     title: '需求验证实验室',
     description: '通过科学的方法验证您的商业想法是否有市场需求，降低创业风险',
     estimatedTime: '45-60分钟',
-    difficulty: '初级'
+    difficulty: '初级',
+    icon: Target,
+    color: 'blue'
   },
   'mvp-builder': {
     title: 'MVP构建工作坊',
     description: '快速构建最小可行产品，验证核心价值假设，包含中国市场合规指导',
     estimatedTime: '80-100分钟',
-    difficulty: '中级'
+    difficulty: '中级',
+    icon: Play,
+    color: 'green'
   },
   'growth-hacking': {
     title: '增长黑客训练营',
     description: '掌握增长黑客的核心策略，快速扩大用户基础和业务规模',
     estimatedTime: '90-120分钟',
-    difficulty: '高级'
+    difficulty: '高级',
+    icon: Trophy,
+    color: 'purple'
   },
   'profit-model': {
     title: '商业模式设计',
     description: '构建可持续盈利的商业模式，实现从创意到收益的转化',
     estimatedTime: '120-150分钟',
-    difficulty: '高级'
+    difficulty: '高级',
+    icon: Calendar,
+    color: 'orange'
   }
+}
+
+// 工作坊加载骨架屏
+function WorkshopSkeleton({ config }: { config: typeof WORKSHOP_CONFIG[WorkshopId] }) {
+  const Icon = config.icon
+  return (
+    <div className="min-h-screen bg-gray-50">
+      <div className="container mx-auto px-4 py-8">
+        {/* 头部骨架 */}
+        <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
+          <div className="flex items-center gap-4">
+            <div className={`w-12 h-12 rounded-lg bg-${config.color}-100 flex items-center justify-center`}>
+              <Icon className={`w-6 h-6 text-${config.color}-600`} />
+            </div>
+            <div className="flex-1">
+              <h1 className="text-2xl font-bold">{config.title}</h1>
+              <p className="text-gray-600">{config.description}</p>
+            </div>
+            <div className="flex items-center gap-2">
+              <Loader2 className="w-5 h-5 animate-spin text-blue-600" />
+              <span className="text-sm text-gray-600">加载中...</span>
+            </div>
+          </div>
+        </div>
+
+        {/* 内容骨架 */}
+        <div className="space-y-4">
+          <div className="h-8 bg-gray-200 rounded animate-pulse"></div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {[1, 2, 3].map(i => (
+              <div key={i} className="h-32 bg-gray-200 rounded animate-pulse"></div>
+            ))}
+          </div>
+          <div className="h-64 bg-gray-200 rounded animate-pulse"></div>
+        </div>
+      </div>
+    </div>
+  )
 }
 
 interface WorkshopPageProps {
@@ -85,32 +141,26 @@ export default function WorkshopPage({ params }: WorkshopPageProps) {
     notFound()
   }
 
-  // 不再阻塞未登录用户，允许以匿名身份体验，避免身份验证卡住导致无内容
-
+  // 快速显示基础布局，避免空白页面
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="container mx-auto px-4 py-8">
-        {/* 未登录时以 anonymous 运行，支持体验与填表；登录后可持续保存 */}
-        {(!user && isLoading) ? (
-          <div className="text-center">
-            <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-blue-600" />
-            <p className="text-gray-600">正在加载...</p>
-          </div>
-        ) : (
-          <>
-            {!user && (
-              <Card className="mb-4">
-                <CardContent className="py-3 text-sm text-gray-600">
-                  当前以游客模式体验。<Link href="/auth/login" className="text-blue-600 underline">登录</Link> 后可云端保存进度。
-                </CardContent>
-              </Card>
-            )}
-            <WorkshopDashboard
-              workshopId={workshopId}
-              userId={user?.id || 'anonymous'}
-            />
-          </>
+        {/* 未登录时的提示 - 立即显示 */}
+        {!user && !isLoading && (
+          <Card className="mb-4">
+            <CardContent className="py-3 text-sm text-gray-600">
+              当前以游客模式体验。<Link href="/auth/login" className="text-blue-600 underline">登录</Link> 后可云端保存进度。
+            </CardContent>
+          </Card>
         )}
+
+        {/* 懒加载工作坊主要组件 */}
+        <Suspense fallback={<WorkshopSkeleton config={config} />}>
+          <WorkshopDashboard
+            workshopId={workshopId}
+            userId={user?.id || 'anonymous'}
+          />
+        </Suspense>
       </div>
     </div>
   )
