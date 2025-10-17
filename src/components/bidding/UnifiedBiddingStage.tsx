@@ -44,7 +44,8 @@ import {
   Loader2,
   Send,
   MessageSquarePlus,
-  AlertCircle
+  AlertCircle,
+  GitBranch
 } from 'lucide-react'
 
 // 简化组件替代motion - 避免生产环境错误
@@ -556,7 +557,39 @@ export default function UnifiedBiddingStage({
       sessionStorage.setItem('biddingIdeaId', ideaId)
       sessionStorage.setItem('biddingIdeaContent', ideaContent || '')
 
-      console.log('💾 Data saved to sessionStorage, navigating to generation page...')
+      console.log('💾 Data saved to sessionStorage, now creating idea growth tree...')
+
+      // 自动创建创意生长树记录
+      try {
+        const growthTreeResponse = await fetch('/api/idea-growth-tree/from-bidding', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(requestBody)
+        })
+
+        if (growthTreeResponse.ok) {
+          const growthTreeResult = await growthTreeResponse.json()
+          if (growthTreeResult.success) {
+            console.log('✅ 创意生长树创建成功:', {
+              treeId: growthTreeResult.treeId,
+              nodesCreated: growthTreeResult.nodesCreated,
+              totalNodes: growthTreeResult.totalNodes
+            })
+
+            // 保存生长树ID到sessionStorage，以便后续页面使用
+            sessionStorage.setItem('biddingGrowthTreeId', growthTreeResult.treeId)
+          } else {
+            console.warn('⚠️ 创意生长树创建失败:', growthTreeResult.error)
+          }
+        } else {
+          console.warn('⚠️ 创意生长树API调用失败:', growthTreeResponse.status)
+        }
+      } catch (error) {
+        console.warn('⚠️ 创意生长树创建出错:', error)
+        // 不阻塞主流程，继续进行商业计划生成
+      }
+
+      console.log('🚀 Navigating to business plan generation page...')
 
       // 使用路由跳转到进度页面(不带数据参数)
       window.location.href = `/business-plan/generating?ideaId=${encodeURIComponent(ideaId)}`
@@ -1001,6 +1034,23 @@ export default function UnifiedBiddingStage({
                         生成创意实现建议
                       </>
                     )}
+                  </Button>
+
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      // 检查是否有生长树ID，直接跳转查看
+                      const treeId = sessionStorage.getItem('biddingGrowthTreeId');
+                      if (treeId) {
+                        window.location.href = '/idea-growth-tree';
+                      } else {
+                        alert('创意生长树尚未生成，请稍候再试');
+                      }
+                    }}
+                    className="border-2 border-green-500 text-green-600 hover:bg-green-50 px-8 py-3 text-lg font-semibold rounded-full shadow-lg transform hover:scale-105 transition-all duration-200"
+                  >
+                    <GitBranch className="w-5 h-5 mr-2" />
+                    查看创意生长树
                   </Button>
 
                   <Button

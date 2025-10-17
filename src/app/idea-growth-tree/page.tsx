@@ -138,6 +138,12 @@ export default function IdeaGrowthTreePage() {
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   const [loading, setLoading] = useState(true);
   const [showNewNodeDialog, setShowNewNodeDialog] = useState(false);
+  const [showBiddingNotification, setShowBiddingNotification] = useState(false);
+  const [biddingInfo, setBiddingInfo] = useState<{
+    treeId: string;
+    ideaContent: string;
+    ideaId: string;
+  } | null>(null);
   const [newNodeData, setNewNodeData] = useState({
     content: '',
     reason: '',
@@ -147,6 +153,34 @@ export default function IdeaGrowthTreePage() {
   });
 
   useEffect(() => {
+    // 检查是否从竞价完成页面跳转而来
+    const checkBiddingRedirect = () => {
+      const biddingTreeId = sessionStorage.getItem('biddingGrowthTreeId');
+      const biddingIdeaId = sessionStorage.getItem('biddingIdeaId');
+      const biddingIdeaContent = sessionStorage.getItem('biddingIdeaContent');
+
+      if (biddingTreeId && biddingIdeaId && biddingIdeaContent) {
+        console.log('🌱 检测到来自竞价的自动生成数据:', {
+          treeId: biddingTreeId,
+          ideaId: biddingIdeaId,
+          ideaContent: biddingIdeaContent.substring(0, 50) + '...'
+        });
+
+        setBiddingInfo({
+          treeId: biddingTreeId,
+          ideaId: biddingIdeaId,
+          ideaContent: biddingIdeaContent
+        });
+        setShowBiddingNotification(true);
+
+        // 清理sessionStorage以避免重复显示
+        sessionStorage.removeItem('biddingGrowthTreeId');
+        sessionStorage.removeItem('biddingIdeaId');
+        sessionStorage.removeItem('biddingIdeaContent');
+      }
+    };
+
+    checkBiddingRedirect();
     fetchUserTrees();
   }, []);
 
@@ -163,7 +197,17 @@ export default function IdeaGrowthTreePage() {
       if (response.ok) {
         const data = await response.json();
         setTrees(data.trees);
-        if (data.trees.length > 0) {
+
+        // 如果有来自竞价的树ID，优先选中该树
+        if (biddingInfo?.treeId) {
+          const biddingTree = data.trees.find((tree: IdeaGrowthTree) => tree.id === biddingInfo.treeId);
+          if (biddingTree) {
+            setSelectedTree(biddingTree);
+            console.log('✅ 自动选中来自竞价的生长树:', biddingTree.title);
+          } else if (data.trees.length > 0) {
+            setSelectedTree(data.trees[0]);
+          }
+        } else if (data.trees.length > 0) {
           setSelectedTree(data.trees[0]);
         }
       }
@@ -334,6 +378,70 @@ export default function IdeaGrowthTreePage() {
 
   return (
     <div className="container mx-auto px-4 py-8">
+      {/* 竞价自动生成通知 */}
+      {showBiddingNotification && biddingInfo && (
+        <Card className="mb-6 border-2 border-blue-200 bg-gradient-to-r from-blue-50 to-green-50">
+          <CardContent className="pt-6">
+            <div className="flex items-start justify-between">
+              <div className="flex items-start gap-4">
+                <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
+                  <GitBranch className="w-6 h-6 text-blue-600" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                    🎉 创意生长树已自动生成！
+                  </h3>
+                  <p className="text-gray-700 mb-3">
+                    基于您的创意竞价结果，系统已自动为您创建了完整的创意演化记录。包含：
+                  </p>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                    <div className="bg-white p-3 rounded-lg border">
+                      <div className="flex items-center gap-2 mb-1">
+                        <Target className="w-4 h-4 text-blue-600" />
+                        <span className="text-sm font-medium">原始创意</span>
+                      </div>
+                      <p className="text-xs text-gray-600">
+                        {biddingInfo.ideaContent.substring(0, 60)}...
+                      </p>
+                    </div>
+                    <div className="bg-white p-3 rounded-lg border">
+                      <div className="flex items-center gap-2 mb-1">
+                        <TrendingUp className="w-4 h-4 text-green-600" />
+                        <span className="text-sm font-medium">专家分析</span>
+                      </div>
+                      <p className="text-xs text-gray-600">
+                        AI专家团队的讨论内容和出价分析
+                      </p>
+                    </div>
+                    <div className="bg-white p-3 rounded-lg border">
+                      <div className="flex items-center gap-2 mb-1">
+                        <Lightbulb className="w-4 h-4 text-yellow-600" />
+                        <span className="text-sm font-medium">演化记录</span>
+                      </div>
+                      <p className="text-xs text-gray-600">
+                        用户补充和专家反馈的完整时间轴
+                      </p>
+                    </div>
+                  </div>
+                  <p className="text-sm text-gray-600">
+                    您可以在此基础上继续手动添加创意节点，记录后续的演化过程。
+                  </p>
+                </div>
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowBiddingNotification(false)}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <span className="sr-only">关闭</span>
+                ✕
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       <div className="flex justify-between items-center mb-8">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">创意生长树</h1>
