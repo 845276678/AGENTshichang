@@ -526,8 +526,12 @@ export const AgentDialogPanel: React.FC<AgentDialogPanelProps> = ({
         )}
       </div>
 
-      {/* 6. 对话交互区域（新增） */}
+      {/* 6. 对话交互区域（新增） - 在AGENT_DISCUSSION和AGENT_BIDDING阶段也显示 */}
       {onSendReply && (
+        currentPhase === BiddingPhase.AGENT_DISCUSSION ||
+        currentPhase === BiddingPhase.AGENT_BIDDING ||
+        currentPhase === BiddingPhase.USER_SUPPLEMENT
+      ) && (
         <div className="conversation-section mt-4 border-t border-gray-200 pt-4">
           {/* 对话历史展开/折叠按钮 */}
           {conversationMessages.length > 0 && (
@@ -551,7 +555,7 @@ export const AgentDialogPanel: React.FC<AgentDialogPanelProps> = ({
 
               {/* 对话历史内容 */}
               {showConversationHistory && (
-                <div className="mt-2 max-h-48 overflow-y-auto space-y-2 bg-gray-50 rounded-lg p-3">
+                <div className="mt-2 max-h-80 overflow-y-auto space-y-2 bg-gray-50 rounded-lg p-3">
                   {conversationMessages.map((msg, idx) => (
                     <div
                       key={idx}
@@ -561,11 +565,16 @@ export const AgentDialogPanel: React.FC<AgentDialogPanelProps> = ({
                     >
                       {/* 消息气泡 */}
                       <div
-                        className={`max-w-[85%] rounded-lg px-3 py-2 text-xs ${
+                        className={`max-w-[95%] rounded-lg px-3 py-2 text-sm leading-relaxed ${
                           msg.role === 'user'
                             ? 'bg-blue-500 text-white'
                             : 'bg-white border border-gray-200 text-gray-800'
                         }`}
+                        style={{
+                          wordWrap: 'break-word',
+                          overflowWrap: 'break-word',
+                          whiteSpace: 'pre-wrap'
+                        }}
                       >
                         {msg.content}
                       </div>
@@ -611,7 +620,7 @@ export const AgentDialogPanel: React.FC<AgentDialogPanelProps> = ({
               value={userReply}
               onChange={(e) => setUserReply(e.target.value)}
               disabled={isReplying || remainingReplies === 0}
-              className="min-h-[80px] text-sm resize-none"
+              className="min-h-[100px] text-sm resize-none"
             />
 
             <div className="flex items-center justify-between">

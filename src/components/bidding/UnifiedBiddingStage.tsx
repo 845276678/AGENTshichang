@@ -45,7 +45,8 @@ import {
   Send,
   MessageSquarePlus,
   AlertCircle,
-  GitBranch
+  GitBranch,
+  Download
 } from 'lucide-react'
 
 // 简化组件替代motion - 避免生产环境错误
@@ -231,6 +232,21 @@ export default function UnifiedBiddingStage({
     return scores
   }, [currentBids])
 
+  // Agent对话管理 - 根据阶段调整最大对话次数
+  const maxRepliesPerAgent = useMemo(() => {
+    // 根据当前阶段设置不同的对话次数限制
+    switch (currentPhase) {
+      case BiddingPhase.AGENT_DISCUSSION:
+        return 1 // 讨论阶段只允许1次探索性对话
+      case BiddingPhase.AGENT_BIDDING:
+        return 2 // 竞价阶段允许2次对话
+      case BiddingPhase.USER_SUPPLEMENT:
+        return 3 // 补充阶段允许3次完整对话
+      default:
+        return 0 // 其他阶段不允许对话
+    }
+  }, [currentPhase])
+
   const {
     conversations,
     sendReply,
@@ -242,7 +258,7 @@ export default function UnifiedBiddingStage({
     biddingId: ideaId,
     originalIdea: ideaContent || '',
     initialScores,
-    maxRepliesPerAgent: 3
+    maxRepliesPerAgent
   })
 
   // UI状态
@@ -250,6 +266,7 @@ export default function UnifiedBiddingStage({
   const [showSettings, setShowSettings] = useState(false)
   const [compactMode, setCompactMode] = useState(false)
   const [isCreatingPlan, setIsCreatingPlan] = useState(false)
+  const [isExportingDialog, setIsExportingDialog] = useState(false)
 
   // 创意成熟度评估状态
   const [maturityAssessment, setMaturityAssessment] = useState<MaturityScoreResult | null>(null)
@@ -625,6 +642,105 @@ export default function UnifiedBiddingStage({
 
     console.log('🎯 Detailed bidding report:', reportData)
     alert('详细报告功能开发中，数据已输出到控制台')
+  }
+
+  // 处理导出对话文档
+  const handleExportDialog = async (format: 'pdf' | 'txt' = 'pdf') => {
+    if (isExportingDialog) return
+
+    setIsExportingDialog(true)
+    try {
+      console.log('📄 开始导出对话文档...')
+
+      // 收集所有对话数据
+      const exportData = {
+        ideaId,
+        ideaContent: ideaContent || '',
+        sessionInfo: {
+          sessionId: sessionId || '',
+          currentPhase,
+          startTime: new Date().toISOString(),
+          duration: Math.round((Date.now() - (new Date().getTime())) / 1000),
+          totalMessages: aiMessages.length,
+          supportedAgents: Array.from(supportedAgents),
+          supplementCount: supplementHistory.length
+        },
+        biddingResults: {
+          winningBid: highestBid,
+          averageBid: Object.values(normalizedBids).length > 0
+            ? Object.values(normalizedBids).reduce((a, b) => a + b, 0) / Object.values(normalizedBids).length
+            : 0,
+          totalBids: Object.keys(normalizedBids).length,
+          bids: normalizedBids,
+          participants: participantsData
+        },
+        expertMessages: expertDiscussionsPayload,
+        userSupplements: supplementHistory,
+        agentConversations: Object.fromEntries(
+          Object.entries(conversations).map(([agentId, conversation]) => [
+            agentId,
+            {
+              agentName: AI_PERSONAS.find(p => p.id === agentId)?.name || agentId,
+              messages: conversation.messages,
+              finalScore: conversation.currentScore,
+              conversationCount: conversation.conversationCount
+            }
+          ])
+        )
+      }
+
+      // 调用导出API
+      const response = await fetch('/api/bidding/export-dialog', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          ...exportData,
+          format
+        })
+      })
+
+      if (!response.ok) {
+        throw new Error(`导出失败: ${response.status}`)
+      }
+
+      if (format === 'pdf') {
+        // PDF格式：直接下载
+        const blob = await response.blob()
+        const url = window.URL.createObjectURL(blob)
+        const a = document.createElement('a')
+        a.href = url
+        a.download = `AI竞价对话记录_${ideaId}_${new Date().toISOString().split('T')[0]}.pdf`
+        document.body.appendChild(a)
+        a.click()
+        window.URL.revokeObjectURL(url)
+        document.body.removeChild(a)
+      } else {
+        // 文本格式：获取内容并下载
+        const result = await response.json()
+        if (result.success && result.content) {
+          const blob = new Blob([result.content], { type: 'text/plain;charset=utf-8' })
+          const url = window.URL.createObjectURL(blob)
+          const a = document.createElement('a')
+          a.href = url
+          a.download = `AI竞价对话记录_${ideaId}_${new Date().toISOString().split('T')[0]}.txt`
+          document.body.appendChild(a)
+          a.click()
+          window.URL.revokeObjectURL(url)
+          document.body.removeChild(a)
+        } else {
+          throw new Error(result.error || '导出失败')
+        }
+      }
+
+      console.log('✅ 对话文档导出成功')
+    } catch (error) {
+      console.error('❌ 导出对话文档失败:', error)
+      alert(`导出失败: ${error instanceof Error ? error.message : '未知错误'}`)
+    } finally {
+      setIsExportingDialog(false)
+    }
   }
   const calculatePhaseProgress = (): number => {
     const phaseDurations: Record<string, number> = {
@@ -1060,6 +1176,47 @@ export default function UnifiedBiddingStage({
                   >
                     <TrendingUp className="w-5 h-5 mr-2" />
                     查看详细报告
+                  </Button>
+                </div>
+
+                {/* 导出对话文档按钮 */}
+                <div className="flex flex-col sm:flex-row gap-4 justify-center mt-4">
+                  <Button
+                    variant="outline"
+                    onClick={() => handleExportDialog('pdf')}
+                    disabled={isExportingDialog}
+                    className="border-2 border-orange-500 text-orange-600 hover:bg-orange-50 px-6 py-2 font-medium rounded-full shadow-md transform hover:scale-105 transition-all duration-200"
+                  >
+                    {isExportingDialog ? (
+                      <>
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        导出中...
+                      </>
+                    ) : (
+                      <>
+                        <Download className="w-4 h-4 mr-2" />
+                        导出对话文档(PDF)
+                      </>
+                    )}
+                  </Button>
+
+                  <Button
+                    variant="outline"
+                    onClick={() => handleExportDialog('txt')}
+                    disabled={isExportingDialog}
+                    className="border-2 border-gray-500 text-gray-600 hover:bg-gray-50 px-6 py-2 font-medium rounded-full shadow-md transform hover:scale-105 transition-all duration-200"
+                  >
+                    {isExportingDialog ? (
+                      <>
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        导出中...
+                      </>
+                    ) : (
+                      <>
+                        <Download className="w-4 h-4 mr-2" />
+                        导出对话文档(TXT)
+                      </>
+                    )}
                   </Button>
                 </div>
 

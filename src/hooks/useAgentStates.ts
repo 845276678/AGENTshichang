@@ -37,16 +37,16 @@ export const PHASE_PERMISSIONS: Record<BiddingPhase, PhasePermissions> = {
     canUserWatch: true,
     showAgentDialog: true,
     showBiddingStatus: true,
-    userSupplementAllowed: false,
-    maxSupplementCount: 0
+    userSupplementAllowed: true,  // 允许与Agent对话
+    maxSupplementCount: 1        // 限制为1次探索性对话
   },
   [BiddingPhase.AGENT_BIDDING]: {
     canUserInput: false,
     canUserWatch: true,
     showAgentDialog: true,
     showBiddingStatus: true,
-    userSupplementAllowed: false,
-    maxSupplementCount: 0
+    userSupplementAllowed: true,  // 允许与Agent对话
+    maxSupplementCount: 2        // 允许2次对话
   },
   [BiddingPhase.USER_SUPPLEMENT]: {
     canUserInput: true,
@@ -185,9 +185,11 @@ export function useAgentStates(config: UseAgentStatesConfig): UseAgentStatesRetu
     setCurrentPermissions(newPermissions)
     onPermissionUpdate?.(newPermissions)
 
-    // 阶段切换时重置一些状态
-    if (currentPhase === BiddingPhase.USER_SUPPLEMENT) {
-      setSupplementCount(0) // 重置补充计数
+    // 阶段切换时重置补充计数（每个阶段独立计算）
+    if (currentPhase === BiddingPhase.AGENT_DISCUSSION ||
+        currentPhase === BiddingPhase.AGENT_BIDDING ||
+        currentPhase === BiddingPhase.USER_SUPPLEMENT) {
+      setSupplementCount(0) // 重置补充计数，每个阶段重新开始
     } else if (currentPhase === BiddingPhase.IDEA_INPUT) {
       // 重置所有Agent为idle状态
       setAgentStates(prevStates => {
@@ -204,6 +206,7 @@ export function useAgentStates(config: UseAgentStatesConfig): UseAgentStatesRetu
         return newStates
       })
       setSupportedAgents(new Set())
+      setSupplementCount(0)
     }
   }, [currentPhase, onPermissionUpdate])
 
