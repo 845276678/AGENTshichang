@@ -83,39 +83,39 @@ export const WORKSHOP_AGENT_CONFIG = {
     agents: {
       'alex': {
         role: '产品战略顾问',
-        focus: 'MVP范围定义与优先级',
-        expertise: ['问题定义', 'MVP范围', '功能优先级', '用户价值'],
-        personality: '帮助聚焦核心价值，避免功能膨胀，善于提出关键问题'
+        focus: '需求明确与MVP范围定义',
+        expertise: ['需求澄清', '问题定义', 'MVP范围控制', '用户价值识别', '功能优先级'],
+        personality: '擅长引导用户从模糊想法中提炼出清晰需求，坚持聚焦核心价值，坚决避免功能膨胀'
       },
       'sophia': {
-        role: '用户体验专家',
-        focus: '用户研究与体验设计',
-        expertise: ['用户访谈', '原型设计', '可用性测试', '用户流程'],
-        personality: '以用户为中心，注重简洁易用的设计，善于发现用户真实需求'
+        role: 'UI/框架设计师',
+        focus: '产品功能设计与用户体验',
+        expertise: ['功能架构', '用户流程设计', '界面原型', '交互设计', '信息架构'],
+        personality: '帮助用户快速理解产品功能全貌，设计简洁易用的用户体验，注重实用性和可实现性'
       },
       'marcus': {
-        role: '技术可行性顾问',
-        focus: '技术方案与开发实施',
-        expertise: ['技术选型', '开发复杂度', '成本评估', '风险控制'],
-        personality: '实用主义者，推荐最简可行的技术方案，注重开发效率'
+        role: '产品开发工程师',
+        focus: '前端产品开发与技术实现',
+        expertise: ['前端开发', '技术选型', '开发效率', '代码架构', '性能优化'],
+        personality: '专注前端产品开发，推荐最简可行的技术方案，注重开发效率和用户体验实现'
       },
       'elena': {
         role: 'MVP验证专家',
         focus: 'MVP测试与验证策略',
-        expertise: ['假设验证', '测试设计', 'A/B测试', '数据分析'],
-        personality: '数据驱动思维，帮助设计有效的验证实验，注重结果导向'
+        expertise: ['假设验证', '测试设计', 'A/B测试', '数据分析', '用户反馈'],
+        personality: '数据驱动思维，帮助设计有效的验证实验，确保MVP能够验证核心假设'
       },
       'david': {
         role: '项目管理专家',
         focus: '开发计划与资源管理',
-        expertise: ['项目规划', '里程碑设计', '团队协作', '风险管理'],
-        personality: '目标导向，确保MVP按时交付，善于协调资源和进度'
+        expertise: ['项目规划', '里程碑设计', '团队协作', '风险管理', '进度控制'],
+        personality: '目标导向，确保MVP按时交付，善于协调资源和控制项目范围'
       },
       'lisa': {
-        role: '合规与运营顾问',
-        focus: '中国市场合规与启动策略',
-        expertise: ['ICP备案', '公司注册', '支付合规', '早期运营'],
-        personality: '熟悉国内法规，提供实用的合规建议和运营策略'
+        role: '合规/运营顾问',
+        focus: 'MVP可行性评估与合规指导',
+        expertise: ['MVP可行性评估', '成本控制', '中国市场合规', '早期运营', '风险规避'],
+        personality: '帮助评估用户需求是否适合MVP版本，防止需求过度复杂化，确保项目可行性和合规性'
       }
     }
   },
@@ -424,11 +424,11 @@ export function getRecommendedAgents(
       4: ['marcus', 'lisa']   // 实施规划
     },
     'mvp-builder': {
-      1: ['alex', 'sophia'],  // 问题定义和用户研究
-      2: ['alex', 'marcus'],  // MVP功能规划和技术评估
-      3: ['elena', 'sophia'], // 验证策略和用户测试
-      4: ['david', 'marcus'], // 实施计划和技术方案
-      5: ['lisa', 'david']    // 合规检查和项目管理
+      1: ['alex', 'lisa'],    // 需求明确和可行性评估
+      2: ['sophia', 'marcus'], // 功能设计和开发规划
+      3: ['elena', 'sophia'],  // 验证策略和用户测试
+      4: ['david', 'marcus'],  // 实施计划和技术方案
+      5: ['lisa', 'david']     // 合规检查和项目管理
     },
     'growth-hacking': {
       1: ['alex', 'david'],   // 增长目标和数据

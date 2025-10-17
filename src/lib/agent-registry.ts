@@ -117,15 +117,15 @@ export const WORKSHOP_AGENTS: WorkshopAgent[] = [
   {
     id: 'alex',
     module: 'workshop',
-    name: '战略顾问',
+    name: '产品战略顾问',
     avatar: '👨‍💼',
-    role: '战略顾问',
-    description: '产品战略与商业模式专家，帮助您制定清晰的产品策略和商业方向。',
-    tags: ['产品战略', '商业战略', '市场定位', '战略规划'],
+    role: '产品战略顾问',
+    description: '专注于需求明确与MVP范围定义，帮助用户从模糊想法中提炼清晰需求。',
+    tags: ['需求澄清', '产品战略', 'MVP范围', '功能优先级'],
     workshops: ['需求验证', 'MVP构建', '增长黑客', '商业模式'],
     expertise: {
       'demand-validation': '产品战略 · 目标客户分析',
-      'mvp-builder': '产品经理 · 功能优先级',
+      'mvp-builder': '需求明确 · MVP范围定义',
       'growth-hacking': '增长战略 · 目标设定',
       'profit-model': '商业战略 · 模式创新'
     }
@@ -133,30 +133,30 @@ export const WORKSHOP_AGENTS: WorkshopAgent[] = [
   {
     id: 'sophia',
     module: 'workshop',
-    name: '用户研究专家',
-    avatar: '👩‍🎓',
-    role: '用户专家',
-    description: '用户研究与体验设计专家，深度理解用户需求和行为模式。',
-    tags: ['用户研究', '用户体验', '需求验证', '行为分析'],
+    name: 'UI/框架设计师',
+    avatar: '👩‍🎨',
+    role: 'UI/框架设计师',
+    description: 'UI/框架设计专家，帮助用户快速理解产品功能并设计简洁易用的用户体验。',
+    tags: ['功能架构', '用户体验', '界面设计', '信息架构'],
     workshops: ['需求验证', 'MVP构建', '增长黑客'],
     expertise: {
       'demand-validation': '用户研究 · 需求验证',
-      'mvp-builder': '用户体验 · 界面设计',
+      'mvp-builder': '功能设计 · 用户体验',
       'growth-hacking': '用户行为 · 转化优化'
     }
   },
   {
     id: 'marcus',
     module: 'workshop',
-    name: '技术架构专家',
+    name: '产品开发工程师',
     avatar: '👨‍💻',
-    role: '技术专家',
-    description: '技术架构与实现专家，确保技术方案的可行性和最佳实践。',
-    tags: ['技术架构', '技术实现', '性能优化', '质量保障'],
+    role: '产品开发工程师',
+    description: '前端产品开发专家，专注技术实现与开发效率，推荐最简可行的技术方案。',
+    tags: ['前端开发', '技术选型', '开发效率', '代码架构'],
     workshops: ['需求验证', 'MVP构建', '增长黑客', '商业模式'],
     expertise: {
       'demand-validation': '技术实现 · 可行性评估',
-      'mvp-builder': '技术架构 · 开发实现',
+      'mvp-builder': '前端开发 · 技术实现',
       'growth-hacking': '产品增长 · A/B测试',
       'profit-model': '运营效率 · 流程优化'
     }
@@ -196,15 +196,15 @@ export const WORKSHOP_AGENTS: WorkshopAgent[] = [
   {
     id: 'lisa',
     module: 'workshop',
-    name: '运营增长专家',
-    avatar: '👩‍💼',
-    role: '运营专家',
-    description: '产品运营与市场拓展专家，助力产品成功落地和增长。',
-    tags: ['产品运营', '市场拓展', '用户增长', '社区运营'],
+    name: '合规/运营顾问',
+    avatar: '👩‍⚖️',
+    role: '合规/运营顾问',
+    description: 'MVP可行性评估与合规指导专家，帮助控制项目范围并确保合规性。',
+    tags: ['MVP可行性', '成本控制', '合规指导', '风险评估'],
     workshops: ['需求验证', 'MVP构建', '增长黑客', '商业模式'],
     expertise: {
       'demand-validation': '营销推广 · 品牌建设',
-      'mvp-builder': '产品运营 · 数据分析',
+      'mvp-builder': 'MVP可行性 · 合规指导',
       'growth-hacking': '运营增长 · 社区建设',
       'profit-model': '市场拓展 · 规模化'
     }
