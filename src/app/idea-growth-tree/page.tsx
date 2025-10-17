@@ -9,6 +9,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Layout } from '@/components/layout';
 import {
   GitBranch,
   Plus,
@@ -153,6 +154,9 @@ export default function IdeaGrowthTreePage() {
   });
 
   useEffect(() => {
+    // 设置页面标题
+    document.title = '创意生长树 - AI智能体市场'
+
     // 检查是否从竞价完成页面跳转而来
     const checkBiddingRedirect = () => {
       const biddingTreeId = sessionStorage.getItem('biddingGrowthTreeId');
@@ -367,17 +371,20 @@ export default function IdeaGrowthTreePage() {
 
   if (loading) {
     return (
-      <div className="container mx-auto px-4 py-8">
-        <div className="animate-pulse">
-          <div className="h-8 bg-gray-200 rounded w-1/3 mb-6"></div>
-          <div className="h-96 bg-gray-200 rounded"></div>
+      <Layout>
+        <div className="container mx-auto px-4 py-8">
+          <div className="animate-pulse">
+            <div className="h-8 bg-gray-200 rounded w-1/3 mb-6"></div>
+            <div className="h-96 bg-gray-200 rounded"></div>
+          </div>
         </div>
-      </div>
+      </Layout>
     );
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <Layout>
+      <div className="container mx-auto px-4 py-8">
       {/* 竞价自动生成通知 */}
       {showBiddingNotification && biddingInfo && (
         <Card className="mb-6 border-2 border-blue-200 bg-gradient-to-r from-blue-50 to-green-50">
@@ -679,5 +686,6 @@ export default function IdeaGrowthTreePage() {
         </div>
       )}
     </div>
+    </Layout>
   );
 }
