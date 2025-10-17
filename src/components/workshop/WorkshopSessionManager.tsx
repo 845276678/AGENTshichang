@@ -37,7 +37,6 @@ import MVPBuilderForm from './forms/MVPBuilderForm'
 import EnhancedMVPBuilderForm from './EnhancedMVPBuilderForm'
 import AgentConversation from './AgentConversation'
 import {
-  useWorkshopSession,
   type WorkshopId,
   type WorkshopSession
 } from '@/hooks/useWorkshopSession'
@@ -57,9 +56,21 @@ import {
 export interface WorkshopSessionManagerProps {
   workshopId: WorkshopId
   userId?: string
+  session: WorkshopSession | null  // 从父组件传入
+  isLoading?: boolean
+  isSaving?: boolean
+  hasUnsavedChanges?: boolean
+  lastSaveAt?: Date | null
   initialStep?: number
   onSessionComplete?: (session: WorkshopSession, formData: any) => void
   onSessionAbandoned?: (session: WorkshopSession) => void
+  onSaveSession?: () => Promise<boolean>
+  onUpdateFormData?: (newData: any) => void
+  onUpdateCurrentStep?: (step: number) => void
+  onCompleteStep?: (step: number) => void
+  onAddConversationMessage?: (message: any) => void
+  onCompleteWorkshop?: () => Promise<boolean>
+  onRefreshSession?: () => Promise<void>
   className?: string
 }
 
@@ -131,49 +142,25 @@ function renderWorkshopForm(
 export default function WorkshopSessionManager({
   workshopId,
   userId = 'anonymous',
+  session,
+  isLoading: isSessionLoading = false,
+  isSaving = false,
+  hasUnsavedChanges = false,
+  lastSaveAt = null,
   initialStep = 1,
   onSessionComplete,
   onSessionAbandoned,
+  onSaveSession,
+  onUpdateFormData,
+  onUpdateCurrentStep,
+  onCompleteStep,
+  onAddConversationMessage,
+  onCompleteWorkshop,
+  onRefreshSession,
   className = ''
 }: WorkshopSessionManagerProps) {
   // 音效系统
   const { playSound } = useSoundEffects(true, 0.6)
-
-  // 会话管理Hook
-  const {
-    session,
-    isLoading: isSessionLoading,
-    isSaving,
-    error: sessionError,
-    hasUnsavedChanges,
-    lastSaveAt,
-    saveSession,
-    updateFormData,
-    updateCurrentStep,
-    completeStep,
-    addConversationMessage,
-    completeWorkshop,
-    refreshSession
-  } = useWorkshopSession({
-    workshopId,
-    userId,
-    autoSave: true,
-    saveInterval: 8000, // 8秒自动保存
-    onSessionLoaded: (loadedSession) => {
-      console.log(`🎯 工作坊会话已加载:`, loadedSession.id)
-      setActiveTab('form') // 默认显示表单
-    },
-    onProgressChange: (progress) => {
-      console.log(`📈 进度更新: ${progress}%`)
-    },
-    onStepComplete: (step) => {
-      console.log(`✅ 步骤 ${step} 完成`)
-    },
-    onSessionComplete: (completedSession) => {
-      console.log(`🎉 工作坊完成:`, completedSession.id)
-      onSessionComplete?.(completedSession, completedSession.formData)
-    }
-  })
 
   // Agent对话Hook
   const {
@@ -188,11 +175,10 @@ export default function WorkshopSessionManager({
     workshopId,
     sessionId: session?.id || '',
     currentStep: session?.currentStep || 1,
-    totalSteps: workshopId === 'mvp-builder' ? 5 : 4, // MVP工作坊有5步
+    totalSteps: workshopId === 'mvp-builder' ? 5 : 4,
     formData: session?.formData || {},
     onMessageReceived: (message) => {
-      // 将Agent消息保存到会话历史
-      addConversationMessage(message)
+      onAddConversationMessage?.(message)
     }
   })
 
@@ -211,20 +197,20 @@ export default function WorkshopSessionManager({
 
   // 处理表单步骤变化
   const handleStepChange = useCallback((step: number) => {
-    updateCurrentStep(step)
+    onUpdateCurrentStep?.(step)
     console.log(`📍 切换到步骤: ${step}`)
-  }, [updateCurrentStep])
+  }, [onUpdateCurrentStep])
 
   // 处理表单数据变化
   const handleFormDataChange = useCallback((newData: any) => {
-    updateFormData(newData)
+    onUpdateFormData?.(newData)
 
     // 检查步骤完成情况
     const progress = calculateFormProgress(workshopId, newData)
-    if (progress >= 25 * session?.currentStep!) {
-      completeStep(session?.currentStep || 1)
+    if (progress >= 25 * (session?.currentStep || 1)) {
+      onCompleteStep?.(session?.currentStep || 1)
     }
-  }, [updateFormData, workshopId, session?.currentStep, completeStep])
+  }, [onUpdateFormData, workshopId, session?.currentStep, onCompleteStep])
 
   // 处理表单完成
   const handleFormComplete = useCallback(async (formData: any) => {
@@ -234,7 +220,7 @@ export default function WorkshopSessionManager({
       // 播放工作坊完成音效
       await playSound('workshop-unlock')
 
-      const success = await completeWorkshop()
+      const success = await onCompleteWorkshop?.()
       if (success) {
         setShowSaveConfirm(true)
         setTimeout(() => setShowSaveConfirm(false), 3000)
@@ -242,7 +228,7 @@ export default function WorkshopSessionManager({
     } catch (error) {
       console.error('❌ 完成工作坊失败:', error)
     }
-  }, [completeWorkshop, playSound])
+  }, [onCompleteWorkshop, playSound])
 
   // 处理Agent交互
   const handleAgentInteraction = useCallback(async (
@@ -265,29 +251,29 @@ export default function WorkshopSessionManager({
 
   // 手动保存
   const handleManualSave = useCallback(async () => {
-    const success = await saveSession()
+    const success = await onSaveSession?.()
     if (success) {
       // 播放保存音效
       await playSound('form-save')
       setShowSaveConfirm(true)
       setTimeout(() => setShowSaveConfirm(false), 2000)
     }
-  }, [saveSession, playSound])
+  }, [onSaveSession, playSound])
 
   // 重置工作坊
   const handleResetWorkshop = useCallback(async () => {
     if (window.confirm('确定要重置工作坊进度吗？所有数据将被清除！')) {
-      await refreshSession()
+      await onRefreshSession?.()
     }
-  }, [refreshSession])
+  }, [onRefreshSession])
 
   // 暂停工作坊
   const handlePauseWorkshop = useCallback(async () => {
     if (session) {
-      await saveSession({ status: 'ABANDONED' })
+      // 注意: 这里需要在父组件实现状态更新逻辑
       onSessionAbandoned?.(session)
     }
-  }, [session, saveSession, onSessionAbandoned])
+  }, [session, onSessionAbandoned])
 
   // 加载状态
   if (isSessionLoading) {
@@ -297,28 +283,6 @@ export default function WorkshopSessionManager({
           <div className="text-center">
             <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4" />
             <p className="text-gray-600">加载工作坊会话...</p>
-          </div>
-        </CardContent>
-      </Card>
-    )
-  }
-
-  // 错误状态
-  if (sessionError) {
-    return (
-      <Card className={className}>
-        <CardContent className="py-8">
-          <Alert variant="destructive">
-            <AlertCircle className="h-4 w-4" />
-            <AlertDescription>
-              {sessionError}
-            </AlertDescription>
-          </Alert>
-          <div className="mt-4 flex gap-2">
-            <Button onClick={refreshSession} variant="outline">
-              <RefreshCw className="w-4 h-4 mr-2" />
-              重试
-            </Button>
           </div>
         </CardContent>
       </Card>

@@ -132,6 +132,7 @@ export function useWorkshopSession({
   // 自动保存定时器
   const autoSaveTimerRef = useRef<NodeJS.Timeout>()
   const lastSaveDataRef = useRef<string>('')
+  const hasInitializedRef = useRef<boolean>(false)
 
   // API调用：重新加载会话
   const refreshSession = useCallback(async (): Promise<void> => {
@@ -157,7 +158,7 @@ export function useWorkshopSession({
           }))
 
           lastSaveDataRef.current = JSON.stringify(loadData.data!.formData)
-          onSessionLoaded?.(loadData.data!)
+          onSessionLoadedRef.current?.(loadData.data!)
           return
         }
       }
@@ -187,7 +188,7 @@ export function useWorkshopSession({
       }))
 
       lastSaveDataRef.current = JSON.stringify(createData.data!.formData)
-      onSessionLoaded?.(createData.data!)
+      onSessionLoadedRef.current?.(createData.data!)
 
     } catch (error) {
       console.error('❌ 会话刷新失败:', error)
@@ -197,7 +198,7 @@ export function useWorkshopSession({
         error: error instanceof Error ? error.message : '刷新失败'
       }))
     }
-  }, [workshopId, userId, onSessionLoaded])
+  }, [workshopId, userId])
 
   // API调用：保存会话
   const saveSession = useCallback(async (
@@ -276,9 +277,9 @@ export function useWorkshopSession({
 
     // 触发进度变化回调
     if (newProgress !== state.session.progress) {
-      onProgressChange?.(newProgress)
+      onProgressChangeRef.current?.(newProgress)
     }
-  }, [state.session, workshopId, onProgressChange])
+  }, [state.session, workshopId])
 
   // 更新当前步骤
   const updateCurrentStep = useCallback((step: number): void => {
@@ -317,9 +318,9 @@ export function useWorkshopSession({
       hasUnsavedChanges: true
     }))
 
-    onStepComplete?.(step)
-    onProgressChange?.(newProgress)
-  }, [state.session, workshopId, onStepComplete, onProgressChange])
+    onStepCompleteRef.current?.(step)
+    onProgressChangeRef.current?.(newProgress)
+  }, [state.session, workshopId])
 
   // 添加对话消息
   const addConversationMessage = useCallback((message: AgentMessage): void => {
@@ -351,11 +352,11 @@ export function useWorkshopSession({
 
     const success = await saveSession(completedSession)
     if (success) {
-      onSessionComplete?.(completedSession)
+      onSessionCompleteRef.current?.(completedSession)
     }
 
     return success
-  }, [state.session, saveSession, onSessionComplete])
+  }, [state.session, saveSession])
 
   // 自动保存逻辑
   useEffect(() => {
@@ -381,14 +382,29 @@ export function useWorkshopSession({
     }
   }, [state.session, state.hasUnsavedChanges, autoSave, saveInterval, saveSession])
 
+  // 使用ref存储回调函数，避免依赖数组变化
+  const onSessionLoadedRef = useRef(onSessionLoaded)
+  const onProgressChangeRef = useRef(onProgressChange)
+  const onStepCompleteRef = useRef(onStepComplete)
+  const onSessionCompleteRef = useRef(onSessionComplete)
+
+  // 更新ref但不触发重新渲染
+  useEffect(() => {
+    onSessionLoadedRef.current = onSessionLoaded
+    onProgressChangeRef.current = onProgressChange
+    onStepCompleteRef.current = onStepComplete
+    onSessionCompleteRef.current = onSessionComplete
+  })
+
   // 初始化：加载会话 (修复无限循环问题)
   useEffect(() => {
+    // 使用ref防止重复初始化
+    if (hasInitializedRef.current) return
+    hasInitializedRef.current = true
+
     let isMounted = true
 
     const initializeSession = async () => {
-      // 只有在没有会话且未初始化时才执行
-      if (state.session) return
-
       setState(prev => ({ ...prev, isLoading: true, error: null }))
 
       try {
@@ -411,7 +427,7 @@ export function useWorkshopSession({
             }))
 
             lastSaveDataRef.current = JSON.stringify(loadData.data!.formData)
-            onSessionLoaded?.(loadData.data!)
+            onSessionLoadedRef.current?.(loadData.data!)
             return
           }
         }
@@ -443,7 +459,7 @@ export function useWorkshopSession({
           }))
 
           lastSaveDataRef.current = JSON.stringify(createData.data!.formData)
-          onSessionLoaded?.(createData.data!)
+          onSessionLoadedRef.current?.(createData.data!)
         }
 
       } catch (error) {
@@ -463,7 +479,7 @@ export function useWorkshopSession({
     return () => {
       isMounted = false
     }
-  }, [workshopId, userId, onSessionLoaded]) // 添加回调依赖项
+  }, [workshopId, userId]) // 只依赖workshopId和userId
 
   // 清理：组件卸载时保存
   useEffect(() => {

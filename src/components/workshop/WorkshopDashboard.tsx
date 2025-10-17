@@ -136,9 +136,17 @@ export default function WorkshopDashboard({
   const {
     session,
     isLoading,
+    isSaving,
     error,
     hasUnsavedChanges,
-    saveSession
+    lastSaveAt,
+    saveSession,
+    updateFormData,
+    updateCurrentStep,
+    completeStep,
+    addConversationMessage,
+    completeWorkshop,
+    refreshSession
   } = useWorkshopSession({
     workshopId,
     userId,
@@ -429,6 +437,18 @@ export default function WorkshopDashboard({
                   <WorkshopSessionManager
                     workshopId={workshopId}
                     userId={userId}
+                    session={session}
+                    isLoading={isLoading}
+                    isSaving={isSaving}
+                    hasUnsavedChanges={hasUnsavedChanges}
+                    lastSaveAt={lastSaveAt}
+                    onSaveSession={saveSession}
+                    onUpdateFormData={updateFormData}
+                    onUpdateCurrentStep={updateCurrentStep}
+                    onCompleteStep={completeStep}
+                    onAddConversationMessage={addConversationMessage}
+                    onCompleteWorkshop={completeWorkshop}
+                    onRefreshSession={refreshSession}
                     onSessionComplete={(completedSession) => {
                       setActiveTab('report')
                       onComplete?.(completedSession, completedSession.formData)
