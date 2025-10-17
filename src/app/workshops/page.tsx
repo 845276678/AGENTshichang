@@ -1,15 +1,12 @@
 /**
- * 工作坊列表页面 (完全静态服务端组件)
+ * 工作坊列表页面
  */
 
-import React from 'react'
-import { Metadata } from 'next'
-import Link from 'next/link'
+'use client'
 
-export const metadata: Metadata = {
-  title: '专业工作坊 - AI智能体市场',
-  description: '通过我们的专业工作坊，将您的创意转化为成功的商业项目',
-}
+import React from 'react'
+import Link from 'next/link'
+import { Layout } from '@/components/layout'
 
 const workshops = [
   {
@@ -95,62 +92,43 @@ const getDifficultyColor = (difficulty: string) => {
   }
 }
 
+// Set document title dynamically for client-side component
 export default function WorkshopsPage() {
+  React.useEffect(() => {
+    document.title = '专业工作坊 - AI智能体市场'
+  }, [])
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
-      {/* 简单的导航栏 */}
-      <header className="sticky top-0 z-40 w-full border-b bg-white">
-        <div className="container mx-auto px-4 flex h-16 items-center justify-between">
-          <Link href="/" className="flex items-center space-x-2">
-            <div className="h-8 w-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
-              <div className="h-4 w-4 bg-white rounded-sm" />
-            </div>
-            <span className="font-bold text-lg">创意交易市场</span>
-          </Link>
-
-          <nav className="hidden md:flex items-center space-x-6">
-            <Link href="/marketplace" className="text-sm font-medium hover:text-blue-600">创意竞价</Link>
-            <Link href="/workshops" className="text-sm font-medium text-blue-600">专业工作坊</Link>
-            <Link href="/about" className="text-sm font-medium hover:text-blue-600">关于我们</Link>
-          </nav>
-
-          <Link
-            href="/auth/register"
-            className="inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700"
-          >
-            Sign Up
-          </Link>
-        </div>
-      </header>
-
-      {/* 页面头部 */}
-      <div className="bg-white border-b border-gray-200">
-        <div className="container mx-auto px-4 py-16">
-          <div className="text-center max-w-3xl mx-auto">
-            <div className="flex justify-center mb-6">
-              <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center">
-                💡
+    <Layout>
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+        {/* 页面头部 */}
+        <div className="bg-white border-b border-gray-200">
+          <div className="container mx-auto px-4 py-16">
+            <div className="text-center max-w-3xl mx-auto">
+              <div className="flex justify-center mb-6">
+                <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center">
+                  💡
+                </div>
               </div>
-            </div>
-            <h1 className="text-4xl font-bold text-gray-900 mb-4">
-              专业工作坊
-            </h1>
-            <p className="text-xl text-gray-600 mb-8">
-              通过我们的专业工作坊，将您的创意转化为成功的商业项目
-            </p>
-            <div className="flex justify-center gap-8 text-sm text-gray-500">
-              <div className="flex items-center gap-2">
-                📊
-                <span>超过3000+成功案例</span>
-              </div>
-              <div className="flex items-center gap-2">
-                ⏰
-                <span>平均完成时间90分钟</span>
+              <h1 className="text-4xl font-bold text-gray-900 mb-4">
+                专业工作坊
+              </h1>
+              <p className="text-xl text-gray-600 mb-8">
+                通过我们的专业工作坊，将您的创意转化为成功的商业项目
+              </p>
+              <div className="flex justify-center gap-8 text-sm text-gray-500">
+                <div className="flex items-center gap-2">
+                  📊
+                  <span>超过3000+成功案例</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  ⏰
+                  <span>平均完成时间90分钟</span>
+                </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
 
       {/* 工作坊列表 */}
       <div className="container mx-auto px-4 py-12">
@@ -229,6 +207,6 @@ export default function WorkshopsPage() {
           </div>
         </div>
       </div>
-    </div>
+    </Layout>
   )
 }
