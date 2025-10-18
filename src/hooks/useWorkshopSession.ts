@@ -1,9 +1,10 @@
 /**
  * 工作坊会话管理Hook
  *
- * 提供工作坊会话的完整状态管理功能：
- * - 会话创建、保存和恢复
- * - 进度跟踪和步骤管理
+ * 功能包括：
+ * - 会话状态管理
+ * - 自动保存机制
+ * - 进度跟踪
  * - 表单数据持久化
  * - 对话历史管理
  */
@@ -18,12 +19,13 @@ import { type AgentMessage } from '@/lib/workshop/agent-prompts'
 export type WorkshopId = 'demand-validation' | 'mvp-builder' | 'growth-hacking' | 'profit-model'
 export type WorkshopStatus = 'IN_PROGRESS' | 'COMPLETED' | 'ABANDONED'
 
-// 会话数据结构
+// 工作坊会话接口
 export interface WorkshopSession {
   id: string
   workshopId: WorkshopId
   userId: string
   currentStep: number
+  totalSteps?: number
   status: WorkshopStatus
   formData: Partial<WorkshopFormData[WorkshopId]>
   conversationHistory: AgentMessage[]
@@ -34,7 +36,7 @@ export interface WorkshopSession {
   updatedAt: string
 }
 
-// Hook参数接口
+// Hook配置接口
 export interface UseWorkshopSessionProps {
   workshopId: WorkshopId
   userId?: string
@@ -87,33 +89,30 @@ function calculateSessionProgress(
   completedSteps: number[]
 ): number {
   // 获取工作坊步骤配置（这里简化实现）
-  const totalSteps = workshopId === 'demand-validation' ? 4 :
-                    workshopId === 'mvp-builder' ? 4 :
-                    workshopId === 'growth-hacking' ? 3 : 3
+  const totalSteps = (() => {
+    switch (workshopId) {
+      case 'demand-validation': return 4
+      case 'mvp-builder': return 5
+      case 'growth-hacking': return 6
+      case 'profit-model': return 4
+      default: return 4
+    }
+  })()
 
-  const stepProgress = completedSteps.length / totalSteps * 100
-
-  // 考虑表单填写完整度
-  const formFields = Object.values(formData).filter(value =>
-    value !== undefined && value !== null && value !== ''
-  ).length
-
-  // 这里可以根据不同工作坊的字段数量来调整
-  const totalFields = workshopId === 'demand-validation' ? 8 :
-                     workshopId === 'mvp-builder' ? 10 :
-                     workshopId === 'growth-hacking' ? 6 : 9
-
-  const formProgress = Math.min(formFields / totalFields * 100, 100)
-
-  // 综合计算进度（步骤权重70%，表单完整度权重30%）
-  return Math.round(stepProgress * 0.7 + formProgress * 0.3)
+  return Math.round((completedSteps.length / totalSteps) * 100)
 }
 
+/**
+ * 工作坊会话管理Hook
+ *
+ * @param props - Hook配置参数
+ * @returns 会话状态和管理方法
+ */
 export function useWorkshopSession({
   workshopId,
   userId = 'anonymous',
   autoSave = true,
-  saveInterval = 10000, // 10秒自动保存
+  saveInterval = 10000,
   onSessionLoaded,
   onProgressChange,
   onStepComplete,
@@ -132,28 +131,31 @@ export function useWorkshopSession({
   // 自动保存定时器
   const autoSaveTimerRef = useRef<NodeJS.Timeout>()
   const lastSaveDataRef = useRef<string>('')
-  const hasInitializedRef = useRef<boolean>(false)
+  const hasInitializedRef = useRef(false)
 
-  // API调用：重新加载会话
-  const refreshSession = useCallback(async (): Promise<void> => {
-    setState(prev => ({ ...prev, isLoading: true, error: null, session: null }))
+  // 回调引用
+  const onSessionLoadedRef = useRef(onSessionLoaded)
+  const onProgressChangeRef = useRef(onProgressChange)
+  const onStepCompleteRef = useRef(onStepComplete)
+  const onSessionCompleteRef = useRef(onSessionComplete)
 
+  // API调用：刷新会话
+  const refreshSession = useCallback(async () => {
     try {
-      console.log(`🔄 刷新工作坊会话: ${workshopId}`)
+      const baseUrl = typeof window !== 'undefined' ? '' : 'http://localhost:3000'
+      const apiUrl = `${baseUrl}/api/workshop/session?workshopId=${workshopId}&userId=${userId}`
 
       // 尝试加载现有会话
-      const loadResponse = await fetch(
-        `/api/workshop/session?workshopId=${workshopId}&userId=${userId}`
-      )
+      const loadResponse = await fetch(apiUrl)
 
       if (loadResponse.ok) {
         const loadData: SessionApiResponse = await loadResponse.json()
         if (loadData.success && loadData.data) {
-          console.log(`✅ 刷新现有会话成功: ${loadData.data.id}`)
           setState(prev => ({
             ...prev,
             session: loadData.data!,
             isLoading: false,
+            error: null,
             lastSaveAt: new Date(loadData.data!.updatedAt)
           }))
 
@@ -164,7 +166,8 @@ export function useWorkshopSession({
       }
 
       // 创建新会话
-      const createResponse = await fetch('/api/workshop/session', {
+      const createApiUrl = `${baseUrl}/api/workshop/session`
+      const createResponse = await fetch(createApiUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(createDefaultSession(workshopId, userId))
@@ -179,11 +182,11 @@ export function useWorkshopSession({
         throw new Error(createData.error || '创建会话返回无效数据')
       }
 
-      console.log(`✅ 创建新会话成功: ${createData.data.id}`)
       setState(prev => ({
         ...prev,
         session: createData.data!,
         isLoading: false,
+        error: null,
         lastSaveAt: new Date()
       }))
 
@@ -191,7 +194,6 @@ export function useWorkshopSession({
       onSessionLoadedRef.current?.(createData.data!)
 
     } catch (error) {
-      console.error('❌ 会话刷新失败:', error)
       setState(prev => ({
         ...prev,
         isLoading: false,
@@ -202,18 +204,15 @@ export function useWorkshopSession({
 
   // API调用：保存会话
   const saveSession = useCallback(async (
-    sessionData?: Partial<WorkshopSession>
+    updatedSession: WorkshopSession
   ): Promise<boolean> => {
-    if (!state.session) return false
-
-    setState(prev => ({ ...prev, isSaving: true, error: null }))
-
     try {
-      const updatedSession = sessionData ? { ...state.session, ...sessionData } : state.session
+      setState(prev => ({ ...prev, isSaving: true, error: null }))
 
-      console.log(`💾 保存会话: ${updatedSession.id}`)
+      const baseUrl = typeof window !== 'undefined' ? '' : 'http://localhost:3000'
+      const saveApiUrl = `${baseUrl}/api/workshop/session/${updatedSession.id}`
 
-      const response = await fetch(`/api/workshop/session/${updatedSession.id}`, {
+      const response = await fetch(saveApiUrl, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(updatedSession)
@@ -225,7 +224,7 @@ export function useWorkshopSession({
 
       const data: SessionApiResponse = await response.json()
       if (!data.success) {
-        throw new Error(data.error || '保存返回失败状态')
+        throw new Error(data.error || '保存失败')
       }
 
       setState(prev => ({
@@ -237,11 +236,9 @@ export function useWorkshopSession({
       }))
 
       lastSaveDataRef.current = JSON.stringify(updatedSession.formData)
-      console.log(`✅ 会话保存成功`)
       return true
 
     } catch (error) {
-      console.error('❌ 保存会话失败:', error)
       setState(prev => ({
         ...prev,
         isSaving: false,
@@ -249,114 +246,97 @@ export function useWorkshopSession({
       }))
       return false
     }
-  }, [state.session])
+  }, [])
 
   // 更新表单数据
   const updateFormData = useCallback((
     newData: Partial<WorkshopFormData[WorkshopId]>
-  ): void => {
+  ) => {
     if (!state.session) return
 
-    const updatedFormData = { ...state.session.formData, ...newData }
-    const newProgress = calculateSessionProgress(
-      workshopId,
-      updatedFormData,
-      state.session.completedSteps
-    )
+    const updatedSession: WorkshopSession = {
+      ...state.session,
+      formData: { ...state.session.formData, ...newData },
+      updatedAt: new Date().toISOString()
+    }
 
     setState(prev => ({
       ...prev,
-      session: prev.session ? {
-        ...prev.session,
-        formData: updatedFormData,
-        progress: newProgress,
-        updatedAt: new Date().toISOString()
-      } : null,
+      session: updatedSession,
       hasUnsavedChanges: true
     }))
 
     // 触发进度变化回调
+    const newProgress = calculateSessionProgress(
+      workshopId,
+      updatedSession.formData,
+      updatedSession.completedSteps
+    )
     if (newProgress !== state.session.progress) {
+      updatedSession.progress = newProgress
       onProgressChangeRef.current?.(newProgress)
     }
   }, [state.session, workshopId])
 
-  // 更新当前步骤
-  const updateCurrentStep = useCallback((step: number): void => {
+  // 更新对话历史
+  const updateConversationHistory = useCallback((
+    newMessages: AgentMessage[]
+  ) => {
     if (!state.session) return
 
-    setState(prev => ({
-      ...prev,
-      session: prev.session ? {
-        ...prev.session,
-        currentStep: step,
-        updatedAt: new Date().toISOString()
-      } : null,
-      hasUnsavedChanges: true
-    }))
-  }, [state.session])
-
-  // 标记步骤为完成
-  const completeStep = useCallback((step: number): void => {
-    if (!state.session || state.session.completedSteps.includes(step)) return
-
-    const newCompletedSteps = [...state.session.completedSteps, step].sort((a, b) => a - b)
-    const newProgress = calculateSessionProgress(
-      workshopId,
-      state.session.formData,
-      newCompletedSteps
-    )
-
-    setState(prev => ({
-      ...prev,
-      session: prev.session ? {
-        ...prev.session,
-        completedSteps: newCompletedSteps,
-        progress: newProgress,
-        updatedAt: new Date().toISOString()
-      } : null,
-      hasUnsavedChanges: true
-    }))
-
-    onStepCompleteRef.current?.(step)
-    onProgressChangeRef.current?.(newProgress)
-  }, [state.session, workshopId])
-
-  // 添加对话消息
-  const addConversationMessage = useCallback((message: AgentMessage): void => {
-    if (!state.session) return
-
-    const newHistory = [...state.session.conversationHistory, message]
-
-    setState(prev => ({
-      ...prev,
-      session: prev.session ? {
-        ...prev.session,
-        conversationHistory: newHistory,
-        updatedAt: new Date().toISOString()
-      } : null,
-      hasUnsavedChanges: true
-    }))
-  }, [state.session])
-
-  // 完成工作坊
-  const completeWorkshop = useCallback(async (): Promise<boolean> => {
-    if (!state.session) return false
-
-    const completedSession = {
+    const updatedSession: WorkshopSession = {
       ...state.session,
-      status: 'COMPLETED' as WorkshopStatus,
-      progress: 100,
+      conversationHistory: [...state.session.conversationHistory, ...newMessages],
       updatedAt: new Date().toISOString()
     }
 
-    const success = await saveSession(completedSession)
-    if (success) {
-      onSessionCompleteRef.current?.(completedSession)
+    setState(prev => ({
+      ...prev,
+      session: updatedSession,
+      hasUnsavedChanges: true
+    }))
+  }, [state.session])
+
+  // 完成步骤
+  const completeStep = useCallback((stepNumber: number) => {
+    if (!state.session) return
+
+    const completedSteps = [...state.session.completedSteps]
+    if (!completedSteps.includes(stepNumber)) {
+      completedSteps.push(stepNumber)
     }
 
-    return success
-  }, [state.session, saveSession])
+    const nextStep = Math.min(stepNumber + 1, 4) // 假设最多4步
+    const newProgress = calculateSessionProgress(workshopId, state.session.formData, completedSteps)
+
+    const updatedSession: WorkshopSession = {
+      ...state.session,
+      currentStep: nextStep,
+      completedSteps,
+      progress: newProgress,
+      status: completedSteps.length >= 4 ? 'COMPLETED' : 'IN_PROGRESS',
+      updatedAt: new Date().toISOString()
+    }
+
+    setState(prev => ({
+      ...prev,
+      session: updatedSession,
+      hasUnsavedChanges: true
+    }))
+
+    onStepCompleteRef.current?.(stepNumber)
+    onProgressChangeRef.current?.(newProgress)
+
+    if (updatedSession.status === 'COMPLETED') {
+      onSessionCompleteRef.current?.(updatedSession)
+    }
+  }, [state.session, workshopId])
+
+  // 手动保存
+  const manualSave = useCallback(async (): Promise<boolean> => {
+    if (!state.session || !state.hasUnsavedChanges) return true
+    return await saveSession(state.session)
+  }, [state.session, state.hasUnsavedChanges, saveSession])
 
   // 自动保存逻辑
   useEffect(() => {
@@ -365,14 +345,16 @@ export function useWorkshopSession({
     const currentDataString = JSON.stringify(state.session.formData)
     if (currentDataString === lastSaveDataRef.current) return
 
-    // 清除现有定时器
+    // 清除之前的定时器
     if (autoSaveTimerRef.current) {
       clearTimeout(autoSaveTimerRef.current)
     }
 
     // 设置新的自动保存定时器
     autoSaveTimerRef.current = setTimeout(() => {
-      saveSession()
+      if (state.session && state.hasUnsavedChanges) {
+        saveSession(state.session)
+      }
     }, saveInterval)
 
     return () => {
@@ -382,13 +364,7 @@ export function useWorkshopSession({
     }
   }, [state.session, state.hasUnsavedChanges, autoSave, saveInterval, saveSession])
 
-  // 使用ref存储回调函数，避免依赖数组变化
-  const onSessionLoadedRef = useRef(onSessionLoaded)
-  const onProgressChangeRef = useRef(onProgressChange)
-  const onStepCompleteRef = useRef(onStepComplete)
-  const onSessionCompleteRef = useRef(onSessionComplete)
-
-  // 更新ref但不触发重新渲染
+  // 更新回调引用
   useEffect(() => {
     onSessionLoadedRef.current = onSessionLoaded
     onProgressChangeRef.current = onProgressChange
@@ -396,9 +372,8 @@ export function useWorkshopSession({
     onSessionCompleteRef.current = onSessionComplete
   })
 
-  // 初始化：加载会话 (修复无限循环问题)
+  // 初始化：加载会话
   useEffect(() => {
-    // 使用ref防止重复初始化
     if (hasInitializedRef.current) return
     hasInitializedRef.current = true
 
@@ -408,17 +383,15 @@ export function useWorkshopSession({
       setState(prev => ({ ...prev, isLoading: true, error: null }))
 
       try {
-        console.log(`🔄 初始化工作坊会话: ${workshopId}`)
+        const baseUrl = typeof window !== 'undefined' ? '' : 'http://localhost:3000'
+        const apiUrl = `${baseUrl}/api/workshop/session?workshopId=${workshopId}&userId=${userId}`
 
         // 尝试加载现有会话
-        const loadResponse = await fetch(
-          `/api/workshop/session?workshopId=${workshopId}&userId=${userId}`
-        )
+        const loadResponse = await fetch(apiUrl)
 
         if (loadResponse.ok) {
           const loadData: SessionApiResponse = await loadResponse.json()
           if (loadData.success && loadData.data && isMounted) {
-            console.log(`✅ 加载现有会话成功: ${loadData.data.id}`)
             setState(prev => ({
               ...prev,
               session: loadData.data!,
@@ -433,8 +406,8 @@ export function useWorkshopSession({
         }
 
         // 404或其他错误 - 创建新会话
-        console.log('📝 创建新的工作坊会话')
-        const createResponse = await fetch('/api/workshop/session', {
+        const createApiUrl = `${baseUrl}/api/workshop/session`
+        const createResponse = await fetch(createApiUrl, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(createDefaultSession(workshopId, userId))
@@ -450,7 +423,6 @@ export function useWorkshopSession({
         }
 
         if (isMounted) {
-          console.log(`✅ 创建新会话成功: ${createData.data.id}`)
           setState(prev => ({
             ...prev,
             session: createData.data!,
@@ -463,7 +435,6 @@ export function useWorkshopSession({
         }
 
       } catch (error) {
-        console.error('❌ 会话初始化失败:', error)
         if (isMounted) {
           setState(prev => ({
             ...prev,
@@ -479,40 +450,37 @@ export function useWorkshopSession({
     return () => {
       isMounted = false
     }
-  }, [workshopId, userId]) // 只依赖workshopId和userId
+  }, [workshopId, userId])
 
   // 清理：组件卸载时保存
   useEffect(() => {
     return () => {
       if (state.hasUnsavedChanges && state.session) {
+        const baseUrl = typeof window !== 'undefined' ? '' : 'http://localhost:3000'
+        const cleanupApiUrl = `${baseUrl}/api/workshop/session/${state.session.id}`
+
         // 同步保存（组件卸载时）
         navigator.sendBeacon(
-          `/api/workshop/session/${state.session.id}`,
+          cleanupApiUrl,
           JSON.stringify(state.session)
         )
       }
     }
-  }, [state.hasUnsavedChanges, state.session])
+  })
 
   return {
     // 状态
     ...state,
 
     // 方法
-    saveSession,
-    updateFormData,
-    updateCurrentStep,
-    completeStep,
-    addConversationMessage,
-    completeWorkshop,
     refreshSession,
+    updateFormData,
+    updateConversationHistory,
+    completeStep,
+    manualSave,
 
     // 计算属性
-    isComplete: state.session?.status === 'COMPLETED',
-    canProceed: state.session ? state.session.progress >= 25 : false,
-    nextRequiredStep: state.session ?
-      Math.min(...Array.from({ length: 4 }, (_, i) => i + 1)
-        .filter(step => !state.session!.completedSteps.includes(step))) : 1
+    isInitialized: !state.isLoading && state.session !== null
   }
 }
 
