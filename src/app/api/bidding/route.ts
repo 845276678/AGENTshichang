@@ -22,6 +22,17 @@ function createUTF8Response(data: any, status: number = 200) {
 
 const aiServiceManager = new AIServiceManager()
 
+// 快速竞价模式配置 - 每个阶段2分钟
+const FAST_BIDDING_CONFIG = {
+  phases: {
+    warmup: 120000,      // 2分钟 (原3分钟)
+    discussion: 120000,  // 2分钟 (原5分钟)
+    bidding: 120000,     // 2分钟 (原3分钟)
+    prediction: 120000,  // 2分钟 (原2分钟)
+  },
+  userExtensionTime: 60000 // 用户发言顺延1分钟
+}
+
 // 竞价会话状态管理
 interface BiddingSession {
   ideaId: string
@@ -272,12 +283,12 @@ async function startAIBiddingDialogue(sessionId: string) {
     if (session.phase === 'warmup') {
       await runWarmupPhase(sessionId)
 
-      // 3分钟后进入讨论阶段
+      // 2分钟后进入讨论阶段（快速模式）
       setTimeout(() => {
         if (activeSessions.get(sessionId)?.status === 'active') {
           transitionToPhase(sessionId, 'discussion')
         }
-      }, 180000) // 3分钟
+      }, FAST_BIDDING_CONFIG.phases.warmup)
     }
 
   } catch (error) {
@@ -443,12 +454,12 @@ async function runDiscussionPhase(sessionId: string) {
     }
   }
 
-  // 5分钟后进入竞价阶段
+  // 2分钟后进入竞价阶段（快速模式）
   setTimeout(() => {
     if (activeSessions.get(sessionId)?.status === 'active') {
       transitionToPhase(sessionId, 'bidding')
     }
-  }, 300000) // 5分钟
+  }, FAST_BIDDING_CONFIG.phases.discussion)
 }
 
 // 竞价阶段
@@ -504,12 +515,12 @@ async function runBiddingPhase(sessionId: string) {
     }
   }
 
-  // 3分钟后进入预测阶段
+  // 2分钟后进入预测阶段（快速模式）
   setTimeout(() => {
     if (activeSessions.get(sessionId)?.status === 'active') {
       transitionToPhase(sessionId, 'prediction')
     }
-  }, 180000) // 3分钟
+  }, FAST_BIDDING_CONFIG.phases.bidding)
 }
 
 // 预测阶段
@@ -525,12 +536,12 @@ async function runPredictionPhase(sessionId: string) {
     currentBids: session.currentBids
   })
 
-  // 2分钟后自动进入结果阶段
+  // 2分钟后自动进入结果阶段（快速模式）
   setTimeout(() => {
     if (activeSessions.get(sessionId)?.status === 'active') {
       transitionToPhase(sessionId, 'result')
     }
-  }, 120000) // 2分钟
+  }, FAST_BIDDING_CONFIG.phases.prediction)
 }
 
 // 结果阶段
