@@ -117,22 +117,97 @@
   animation: bounce-in 0.5s ease-out;
   scrollbar-width: thin;
   scrollbar-color: rgba(59, 130, 246, 0.3) rgba(243, 244, 246, 0.5);
-  line-height: 1.68;
+
+  /* 显示优化 - 允许滚动以防止截断 */
+  max-height: 200px;
+  overflow-y: auto;
+  overflow-x: hidden;
+
+  /* 字体渲染优化 - 防止模糊 */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  font-feature-settings: "kern" 1;
+
+  /* 更好的文本间距 */
+  line-height: 1.7;
   letter-spacing: 0.005em;
-  padding: 1.25rem 1.5rem;
-  max-height: none;
-  overflow: visible;
+
+  /* 触摸设备滚动优化 */
+  -webkit-overflow-scrolling: touch;
 }
 
 .bubble-content {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 0.5rem;
+
+  /* 确保内容不会被截断 */
+  width: 100%;
+  min-height: fit-content;
 }
 
 .message-text {
   line-height: 1.7;
   letter-spacing: 0.005em;
+
+  /* 字体优化 */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+
+  /* 避免内容溢出 */
+  max-width: 100%;
+  overflow-wrap: break-word;
+  word-break: break-word;
+  hyphens: auto;
+}
+
+/* 对话历史区域优化 */
+.conversation-history {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(59, 130, 246, 0.3) rgba(243, 244, 246, 0.8);
+  -webkit-overflow-scrolling: touch;
+}
+
+.conversation-history::-webkit-scrollbar {
+  width: 4px;
+}
+
+.conversation-history::-webkit-scrollbar-track {
+  background: rgba(243, 244, 246, 0.8);
+  border-radius: 4px;
+}
+
+.conversation-history::-webkit-scrollbar-thumb {
+  background: rgba(59, 130, 246, 0.4);
+  border-radius: 4px;
+  transition: background 0.2s ease;
+}
+
+.conversation-history::-webkit-scrollbar-thumb:hover {
+  background: rgba(59, 130, 246, 0.6);
+}
+
+.conversation-bubble {
+  /* 字体渲染优化 */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+
+  /* 内容显示优化 */
+  max-width: 95%;
+  overflow-wrap: break-word;
+  word-break: break-word;
+  hyphens: auto;
+
+  /* 动画过渡 */
+  transition: all 0.2s ease-in-out;
+}
+
+.conversation-bubble:hover {
+  transform: scale(1.02);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 /* 自定义滚动条样式（Webkit浏览器） */
@@ -245,10 +320,14 @@
   }
 
   .dialog-bubble {
-    max-width: 100%;
+    max-height: 180px;
     font-size: 0.875rem;
-    padding: 10px 12px;
-    overflow: visible;
+    padding: 0.875rem 1rem;
+  }
+
+  .message-text {
+    font-size: 0.875rem;
+    line-height: 1.6;
   }
 }
 
@@ -263,10 +342,14 @@
   }
 
   .dialog-bubble {
-    max-width: 100%;
-    font-size: 0.875rem;
-    padding: 8px 10px;
-    overflow: visible;
+    max-height: 160px;
+    font-size: 0.8125rem;
+    padding: 0.75rem 0.875rem;
+  }
+
+  .message-text {
+    font-size: 0.8125rem;
+    line-height: 1.6;
   }
 
   .agent-name {
@@ -298,10 +381,14 @@
   }
 
   .dialog-bubble {
-    max-width: 100%;
+    max-height: 140px;
     font-size: 0.75rem;
-    padding: 6px 8px;
-    overflow: visible;
+    padding: 0.625rem 0.75rem;
+  }
+
+  .message-text {
+    font-size: 0.75rem;
+    line-height: 1.5;
   }
 
   .agent-name {
@@ -332,10 +419,14 @@
   }
 
   .dialog-bubble {
-    max-width: 100%;
+    max-height: 120px;
     font-size: 0.7rem;
-    padding: 4px 6px;
-    overflow: visible;
+    padding: 0.5rem 0.625rem;
+  }
+
+  .message-text {
+    font-size: 0.7rem;
+    line-height: 1.5;
   }
 
   /* 简化头像 */

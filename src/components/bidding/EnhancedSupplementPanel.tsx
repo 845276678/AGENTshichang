@@ -24,6 +24,10 @@ interface EnhancedSupplementPanelProps {
   maxSupplements?: number
   currentSupplementCount?: number
   className?: string
+  // 新增：AI反馈和当前创意内容，用于生成智能建议
+  aiFeedback?: string[]
+  ideaContent?: string
+  currentBids?: Record<string, number>
 }
 
 export type SupplementCategory =
@@ -40,6 +44,111 @@ interface SupplementItem {
   category: SupplementCategory
   content: string
   timestamp: Date
+}
+
+// 智能补充建议
+interface SmartSuggestion {
+  id: string
+  category: SupplementCategory
+  question: string
+  example: string
+  priority: 'high' | 'medium' | 'low'
+  reason: string
+}
+
+// 分析创意内容和AI反馈，生成智能建议
+const generateSmartSuggestions = (
+  ideaContent?: string,
+  aiFeedback?: string[],
+  currentBids?: Record<string, number>
+): SmartSuggestion[] => {
+  const suggestions: SmartSuggestion[] = []
+
+  if (!ideaContent) return suggestions
+
+  const content = ideaContent.toLowerCase()
+  const feedbackText = aiFeedback?.join(' ').toLowerCase() || ''
+
+  // 1. 检查是否缺少目标用户信息
+  if (!content.includes('用户') && !content.includes('客户') && !content.includes('群体')) {
+    suggestions.push({
+      id: 'sugg_users',
+      category: 'target_users',
+      question: '您的目标用户是谁？',
+      example: '例如：25-35岁的职场白领，有健身需求但时间有限',
+      priority: 'high',
+      reason: '明确的目标用户画像可以帮助AI更准确地评估市场潜力'
+    })
+  }
+
+  // 2. 检查是否缺少功能描述
+  if (!content.includes('功能') && !content.includes('特点') && !content.includes('如何')) {
+    suggestions.push({
+      id: 'sugg_features',
+      category: 'features',
+      question: '核心功能和创新点是什么？',
+      example: '例如：AI智能推荐训练计划、实时动作纠正、社交打卡激励',
+      priority: 'high',
+      reason: '详细的功能说明有助于AI理解创意的技术可行性'
+    })
+  }
+
+  // 3. 检查是否缺少背景信息
+  if (!content.includes('背景') && !content.includes('现状') && !content.includes('问题')) {
+    suggestions.push({
+      id: 'sugg_background',
+      category: 'background',
+      question: '为什么要做这个项目？解决什么问题？',
+      example: '例如：当前市场健身APP功能单一，缺少智能指导，用户留存率低',
+      priority: 'medium',
+      reason: '清晰的背景说明可以展示创意的必要性和市场机会'
+    })
+  }
+
+  // 4. 根据AI反馈的关键词生成建议
+  if (feedbackText.includes('预算') || feedbackText.includes('成本') || feedbackText.includes('投入')) {
+    suggestions.push({
+      id: 'sugg_budget',
+      category: 'budget',
+      question: 'AI专家关注预算问题，您能说明预期投入吗？',
+      example: '例如：初期投入50万元，主要用于产品研发和市场推广',
+      priority: 'high',
+      reason: 'AI专家的反馈表明预算信息很关键'
+    })
+  }
+
+  if (feedbackText.includes('时间') || feedbackText.includes('周期') || feedbackText.includes('进度')) {
+    suggestions.push({
+      id: 'sugg_timeline',
+      category: 'timeline',
+      question: 'AI专家想了解时间计划，您能提供吗？',
+      example: '例如：3个月完成MVP，6个月正式上线，12个月达到盈亏平衡',
+      priority: 'high',
+      reason: 'AI专家的反馈表明时间规划很重要'
+    })
+  }
+
+  // 5. 根据出价情况生成建议
+  if (currentBids) {
+    const bids = Object.values(currentBids)
+    const avgBid = bids.length > 0 ? bids.reduce((a, b) => a + b, 0) / bids.length : 0
+
+    // 如果平均出价较低，可能需要更多资源说明
+    if (avgBid < 50 && !content.includes('团队') && !content.includes('资源')) {
+      suggestions.push({
+        id: 'sugg_resources',
+        category: 'resources',
+        question: '出价较保守，是否需要说明资源优势？',
+        example: '例如：已有3人技术团队，核心成员来自大厂，有成功项目经验',
+        priority: 'medium',
+        reason: '突出资源优势可以提升AI对执行力的信心'
+      })
+    }
+  }
+
+  // 按优先级排序
+  const priorityOrder = { high: 3, medium: 2, low: 1 }
+  return suggestions.sort((a, b) => priorityOrder[b.priority] - priorityOrder[a.priority])
 }
 
 const CATEGORY_CONFIG: Record<SupplementCategory, {
@@ -96,13 +205,20 @@ export const EnhancedSupplementPanel: React.FC<EnhancedSupplementPanelProps> = (
   onSubmitSupplement,
   maxSupplements = 5,
   currentSupplementCount = 0,
-  className = ''
+  className = '',
+  aiFeedback = [],
+  ideaContent = '',
+  currentBids = {}
 }) => {
   const [isExpanded, setIsExpanded] = useState(false)
   const [selectedCategory, setSelectedCategory] = useState<SupplementCategory>('background')
   const [content, setContent] = useState('')
   const [isSending, setIsSending] = useState(false)
   const [supplements, setSupplements] = useState<SupplementItem[]>([])
+  const [showSuggestions, setShowSuggestions] = useState(true)
+
+  // 生成智能建议
+  const smartSuggestions = generateSmartSuggestions(ideaContent, aiFeedback, currentBids)
 
   const handleSubmit = async () => {
     if (!content.trim() || isSending) return
@@ -176,6 +292,73 @@ export const EnhancedSupplementPanel: React.FC<EnhancedSupplementPanelProps> = (
 
       {isExpanded && (
         <CardContent className="space-y-6">
+          {/* 智能补充建议 */}
+          {smartSuggestions.length > 0 && showSuggestions && (
+            <div className="bg-gradient-to-r from-yellow-50 to-orange-50 rounded-lg p-4 border-2 border-yellow-200">
+              <div className="flex items-center justify-between mb-3">
+                <h4 className="text-sm font-semibold text-gray-800 flex items-center gap-2">
+                  <Lightbulb className="w-4 h-4 text-yellow-600" />
+                  💡 AI智能建议（基于专家反馈）
+                </h4>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => setShowSuggestions(false)}
+                  className="text-xs text-gray-500"
+                >
+                  隐藏
+                </Button>
+              </div>
+
+              <div className="space-y-2">
+                {smartSuggestions.slice(0, 3).map((suggestion) => {
+                  const catConfig = CATEGORY_CONFIG[suggestion.category]
+                  const Icon = catConfig.icon
+                  const priorityColors = {
+                    high: 'border-red-300 bg-red-50',
+                    medium: 'border-yellow-300 bg-yellow-50',
+                    low: 'border-blue-300 bg-blue-50'
+                  }
+
+                  return (
+                    <div
+                      key={suggestion.id}
+                      className={`rounded-lg p-3 border-2 cursor-pointer transition-all hover:shadow-md ${priorityColors[suggestion.priority]}`}
+                      onClick={() => {
+                        setSelectedCategory(suggestion.category)
+                        setContent(suggestion.example)
+                      }}
+                    >
+                      <div className="flex items-start gap-2">
+                        <Icon className={`w-4 h-4 mt-0.5 ${catConfig.color}`} />
+                        <div className="flex-1">
+                          <p className="text-sm font-medium text-gray-800 mb-1">
+                            {suggestion.question}
+                          </p>
+                          <p className="text-xs text-gray-600 mb-2">
+                            {suggestion.example}
+                          </p>
+                          <div className="flex items-center gap-2">
+                            <Badge variant="outline" className="text-xs">
+                              {catConfig.label}
+                            </Badge>
+                            <span className="text-xs text-gray-500">
+                              {suggestion.reason}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+
+              <p className="text-xs text-gray-600 mt-3 italic">
+                💡 点击建议卡片可快速填充示例内容，您可以在此基础上修改
+              </p>
+            </div>
+          )}
+
           {/* 补充类别选择 */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-3">

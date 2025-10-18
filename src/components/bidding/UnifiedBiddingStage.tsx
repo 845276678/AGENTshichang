@@ -17,6 +17,7 @@ import { type AIMessage } from '@/lib/ai-persona-system'
 import { AnimatedMaturityScoreCard, WorkshopRecommendations, ImprovementSuggestions } from '@/components/maturity'
 import type { MaturityScoreResult } from '@/lib/business-plan/maturity-scorer'
 import { useFixedBiddingWebSocket } from '@/hooks/useFixedBiddingWebSocket'
+import { OPTIMIZED_BIDDING_TIME_CONFIG, formatTimeRemaining, getPhaseDisplayName } from '@/config/bidding-time-config'
 import { useAgentStates, PhasePermissionManager } from '@/hooks/useAgentStates'
 import { agentStateManager } from '@/services/AgentStateManager'
 import { tokenStorage } from '@/lib/token-storage'
@@ -26,6 +27,9 @@ import { useAgentConversations } from '@/hooks/useAgentConversations'
 import { AgentDialogPanel, BiddingPhase, type AgentState } from './AgentDialogPanel'
 import PhaseStatusBar from './PhaseStatusBar'
 import EnhancedSupplementPanel, { type SupplementCategory } from './EnhancedSupplementPanel'
+import BiddingAtmosphere from './BiddingAtmosphere'
+import EnhancedBiddingDemo from './EnhancedBiddingDemo'
+import DynamicBidVisualization from './DynamicBidVisualization'
 import { extractUserContext } from '@/lib/business-plan/context-extractor'
 import './AgentDialogPanel.css'
 
@@ -100,12 +104,16 @@ export default function UnifiedBiddingStage({
     currentBids,
     highestBid,
     forceShowDialogs,
+    timeConfig,
     hasUserSpoken,
     phaseExtended,
+    extensionCount,
+    canExtend,
     sendMessage,
     startBidding,
-    reconnect
-  } = useFixedBiddingWebSocket(ideaId);
+    reconnect,
+    sendUserSupplement
+  } = useFixedBiddingWebSocket(ideaId, OPTIMIZED_BIDDING_TIME_CONFIG);
 
   // 模拟缺失的状态
   const viewerCount = 15;
@@ -494,13 +502,6 @@ export default function UnifiedBiddingStage({
     return await handleSubmitSupplement(userSupplement)
   }
 
-  // 格式化时间
-  const formatTime = (seconds: number): string => {
-    const mins = Math.floor(seconds / 60)
-    const secs = seconds % 60
-    return `${mins}:${secs.toString().padStart(2, '0')}`
-  }
-
   // 处理创意实现建议
   const handleGenerateBusinessPlan = async () => {
     console.log('🚀 handleGenerateBusinessPlan called')
@@ -756,12 +757,11 @@ export default function UnifiedBiddingStage({
       setIsExportingDialog(false)
     }
   }
-  // 快速竞价模式 - 每个阶段2分钟，用户发言可顺延1分钟
+  // 使用优化的时间配置 - 10.5分钟方案
   const calculatePhaseProgress = (): number => {
-    const phaseDurations: Record<string, number> = {
-      'warmup': 120, 'discussion': 120, 'bidding': 120, 'prediction': 120, 'result': 120
-    }
-    const totalDuration = phaseDurations[wsPhase] || 60
+    const phaseDurations = timeConfig.phases
+    const phaseKey = wsPhase as keyof typeof phaseDurations
+    const totalDuration = phaseDurations[phaseKey] || phaseDurations.warmup
     return Math.max(0, 100 - (timeRemaining / totalDuration) * 100)
   }
 
@@ -777,9 +777,18 @@ export default function UnifiedBiddingStage({
   }, [agentStates])
 
   return (
-    <div className={`unified-bidding-stage space-y-6 ${className}`}>
-      {/* 断连警告横幅 */}
-      {!isConnected && (
+    <div className={`unified-bidding-stage space-y-6 relative ${className}`}>
+      {/* 竞价氛围效果背景 */}
+      <BiddingAtmosphere
+        currentPhase={currentPhase}
+        isActive={isConnected}
+        className="absolute inset-0 rounded-xl pointer-events-none z-0"
+      />
+
+      {/* 主要内容区域 */}
+      <div className="relative z-10 space-y-6">
+        {/* 断连警告横幅 */}
+        {!isConnected && (
         <Card className="border-2 border-red-500 bg-red-50">
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
@@ -965,6 +974,21 @@ export default function UnifiedBiddingStage({
           onSubmitSupplement={handleSubmitSupplement}
           maxSupplements={3}
           currentSupplementCount={supplementHistory.length}
+          aiFeedback={aiMessages.map(msg => msg.content)}
+          ideaContent={ideaContent}
+          currentBids={normalizedBids}
+        />
+      )}
+
+      {/* 动态出价可视化 - 在竞价阶段显示 */}
+      {(currentPhase === BiddingPhase.AGENT_BIDDING ||
+        currentPhase === BiddingPhase.USER_SUPPLEMENT) && (
+        <DynamicBidVisualization
+          currentBids={normalizedBids}
+          highestBid={highestBid || 0}
+          className="w-full max-w-6xl mx-auto"
+          showAnimations={true}
+          showHistory={true}
         />
       )}
 
@@ -1050,6 +1074,17 @@ export default function UnifiedBiddingStage({
             </div>
           </CardContent>
         </Card>
+      )}
+
+      {/* 增强AI竞价演示 - 在讨论和竞价阶段显示 */}
+      {(currentPhase === BiddingPhase.AGENT_DISCUSSION ||
+        currentPhase === BiddingPhase.AGENT_BIDDING ||
+        currentPhase === BiddingPhase.USER_SUPPLEMENT) && (
+        <EnhancedBiddingDemo
+          ideaContent={ideaContent || ''}
+          userSupplements={supplementHistory}
+          className="w-full max-w-6xl mx-auto"
+        />
       )}
 
       {/* 结果阶段 - 创意实现建议 */}
@@ -1344,6 +1379,7 @@ export default function UnifiedBiddingStage({
           }
         }
       `}</style>
+      </div> {/* 关闭主要内容区域 */}
     </div>
   )
 }

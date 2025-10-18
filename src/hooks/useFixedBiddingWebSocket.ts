@@ -6,6 +6,7 @@
 
 import { useEffect, useRef, useState, useCallback } from 'react'
 import { useAuth } from '@/hooks/useAuth'
+import { OPTIMIZED_BIDDING_TIME_CONFIG, getPhaseTime, type BiddingTimeConfiguration } from '@/config/bidding-time-config'
 
 // 修复后的WebSocket配置
 const getWebSocketURL = (ideaId: string): string => {
@@ -19,17 +20,18 @@ const getWebSocketURL = (ideaId: string): string => {
   return `${protocol}//${host}/api/bidding/websocket?ideaId=${ideaId}`
 }
 
-export function useFixedBiddingWebSocket(ideaId: string) {
+export function useFixedBiddingWebSocket(ideaId: string, timeConfig: BiddingTimeConfiguration = OPTIMIZED_BIDDING_TIME_CONFIG) {
   const [isConnected, setIsConnected] = useState(false)
   const [connectionStatus, setConnectionStatus] = useState<'disconnected' | 'connecting' | 'connected' | 'error'>('disconnected')
   const [aiMessages, setAiMessages] = useState<any[]>([])
   const [currentPhase, setCurrentPhase] = useState('warmup')
-  const [timeRemaining, setTimeRemaining] = useState(120) // 默认2分钟
+  const [timeRemaining, setTimeRemaining] = useState(() => getPhaseTime('warmup', timeConfig.phases)) // 使用配置的时间
   const [currentBids, setCurrentBids] = useState<Record<string, number>>({})
 
   // 用户发言顺延机制
   const [hasUserSpoken, setHasUserSpoken] = useState(false)
   const [phaseExtended, setPhaseExtended] = useState(false)
+  const [extensionCount, setExtensionCount] = useState(0) // 跟踪顺延次数
 
   // 修复2: 添加强制显示模式，确保匿名用户也能看到对话
   const [forceShowDialogs, setForceShowDialogs] = useState(false)
@@ -193,12 +195,17 @@ export function useFixedBiddingWebSocket(ideaId: string) {
       case 'phase_update':
         const newPhase = data.phase || data.payload?.phase || currentPhase
         setCurrentPhase(newPhase)
-        const newTimeRemaining = data.timeRemaining || data.payload?.timeRemaining || 120
+
+        // 使用配置的阶段时间，如果服务器没有提供
+        const serverTimeRemaining = data.timeRemaining || data.payload?.timeRemaining
+        const configuredTime = getPhaseTime(newPhase, timeConfig.phases)
+        const newTimeRemaining = serverTimeRemaining || configuredTime
         setTimeRemaining(newTimeRemaining)
 
         // 重置阶段状态
         setHasUserSpoken(false)
         setPhaseExtended(false)
+        setExtensionCount(0)
 
         console.log(`🔄 Phase changed to: ${newPhase}, time: ${newTimeRemaining}s`)
         break
@@ -206,16 +213,23 @@ export function useFixedBiddingWebSocket(ideaId: string) {
       case 'user_message':
       case 'user_supplement':
         // 检测到用户发言，触发顺延机制
-        if (!phaseExtended && timeRemaining > 0) {
+        if (timeConfig.userExtension.enabled &&
+            extensionCount < timeConfig.userExtension.maxPerPhase &&
+            timeRemaining > 0) {
+
           setHasUserSpoken(true)
-          console.log('👤 User spoke - extending phase by 60 seconds')
+          setExtensionCount(prev => prev + 1)
+
+          console.log(`👤 User spoke - extending phase by ${timeConfig.userExtension.extensionTime} seconds (${extensionCount + 1}/${timeConfig.userExtension.maxPerPhase})`)
 
           // 发送时间顺延请求给服务器
           sendMessage({
             type: 'extend_phase',
             payload: {
-              extensionSeconds: 60,
-              reason: 'user_interaction'
+              extensionSeconds: timeConfig.userExtension.extensionTime,
+              reason: 'user_interaction',
+              extensionCount: extensionCount + 1,
+              maxExtensions: timeConfig.userExtension.maxPerPhase
             }
           })
 
@@ -345,9 +359,12 @@ export function useFixedBiddingWebSocket(ideaId: string) {
     currentBids,
     highestBid: Math.max(...Object.values(currentBids), 0),
 
-    // 时间顺延状态
+    // 时间配置和顺延状态
+    timeConfig,
     hasUserSpoken,
     phaseExtended,
+    extensionCount,
+    canExtend: timeConfig.userExtension.enabled && extensionCount < timeConfig.userExtension.maxPerPhase,
 
     // 修复状态
     forceShowDialogs,
@@ -358,11 +375,24 @@ export function useFixedBiddingWebSocket(ideaId: string) {
     startBidding,
     reconnect: connectWebSocket,
 
+    // 用户交互方法
+    sendUserSupplement: (content: string, category?: string) => {
+      return sendMessage({
+        type: 'user_supplement',
+        payload: {
+          content,
+          category,
+          triggersExtension: timeConfig.userExtension.triggerEvents.includes('USER_SUPPLEMENT')
+        }
+      })
+    },
+
     // 调试方法
     debugInfo: {
       wsUrl: getWebSocketURL(ideaId),
       wsState: wsRef.current?.readyState,
-      messageCount: messageCountRef.current
+      messageCount: messageCountRef.current,
+      timeConfig: timeConfig
     }
   }
 }

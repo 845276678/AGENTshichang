@@ -402,30 +402,32 @@ export const AgentDialogPanel: React.FC<AgentDialogPanelProps> = ({
       </div>
 
       {/* 3. 对话气泡区域 */}
-      <div
-        className="dialog-section relative flex w-full items-start justify-center py-3"
-        style={{
-          overflow: 'visible'
-        }}
-      >
+      <div className="dialog-section relative flex w-full items-start justify-center py-3">
         <AnimatePresence>
           {state.currentMessage && (
             <MotionDiv
-              className="dialog-bubble relative bg-white border border-gray-200 rounded-2xl shadow-md p-4 w-full"
+              className="dialog-bubble relative bg-white border border-gray-200 rounded-2xl shadow-md w-full"
               style={{
                 width: '100%',
                 minHeight: '60px',
-                paddingRight: '0.75rem'
+                maxHeight: '200px',
+                padding: '1rem',
+                overflow: 'auto'
               }}
             >
               {/* 气泡内容 */}
               <div className="bubble-content relative z-10">
                 <div
-                  className="message-text text-sm text-gray-900 leading-7 tracking-[0.005em] break-words"
+                  className="message-text text-sm text-gray-900 break-words"
                   style={{
                     whiteSpace: 'pre-wrap',
                     wordWrap: 'break-word',
-                    overflowWrap: 'break-word'
+                    overflowWrap: 'break-word',
+                    lineHeight: '1.7',
+                    letterSpacing: '0.005em',
+                    WebkitFontSmoothing: 'antialiased',
+                    MozOsxFontSmoothing: 'grayscale',
+                    textRendering: 'optimizeLegibility'
                   }}
                 >
                   {state.currentMessage}
@@ -555,7 +557,7 @@ export const AgentDialogPanel: React.FC<AgentDialogPanelProps> = ({
 
               {/* 对话历史内容 */}
               {showConversationHistory && (
-                <div className="mt-2 max-h-80 overflow-y-auto space-y-2 bg-gray-50 rounded-lg p-3">
+                <div className="mt-2 max-h-80 overflow-y-auto space-y-2 bg-gray-50 rounded-lg p-3 conversation-history">
                   {conversationMessages.map((msg, idx) => (
                     <div
                       key={idx}
@@ -565,7 +567,7 @@ export const AgentDialogPanel: React.FC<AgentDialogPanelProps> = ({
                     >
                       {/* 消息气泡 */}
                       <div
-                        className={`max-w-[95%] rounded-lg px-3 py-2 text-sm leading-relaxed ${
+                        className={`max-w-[95%] rounded-lg px-3 py-2 text-sm leading-relaxed conversation-bubble ${
                           msg.role === 'user'
                             ? 'bg-blue-500 text-white'
                             : 'bg-white border border-gray-200 text-gray-800'
@@ -573,7 +575,10 @@ export const AgentDialogPanel: React.FC<AgentDialogPanelProps> = ({
                         style={{
                           wordWrap: 'break-word',
                           overflowWrap: 'break-word',
-                          whiteSpace: 'pre-wrap'
+                          whiteSpace: 'pre-wrap',
+                          WebkitFontSmoothing: 'antialiased',
+                          MozOsxFontSmoothing: 'grayscale',
+                          textRendering: 'optimizeLegibility'
                         }}
                       >
                         {msg.content}

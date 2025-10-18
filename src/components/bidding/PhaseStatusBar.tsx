@@ -5,6 +5,7 @@ import { Progress } from '@/components/ui/progress'
 import { Badge } from '@/components/ui/badge'
 import { BiddingPhase } from '@/components/bidding/AgentDialogPanel'
 import { PhasePermissionManager } from '@/hooks/useAgentStates'
+import { formatTimeRemaining, getPhaseDisplayName } from '@/config/bidding-time-config'
 
 const MotionDiv = ({ children, className, style, ...props }: any) => (
   <div className={className} style={style} {...props}>{children}</div>
@@ -80,15 +81,6 @@ const PHASE_CONFIG = {
     duration: 300 // 5分钟
   }
 } as const
-
-// 格式化时间
-const formatTime = (seconds: number): string => {
-  if (seconds <= 0) return '00:00'
-
-  const minutes = Math.floor(seconds / 60)
-  const remainingSeconds = seconds % 60
-  return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`
-}
 
 // 获取进度条颜色类
 const getProgressColor = (phase: BiddingPhase, progress: number) => {
@@ -184,7 +176,7 @@ export const PhaseStatusBar: React.FC<PhaseStatusBarProps> = ({
                     <div className={`text-lg font-mono font-semibold ${
                       timeRemaining < 60 ? 'text-red-600' : 'text-gray-800'
                     }`}>
-                      {formatTime(timeRemaining)}
+                      {formatTimeRemaining(timeRemaining)}
                     </div>
                     <div className="text-xs text-gray-500">剩余时间</div>
                   </div>
