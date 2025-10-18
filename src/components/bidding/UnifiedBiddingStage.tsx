@@ -100,6 +100,8 @@ export default function UnifiedBiddingStage({
     currentBids,
     highestBid,
     forceShowDialogs,
+    hasUserSpoken,
+    phaseExtended,
     sendMessage,
     startBidding,
     reconnect
@@ -446,7 +448,14 @@ export default function UnifiedBiddingStage({
         ? `[${category}] ${content.trim()}`
         : content.trim()
 
-      const success = sendSupplement(supplementData)
+      // 发送用户补充消息（这会触发时间顺延机制）
+      const success = sendMessage({
+        type: 'user_supplement',
+        payload: {
+          content: supplementData,
+          triggerExtension: !phaseExtended // 只在未顺延时触发
+        }
+      })
 
       if (success) {
         // 添加到历史记录
@@ -458,6 +467,11 @@ export default function UnifiedBiddingStage({
 
         console.log('✅ 用户补充创意已发送:', content)
         console.log('📊 补充次数:', supplementHistory.length + 1, '/ 3')
+
+        // 如果触发了时间顺延，显示提示
+        if (!phaseExtended) {
+          console.log('⏰ 用户发言触发时间顺延+60秒')
+        }
 
         // 清空输入框
         setUserSupplement('')
@@ -742,9 +756,10 @@ export default function UnifiedBiddingStage({
       setIsExportingDialog(false)
     }
   }
+  // 快速竞价模式 - 每个阶段2分钟，用户发言可顺延1分钟
   const calculatePhaseProgress = (): number => {
     const phaseDurations: Record<string, number> = {
-      'warmup': 180, 'discussion': 720, 'bidding': 1200, 'prediction': 240, 'result': 300
+      'warmup': 120, 'discussion': 120, 'bidding': 120, 'prediction': 120, 'result': 120
     }
     const totalDuration = phaseDurations[wsPhase] || 60
     return Math.max(0, 100 - (timeRemaining / totalDuration) * 100)
@@ -893,6 +908,15 @@ export default function UnifiedBiddingStage({
             <div className="mt-3 p-2 bg-yellow-50 text-yellow-700 rounded-lg border border-yellow-200">
               <p className="text-sm">
                 🎯 您可以支持喜欢的专家（已用 {supplementCount}/{currentPermissions.maxSupplementCount} 次）
+              </p>
+            </div>
+          )}
+
+          {/* 时间顺延状态显示 */}
+          {phaseExtended && (
+            <div className="mt-3 p-2 bg-green-50 text-green-700 rounded-lg border border-green-200">
+              <p className="text-sm">
+                ⏰ 检测到您的发言，当前阶段已自动延长1分钟
               </p>
             </div>
           )}

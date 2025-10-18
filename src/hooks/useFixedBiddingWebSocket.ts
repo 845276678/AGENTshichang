@@ -24,8 +24,12 @@ export function useFixedBiddingWebSocket(ideaId: string) {
   const [connectionStatus, setConnectionStatus] = useState<'disconnected' | 'connecting' | 'connected' | 'error'>('disconnected')
   const [aiMessages, setAiMessages] = useState<any[]>([])
   const [currentPhase, setCurrentPhase] = useState('warmup')
-  const [timeRemaining, setTimeRemaining] = useState(300)
+  const [timeRemaining, setTimeRemaining] = useState(120) // 默认2分钟
   const [currentBids, setCurrentBids] = useState<Record<string, number>>({})
+
+  // 用户发言顺延机制
+  const [hasUserSpoken, setHasUserSpoken] = useState(false)
+  const [phaseExtended, setPhaseExtended] = useState(false)
 
   // 修复2: 添加强制显示模式，确保匿名用户也能看到对话
   const [forceShowDialogs, setForceShowDialogs] = useState(false)
@@ -189,9 +193,43 @@ export function useFixedBiddingWebSocket(ideaId: string) {
       case 'phase_update':
         const newPhase = data.phase || data.payload?.phase || currentPhase
         setCurrentPhase(newPhase)
-        setTimeRemaining(data.timeRemaining || data.payload?.timeRemaining || 300)
+        const newTimeRemaining = data.timeRemaining || data.payload?.timeRemaining || 120
+        setTimeRemaining(newTimeRemaining)
 
-        console.log(`🔄 Phase changed to: ${newPhase}`)
+        // 重置阶段状态
+        setHasUserSpoken(false)
+        setPhaseExtended(false)
+
+        console.log(`🔄 Phase changed to: ${newPhase}, time: ${newTimeRemaining}s`)
+        break
+
+      case 'user_message':
+      case 'user_supplement':
+        // 检测到用户发言，触发顺延机制
+        if (!phaseExtended && timeRemaining > 0) {
+          setHasUserSpoken(true)
+          console.log('👤 User spoke - extending phase by 60 seconds')
+
+          // 发送时间顺延请求给服务器
+          sendMessage({
+            type: 'extend_phase',
+            payload: {
+              extensionSeconds: 60,
+              reason: 'user_interaction'
+            }
+          })
+
+          setPhaseExtended(true)
+        }
+        break
+
+      case 'time_extended':
+        // 服务器确认时间已顺延
+        const extendedTime = data.newTimeRemaining || data.payload?.newTimeRemaining
+        if (extendedTime) {
+          setTimeRemaining(extendedTime)
+          console.log(`⏰ Phase extended to ${extendedTime} seconds`)
+        }
         break
 
       case 'error':
@@ -306,6 +344,10 @@ export function useFixedBiddingWebSocket(ideaId: string) {
     timeRemaining,
     currentBids,
     highestBid: Math.max(...Object.values(currentBids), 0),
+
+    // 时间顺延状态
+    hasUserSpoken,
+    phaseExtended,
 
     // 修复状态
     forceShowDialogs,

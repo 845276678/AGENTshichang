@@ -33,6 +33,20 @@ const WSMessageSchema = z.discriminatedUnion('type', [
     sessionId: z.string(),
     reaction: z.string(),
     agentName: z.string().optional()
+  }),
+  z.object({
+    type: z.literal('user_supplement'),
+    payload: z.object({
+      content: z.string(),
+      triggerExtension: z.boolean().optional()
+    })
+  }),
+  z.object({
+    type: z.literal('extend_phase'),
+    payload: z.object({
+      extensionSeconds: z.number(),
+      reason: z.string()
+    })
   })
 ])
 
@@ -57,6 +71,12 @@ interface SessionState {
   currentPrice: number
   timeRemaining: number
   lastActivity: Date
+
+  // 快速竞价模式 - 时间管理
+  phaseStartTime: Date
+  basePhaseDuration: number // 基础阶段时长（秒）
+  phaseExtended: boolean // 是否已顺延
+  extensionTime: number // 顺延时间（秒）
 }
 
 export class BiddingWebSocketServer {
@@ -205,6 +225,12 @@ export class BiddingWebSocketServer {
         case 'react_to_dialogue':
           await this.handleReactToDialogue(clientId, message)
           break
+        case 'user_supplement':
+          await this.handleUserSupplement(clientId, message)
+          break
+        case 'extend_phase':
+          await this.handleExtendPhase(clientId, message)
+          break
       }
     } catch (error) {
       console.error('WebSocket message handling error:', error)
@@ -278,7 +304,13 @@ export class BiddingWebSocketServer {
           viewers: 0,
           currentPrice: session.currentHigh,
           timeRemaining: this.calculateTimeRemaining(session),
-          lastActivity: new Date()
+          lastActivity: new Date(),
+
+          // 快速竞价模式 - 时间管理
+          phaseStartTime: new Date(),
+          basePhaseDuration: 120, // 2分钟基础时长
+          phaseExtended: false,
+          extensionTime: 0
         }
         this.sessions.set(sessionId, sessionState)
       }
@@ -838,13 +870,106 @@ export class BiddingWebSocketServer {
     })
   }
 
+  // 处理用户补充消息
+  private async handleUserSupplement(clientId: string, message: any) {
+    const client = this.clients.get(clientId)
+    if (!client || !client.sessionId) return
+
+    const { payload } = message
+    const { content, triggerExtension } = payload
+
+    try {
+      // 记录用户补充内容
+      if (client.userId) {
+        await this.recordUserBehavior(client.userId, client.sessionId, 'user_supplement', {
+          content,
+          triggerExtension
+        })
+      }
+
+      // 向会话广播用户补充
+      this.broadcastToSession(client.sessionId, {
+        type: 'user_message',
+        userId: client.userId,
+        content,
+        timestamp: Date.now()
+      })
+
+      // 如果需要触发时间顺延
+      if (triggerExtension) {
+        await this.extendPhaseTime(client.sessionId, 60, 'user_interaction')
+      }
+
+      this.sendToClient(clientId, {
+        type: 'supplement_recorded',
+        content
+      })
+
+    } catch (error) {
+      console.error('Error handling user supplement:', error)
+    }
+  }
+
+  // 处理阶段时间顺延
+  private async handleExtendPhase(clientId: string, message: any) {
+    const client = this.clients.get(clientId)
+    if (!client || !client.sessionId) return
+
+    const { payload } = message
+    const { extensionSeconds, reason } = payload
+
+    try {
+      await this.extendPhaseTime(client.sessionId, extensionSeconds, reason)
+    } catch (error) {
+      console.error('Error handling extend phase:', error)
+      this.sendToClient(clientId, {
+        type: 'error',
+        message: 'Failed to extend phase time',
+        code: 'EXTEND_ERROR'
+      })
+    }
+  }
+
+  // 顺延阶段时间的核心方法
+  private async extendPhaseTime(sessionId: string, extensionSeconds: number, reason: string) {
+    const sessionState = this.sessions.get(sessionId)
+    if (!sessionState || sessionState.phaseExtended) {
+      return // 会话不存在或已经顺延过
+    }
+
+    // 更新会话状态
+    sessionState.phaseExtended = true
+    sessionState.extensionTime = extensionSeconds
+    sessionState.timeRemaining += extensionSeconds
+
+    console.log(`⏰ Phase extended for session ${sessionId}: +${extensionSeconds}s (${reason})`)
+
+    // 向所有会话参与者广播时间顺延
+    this.broadcastToSession(sessionId, {
+      type: 'time_extended',
+      extensionSeconds,
+      newTimeRemaining: sessionState.timeRemaining,
+      reason,
+      timestamp: Date.now()
+    })
+
+    // 记录到数据库（如果需要）
+    try {
+      // 这里可以添加数据库记录逻辑
+      // await this.recordPhaseExtension(sessionId, extensionSeconds, reason)
+    } catch (error) {
+      console.warn('Failed to record phase extension to database:', error)
+    }
+  }
+
   // 获取服务器统计信息
   public getStats() {
     return {
       totalClients: this.clients.size,
       totalSessions: this.sessions.size,
       activeSessions: Array.from(this.sessions.values()).filter(s => s.status === 'ACTIVE').length,
-      totalViewers: Array.from(this.sessions.values()).reduce((sum, s) => sum + s.viewers, 0)
+      totalViewers: Array.from(this.sessions.values()).reduce((sum, s) => sum + s.viewers, 0),
+      extendedSessions: Array.from(this.sessions.values()).filter(s => s.phaseExtended).length
     }
   }
 }
