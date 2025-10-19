@@ -39,6 +39,7 @@ export function useFixedBiddingWebSocket(ideaId: string, timeConfig: BiddingTime
   const wsRef = useRef<WebSocket | null>(null)
   const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null)
   const messageCountRef = useRef(0)
+  const handleMessageRef = useRef<((data: any) => void) | null>(null)
 
   // 修复3: 增强的连接函数，包含重试和错误处理
   const connectWebSocket = useCallback(() => {
@@ -84,7 +85,7 @@ export function useFixedBiddingWebSocket(ideaId: string, timeConfig: BiddingTime
       ws.onmessage = (event) => {
         try {
           const data = JSON.parse(event.data)
-          handleWebSocketMessage(data)
+          handleMessageRef.current?.(data)
         } catch (error) {
           console.error('Failed to parse WebSocket message:', error)
           console.log('Raw message:', event.data)
@@ -262,7 +263,12 @@ export function useFixedBiddingWebSocket(ideaId: string, timeConfig: BiddingTime
       default:
         console.log('❓ Unknown message type:', data.type, data)
     }
-  }, []) // 移除currentPhase依赖，避免无限循环
+  }, [timeConfig, extensionCount]) // 添加必要的依赖项，但避免造成循环
+
+  // 更新消息处理函数的ref
+  useEffect(() => {
+    handleMessageRef.current = handleWebSocketMessage
+  }, [handleWebSocketMessage])
 
   // 发送消息功能
   const sendMessage = useCallback((message: any) => {
