@@ -6,7 +6,7 @@
 
 import { useEffect, useRef, useState, useCallback } from 'react'
 import { useAuth } from '@/hooks/useAuth'
-import { OPTIMIZED_BIDDING_TIME_CONFIG, getPhaseTime, type BiddingTimeConfiguration } from '@/config/bidding-time-config'
+import { ULTRA_FAST_BIDDING_TIME_CONFIG, getPhaseTime, type BiddingTimeConfiguration } from '@/config/bidding-time-config'
 
 // 修复后的WebSocket配置
 const getWebSocketURL = (ideaId: string): string => {
@@ -20,7 +20,7 @@ const getWebSocketURL = (ideaId: string): string => {
   return `${protocol}//${host}/api/bidding/websocket?ideaId=${ideaId}`
 }
 
-export function useFixedBiddingWebSocket(ideaId: string, timeConfig: BiddingTimeConfiguration = OPTIMIZED_BIDDING_TIME_CONFIG) {
+export function useFixedBiddingWebSocket(ideaId: string, timeConfig: BiddingTimeConfiguration = ULTRA_FAST_BIDDING_TIME_CONFIG) {
   const [isConnected, setIsConnected] = useState(false)
   const [connectionStatus, setConnectionStatus] = useState<'disconnected' | 'connecting' | 'connected' | 'error'>('disconnected')
   const [aiMessages, setAiMessages] = useState<any[]>([])

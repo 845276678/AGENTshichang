@@ -17,7 +17,7 @@ import { type AIMessage } from '@/lib/ai-persona-system'
 import { AnimatedMaturityScoreCard, WorkshopRecommendations, ImprovementSuggestions } from '@/components/maturity'
 import type { MaturityScoreResult } from '@/lib/business-plan/maturity-scorer'
 import { useFixedBiddingWebSocket } from '@/hooks/useFixedBiddingWebSocket'
-import { OPTIMIZED_BIDDING_TIME_CONFIG, formatTimeRemaining, getPhaseDisplayName } from '@/config/bidding-time-config'
+import { ULTRA_FAST_BIDDING_TIME_CONFIG, formatTimeRemaining, getPhaseDisplayName } from '@/config/bidding-time-config'
 import { useAgentStates, PhasePermissionManager } from '@/hooks/useAgentStates'
 import { agentStateManager } from '@/services/AgentStateManager'
 import { tokenStorage } from '@/lib/token-storage'
@@ -113,7 +113,7 @@ export default function UnifiedBiddingStage({
     startBidding,
     reconnect,
     sendUserSupplement
-  } = useFixedBiddingWebSocket(ideaId, OPTIMIZED_BIDDING_TIME_CONFIG);
+  } = useFixedBiddingWebSocket(ideaId, ULTRA_FAST_BIDDING_TIME_CONFIG);
 
   // 模拟缺失的状态
   const viewerCount = 15;

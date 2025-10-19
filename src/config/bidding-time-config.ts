@@ -68,6 +68,29 @@ export const OPTIMIZED_BIDDING_TIME_CONFIG: BiddingTimeConfiguration = {
   }
 }
 
+// 超快速模式配置 - 1分钟方案
+export const ULTRA_FAST_BIDDING_TIME_CONFIG: BiddingTimeConfiguration = {
+  phases: {
+    warmup: 10,        // 10秒 - 快速AI介绍
+    discussion: 15,    // 15秒 - 简短分析
+    bidding: 20,       // 20秒 - 快速竞价
+    prediction: 10,    // 10秒 - 用户补充
+    result: 5          // 5秒 - 结果展示
+  },
+  totalTime: 1,        // 总计1分钟
+  userExtension: {
+    enabled: false,
+    maxPerPhase: 0,
+    extensionTime: 0,
+    triggerEvents: []
+  },
+  dynamicAdjustment: {
+    enabled: false,
+    complexityMultiplier: { min: 1, max: 1 },
+    baseComplexity: 50
+  }
+}
+
 // 快速模式配置 - 8分钟方案（保留向后兼容）
 export const FAST_BIDDING_TIME_CONFIG: BiddingTimeConfiguration = {
   phases: {
@@ -118,7 +141,7 @@ export const STANDARD_BIDDING_TIME_CONFIG: BiddingTimeConfiguration = {
 export const calculateDynamicPhaseTime = (
   basePhase: PhaseTimeConfig,
   ideaComplexity: number,
-  config: DynamicTimeConfig = OPTIMIZED_BIDDING_TIME_CONFIG.dynamicAdjustment
+  config: DynamicTimeConfig = ULTRA_FAST_BIDDING_TIME_CONFIG.dynamicAdjustment
 ): PhaseTimeConfig => {
   if (!config.enabled) {
     return basePhase
@@ -171,7 +194,7 @@ export const calculateTotalPhaseTime = (phases: PhaseTimeConfig): number => {
 // 获取阶段时长(秒)
 export const getPhaseTime = (
   phase: BiddingPhase | string,
-  config: PhaseTimeConfig = OPTIMIZED_BIDDING_TIME_CONFIG.phases
+  config: PhaseTimeConfig = ULTRA_FAST_BIDDING_TIME_CONFIG.phases
 ): number => {
   const phaseMap: Record<string, keyof PhaseTimeConfig> = {
     [BiddingPhase.WARMUP]: 'warmup',
@@ -185,20 +208,22 @@ export const getPhaseTime = (
   return phaseKey ? config[phaseKey] : 0
 }
 
-// 默认导出优化配置
-export default OPTIMIZED_BIDDING_TIME_CONFIG
+// 默认导出超快速配置
+export default ULTRA_FAST_BIDDING_TIME_CONFIG
 
 // 导出配置选择器
 export const getBiddingTimeConfig = (
-  mode: 'fast' | 'optimized' | 'standard' = 'optimized'
+  mode: 'ultra-fast' | 'fast' | 'optimized' | 'standard' = 'optimized'
 ): BiddingTimeConfiguration => {
   switch (mode) {
+    case 'ultra-fast':
+      return ULTRA_FAST_BIDDING_TIME_CONFIG
     case 'fast':
       return FAST_BIDDING_TIME_CONFIG
     case 'standard':
       return STANDARD_BIDDING_TIME_CONFIG
     case 'optimized':
     default:
-      return OPTIMIZED_BIDDING_TIME_CONFIG
+      return ULTRA_FAST_BIDDING_TIME_CONFIG
   }
 }
