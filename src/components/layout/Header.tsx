@@ -7,6 +7,7 @@ import { cn } from '@/lib/utils'
 import { useAuth } from '@/contexts/AuthContext'
 import { useCart } from '@/contexts/CartContext'
 import { Button } from '@/components/ui/button'
+import { ModularNavigation } from './ModularNavigation'
 import {
   Search,
   Menu,
@@ -21,7 +22,8 @@ import {
   Lightbulb,
   GitBranch,
   Zap,
-  Bookmark
+  Bookmark,
+  CreditCard
 } from 'lucide-react'
 
 interface HeaderProps {
@@ -313,6 +315,13 @@ const MobileMenu = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void 
                   创意竞价
                 </Link>
                 <Link
+                  href="/categories"
+                  className="block rounded-sm px-3 py-2 text-sm hover:bg-accent transition-colors"
+                  onClick={onClose}
+                >
+                  创意分类
+                </Link>
+                <Link
                   href="/daily-idea"
                   className="block rounded-sm px-3 py-2 text-sm hover:bg-accent transition-colors"
                   onClick={onClose}
@@ -348,20 +357,6 @@ const MobileMenu = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void 
                   专业工作坊
                 </Link>
                 <Link
-                  href="/solo-company"
-                  className="block rounded-sm px-3 py-2 text-sm hover:bg-accent transition-colors"
-                  onClick={onClose}
-                >
-                  一人公司
-                </Link>
-                <Link
-                  href="/categories"
-                  className="block rounded-sm px-3 py-2 text-sm hover:bg-accent transition-colors"
-                  onClick={onClose}
-                >
-                  创意分类
-                </Link>
-                <Link
                   href="/knowledge-vault"
                   className="block rounded-sm px-3 py-2 text-sm hover:bg-accent transition-colors"
                   onClick={onClose}
@@ -374,6 +369,13 @@ const MobileMenu = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void 
                   onClick={onClose}
                 >
                   Agent能力中心
+                </Link>
+                <Link
+                  href="/solo-company"
+                  className="block rounded-sm px-3 py-2 text-sm hover:bg-accent transition-colors"
+                  onClick={onClose}
+                >
+                  一人公司
                 </Link>
                 <Link
                   href="/cart"
@@ -485,81 +487,8 @@ export function Header({ className }: HeaderProps) {
             </span>
           </Link>
 
-          {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center space-x-6">
-            <Link
-              href="/marketplace"
-              className="text-sm font-medium transition-colors hover:text-primary"
-            >
-              创意竞价
-            </Link>
-            <Link
-              href="/daily-idea"
-              className="text-sm font-medium transition-colors hover:text-primary"
-            >
-              每日一创意
-            </Link>
-            <Link
-              href="/idea-growth-tree"
-              className="text-sm font-medium transition-colors hover:text-primary"
-            >
-              创意生长树
-            </Link>
-            <Link
-              href="/pressure-test"
-              className="text-sm font-medium transition-colors hover:text-primary"
-            >
-              创意压力台
-            </Link>
-            <Link
-              href="/business-plan"
-              className="text-sm font-medium transition-colors hover:text-primary"
-            >
-              创意实现建议
-            </Link>
-            <Link
-              href="/workshops"
-              className="text-sm font-medium transition-colors hover:text-primary"
-            >
-              专业工作坊
-            </Link>
-            <Link
-              href="/solo-company"
-              className="text-sm font-medium transition-colors hover:text-primary"
-            >
-              一人公司
-            </Link>
-            <Link
-              href="/categories"
-              className="text-sm font-medium transition-colors hover:text-primary"
-            >
-              创意分类
-            </Link>
-            <Link
-              href="/knowledge-vault"
-              className="text-sm font-medium transition-colors hover:text-primary"
-            >
-              知识库收藏夹
-            </Link>
-            <Link
-              href="/agent-center"
-              className="text-sm font-medium transition-colors hover:text-primary"
-            >
-              Agent能力中心
-            </Link>
-            <Link
-              href="/payment"
-              className="text-sm font-medium transition-colors hover:text-primary"
-            >
-              积分价格
-            </Link>
-            <Link
-              href="/about"
-              className="text-sm font-medium transition-colors hover:text-primary"
-            >
-              关于我们
-            </Link>
-          </nav>
+          {/* Desktop Navigation - New Modular Structure */}
+          <ModularNavigation />
 
           {/* Search Bar - Desktop */}
           <SearchBar className="hidden lg:block max-w-md flex-1 mx-6" />
@@ -575,6 +504,23 @@ export function Header({ className }: HeaderProps) {
             >
               <Search className="h-4 w-4" />
             </Button>
+
+            {/* Secondary Navigation Links */}
+            <div className="hidden md:flex items-center space-x-4">
+              <Link
+                href="/payment"
+                className="text-sm font-medium transition-colors hover:text-primary flex items-center gap-1"
+              >
+                <CreditCard className="h-4 w-4" />
+                积分价格
+              </Link>
+              <Link
+                href="/about"
+                className="text-sm font-medium transition-colors hover:text-primary"
+              >
+                关于我们
+              </Link>
+            </div>
 
             {/* Cart Button */}
             <CartButton />
