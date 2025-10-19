@@ -470,8 +470,48 @@ function BusinessPlanContent() {
     }
   ]
 
-  // 只有在既没有 reportId 也没有 sessionId 时才显示引导页
-  if (!reportId && !sessionId) {
+  // 条件判断逻辑：
+  // 1. 如果来源是 ai-bidding 但缺少 sessionId，显示加载状态等待数据
+  // 2. 如果既没有 reportId 也没有 sessionId，且不是来自竞价系统，才显示引导页
+
+  // 特殊处理：来自竞价系统但缺少sessionId的情况
+  if (source === 'ai-bidding' && !sessionId && !reportId) {
+    return (
+      <Layout>
+        <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex items-center justify-center">
+          <Card className="w-96">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Brain className="w-6 h-6 text-blue-600" />
+                等待竞价数据
+              </CardTitle>
+              <CardDescription>
+                正在等待竞价系统传递数据，请稍候...
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="text-center space-y-2">
+                <Loader2 className="w-8 h-8 animate-spin mx-auto text-blue-600" />
+                <p className="text-sm text-gray-600">
+                  如果长时间未响应，请返回竞价页面重试
+                </p>
+                <Button
+                  variant="outline"
+                  onClick={() => router.back()}
+                  className="mt-4"
+                >
+                  <ArrowLeft className="w-4 h-4 mr-2" />
+                  返回上一页
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </Layout>
+    )
+  }
+
+  if (!reportId && !sessionId && source !== 'ai-bidding') {
     return (
       <Layout>
         <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-white">

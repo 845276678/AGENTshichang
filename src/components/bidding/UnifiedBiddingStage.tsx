@@ -585,9 +585,48 @@ export default function UnifiedBiddingStage({
       })
 
       // 使用 sessionStorage 存储数据,避免 URL 过长导致 HTTP 431 错误
-      sessionStorage.setItem('biddingData', JSON.stringify(requestBody))
-      sessionStorage.setItem('biddingIdeaId', ideaId)
-      sessionStorage.setItem('biddingIdeaContent', ideaContent || '')
+      // 添加数据验证和重试机制
+      try {
+        const biddingDataStr = JSON.stringify(requestBody)
+
+        // 验证数据大小（sessionStorage 限制约 5-10MB）
+        if (biddingDataStr.length > 5 * 1024 * 1024) { // 5MB 限制
+          console.warn('⚠️ 竞价数据过大，正在简化...')
+          // 简化数据：只保留关键信息
+          const simplifiedData = {
+            ideaId: requestBody.ideaId,
+            userId: requestBody.userId,
+            sessionId: requestBody.sessionId,
+            expertDiscussions: requestBody.expertDiscussions.slice(-10), // 只保留最后10条讨论
+            biddingResults: {
+              ...requestBody.biddingResults,
+              detailedBids: requestBody.biddingResults.detailedBids.slice(-5) // 只保留最后5次出价
+            },
+            userContributions: requestBody.userContributions,
+            maturityAssessment: requestBody.maturityAssessment
+          }
+          sessionStorage.setItem('biddingData', JSON.stringify(simplifiedData))
+        } else {
+          sessionStorage.setItem('biddingData', biddingDataStr)
+        }
+
+        sessionStorage.setItem('biddingIdeaId', ideaId)
+        sessionStorage.setItem('biddingIdeaContent', ideaContent || '')
+
+        // 验证数据是否成功保存
+        const savedData = sessionStorage.getItem('biddingData')
+        if (!savedData) {
+          throw new Error('sessionStorage 保存失败')
+        }
+
+        console.log('💾 Data saved to sessionStorage successfully')
+
+      } catch (storageError) {
+        console.error('❌ sessionStorage 操作失败:', storageError)
+        alert('数据保存失败，请重试生成商业计划')
+        setIsCreatingPlan(false)
+        return
+      }
 
       console.log('💾 Data saved to sessionStorage, now creating idea growth tree...')
 
@@ -609,7 +648,17 @@ export default function UnifiedBiddingStage({
             })
 
             // 保存生长树ID到sessionStorage，以便后续页面使用
-            sessionStorage.setItem('biddingGrowthTreeId', growthTreeResult.treeId)
+            try {
+              sessionStorage.setItem('biddingGrowthTreeId', growthTreeResult.treeId)
+              // 验证是否保存成功
+              const savedTreeId = sessionStorage.getItem('biddingGrowthTreeId')
+              if (savedTreeId) {
+                console.log('🌳 Growth tree ID saved successfully:', savedTreeId)
+              }
+            } catch (treeStorageError) {
+              console.warn('⚠️ 生长树ID保存失败:', treeStorageError)
+              // 不阻塞主流程
+            }
           } else {
             console.warn('⚠️ 创意生长树创建失败:', growthTreeResult.error)
           }
@@ -623,8 +672,8 @@ export default function UnifiedBiddingStage({
 
       console.log('🚀 Navigating to business plan generation page...')
 
-      // 使用路由跳转到进度页面(不带数据参数)
-      window.location.href = `/business-plan/generating?ideaId=${encodeURIComponent(ideaId)}`
+      // 使用路由跳转到进度页面(不带数据参数)，添加来源标识
+      window.location.href = `/business-plan/generating?ideaId=${encodeURIComponent(ideaId)}&source=ai-bidding`
 
     } catch (error) {
       console.error('❌ Business plan generation error:', error)

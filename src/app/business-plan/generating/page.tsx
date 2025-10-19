@@ -12,6 +12,9 @@ function GeneratingContent() {
   const searchParams = useSearchParams()
   const router = useRouter()
 
+  // 读取来源参数
+  const source = searchParams.get('source') || 'direct-generation'
+
   const [status, setStatus] = useState<'preparing' | 'generating' | 'success' | 'error'>('preparing')
   const [progress, setProgress] = useState(0)
   const [currentStep, setCurrentStep] = useState('')
@@ -22,6 +25,7 @@ function GeneratingContent() {
     const generateBusinessPlan = async () => {
       try {
         const ideaId = searchParams.get('ideaId')
+        // source 参数已在组件级别定义
 
         // 优先从 sessionStorage 读取数据
         const biddingDataStr = sessionStorage.getItem('biddingData')
@@ -96,7 +100,7 @@ function GeneratingContent() {
 
         // 等待2秒后跳转
         setTimeout(() => {
-          router.push(`/business-plan?sessionId=${result.sessionId}&source=ai-bidding`)
+          router.push(`/business-plan?sessionId=${result.sessionId}&source=${source}`)
         }, 2000)
 
       } catch (err) {
@@ -233,7 +237,7 @@ function GeneratingContent() {
           {status === 'success' && sessionId && (
             <div className="flex justify-center">
               <Button
-                onClick={() => router.push(`/business-plan?sessionId=${sessionId}&source=ai-bidding`)}
+                onClick={() => router.push(`/business-plan?sessionId=${sessionId}&source=${source}`)}
                 className="gap-2"
               >
                 <FileText className="w-4 h-4" />
