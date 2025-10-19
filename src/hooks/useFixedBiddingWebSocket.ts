@@ -97,9 +97,12 @@ export function useFixedBiddingWebSocket(ideaId: string, timeConfig: BiddingTime
         setConnectionStatus('disconnected')
         wsRef.current = null
 
-        // 只有在非正常关闭时才重连
-        if (event.code !== 1000) {
-          scheduleReconnect()
+        // 只有在非正常关闭时才重连 - 内联重连逻辑避免循环依赖
+        if (event.code !== 1000 && !reconnectTimeoutRef.current) {
+          reconnectTimeoutRef.current = setTimeout(() => {
+            console.log('🔄 Attempting WebSocket reconnect...')
+            connectWebSocket()
+          }, 3000)
         }
       }
 
@@ -111,9 +114,15 @@ export function useFixedBiddingWebSocket(ideaId: string, timeConfig: BiddingTime
     } catch (error) {
       console.error('Failed to create WebSocket connection:', error)
       setConnectionStatus('error')
-      scheduleReconnect()
+      // 内联重连逻辑
+      if (!reconnectTimeoutRef.current) {
+        reconnectTimeoutRef.current = setTimeout(() => {
+          console.log('🔄 Attempting WebSocket reconnect...')
+          connectWebSocket()
+        }, 3000)
+      }
     }
-  }, [ideaId])
+  }, [ideaId]) // 只依赖ideaId，移除handleWebSocketMessage依赖
 
   // 修复6: 增强的消息处理函数
   const handleWebSocketMessage = useCallback((data: any) => {
@@ -253,17 +262,7 @@ export function useFixedBiddingWebSocket(ideaId: string, timeConfig: BiddingTime
       default:
         console.log('❓ Unknown message type:', data.type, data)
     }
-  }, [currentPhase])
-
-  // 重连逻辑
-  const scheduleReconnect = useCallback(() => {
-    if (reconnectTimeoutRef.current) return
-
-    reconnectTimeoutRef.current = setTimeout(() => {
-      console.log('🔄 Attempting WebSocket reconnect...')
-      connectWebSocket()
-    }, 3000)
-  }, [connectWebSocket])
+  }, []) // 移除currentPhase依赖，避免无限循环
 
   // 发送消息功能
   const sendMessage = useCallback((message: any) => {
