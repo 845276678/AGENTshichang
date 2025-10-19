@@ -20,7 +20,8 @@ import {
   Gift,
   Lightbulb,
   GitBranch,
-  Zap
+  Zap,
+  Bookmark
 } from 'lucide-react'
 
 interface HeaderProps {
@@ -361,6 +362,13 @@ const MobileMenu = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void 
                   创意分类
                 </Link>
                 <Link
+                  href="/knowledge-vault"
+                  className="block rounded-sm px-3 py-2 text-sm hover:bg-accent transition-colors"
+                  onClick={onClose}
+                >
+                  知识库收藏夹
+                </Link>
+                <Link
                   href="/agent-center"
                   className="block rounded-sm px-3 py-2 text-sm hover:bg-accent transition-colors"
                   onClick={onClose}
@@ -526,6 +534,12 @@ export function Header({ className }: HeaderProps) {
               className="text-sm font-medium transition-colors hover:text-primary"
             >
               创意分类
+            </Link>
+            <Link
+              href="/knowledge-vault"
+              className="text-sm font-medium transition-colors hover:text-primary"
+            >
+              知识库收藏夹
             </Link>
             <Link
               href="/agent-center"
