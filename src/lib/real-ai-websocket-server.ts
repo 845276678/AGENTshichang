@@ -633,18 +633,16 @@ export async function handleRealBiddingWebSocket(request: NextRequest, ideaId: s
   console.log(`🔌 Handling real AI WebSocket connection for idea: ${ideaId}`)
 
   try {
-    // 查找相同ideaId的活跃会话（可能有多个）
-    let session = Array.from(activeSessions.values()).find(s => s.ideaId === ideaId && !s.isEnding)
+    // 每个WebSocket连接都创建独立的会话，避免多页面干扰
+    console.log(`📝 Creating new real AI session for idea: ${ideaId}`)
 
-    if (!session) {
-      console.log(`📝 Creating new real AI session for idea: ${ideaId}`)
-      // 从缓存获取真实的创意内容
-      const ideaContent = getIdeaContent(ideaId)
-      // 创建新的真实AI会话
-      session = createRealSession(ideaId, ideaContent)
-    } else {
-      console.log(`♻️ Reusing existing session ${session.id} for idea: ${ideaId}`)
-    }
+    // 从缓存获取真实的创意内容
+    const ideaContent = getIdeaContent(ideaId)
+
+    // 创建新的真实AI会话（每个连接独立）
+    const session = createRealSession(ideaId, ideaContent)
+
+    console.log(`✅ Created independent session ${session.id} for WebSocket connection`)
 
     // 在真实WebSocket环境中，这里会升级连接
     // 当前返回HTTP响应表示WebSocket端点可用
