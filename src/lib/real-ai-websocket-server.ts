@@ -578,6 +578,10 @@ function endSession(session: RealBiddingSession) {
 
   // 广播会话结束消息
   console.log(`📢 [DEBUG] Broadcasting session.ended message to ${session.participants.size} participants`)
+
+  // 构建跳转URL - 跳转到商业计划生成页面
+  const businessPlanUrl = `/business-plan?ideaId=${session.ideaId}&source=bidding&highestBid=${session.highestBid}`
+
   broadcastToSession(session.ideaId, {
     type: 'session.ended',
     payload: {
@@ -587,10 +591,11 @@ function endSession(session: RealBiddingSession) {
       duration: Date.now() - session.startTime.getTime(),
       finalPhase: session.currentPhase,
       highestBid: session.highestBid,
-      timestamp: Date.now()
+      timestamp: Date.now(),
+      businessPlanUrl  // 添加跳转URL
     }
   })
-  console.log(`✅ [DEBUG] session.ended message broadcasted`)
+  console.log(`✅ [DEBUG] session.ended message broadcasted with redirect URL: ${businessPlanUrl}`)
 
   // 延迟清理会话数据，确保客户端收到结束消息
   setTimeout(() => {
