@@ -66,6 +66,8 @@ model User {
   userPointTransactions UserPointTransaction[]
   ideaGrowthTrees      IdeaGrowthTree[]
   pressureTestResults  PressureTestResult[]
+  refinementDocuments  IdeaRefinementDocument[]
+  mvpSessions          MVPVisualizationSession[]
 
   @@map("users")
 }
@@ -1336,5 +1338,98 @@ enum DebateResponseType {
   DISAGREE          // 礼貌反驳
   GUIDE             // 引导思考
   EXPAND            // 深化扩展
+}
+
+// ===============================================
+// 工作坊系统模型
+// ===============================================
+
+// 创意完善工作坊文档模型
+model IdeaRefinementDocument {
+  id                  String   @id @default(cuid())
+  userId              String   @map("user_id")
+  user                User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // 基本信息
+  ideaTitle           String   @map("idea_title")
+  ideaContent         String   @db.Text @map("idea_content")
+  biddingSessionId    String?  @map("bidding_session_id")
+
+  // 评估结果
+  evaluationScore     Json?    @map("evaluation_score")
+
+  // 完善后的文档内容 (Json格式，包含6个维度)
+  refinedDocument     Json     @map("refined_document")
+
+  // 对话历史
+  conversationHistory Json[]   @map("conversation_history")
+
+  // 完善进度
+  currentDimension    Int      @default(0) @map("current_dimension")  // 当前正在完善的维度 (0-5)
+  currentRound        Int      @default(1) @map("current_round")      // 当前维度的对话轮次 (1-6)
+  completedDimensions String[] @map("completed_dimensions")            // 已完成的维度列表
+  progress            Float    @default(0)                            // 整体完成进度 (0-100)
+
+  // 状态
+  status              String   @default("IN_PROGRESS")  // IN_PROGRESS / COMPLETED / CANCELLED
+
+  // 时间戳
+  createdAt           DateTime @default(now()) @map("created_at")
+  updatedAt           DateTime @updatedAt @map("updated_at")
+  completedAt         DateTime? @map("completed_at")
+
+  // 关联的MVP工作坊会话
+  mvpSessions         MVPVisualizationSession[]
+
+  @@index([userId])
+  @@index([status])
+  @@index([biddingSessionId])
+  @@map("idea_refinement_documents")
+}
+
+// MVP前端可视化工作坊会话模型
+model MVPVisualizationSession {
+  id                    String   @id @default(cuid())
+  userId                String   @map("user_id")
+  user                  User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // 关联创意完善文档
+  refinementDocumentId  String?  @map("refinement_document_id")
+  refinementDocument    IdeaRefinementDocument? @relation(fields: [refinementDocumentId], references: [id])
+
+  // 前端内容（从创意完善文档提取或手动输入）
+  frontendRequirements  Json     @map("frontend_requirements")
+
+  // 可视化生成的代码
+  generatedHTML         String   @default("") @db.Text @map("generated_html")
+  generatedCSS          String   @default("") @db.Text @map("generated_css")
+
+  // 对话历史
+  conversationHistory   Json[]   @map("conversation_history")
+  currentRound          Int      @default(1) @map("current_round")
+
+  // 调整历史
+  adjustmentHistory     Json[]   @default([]) @map("adjustment_history")
+
+  // 积分相关
+  creditsDeducted       Int      @default(0) @map("credits_deducted")
+  isFromBidding         Boolean  @default(false) @map("is_from_bidding")
+
+  // 最终输出
+  finalHTMLFile         String?  @db.Text @map("final_html_file")
+  updatedPlanDocument   String?  @db.Text @map("updated_plan_document")
+
+  // 状态
+  status                String   @default("IN_PROGRESS")  // IN_PROGRESS / COMPLETED / CANCELLED
+
+  // 时间戳
+  createdAt             DateTime @default(now()) @map("created_at")
+  updatedAt             DateTime @updatedAt @map("updated_at")
+  completedAt           DateTime? @map("completed_at")
+
+  @@index([userId])
+  @@index([status])
+  @@index([refinementDocumentId])
+  @@map("mvp_visualization_sessions")
 }
 
