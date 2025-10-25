@@ -38,18 +38,18 @@ interface WorkshopMetadata {
 const WORKSHOPS: Record<WorkshopId, WorkshopMetadata> = {
   'demand-validation': {
     id: 'demand-validation',
-    title: '需求验证实验室',
-    subtitle: 'Demand Validation Lab',
-    description: '通过The Mom Test理论和6个AI专家Agent，帮助您深度验证目标客户需求，识别真实痛点，避免伪需求陷阱。',
-    duration: '60-90分钟',
+    title: '创意完善计划书',
+    subtitle: '需求验证实验室',
+    description: '通过科学的方法验证您的商业想法是否有市场需求，完善创意细节',
+    duration: '45-60分钟',
     difficulty: 'beginner',
     icon: <Target className="w-8 h-8" />,
     color: 'blue',
     objectives: [
-      '明确目标客户画像（年龄、职业、痛点）',
-      '识别有效需求信号 vs 无效赞美',
-      '收集具体行为证据和付费意愿',
-      '验证需求优先级和紧迫性'
+      '目标客户定义',
+      '需求场景分析',
+      '价值主张验证',
+      '验证计划制定'
     ],
     prerequisites: [
       '已完成创意成熟度评估',
@@ -65,18 +65,18 @@ const WORKSHOPS: Record<WorkshopId, WorkshopMetadata> = {
   },
   'mvp-builder': {
     id: 'mvp-builder',
-    title: 'MVP构建指挥部',
-    subtitle: 'MVP Building Command Center',
-    description: '快速定义和构建最小可行产品（MVP），通过精益方法论快速验证核心假设，降低试错成本。',
-    duration: '90-120分钟',
+    title: 'MVP构建工作坊',
+    subtitle: '最小可行产品设计',
+    description: '从想法到产品原型，学会构建最小可行产品（MVP）的核心方法',
+    duration: '60-90分钟',
     difficulty: 'intermediate',
     icon: <Lightbulb className="w-8 h-8" />,
     color: 'purple',
     objectives: [
-      '提炼核心功能（Top 3）',
-      '设计MVP原型（低保真 → 高保真）',
-      '制定快速验证计划（2周sprint）',
-      '定义成功指标（北极星指标）'
+      '核心功能定义',
+      '用户故事梳理',
+      '技术方案规划',
+      'MVP原型设计'
     ],
     prerequisites: [
       '核心价值维度分数 < 7.0',
@@ -92,18 +92,18 @@ const WORKSHOPS: Record<WorkshopId, WorkshopMetadata> = {
   },
   'growth-hacking': {
     id: 'growth-hacking',
-    title: '增长黑客作战室',
-    subtitle: 'Growth Hacking War Room',
-    description: '运用增长黑客策略，设计病毒式传播机制，低成本获取种子用户，实现爆发式增长。',
-    duration: '75-100分钟',
+    title: '推广工具',
+    subtitle: '增长黑客训练营',
+    description: '掌握增长策略的核心方法，快速扩大用户基础和业务规模',
+    duration: '90-120分钟',
     difficulty: 'advanced',
     icon: <TrendingUp className="w-8 h-8" />,
     color: 'green',
     objectives: [
-      '设计AARRR漏斗（获取、激活、留存、推荐、收入）',
-      '制定增长实验计划（A/B测试）',
-      '优化用户推荐机制（病毒系数K值）',
-      '低成本获客渠道（CAC < LTV）'
+      'AARRR漏斗分析',
+      '增长实验设计',
+      '渠道策略优化',
+      '数据驱动决策'
     ],
     prerequisites: [
       '已有MVP或Beta版本',
@@ -119,18 +119,18 @@ const WORKSHOPS: Record<WorkshopId, WorkshopMetadata> = {
   },
   'profit-model': {
     id: 'profit-model',
-    title: '盈利模式实验室',
-    subtitle: 'Profit Model Laboratory',
-    description: '探索和验证商业模式，设计合理的定价策略，构建可持续的收入模型，实现商业闭环。',
-    duration: '60-80分钟',
+    title: '盈利平台',
+    subtitle: '商业模式设计',
+    description: '构建可持续盈利的商业模式，实现从创意到收益的转化',
+    duration: '120-150分钟',
     difficulty: 'intermediate',
     icon: <DollarSign className="w-8 h-8" />,
     color: 'orange',
     objectives: [
-      '选择适合的商业模式（SaaS/电商/广告/佣金）',
-      '设计定价策略（价值定价 vs 成本定价）',
-      '计算单位经济模型（LTV/CAC比率）',
-      '规划收入增长路径（从0到1000万）'
+      '商业画布设计',
+      '收入模式构建',
+      '成本结构优化',
+      '盈利能力评估'
     ],
     prerequisites: [
       '商业模式维度分数 < 7.0',

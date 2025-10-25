@@ -30,9 +30,10 @@ import Link from 'next/link'
 // 懒加载大型组件 - 实现代码分割
 const WorkshopDashboard = lazy(() => import('@/components/workshop/WorkshopDashboard'))
 
-// 工作坊配置
+// 工作坊配置 - 与 src/app/workshop/[id]/page.tsx 和 src/data/workshops.ts 保持一致
 const WORKSHOP_CONFIG: Record<WorkshopId, {
   title: string
+  subtitle: string
   description: string
   estimatedTime: string
   difficulty: string
@@ -41,6 +42,7 @@ const WORKSHOP_CONFIG: Record<WorkshopId, {
 }> = {
   'demand-validation': {
     title: '创意完善计划书',
+    subtitle: '需求验证实验室',
     description: '通过科学的方法验证您的商业想法是否有市场需求，完善创意细节',
     estimatedTime: '45-60分钟',
     difficulty: '初级',
@@ -49,14 +51,16 @@ const WORKSHOP_CONFIG: Record<WorkshopId, {
   },
   'mvp-builder': {
     title: 'MVP构建工作坊',
-    description: '快速构建最小可行产品，验证核心价值假设，包含中国市场合规指导',
-    estimatedTime: '80-100分钟',
+    subtitle: '最小可行产品设计',
+    description: '从想法到产品原型，学会构建最小可行产品（MVP）的核心方法',
+    estimatedTime: '60-90分钟',
     difficulty: '中级',
     icon: Play,
     color: 'green'
   },
   'growth-hacking': {
     title: '推广工具',
+    subtitle: '增长黑客训练营',
     description: '掌握增长策略的核心方法，快速扩大用户基础和业务规模',
     estimatedTime: '90-120分钟',
     difficulty: '高级',
@@ -65,6 +69,7 @@ const WORKSHOP_CONFIG: Record<WorkshopId, {
   },
   'profit-model': {
     title: '盈利平台',
+    subtitle: '商业模式设计',
     description: '构建可持续盈利的商业模式，实现从创意到收益的转化',
     estimatedTime: '120-150分钟',
     difficulty: '高级',
@@ -87,6 +92,7 @@ function WorkshopSkeleton({ config }: { config: typeof WORKSHOP_CONFIG[WorkshopI
             </div>
             <div className="flex-1">
               <h1 className="text-2xl font-bold">{config.title}</h1>
+              <p className="text-sm text-gray-500 mb-2">{config.subtitle}</p>
               <p className="text-gray-600">{config.description}</p>
             </div>
             <div className="flex items-center gap-2">
