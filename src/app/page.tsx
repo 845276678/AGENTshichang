@@ -21,7 +21,11 @@ import {
   TrendingUp,
   PlayCircle,
   Users,
-  Activity
+  Activity,
+  Lightbulb,
+  Target,
+  BarChart3,
+  CheckCircle
 } from 'lucide-react'
 import { getAgentsGroupedByModule } from '@/lib/agent-registry'
 import type { Agent } from '@/lib/agent-registry'
@@ -475,6 +479,127 @@ const FeaturesSection = () => {
   )
 }
 
+const HowItWorksSection = () => {
+  const steps = [
+    {
+      number: '01',
+      title: '提交创意',
+      description: '输入您的创意想法，进入AI竞价环节。5位专业AI竞价师会对您的创意进行评估和竞价。',
+      icon: Lightbulb,
+      color: 'from-purple-500 to-violet-500',
+      link: '/marketplace',
+      linkText: '开始竞价'
+    },
+    {
+      number: '02',
+      title: '专业工作坊',
+      description: '竞价成功后，通过4个专业工作坊完善您的创意：需求验证、MVP构建、增长策略、盈利模式。',
+      icon: Target,
+      color: 'from-blue-500 to-cyan-500',
+      link: '/workshops',
+      linkText: '进入工作坊'
+    },
+    {
+      number: '03',
+      title: '一人公司',
+      description: '获得个性化的商业计划和执行路线图，启动您的独立创业项目，成为独立创业者。',
+      icon: Building2,
+      color: 'from-green-500 to-emerald-500',
+      link: '/solo-company',
+      linkText: '启动公司'
+    },
+    {
+      number: '04',
+      title: '项目复盘',
+      description: '记录项目进展，总结经验教训，持续优化改进。(功能即将上线)',
+      icon: BarChart3,
+      color: 'from-orange-500 to-amber-500',
+      link: '#',
+      linkText: '敬请期待',
+      comingSoon: true
+    }
+  ]
+
+  return (
+    <section className="py-20 lg:py-28 bg-gradient-to-br from-background via-secondary/10 to-background">
+      <div className="container">
+        <AnimatedSection>
+          <div className="text-center mb-16">
+            <Badge variant="outline" className="mb-4">
+              <CheckCircle className="w-4 h-4 mr-2" />
+              4步实现创意
+            </Badge>
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">
+              从想法到现实的完整路径
+            </h2>
+            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+              跟随我们的4步指导流程，将您的创意想法转化为可执行的商业项目。
+            </p>
+          </div>
+        </AnimatedSection>
+
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+          {steps.map((step, index) => (
+            <AnimatedSection key={step.number} delay={0.1 + index * 0.1}>
+              <Card className="h-full border-0 shadow-lg hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-background to-secondary/20 relative overflow-hidden group">
+                {/* Step number badge */}
+                <div className="absolute top-4 right-4 text-6xl font-bold text-primary/5 group-hover:text-primary/10 transition-colors">
+                  {step.number}
+                </div>
+
+                <CardContent className="p-6 relative z-10">
+                  <motion.div
+                    className={`w-14 h-14 rounded-xl bg-gradient-to-br ${step.color} flex items-center justify-center mb-4`}
+                    whileHover={{ scale: 1.1, rotate: 5 }}
+                  >
+                    <step.icon className="w-7 h-7 text-white" />
+                  </motion.div>
+
+                  <h3 className="text-xl font-bold mb-3 group-hover:text-primary transition-colors">
+                    {step.title}
+                  </h3>
+
+                  <p className="text-muted-foreground text-sm mb-6 leading-relaxed min-h-[80px]">
+                    {step.description}
+                  </p>
+
+                  {step.comingSoon ? (
+                    <Badge variant="secondary" className="w-full justify-center py-2">
+                      {step.linkText}
+                    </Badge>
+                  ) : (
+                    <Link href={step.link}>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="w-full group/btn"
+                      >
+                        {step.linkText}
+                        <ArrowRight className="ml-2 h-4 w-4 group-hover/btn:translate-x-1 transition-transform" />
+                      </Button>
+                    </Link>
+                  )}
+                </CardContent>
+
+                {/* Connection line (except for last item) */}
+                {index < steps.length - 1 && (
+                  <div className="hidden lg:block absolute top-1/2 -right-3 w-6 h-0.5 bg-gradient-to-r from-primary/50 to-transparent z-20" />
+                )}
+              </Card>
+            </AnimatedSection>
+          ))}
+        </div>
+
+        <AnimatedSection delay={0.5}>
+          <div className="text-center text-sm text-muted-foreground">
+            <p>💡 提示：每个步骤都有专业的AI助手为您提供指导和建议</p>
+          </div>
+        </AnimatedSection>
+      </div>
+    </section>
+  )
+}
+
 const CTASection = () => {
   const { isAuthenticated } = useAuth()
 
@@ -533,6 +658,7 @@ export default function HomePage() {
   return (
     <Layout>
       <HeroSection />
+      <HowItWorksSection />
       <AgentCapabilityCenter />
       <CategoriesSection />
       <FeaturesSection />

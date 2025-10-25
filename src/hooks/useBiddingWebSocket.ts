@@ -256,8 +256,9 @@ export function useBiddingWebSocket(config: UseBiddingWebSocketConfig): BiddingW
         break
 
       case 'ai_message':
-        const newMessage = data.message
-        console.log('💬 New AI message:', newMessage.personaId, newMessage.content.substring(0, 50) + '...')
+      case 'persona.speech':  // 添加backend发送的消息类型
+        const newMessage = data.message || data.payload
+        console.log('💬 New AI message:', newMessage.personaId, newMessage.content?.substring(0, 50) + '...')
         setAiMessages(prev => [newMessage, ...prev.slice(0, 19)]) // 保留最新20条
         setActiveSpeaker(newMessage.personaId)
 
@@ -268,10 +269,19 @@ export function useBiddingWebSocket(config: UseBiddingWebSocketConfig): BiddingW
         break
 
       case 'ai_bid':
-        const bidMessage = data.message
+      case 'bid.placed':  // 添加backend发送的消息类型
+        const bidMessage = data.message || data.payload
         console.log('💰 New AI bid:', bidMessage.personaId, bidMessage.bidValue)
         setAiMessages(prev => [bidMessage, ...prev.slice(0, 19)])
-        setCurrentBids(data.currentBids || {})
+
+        // 更新出价记录
+        if (bidMessage.bidValue) {
+          setCurrentBids(prev => ({
+            ...prev,
+            [bidMessage.personaId]: bidMessage.bidValue
+          }))
+        }
+
         setActiveSpeaker(bidMessage.personaId)
 
         setTimeout(() => {
@@ -280,10 +290,12 @@ export function useBiddingWebSocket(config: UseBiddingWebSocketConfig): BiddingW
         break
 
       case 'phase_change':
-        console.log('🔄 Phase changed:', data.phase)
-        setCurrentPhase(data.phase)
-        setTimeRemaining(getPhaseTimeRemaining(data.phase))
-        toast.info(`进入${data.message}`)
+      case 'phase.changed':  // 添加backend发送的消息类型
+        const phaseData = data.payload || data
+        console.log('🔄 Phase changed:', phaseData.phase || data.phase)
+        setCurrentPhase(phaseData.phase || data.phase)
+        setTimeRemaining(phaseData.timeRemaining || getPhaseTimeRemaining(phaseData.phase || data.phase))
+        toast.info(`进入${data.message || getPhaseDisplayName(phaseData.phase || data.phase)}`)
         break
 
       case 'viewer_count_update':
@@ -295,16 +307,25 @@ export function useBiddingWebSocket(config: UseBiddingWebSocketConfig): BiddingW
         break
 
       case 'session_complete':
-        console.log('🎉 Session completed:', data.results)
+      case 'session.ended':  // 添加backend发送的消息类型
+        console.log('🎉 Session completed:', data.results || data.payload)
         setCurrentPhase('result')
         setTimeRemaining(0)
-        toast.success(`竞价完成！最高出价：${data.results.highestBid}元`)
+
+        const resultData = data.results || data.payload
+        const highestBidValue = resultData?.highestBid || 0
+
+        if (highestBidValue > 0) {
+          toast.success(`竞价完成！最高出价：${highestBidValue}元`)
+        } else {
+          toast.success('AI竞价会话已完成')
+        }
 
         // 自动跳转到商业计划页面
-        if (data.results?.businessPlanUrl) {
-          console.log('🚀 Auto-redirecting to business plan:', data.results.businessPlanUrl)
+        if (resultData?.businessPlanUrl) {
+          console.log('🚀 Auto-redirecting to business plan:', resultData.businessPlanUrl)
           setTimeout(() => {
-            window.location.href = data.results.businessPlanUrl
+            window.location.href = resultData.businessPlanUrl
           }, 2000) // 延迟2秒让用户看到成功消息
         }
         break
@@ -343,6 +364,12 @@ export function useBiddingWebSocket(config: UseBiddingWebSocketConfig): BiddingW
         if (data.payload?.message) {
           toast.info(data.payload.message);
         }
+        break;
+
+      case 'ai.cost.update':
+        // AI成本更新（实时显示）
+        console.log('💵 AI cost update:', data.payload);
+        // 可以在这里更新UI显示成本统计
         break;
 
       case 'pong':
@@ -573,6 +600,17 @@ function getPhaseTimeRemaining(phase: string): number {
     'result': 0
   }
   return times[phase] || 60
+}
+
+function getPhaseDisplayName(phase: string): string {
+  const names: Record<string, string> = {
+    'warmup': '预热阶段',
+    'discussion': '讨论阶段',
+    'bidding': '竞价阶段',
+    'prediction': '预测阶段',
+    'result': '结果阶段'
+  }
+  return names[phase] || phase
 }
 
 function getPersonaName(personaId: string): string {
