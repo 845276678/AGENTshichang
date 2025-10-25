@@ -6,8 +6,9 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { getServerSession } from 'next-auth'
-import { authOptions } from '@/lib/auth'
+import { getUserFromRequest } from '@/lib/auth-helper'
+
+export const dynamic = 'force-dynamic'
 
 export async function POST(request: NextRequest) {
   try {
@@ -23,8 +24,8 @@ export async function POST(request: NextRequest) {
     }
 
     // 获取当前用户（可选）
-    const session = await getServerSession(authOptions)
-    const userId = session?.user?.id || null
+    const user = await getUserFromRequest(request)
+    const userId = user?.id || null
 
     // 记录使用日志
     await prisma.agentUsageLog.create({

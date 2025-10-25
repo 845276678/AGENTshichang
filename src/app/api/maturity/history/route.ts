@@ -5,6 +5,8 @@ import {
   getLatestAssessment
 } from '@/lib/database/maturity-assessment';
 
+export const dynamic = 'force-dynamic'
+
 /**
  * 获取评估历史记录API
  * GET /api/maturity/history
