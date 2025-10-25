@@ -256,6 +256,12 @@ export function useFixedBiddingWebSocket(ideaId: string, timeConfig: BiddingTime
         }
         break
 
+      case 'session_complete':
+        console.log('🏁 Bidding session completed:', data.results || data.payload || data)
+        setCurrentPhase('result')
+        setTimeRemaining(0)
+        break
+
       case 'session.ended':
       case 'session_ended':
       case 'bidding_ended':
