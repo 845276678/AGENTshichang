@@ -9,7 +9,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge'
 import { AnimatedSection } from '@/components/ui'
 import { useAuth } from '@/contexts/AuthContext'
-import { AgentCard } from '@/components/agent/AgentCard'
 import {
   ArrowRight,
   Sparkles,
@@ -20,15 +19,11 @@ import {
   Star,
   TrendingUp,
   PlayCircle,
-  Users,
-  Activity,
   Lightbulb,
   Target,
   BarChart3,
   CheckCircle
 } from 'lucide-react'
-import { getAgentsGroupedByModule } from '@/lib/agent-registry'
-import type { Agent } from '@/lib/agent-registry'
 
 const categories = [
   { name: '创意分享', count: '活跃', icon: Sparkles, gradient: 'from-pink-500 to-rose-500' },
@@ -133,236 +128,6 @@ const HeroSection = () => {
             </div>
           </AnimatedSection>
         </div>
-      </div>
-    </section>
-  )
-}
-
-const AgentCapabilityCenter = () => {
-  const [agentStats, setAgentStats] = useState<Record<string, any>>({})
-  const [loading, setLoading] = useState(true)
-
-  // 获取Agent统计数据
-  useEffect(() => {
-    async function fetchStats() {
-      try {
-        const response = await fetch('/api/agent/stats')
-        const data = await response.json()
-
-        // 将统计数据转换为agentId -> stats映射
-        const statsMap: Record<string, any> = {}
-        if (data.stats) {
-          data.stats.forEach((stat: any) => {
-            if (!statsMap[stat.agentId]) {
-              statsMap[stat.agentId] = {}
-            }
-            statsMap[stat.agentId][stat.module] = {
-              totalUses: stat.totalUses,
-              uniqueUsers: stat.uniqueUsers
-            }
-          })
-        }
-
-        setAgentStats(statsMap)
-      } catch (error) {
-        console.error('获取Agent统计失败:', error)
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    fetchStats()
-  }, [])
-
-  // 获取所有Agents并按模块分组
-  const agentGroups = getAgentsGroupedByModule()
-
-  // 计算Agent使用统计
-  const getAgentUsageStats = (agent: Agent) => {
-    const stats = agentStats[agent.id]
-    if (!stats) {
-      // 返回模拟数据以展示UI
-      return {
-        todayCount: Math.floor(Math.random() * 50) + 10,
-        trending: Math.random() > 0.7
-      }
-    }
-
-    const moduleStats = stats[agent.module]
-    return {
-      todayCount: moduleStats?.totalUses || 0,
-      trending: moduleStats?.totalUses > 50
-    }
-  }
-
-  // 计算总体统计
-  const totalAgents = agentGroups.bidding.length + agentGroups.workshop.length + agentGroups.assessment.length
-  const totalUsesToday = Object.values(agentStats).reduce((sum: number, stat: any) => {
-    return sum + Object.values(stat as Record<string, any>).reduce((s: number, m: any) => s + (m.totalUses || 0), 0)
-  }, 0)
-
-  return (
-    <section className="py-20 lg:py-28 bg-gradient-to-br from-background via-background to-secondary/20">
-      <div className="container">
-        <AnimatedSection>
-          <div className="text-center mb-12">
-            <Badge variant="outline" className="mb-4">
-              <Brain className="w-4 h-4 mr-2" />
-              Agent能力中心
-            </Badge>
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">
-              认识我们的AI智能助手团队
-            </h2>
-            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              从创意竞价到工作坊指导，从成熟度评估到专业咨询，AI助手团队为您的创意旅程提供全方位支持。
-            </p>
-          </div>
-        </AnimatedSection>
-
-        {/* 统计面板 */}
-        <AnimatedSection delay={0.1}>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-16">
-            <Card className="border-0 shadow-md">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-muted-foreground mb-1">AI助手</p>
-                    <p className="text-2xl font-bold">{totalAgents}位</p>
-                    <p className="text-xs text-muted-foreground mt-1">专业角色</p>
-                  </div>
-                  <Brain className="w-10 h-10 text-primary/20" />
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="border-0 shadow-md">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-muted-foreground mb-1">今日服务</p>
-                    <p className="text-2xl font-bold">{loading ? '--' : totalUsesToday}</p>
-                    <p className="text-xs text-green-600 mt-1">实时统计</p>
-                  </div>
-                  <Activity className="w-10 h-10 text-green-500/20" />
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="border-0 shadow-md">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-muted-foreground mb-1">用户满意度</p>
-                    <p className="text-2xl font-bold">98.5%</p>
-                    <p className="text-xs text-muted-foreground mt-1">好评率</p>
-                  </div>
-                  <Star className="w-10 h-10 text-yellow-500/20" />
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="border-0 shadow-md">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-muted-foreground mb-1">最受欢迎</p>
-                    <p className="text-2xl font-bold truncate">艾克斯</p>
-                    <p className="text-xs text-red-600 mt-1">🔥 本周冠军</p>
-                  </div>
-                  <TrendingUp className="w-10 h-10 text-red-500/20" />
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </AnimatedSection>
-
-        {/* 竞价系统 - 5位AI竞价师 */}
-        <AnimatedSection delay={0.2}>
-          <div className="mb-12">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="h-10 w-1 bg-gradient-to-b from-purple-500 to-violet-500 rounded-full" />
-              <div>
-                <h3 className="text-2xl font-bold">🏆 竞价系统</h3>
-                <p className="text-sm text-muted-foreground">5位AI竞价师为您的创意提供专业评估和竞价</p>
-              </div>
-            </div>
-
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {agentGroups.bidding.map((agent, index) => (
-                <AnimatedSection key={agent.id} delay={0.1 + index * 0.05}>
-                  <AgentCard
-                    agent={agent}
-                    usageStats={getAgentUsageStats(agent)}
-                  />
-                </AnimatedSection>
-              ))}
-            </div>
-          </div>
-        </AnimatedSection>
-
-        {/* 工作坊顾问 - 6位专业导师 */}
-        <AnimatedSection delay={0.3}>
-          <div className="mb-12">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="h-10 w-1 bg-gradient-to-b from-blue-500 to-cyan-500 rounded-full" />
-              <div>
-                <h3 className="text-2xl font-bold">🎓 工作坊顾问</h3>
-                <p className="text-sm text-muted-foreground">6位专业导师在4个工作坊中提供全方位指导</p>
-              </div>
-            </div>
-
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {agentGroups.workshop.map((agent, index) => (
-                <AnimatedSection key={agent.id} delay={0.1 + index * 0.05}>
-                  <AgentCard
-                    agent={agent}
-                    usageStats={getAgentUsageStats(agent)}
-                  />
-                </AnimatedSection>
-              ))}
-            </div>
-          </div>
-        </AnimatedSection>
-
-        {/* 评估系统 - 1位综合分析师 */}
-        <AnimatedSection delay={0.4}>
-          <div>
-            <div className="flex items-center gap-3 mb-6">
-              <div className="h-10 w-1 bg-gradient-to-b from-orange-500 to-amber-500 rounded-full" />
-              <div>
-                <h3 className="text-2xl font-bold">📊 评估系统</h3>
-                <p className="text-sm text-muted-foreground">基于10分制进行5维度综合评估</p>
-              </div>
-            </div>
-
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {agentGroups.assessment.map((agent) => (
-                <AnimatedSection key={agent.id} delay={0.1}>
-                  <AgentCard
-                    agent={agent}
-                    usageStats={getAgentUsageStats(agent)}
-                  />
-                </AnimatedSection>
-              ))}
-            </div>
-          </div>
-        </AnimatedSection>
-
-        {/* CTA 按钮 */}
-        <AnimatedSection delay={0.5}>
-          <div className="mt-12 text-center">
-            <Link href="/agent-center">
-              <Button size="lg" variant="outline" className="group">
-                <Users className="mr-2 w-5 h-5" />
-                查看完整Agent能力中心
-                <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
-              </Button>
-            </Link>
-            <p className="text-sm text-muted-foreground mt-4">
-              📊 统计数据每日18:00更新 · 最后更新：今天18:00
-            </p>
-          </div>
-        </AnimatedSection>
       </div>
     </section>
   )
@@ -659,7 +424,6 @@ export default function HomePage() {
     <Layout>
       <HeroSection />
       <HowItWorksSection />
-      <AgentCapabilityCenter />
       <CategoriesSection />
       <FeaturesSection />
       <CTASection />
