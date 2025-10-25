@@ -59,13 +59,37 @@ const LoadingComponent = () => (
 
 function BiddingPageContent() {
   const searchParams = useSearchParams()
-  const ideaId = searchParams?.get('ideaId') || 'demo-idea-001'
+
+  // 为每个标签页生成唯一的sessionId，解决多标签页数据串联问题
+  const [sessionId, setSessionId] = React.useState<string>('')
+
+  React.useEffect(() => {
+    // 从URL获取ideaId，如果没有则生成唯一的sessionId
+    const urlIdeaId = searchParams?.get('ideaId')
+
+    if (urlIdeaId) {
+      // 如果URL有ideaId，使用它
+      setSessionId(urlIdeaId)
+    } else {
+      // 否则为当前标签页生成唯一ID
+      // 使用 timestamp + random 确保唯一性
+      const uniqueId = `bidding-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+      setSessionId(uniqueId)
+      console.log('🆔 Generated unique session ID for this tab:', uniqueId)
+    }
+  }, [searchParams])
+
   const autoStart = searchParams?.get('autoStart') === '1' ||
                     searchParams?.get('autoStart')?.toLowerCase() === 'true'
 
+  // 等待sessionId生成后再渲染组件
+  if (!sessionId) {
+    return <LoadingComponent />
+  }
+
   return (
     <div suppressHydrationWarning style={{ minHeight: '100vh' }}>
-      <StageBasedBidding ideaId={ideaId} autoStart={autoStart} />
+      <StageBasedBidding ideaId={sessionId} autoStart={autoStart} />
     </div>
   )
 }
