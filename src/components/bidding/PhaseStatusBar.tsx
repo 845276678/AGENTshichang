@@ -204,19 +204,81 @@ export const PhaseStatusBar: React.FC<PhaseStatusBarProps> = ({
             </div>
           </div>
 
+          {/* 增强的阶段进度提示 */}
+          <MotionDiv className="mt-4 grid grid-cols-5 gap-2">
+            {['AGENT_WARMUP', 'AGENT_DISCUSSION', 'AGENT_BIDDING', 'USER_SUPPLEMENT', 'RESULT_DISPLAY'].map((phaseName, index) => {
+              const phaseKey = phaseName as BiddingPhase
+              const isCurrentPhase = phaseKey === currentPhase
+              const isPastPhase = Object.keys(BiddingPhase).indexOf(phaseKey) < Object.keys(BiddingPhase).indexOf(currentPhase)
+
+              return (
+                <div
+                  key={phaseName}
+                  className={`flex items-center gap-2 p-2 rounded-lg transition-all ${
+                    isCurrentPhase
+                      ? 'bg-blue-100 border-2 border-blue-400 shadow-sm'
+                      : isPastPhase
+                      ? 'bg-green-50 border border-green-200'
+                      : 'bg-gray-50 border border-gray-200'
+                  }`}
+                >
+                  <div
+                    className={`flex items-center justify-center w-6 h-6 rounded-full text-xs font-bold ${
+                      isCurrentPhase
+                        ? 'bg-blue-500 text-white animate-pulse'
+                        : isPastPhase
+                        ? 'bg-green-500 text-white'
+                        : 'bg-gray-300 text-gray-600'
+                    }`}
+                  >
+                    {isPastPhase ? '✓' : index + 1}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="text-xs font-medium truncate">
+                      {PHASE_CONFIG[phaseKey]?.title || '阶段' + (index + 1)}
+                    </div>
+                    {isCurrentPhase && (
+                      <div className="text-xs text-blue-600 font-semibold">
+                        进行中 {Math.round(timeProgress)}%
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )
+            })}
+          </MotionDiv>
+
           {/* 阶段提示信息 */}
           {!permissions.canUserInput && permissions.canUserWatch && (
             <MotionDiv className="phase-hint mt-3 p-2 bg-blue-50 text-blue-700 rounded-lg border border-blue-200">
-              <p className="text-sm">
+              <p className="text-sm flex items-center gap-2">
                 📺 当前为观看阶段，请耐心观看专家们的精彩表现
+                <span className="ml-auto text-xs font-semibold">
+                  {Math.round(timeProgress)}% 完成
+                </span>
               </p>
             </MotionDiv>
           )}
 
           {permissions.userSupplementAllowed && (
             <MotionDiv className="phase-hint mt-3 p-2 bg-yellow-50 text-yellow-700 rounded-lg border border-yellow-200">
-              <p className="text-sm">
+              <p className="text-sm flex items-center gap-2">
                 🎯 您可以支持喜欢的专家（最多 {permissions.maxSupplementCount} 次）
+                <span className="ml-auto text-xs font-semibold">
+                  {formatTimeRemaining(timeRemaining)} 后结束
+                </span>
+              </p>
+            </MotionDiv>
+          )}
+
+          {/* 竞价完成后的提示 */}
+          {currentPhase === BiddingPhase.RESULT_DISPLAY && (
+            <MotionDiv className="phase-hint mt-3 p-3 bg-gradient-to-r from-green-50 to-blue-50 text-gray-800 rounded-lg border-2 border-green-300 shadow-sm">
+              <p className="text-sm font-semibold flex items-center gap-2">
+                🎉 竞价已完成！正在展示结果和生成商业计划
+                <span className="ml-auto px-2 py-1 bg-green-500 text-white text-xs rounded-full">
+                  已结束
+                </span>
               </p>
             </MotionDiv>
           )}

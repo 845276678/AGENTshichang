@@ -274,9 +274,12 @@ export const EnhancedSupplementPanel: React.FC<EnhancedSupplementPanelProps> = (
                 <Badge variant="outline" className="text-xs">
                   {supplements.length} / {maxSupplements}
                 </Badge>
+                <Badge variant="secondary" className="text-xs bg-yellow-100 text-yellow-800">
+                  ⚠️ 暂未完善
+                </Badge>
               </CardTitle>
               <p className="text-sm text-gray-500 mt-1">
-                {isExpanded ? '点击收起' : '点击展开以补充更多信息'}
+                {isExpanded ? '点击收起' : '功能开发中，暂时不要点击展开'}
               </p>
             </div>
           </div>
