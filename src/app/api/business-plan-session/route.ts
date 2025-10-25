@@ -172,10 +172,21 @@ export async function POST(request: NextRequest) {
       }
     })
 
+    // 构建跳转URL - 优先使用ideaId格式（新格式）
+    let businessPlanUrl: string
+    if (body.ideaId && (body.source === 'ai-bidding' || body.source === 'bidding')) {
+      // 竞价来源：使用ideaId + source=bidding + highestBid格式
+      const highestBid = body.highestBid || body.currentBids?.max || 0
+      businessPlanUrl = `/business-plan?ideaId=${body.ideaId}&source=bidding&highestBid=${highestBid}`
+    } else {
+      // 其他来源：使用sessionId格式（兼容旧逻辑）
+      businessPlanUrl = `/business-plan?sessionId=${completion.session.id}&source=${body.source || 'ai-bidding'}`
+    }
+
     return NextResponse.json({
       success: true,
       sessionId: completion.session.id,
-      businessPlanUrl: `/business-plan?sessionId=${completion.session.id}&source=ai-bidding`,
+      businessPlanUrl,
       reportId: completion.report.id
     })
   } catch (error) {

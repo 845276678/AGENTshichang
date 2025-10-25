@@ -20,6 +20,7 @@ function GeneratingContent() {
   const [currentStep, setCurrentStep] = useState('')
   const [error, setError] = useState('')
   const [sessionId, setSessionId] = useState('')
+  const [businessPlanUrl, setBusinessPlanUrl] = useState('') // 新增：保存API返回的完整URL
 
   useEffect(() => {
     const generateBusinessPlan = async () => {
@@ -93,14 +94,18 @@ function GeneratingContent() {
         setProgress(100)
         setCurrentStep('生成成功！')
 
+        // 保存API返回的URL
+        const targetUrl = result.businessPlanUrl || `/business-plan?sessionId=${result.sessionId}&source=${source}`
+        setBusinessPlanUrl(targetUrl)
+
         // 清理 sessionStorage 数据
         sessionStorage.removeItem('biddingData')
         sessionStorage.removeItem('biddingIdeaId')
         sessionStorage.removeItem('biddingIdeaContent')
 
-        // 等待2秒后跳转
+        // 等待2秒后跳转 - 使用保存的URL
         setTimeout(() => {
-          router.push(`/business-plan?sessionId=${result.sessionId}&source=${source}`)
+          router.push(targetUrl)
         }, 2000)
 
       } catch (err) {
@@ -233,11 +238,11 @@ function GeneratingContent() {
             </div>
           )}
 
-          {/* 成功时显示sessionId */}
-          {status === 'success' && sessionId && (
+          {/* 成功时显示查看按钮 */}
+          {status === 'success' && businessPlanUrl && (
             <div className="flex justify-center">
               <Button
-                onClick={() => router.push(`/business-plan?sessionId=${sessionId}&source=${source}`)}
+                onClick={() => router.push(businessPlanUrl)}
                 className="gap-2"
               >
                 <FileText className="w-4 h-4" />

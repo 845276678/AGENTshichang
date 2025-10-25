@@ -42,22 +42,30 @@ function BusinessPlanContent() {
   const searchParams = useSearchParams()
   const { token, isInitialized } = useAuth()
 
-  // 支持新的会话ID参数和旧的报告参数
+  // 支持多种参数格式：
+  // 1. sessionId - 来自生成进度页面
+  // 2. ideaId - 来自竞价WebSocket自动跳转
+  // 3. reportId - 来自历史记录查看
   const sessionId = searchParams.get('sessionId')
+  const ideaId = searchParams.get('ideaId') // 新增：支持从竞价页面直接跳转
   const reportId = searchParams.get('reportId')
   const ideaTitle = searchParams.get('ideaTitle')
   const ideaDescription = searchParams.get('ideaDescription')
-  const source = searchParams.get('source') // 来源：ai-bidding, marketplace, direct-generation 或其他
+  const source = searchParams.get('source') // 来源：ai-bidding, bidding, marketplace, direct-generation 或其他
   const winningBid = searchParams.get('winningBid')
+  const highestBid = searchParams.get('highestBid') // 新增：支持highestBid参数
   const winner = searchParams.get('winner')
   // const guideCost = searchParams.get('guideCost') // 动态价格
   const useSimplifiedFormat = searchParams.get('useSimplifiedFormat') === 'true'
   const autoGenerate = searchParams.get('autoGenerate') === 'true'
 
+  // 如果有ideaId但没有sessionId，需要通过ideaId找到对应的session
+  const effectiveSessionId = sessionId || (ideaId && source === 'bidding' ? `bidding_${ideaId}` : null)
+
   const [loadingState, setLoadingState] = useState<LoadingState>({
-    isLoading: Boolean(sessionId || reportId || autoGenerate),
+    isLoading: Boolean(effectiveSessionId || reportId || autoGenerate),
     progress: 0,
-    stage: source === 'marketplace' ? '正在处理竞价结果...' :
+    stage: source === 'marketplace' || source === 'bidding' ? '正在处理竞价结果...' :
            source === 'direct-generation' ? '正在生成简化版创意实现建议...' :
            '正在载入数据...'
   })
@@ -277,7 +285,7 @@ function BusinessPlanContent() {
   }
 
   useEffect(() => {
-    if (!sessionId && !reportId && !autoGenerate) {
+    if (!effectiveSessionId && !reportId && !autoGenerate) {
       setGuide(null)
       setError(null)
       setLoadingState({
@@ -299,9 +307,9 @@ function BusinessPlanContent() {
       return
     }
 
-    // 如果有sessionId，直接尝试加载（支持匿名访问新会话）
-    if (sessionId) {
-      void loadSessionData(sessionId)
+    // 如果有sessionId或effectiveSessionId，直接尝试加载（支持匿名访问新会话）
+    if (effectiveSessionId) {
+      void loadSessionData(effectiveSessionId)
       return
     }
 
@@ -319,7 +327,7 @@ function BusinessPlanContent() {
       }
       void loadReportData(reportId)
     }
-  }, [sessionId, reportId, token, isInitialized, autoGenerate, source, ideaTitle, ideaDescription])
+  }, [effectiveSessionId, reportId, token, isInitialized, autoGenerate, source, ideaTitle, ideaDescription])
 
   const handleDownload = async (format: 'pdf' | 'docx' | 'markdown' | 'txt') => {
     if (!guide || (!reportId && !sessionId)) return
@@ -474,8 +482,8 @@ function BusinessPlanContent() {
   // 1. 如果来源是 ai-bidding 但缺少 sessionId，显示加载状态等待数据
   // 2. 如果既没有 reportId 也没有 sessionId，且不是来自竞价系统，才显示引导页
 
-  // 特殊处理：来自竞价系统但缺少sessionId的情况
-  if (source === 'ai-bidding' && !sessionId && !reportId) {
+  // 特殊处理：来自竞价系统但缺少sessionId/ideaId的情况
+  if ((source === 'ai-bidding' || source === 'bidding') && !effectiveSessionId && !reportId) {
     return (
       <Layout>
         <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex items-center justify-center">
@@ -511,7 +519,7 @@ function BusinessPlanContent() {
     )
   }
 
-  if (!reportId && !sessionId && source !== 'ai-bidding') {
+  if (!reportId && !effectiveSessionId && source !== 'ai-bidding' && source !== 'bidding') {
     return (
       <Layout>
         <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-white">
@@ -633,10 +641,10 @@ function BusinessPlanContent() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Brain className="w-6 h-6 text-blue-600" />
-                {source === 'marketplace' ? 'AI 正在生成创意实现建议' : 'AI 正在整理报告'}
+                {source === 'marketplace' || source === 'bidding' ? 'AI 正在生成创意实现建议' : 'AI 正在整理报告'}
               </CardTitle>
               <CardDescription>
-                {source === 'marketplace'
+                {source === 'marketplace' || source === 'bidding'
                   ? `基于竞价结果为《${displayIdeaTitle}》生成专业商业计划`
                   : (displayIdeaTitle ? `正在为《${displayIdeaTitle}》生成创意落地指南` : '正在准备创意落地指南')
                 }
@@ -663,7 +671,7 @@ function BusinessPlanContent() {
                 </div>
               </div>
 
-              {source === 'marketplace' && (
+              {(source === 'marketplace' || source === 'bidding') && (
                 <div className="p-3 bg-blue-50 rounded-lg">
                   <div className="text-xs text-blue-800 font-medium mb-2">生成流程说明：</div>
                   <div className="text-xs text-blue-700 space-y-1">
@@ -687,18 +695,21 @@ function BusinessPlanContent() {
                 </div>
               )}
 
-              {source === 'marketplace' && winner && (
+              {(source === 'marketplace' || source === 'bidding') && winner && (
                 <div className="text-center p-3 bg-green-50 rounded-lg border border-green-200">
                   <div className="text-xs text-green-700 mb-1">竞价获胜者</div>
                   <div className="text-sm font-semibold text-green-800">{winner}</div>
                   {winningBid && (
                     <div className="text-xs text-green-600">获胜出价：{winningBid} 积分</div>
                   )}
+                  {highestBid && !winningBid && (
+                    <div className="text-xs text-green-600">最高出价：{highestBid} 积分</div>
+                  )}
                 </div>
               )}
 
               <div className="text-xs text-muted-foreground text-center">
-                {source === 'marketplace'
+                {source === 'marketplace' || source === 'bidding'
                   ? 'AI 正在根据竞价结果生成专业的创意实现建议和落地指南...'
                   : 'AI 正在解析调研报告、提炼要点并生成执行建议...'
                 }
@@ -774,9 +785,9 @@ function BusinessPlanContent() {
                   <FileText className="w-5 h-5 text-blue-600" />
                   <span className="font-medium">创意落地指南</span>
                   <Badge variant="secondary" className="text-xs">
-                    {source === 'marketplace' ? '来自竞价结果' : '来自调研报告'}
+                    {source === 'marketplace' || source === 'bidding' ? '来自竞价结果' : '来自调研报告'}
                   </Badge>
-                  {source === 'marketplace' && winner && (
+                  {(source === 'marketplace' || source === 'bidding') && winner && (
                     <Badge variant="outline" className="text-xs bg-green-50 border-green-200 text-green-700">
                       获胜专家：{winner}
                     </Badge>
@@ -785,9 +796,9 @@ function BusinessPlanContent() {
               </div>
 
               <div className="flex items-center gap-2">
-                {source === 'marketplace' && winningBid && (
+                {(source === 'marketplace' || source === 'bidding') && (winningBid || highestBid) && (
                   <div className="text-sm text-muted-foreground mr-4">
-                    竞价金额：<span className="font-semibold text-green-600">{winningBid}积分</span>
+                    竞价金额：<span className="font-semibold text-green-600">{winningBid || highestBid}积分</span>
                   </div>
                 )}
                 <Button

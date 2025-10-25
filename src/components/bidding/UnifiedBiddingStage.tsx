@@ -14,7 +14,7 @@ const MotionDiv = ({ children, className, style, ...props }: { children: React.R
 const AnimatePresence = ({ children }: { children: React.ReactNode }) => <>{children}</>
 
 import { type AIMessage } from '@/lib/ai-persona-system'
-import { AnimatedMaturityScoreCard, WorkshopRecommendations, ImprovementSuggestions } from '@/components/maturity'
+import { AnimatedMaturityScoreCard } from '@/components/maturity'
 import type { MaturityScoreResult } from '@/lib/business-plan/maturity-scorer'
 import { useFixedBiddingWebSocket } from '@/hooks/useFixedBiddingWebSocket'
 import { ULTRA_FAST_BIDDING_TIME_CONFIG, formatTimeRemaining, getPhaseDisplayName } from '@/config/bidding-time-config'
@@ -29,14 +29,12 @@ import PhaseStatusBar from './PhaseStatusBar'
 import EnhancedSupplementPanel, { type SupplementCategory } from './EnhancedSupplementPanel'
 import BiddingAtmosphere from './BiddingAtmosphere'
 import DynamicBidVisualization from './DynamicBidVisualization'
-import { extractUserContext } from '@/lib/business-plan/context-extractor'
 import './AgentDialogPanel.css'
 
 import {
   Wifi,
   WifiOff,
   Users,
-  TrendingUp,
   Settings,
   Volume2,
   VolumeX,
@@ -47,9 +45,7 @@ import {
   Loader2,
   Send,
   MessageSquarePlus,
-  AlertCircle,
-  GitBranch,
-  Download
+  AlertCircle
 } from 'lucide-react'
 
 // 简化组件替代motion - 避免生产环境错误
@@ -275,7 +271,6 @@ export default function UnifiedBiddingStage({
   const [showSettings, setShowSettings] = useState(false)
   const [compactMode, setCompactMode] = useState(false)
   const [isCreatingPlan, setIsCreatingPlan] = useState(false)
-  const [isExportingDialog, setIsExportingDialog] = useState(false)
 
   // 创意成熟度评估状态
   const [maturityAssessment, setMaturityAssessment] = useState<MaturityScoreResult | null>(null)
