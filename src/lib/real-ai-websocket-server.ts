@@ -7,9 +7,13 @@ import { NextRequest } from 'next/server'
 import { WebSocket, WebSocketServer } from 'ws'
 import { AI_PERSONAS } from '@/lib/ai-persona-system'
 import AIServiceManager from '@/lib/ai-service-manager'
+import { ULTRA_FAST_BIDDING_TIME_CONFIG, type BiddingTimeConfiguration } from '@/config/bidding-time-config'
 
 // AI服务管理器实例
 const aiServiceManager = new AIServiceManager()
+
+// 使用统一的时间配置
+const TIME_CONFIG = ULTRA_FAST_BIDDING_TIME_CONFIG
 
 // 全局类型扩展
 declare global {
@@ -31,6 +35,8 @@ interface RealBiddingSession {
   messages: any[]
   realAICost: number // 真实API调用成本
   aiCallCount: number // AI调用次数统计
+  phaseTimers: NodeJS.Timeout[] // 存储所有阶段计时器，用于清理
+  isEnding: boolean // 标记会话是否正在结束，防止重复触发
 }
 
 const activeSessions = new Map<string, RealBiddingSession>()
@@ -45,13 +51,15 @@ function createRealSession(ideaId: string, ideaContent: string): RealBiddingSess
     currentPhase: 'warmup',
     startTime: new Date(),
     phaseStartTime: new Date(),
-    timeRemaining: 300, // 5分钟预热阶段
+    timeRemaining: TIME_CONFIG.phases.warmup, // 使用配置的预热时间
     participants: new Set(),
     currentBids: {},
     highestBid: 50,
     messages: [],
     realAICost: 0,
-    aiCallCount: 0
+    aiCallCount: 0,
+    phaseTimers: [],
+    isEnding: false
   }
 
   activeSessions.set(ideaId, session)
@@ -62,28 +70,62 @@ function createRealSession(ideaId: string, ideaContent: string): RealBiddingSess
 // 启动真实AI会话
 function startRealAISession(session: RealBiddingSession) {
   console.log(`🤖 Starting real AI bidding session for idea: ${session.ideaId}`)
+  console.log(`⏱️ Using time config:`, {
+    warmup: TIME_CONFIG.phases.warmup,
+    discussion: TIME_CONFIG.phases.discussion,
+    bidding: TIME_CONFIG.phases.bidding,
+    prediction: TIME_CONFIG.phases.prediction,
+    result: TIME_CONFIG.phases.result,
+    total: TIME_CONFIG.totalTime
+  })
 
-  // 预热阶段 - 5分钟
+  // 预热阶段 - 立即开始
   setTimeout(() => {
+    if (!activeSessions.has(session.ideaId)) return
     session.currentPhase = 'warmup'
     generateRealAIDialogue(session, true)
     broadcastPhaseUpdate(session)
   }, 1000)
 
-  // 每30秒生成一次AI对话
+  // 每10秒生成一次AI对话（超快速模式下更频繁）
   const dialogueInterval = setInterval(() => {
-    if (activeSessions.has(session.ideaId)) {
+    if (activeSessions.has(session.ideaId) && !session.isEnding) {
       generateRealAIDialogue(session)
     } else {
       clearInterval(dialogueInterval)
     }
-  }, 30000)
+  }, 10000) // 10秒一次对话
 
-  // 阶段切换定时器
-  setTimeout(() => switchToDiscussion(session), 5 * 60 * 1000)   // 5分钟后进入讨论
-  setTimeout(() => switchToBidding(session), 20 * 60 * 1000)     // 20分钟后进入竞价
-  setTimeout(() => switchToPrediction(session), 35 * 60 * 1000)  // 35分钟后进入预测
-  setTimeout(() => switchToResult(session), 40 * 60 * 1000)      // 40分钟后显示结果
+  // 使用配置的时间设置阶段切换定时器（转换为毫秒）
+  let cumulativeTime = 0
+
+  // 讨论阶段
+  cumulativeTime += TIME_CONFIG.phases.warmup * 1000
+  const discussionTimer = setTimeout(() => switchToDiscussion(session), cumulativeTime)
+  session.phaseTimers.push(discussionTimer)
+
+  // 竞价阶段
+  cumulativeTime += TIME_CONFIG.phases.discussion * 1000
+  const biddingTimer = setTimeout(() => switchToBidding(session), cumulativeTime)
+  session.phaseTimers.push(biddingTimer)
+
+  // 预测阶段
+  cumulativeTime += TIME_CONFIG.phases.bidding * 1000
+  const predictionTimer = setTimeout(() => switchToPrediction(session), cumulativeTime)
+  session.phaseTimers.push(predictionTimer)
+
+  // 结果阶段
+  cumulativeTime += TIME_CONFIG.phases.prediction * 1000
+  const resultTimer = setTimeout(() => switchToResult(session), cumulativeTime)
+  session.phaseTimers.push(resultTimer)
+
+  console.log(`⏰ Phase transitions scheduled:`, {
+    discussion: `${TIME_CONFIG.phases.warmup}s`,
+    bidding: `${TIME_CONFIG.phases.warmup + TIME_CONFIG.phases.discussion}s`,
+    prediction: `${TIME_CONFIG.phases.warmup + TIME_CONFIG.phases.discussion + TIME_CONFIG.phases.bidding}s`,
+    result: `${TIME_CONFIG.phases.warmup + TIME_CONFIG.phases.discussion + TIME_CONFIG.phases.bidding + TIME_CONFIG.phases.prediction}s`,
+    totalDuration: `${cumulativeTime / 1000}s`
+  })
 }
 
 // 生成真实AI对话
@@ -320,52 +362,72 @@ function generateFallbackMessage(session: RealBiddingSession, persona: any, isPh
 
 // 阶段切换函数
 function switchToDiscussion(session: RealBiddingSession) {
-  if (!activeSessions.has(session.ideaId)) return
+  if (!activeSessions.has(session.ideaId) || session.isEnding) {
+    console.log(`⏭️ Skip discussion switch - session ${session.ideaId} not active or ending`)
+    return
+  }
 
+  console.log(`📢 Switching to DISCUSSION phase for session ${session.ideaId}`)
   session.currentPhase = 'discussion'
   session.phaseStartTime = new Date()
-  session.timeRemaining = 15 * 60 // 15分钟讨论
+  session.timeRemaining = TIME_CONFIG.phases.discussion
 
   broadcastPhaseUpdate(session)
   generateRealAIDialogue(session, true)
 }
 
 function switchToBidding(session: RealBiddingSession) {
-  if (!activeSessions.has(session.ideaId)) return
+  if (!activeSessions.has(session.ideaId) || session.isEnding) {
+    console.log(`⏭️ Skip bidding switch - session ${session.ideaId} not active or ending`)
+    return
+  }
 
+  console.log(`💰 Switching to BIDDING phase for session ${session.ideaId}`)
   session.currentPhase = 'bidding'
   session.phaseStartTime = new Date()
-  session.timeRemaining = 10 * 60 // 10分钟竞价
+  session.timeRemaining = TIME_CONFIG.phases.bidding
 
   broadcastPhaseUpdate(session)
   generateRealAIDialogue(session, true)
 }
 
 function switchToPrediction(session: RealBiddingSession) {
-  if (!activeSessions.has(session.ideaId)) return
+  if (!activeSessions.has(session.ideaId) || session.isEnding) {
+    console.log(`⏭️ Skip prediction switch - session ${session.ideaId} not active or ending`)
+    return
+  }
 
+  console.log(`🔮 Switching to PREDICTION phase for session ${session.ideaId}`)
   session.currentPhase = 'prediction'
   session.phaseStartTime = new Date()
-  session.timeRemaining = 5 * 60 // 5分钟预测
+  session.timeRemaining = TIME_CONFIG.phases.prediction
 
   broadcastPhaseUpdate(session)
   generateRealAIDialogue(session, true)
 }
 
 function switchToResult(session: RealBiddingSession) {
-  if (!activeSessions.has(session.ideaId)) return
+  if (!activeSessions.has(session.ideaId) || session.isEnding) {
+    console.log(`⏭️ Skip result switch - session ${session.ideaId} not active or ending`)
+    return
+  }
 
+  console.log(`🏆 Switching to RESULT phase for session ${session.ideaId}`)
   session.currentPhase = 'result'
   session.phaseStartTime = new Date()
-  session.timeRemaining = 0
+  session.timeRemaining = TIME_CONFIG.phases.result
 
   broadcastPhaseUpdate(session)
   generateRealAIDialogue(session, true)
 
-  // 2分钟后结束会话
-  setTimeout(() => {
+  // 使用配置的结果展示时间后结束会话
+  const endDelay = TIME_CONFIG.phases.result * 1000
+  console.log(`⏰ Session will end in ${TIME_CONFIG.phases.result} seconds`)
+
+  const endTimer = setTimeout(() => {
     endSession(session)
-  }, 2 * 60 * 1000)
+  }, endDelay)
+  session.phaseTimers.push(endTimer)
 }
 
 // 广播消息函数
@@ -415,28 +477,51 @@ function broadcastToSession(ideaId: string, message: any) {
 
 // 结束会话
 function endSession(session: RealBiddingSession) {
+  // 防止重复调用
+  if (session.isEnding) {
+    console.log(`⚠️ Session ${session.ideaId} is already ending, skipping`)
+    return
+  }
+
+  session.isEnding = true
+
   console.log(`🏁 Ending real AI session ${session.ideaId}`)
   console.log(`📊 Session stats:`)
   console.log(`   - Total AI calls: ${session.aiCallCount}`)
   console.log(`   - Total cost: $${session.realAICost.toFixed(4)}`)
   console.log(`   - Messages generated: ${session.messages.length}`)
+  console.log(`   - Duration: ${((Date.now() - session.startTime.getTime()) / 1000).toFixed(1)}s`)
 
+  // 清理所有计时器
+  session.phaseTimers.forEach(timer => {
+    clearTimeout(timer)
+  })
+  session.phaseTimers = []
+
+  // 广播会话结束消息
   broadcastToSession(session.ideaId, {
     type: 'session.ended',
     payload: {
       totalCost: session.realAICost,
       callCount: session.aiCallCount,
       messagesGenerated: session.messages.length,
-      duration: Date.now() - session.startTime.getTime()
+      duration: Date.now() - session.startTime.getTime(),
+      finalPhase: session.currentPhase,
+      highestBid: session.highestBid,
+      timestamp: Date.now()
     }
   })
 
-  // 清理会话数据
-  session.participants.forEach(clientId => {
-    connectedClients.delete(clientId)
-  })
+  // 延迟清理会话数据，确保客户端收到结束消息
+  setTimeout(() => {
+    // 清理会话数据
+    session.participants.forEach(clientId => {
+      connectedClients.delete(clientId)
+    })
 
-  activeSessions.delete(session.ideaId)
+    activeSessions.delete(session.ideaId)
+    console.log(`✅ Session ${session.ideaId} fully cleaned up`)
+  }, 2000)
 }
 
 // WebSocket处理函数

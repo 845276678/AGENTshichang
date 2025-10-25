@@ -256,6 +256,18 @@ export function useFixedBiddingWebSocket(ideaId: string, timeConfig: BiddingTime
         }
         break
 
+      case 'session.ended':
+      case 'session_ended':
+      case 'bidding_ended':
+        // 会话正常结束 - 切换到COMPLETED阶段
+        console.log('🏁 Bidding session ended:', data.payload || data)
+        setCurrentPhase('result') // 确保停在result阶段
+        setTimeRemaining(0)
+
+        // 通知用户会话已结束
+        console.log('✅ AI竞价会话已完成，可以查看结果并生成商业计划')
+        break
+
       case 'error':
         console.error('WebSocket error message:', data.payload?.message || data.message)
         break
