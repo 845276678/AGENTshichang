@@ -9,8 +9,6 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { z } from 'zod'
 
-export const dynamic = 'force-dynamic'
-
 // 更新会话Schema
 const UpdateSessionSchema = z.object({
   currentStep: z.number().min(1).max(10).optional(),

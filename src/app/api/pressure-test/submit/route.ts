@@ -3,8 +3,6 @@ import { prisma } from '@/lib/prisma';
 import { getUserFromRequest } from '@/lib/auth-helper';
 import { z } from 'zod';
 
-export const dynamic = 'force-dynamic'
-
 const submitSchema = z.object({
   scenarioId: z.string(),
   answers: z.array(z.object({

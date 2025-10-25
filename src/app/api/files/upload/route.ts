@@ -3,8 +3,6 @@ import FileStorageManager, { FileType } from '@/lib/storage'
 import { verifyToken } from '@/lib/jwt'
 import { createSuccessResponse, createErrorResponse, handleApiError } from '@/lib/errors'
 
-export const dynamic = 'force-dynamic'
-
 // 文件上传API
 export async function POST(request: NextRequest) {
   try {

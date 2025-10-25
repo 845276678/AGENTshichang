@@ -5,8 +5,6 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 
-export const dynamic = 'force-dynamic'
-
 // 模拟系统指标数据（在实际生产中，这些数据来自真实的监控服务）
 function generateSystemMetrics() {
   const baseTime = Date.now()

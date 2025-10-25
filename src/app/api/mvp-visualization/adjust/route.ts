@@ -21,8 +21,6 @@ import type {
   AdjustmentRecord
 } from '@/types/mvp-visualization'
 
-export const dynamic = 'force-dynamic'
-
 const MAX_ROUNDS = 5 // 最多5轮对话优化
 
 export async function POST(request: NextRequest) {

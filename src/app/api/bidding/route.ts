@@ -383,8 +383,6 @@ async function transitionToPhase(sessionId: string, newPhase: string) {
 
   console.log(`🔄 Transitioning session ${sessionId} from ${session.phase} to ${newPhase}`)
 
-export const dynamic = 'force-dynamic'
-
   session.phase = newPhase as any
 
   broadcastMessage(session.ideaId, {

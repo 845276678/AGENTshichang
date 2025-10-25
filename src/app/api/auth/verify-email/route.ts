@@ -15,8 +15,6 @@ import {
 } from '@/lib/auth-middleware';
 import { UserStatus } from '@/types/auth';
 
-export const dynamic = 'force-dynamic'
-
 async function verifyEmailHandler(request: NextRequest): Promise<NextResponse> {
   try {
     // Handle CORS preflight

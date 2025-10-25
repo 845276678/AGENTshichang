@@ -9,8 +9,6 @@ import { prisma } from '@/lib/prisma'
 import { generateWorkshopReport, type WorkshopReportData } from '@/lib/workshop/pdf-generator'
 import { z } from 'zod'
 
-export const dynamic = 'force-dynamic'
-
 // 请求验证Schema
 const GeneratePDFSchema = z.object({
   sessionId: z.string().min(1, '会话ID不能为空'),

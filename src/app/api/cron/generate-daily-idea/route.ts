@@ -112,5 +112,3 @@ export async function POST(request: NextRequest) {
 
 // 导入prisma
 import { prisma } from '@/lib/prisma';
-
-export const dynamic = 'force-dynamic'

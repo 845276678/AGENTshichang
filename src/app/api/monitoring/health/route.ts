@@ -6,8 +6,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { PrismaClient } from '@prisma/client'
 
-export const dynamic = 'force-dynamic'
-
 // 全局Prisma实例（实际应用中应该使用连接池）
 const prisma = new PrismaClient()
 

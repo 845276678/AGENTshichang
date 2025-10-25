@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { mockAgents } from '@/lib/agents-mock-data'
 
-export const dynamic = 'force-dynamic'
-
 // GET /api/agents/[id] - Get a specific agent by ID
 export async function GET(
   _request: NextRequest,

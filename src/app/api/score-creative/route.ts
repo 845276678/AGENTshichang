@@ -7,8 +7,6 @@ import { MaturityScorer } from '@/lib/business-plan/maturity-scorer';
 import { WeightConfigManager } from '@/lib/business-plan/weight-config-manager';
 import type { AIMessage, BidRecord } from '@/types/maturity-score';
 
-export const dynamic = 'force-dynamic'
-
 const prisma = new PrismaClient();
 
 /**

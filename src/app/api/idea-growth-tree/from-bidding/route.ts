@@ -3,8 +3,6 @@ import { prisma } from '@/lib/prisma';
 import { getUserFromRequest } from '@/lib/auth-helper';
 import { z } from 'zod';
 
-export const dynamic = 'force-dynamic'
-
 // 竞价数据结构验证
 const biddingDataSchema = z.object({
   ideaId: z.string(),

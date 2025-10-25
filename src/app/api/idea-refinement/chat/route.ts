@@ -28,8 +28,6 @@ import type {
   RefinedDocument
 } from '@/types/idea-refinement'
 
-export const dynamic = 'force-dynamic'
-
 export async function POST(request: NextRequest) {
   try {
     const body: SubmitUserReplyRequest = await request.json()

@@ -10,8 +10,6 @@ import {
   type DesignAdjustmentRequest
 } from '@/lib/deepseek-client'
 
-export const dynamic = 'force-dynamic'
-
 interface MVPGenerationRequest {
   ideaDescription: string
   ideaTitle?: string

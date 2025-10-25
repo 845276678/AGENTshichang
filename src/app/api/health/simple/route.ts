@@ -2,8 +2,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/database'
 
-export const dynamic = 'force-dynamic'
-
 export async function GET(_request: NextRequest) {
   const startTime = Date.now()
 

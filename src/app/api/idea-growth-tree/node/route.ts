@@ -3,8 +3,6 @@ import { prisma } from '@/lib/prisma';
 import { getUserFromRequest } from '@/lib/auth-helper';
 import { z } from 'zod';
 
-export const dynamic = 'force-dynamic'
-
 const nodeSchema = z.object({
   treeId: z.string(),
   content: z.string().min(10, '内容至少需要10个字符'),

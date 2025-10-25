@@ -3,8 +3,6 @@ import { authenticateToken } from '@/lib/auth-middleware'
 import { documentGenerator } from '@/lib/ai/document-generator'
 import { DocumentGenerationSchema } from '@/types/document-generation'
 
-export const dynamic = 'force-dynamic'
-
 export async function POST(request: NextRequest) {
   try {
     // 身份验证

@@ -5,8 +5,6 @@ import { composeBusinessPlanGuide } from '@/lib/business-plan/content-composer'
 import type { BiddingSnapshot } from '@/lib/business-plan/types'
 import { BusinessPlanSource } from '@prisma/client'
 
-export const dynamic = 'force-dynamic'
-
 function buildSnapshot(body: any, userId?: string): BiddingSnapshot {
   const ideaTitle = body.ideaTitle || body.ideaName || (body.ideaContent ? body.ideaContent.slice(0, 30) : '未命名创意')
 

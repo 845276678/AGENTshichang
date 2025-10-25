@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { handleApiError } from '@/lib/auth'
 
-export const dynamic = 'force-dynamic'
-
 interface MarketAnalysisRequest {
   ideaDescription: string
   industryCategory: string

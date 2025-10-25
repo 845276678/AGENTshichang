@@ -187,9 +187,6 @@ async function processStagesInBackground(ideaId: string, userId?: string | null)
       try {
         await createResearchReportFromBusinessPlan(ideaId, userId, state)
         logger.info("ResearchReport created from business plan", { ideaId, userId })
-
-export const dynamic = 'force-dynamic'
-
       } catch (error) {
         logger.error("Failed to create ResearchReport", { ideaId, userId }, error as Error)
       }
