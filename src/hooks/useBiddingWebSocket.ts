@@ -309,8 +309,14 @@ export function useBiddingWebSocket(config: UseBiddingWebSocketConfig): BiddingW
       case 'session_complete':
       case 'session.ended':  // 添加backend发送的消息类型
         console.log('🎉 Session completed:', data.results || data.payload)
+        console.log('🔍 [DEBUG] Received session.ended message')
+        console.log('🔍 [DEBUG] Current phase before:', currentPhase)
+        console.log('🔍 [DEBUG] Time remaining before:', timeRemaining)
+
         setCurrentPhase('result')
         setTimeRemaining(0)
+
+        console.log('🔍 [DEBUG] Set currentPhase to result, timeRemaining to 0')
 
         const resultData = data.results || data.payload
         const highestBidValue = resultData?.highestBid || 0

@@ -407,6 +407,10 @@ function switchToPrediction(session: RealBiddingSession) {
 }
 
 function switchToResult(session: RealBiddingSession) {
+  console.log(`🔍 [DEBUG] switchToResult called for session ${session.ideaId}`)
+  console.log(`🔍 [DEBUG] Session active: ${activeSessions.has(session.ideaId)}`)
+  console.log(`🔍 [DEBUG] Session isEnding: ${session.isEnding}`)
+
   if (!activeSessions.has(session.ideaId) || session.isEnding) {
     console.log(`⏭️ Skip result switch - session ${session.ideaId} not active or ending`)
     return
@@ -422,12 +426,16 @@ function switchToResult(session: RealBiddingSession) {
 
   // 使用配置的结果展示时间后结束会话
   const endDelay = TIME_CONFIG.phases.result * 1000
-  console.log(`⏰ Session will end in ${TIME_CONFIG.phases.result} seconds`)
+  console.log(`⏰ Session will end in ${TIME_CONFIG.phases.result} seconds (${endDelay}ms)`)
+  console.log(`🔍 [DEBUG] Setting end timer for session ${session.ideaId}`)
 
   const endTimer = setTimeout(() => {
+    console.log(`⏰ [DEBUG] End timer fired for session ${session.ideaId}`)
     endSession(session)
   }, endDelay)
   session.phaseTimers.push(endTimer)
+
+  console.log(`🔍 [DEBUG] End timer scheduled, total timers: ${session.phaseTimers.length}`)
 }
 
 // 广播消息函数
@@ -477,6 +485,8 @@ function broadcastToSession(ideaId: string, message: any) {
 
 // 结束会话
 function endSession(session: RealBiddingSession) {
+  console.log(`🔍 [DEBUG] endSession called for session ${session.ideaId}`)
+
   // 防止重复调用
   if (session.isEnding) {
     console.log(`⚠️ Session ${session.ideaId} is already ending, skipping`)
@@ -484,6 +494,7 @@ function endSession(session: RealBiddingSession) {
   }
 
   session.isEnding = true
+  console.log(`🔍 [DEBUG] Set session.isEnding = true`)
 
   console.log(`🏁 Ending real AI session ${session.ideaId}`)
   console.log(`📊 Session stats:`)
@@ -493,12 +504,14 @@ function endSession(session: RealBiddingSession) {
   console.log(`   - Duration: ${((Date.now() - session.startTime.getTime()) / 1000).toFixed(1)}s`)
 
   // 清理所有计时器
+  console.log(`🔍 [DEBUG] Clearing ${session.phaseTimers.length} timers`)
   session.phaseTimers.forEach(timer => {
     clearTimeout(timer)
   })
   session.phaseTimers = []
 
   // 广播会话结束消息
+  console.log(`📢 [DEBUG] Broadcasting session.ended message to ${session.participants.size} participants`)
   broadcastToSession(session.ideaId, {
     type: 'session.ended',
     payload: {
@@ -511,6 +524,7 @@ function endSession(session: RealBiddingSession) {
       timestamp: Date.now()
     }
   })
+  console.log(`✅ [DEBUG] session.ended message broadcasted`)
 
   // 延迟清理会话数据，确保客户端收到结束消息
   setTimeout(() => {
