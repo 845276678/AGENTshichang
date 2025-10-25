@@ -12,6 +12,7 @@ import {
 import { evaluateIdeaQuality } from '@/lib/idea-evaluation'
 import type { IdeaEvaluationResult, IdeaEvaluationVerdict, DimensionStatus } from '@/lib/idea-evaluation'
 import { buildCriticalReviewPrompt } from '@/lib/prompt-builders'
+import { setIdeaContent } from '@/lib/real-ai-websocket-server'
 
 export const dynamic = 'force-dynamic'
 
@@ -101,6 +102,9 @@ export async function POST(request: NextRequest) {
     }
 
     activeSessions.set(finalSessionId, session)
+
+    // 缓存创意内容供WebSocket服务器使用
+    setIdeaContent(ideaId, ideaContent)
 
     console.log(`🎭 Created bidding session: ${finalSessionId} for idea: ${ideaId}`)
 

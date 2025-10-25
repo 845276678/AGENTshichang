@@ -43,6 +43,25 @@ interface RealBiddingSession {
 const activeSessions = new Map<string, RealBiddingSession>()
 // 客户端连接: key = `${ideaId}_${clientId}`
 const connectedClients = new Map<string, WebSocket>()
+// 创意内容缓存: key = ideaId, value = ideaContent
+const ideaContentCache = new Map<string, string>()
+
+// 设置创意内容（供API调用）
+export function setIdeaContent(ideaId: string, content: string) {
+  ideaContentCache.set(ideaId, content)
+  console.log(`💾 Cached idea content for ${ideaId}:`, content.substring(0, 100) + '...')
+}
+
+// 获取创意内容
+function getIdeaContent(ideaId: string): string {
+  const cached = ideaContentCache.get(ideaId)
+  if (cached) {
+    console.log(`📖 Retrieved cached idea content for ${ideaId}`)
+    return cached
+  }
+  console.warn(`⚠️ No cached idea content for ${ideaId}, using fallback`)
+  return `Demo idea content for ${ideaId}`
+}
 
 // 创建真实AI竞价会话
 function createRealSession(ideaId: string, ideaContent: string): RealBiddingSession {
@@ -619,8 +638,10 @@ export async function handleRealBiddingWebSocket(request: NextRequest, ideaId: s
 
     if (!session) {
       console.log(`📝 Creating new real AI session for idea: ${ideaId}`)
+      // 从缓存获取真实的创意内容
+      const ideaContent = getIdeaContent(ideaId)
       // 创建新的真实AI会话
-      session = createRealSession(ideaId, `Demo idea content for ${ideaId}`)
+      session = createRealSession(ideaId, ideaContent)
     } else {
       console.log(`♻️ Reusing existing session ${session.id} for idea: ${ideaId}`)
     }
