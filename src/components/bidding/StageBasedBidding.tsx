@@ -440,18 +440,22 @@ export default function StageBasedBidding({
       // 从创意内容中提取标题（前50个字符）或使用默认标题
       const extractedTitle = ideaContent.trim().substring(0, 50).replace(/\n/g, ' ') || '创意项目'
 
-      // 跳转到创意实现建议页面，使用简化版格式
-      const params = new URLSearchParams({
+      // 保存创意数据到 sessionStorage，供创意完善工作坊使用
+      const ideaData = {
         ideaTitle: extractedTitle,
-        ideaDescription: ideaContent,
+        ideaContent: ideaContent,
         source: 'direct-generation',
-        useSimplifiedFormat: 'true'
-      })
+        timestamp: Date.now()
+      }
 
-      router.push(`/business-plan/intelligent?${params.toString()}`)
+      sessionStorage.setItem('biddingIdeaContent', ideaContent)
+      sessionStorage.setItem('directIdeaData', JSON.stringify(ideaData))
+
+      // 跳转到创意完善工作坊
+      router.push('/workshops/idea-refinement')
     } catch (error) {
       console.error('Direct generation error:', error)
-      alert('生成失败，请重试')
+      alert('跳转失败，请重试')
     } finally {
       setIsSubmitting(false)
     }

@@ -145,22 +145,22 @@ export const ModularNavigation = () => {
       title: '创意中心',
       href: '/marketplace',
       icon: <Lightbulb className="w-4 h-4" />,
-      description: '发现和竞价创意内容',
+      description: '创意竞价、工作坊和一人公司',
       subPages: [
         {
           title: '创意竞价',
-          href: '/marketplace',
-          description: '参与AI创意竞价，发现有价值的创意'
+          href: '/marketplace/bidding',
+          description: '参与AI创意竞价，获得专业评估'
         },
         {
-          title: '创意分类',
-          href: '/categories',
-          description: '按分类浏览创意内容'
+          title: '专业工作坊',
+          href: '/workshops',
+          description: '通过工作坊完善和实现创意'
         },
         {
-          title: '每日一创意',
-          href: '/daily-idea',
-          description: '每日精选创意推荐'
+          title: '一人公司',
+          href: '/solo-company',
+          description: '个人创业全流程助手'
         }
       ]
     },
@@ -184,6 +184,11 @@ export const ModularNavigation = () => {
           title: '创意实现建议',
           href: '/business-plan',
           description: '生成详细的商业计划'
+        },
+        {
+          title: '每日一创意',
+          href: '/daily-idea',
+          description: '每日精选创意推荐'
         }
       ]
     },
@@ -194,9 +199,9 @@ export const ModularNavigation = () => {
       description: '知识学习和技能提升',
       subPages: [
         {
-          title: '专业工作坊',
-          href: '/workshops',
-          description: '专业技能培训工作坊'
+          title: '创意分类浏览',
+          href: '/categories',
+          description: '按分类浏览创意内容'
         },
         {
           title: '知识库收藏夹',
@@ -215,11 +220,6 @@ export const ModularNavigation = () => {
           title: 'Agent能力中心',
           href: '/agent-center',
           description: 'AI智能体能力展示'
-        },
-        {
-          title: '一人公司',
-          href: '/solo-company',
-          description: '个人创业助手'
         }
       ]
     }
