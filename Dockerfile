@@ -68,15 +68,10 @@ COPY . .
 # Generate Prisma client (critical fix)
 RUN npx prisma generate
 
-# Provide dummy DATABASE_URL for build process only
-# This allows Next.js to complete static generation without actual DB connection
+# Build Next.js application with dummy DATABASE_URL for Prisma validation
+# The build script will use DATABASE_URL if set, otherwise fallback to dummy value
 ENV DATABASE_URL="postgresql://dummy:dummy@localhost:5432/dummy?schema=public"
-
-# Build Next.js application (custom server, no standalone)
 RUN npm run build
-
-# Clear dummy DATABASE_URL (will be provided by runtime environment)
-ENV DATABASE_URL=""
 # ==========================================
 # Runtime stage (serving via custom server.js)
 FROM base AS runner
