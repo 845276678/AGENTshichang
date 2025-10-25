@@ -18,7 +18,7 @@
 
 import React, { Suspense, lazy } from 'react'
 
-import { notFound } from 'next/navigation'
+import { notFound, useSearchParams } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
 import { Layout } from '@/components/layout'
 import { type WorkshopId } from '@/hooks/useWorkshopSession'
@@ -29,6 +29,7 @@ import Link from 'next/link'
 
 // 懒加载大型组件 - 实现代码分割
 const WorkshopDashboard = lazy(() => import('@/components/workshop/WorkshopDashboard'))
+const MVPBuilderConversational = lazy(() => import('@/components/workshop/MVPBuilderConversational'))
 
 // 工作坊配置
 const WORKSHOP_CONFIG: Record<WorkshopId, {
@@ -40,8 +41,8 @@ const WORKSHOP_CONFIG: Record<WorkshopId, {
   color: string
 }> = {
   'demand-validation': {
-    title: '需求验证实验室',
-    description: '通过科学的方法验证您的商业想法是否有市场需求，降低创业风险',
+    title: '创意完善计划书',
+    description: '通过科学的方法验证您的商业想法是否有市场需求，完善创意细节',
     estimatedTime: '45-60分钟',
     difficulty: '初级',
     icon: Target,
@@ -56,15 +57,15 @@ const WORKSHOP_CONFIG: Record<WorkshopId, {
     color: 'green'
   },
   'growth-hacking': {
-    title: '增长黑客训练营',
-    description: '掌握增长黑客的核心策略，快速扩大用户基础和业务规模',
+    title: '推广工具',
+    description: '掌握增长策略的核心方法，快速扩大用户基础和业务规模',
     estimatedTime: '90-120分钟',
     difficulty: '高级',
     icon: Trophy,
     color: 'purple'
   },
   'profit-model': {
-    title: '商业模式设计',
+    title: '盈利平台',
     description: '构建可持续盈利的商业模式，实现从创意到收益的转化',
     estimatedTime: '120-150分钟',
     difficulty: '高级',
@@ -127,6 +128,12 @@ export default function WorkshopPage({ params }: WorkshopPageProps) {
   const workshopId = params.workshopId as WorkshopId
   const config = WORKSHOP_CONFIG[workshopId]
   const { user, isLoading } = useAuth()
+  const searchParams = useSearchParams()
+
+  // 获取URL参数
+  const ideaTitle = searchParams.get('ideaTitle') || ''
+  const ideaDescription = searchParams.get('ideaDescription') || ''
+  const ideaId = searchParams.get('ideaId') || ''
 
   // Set document title dynamically for client-side component
   React.useEffect(() => {
@@ -142,7 +149,20 @@ export default function WorkshopPage({ params }: WorkshopPageProps) {
     notFound()
   }
 
-  // 使用Layout包装，确保导航栏一致
+  // MVP构建工作坊使用对话式界面
+  if (workshopId === 'mvp-builder') {
+    return (
+      <Suspense fallback={<WorkshopSkeleton config={config} />}>
+        <MVPBuilderConversational
+          ideaTitle={ideaTitle}
+          ideaDescription={ideaDescription}
+          ideaId={ideaId}
+        />
+      </Suspense>
+    )
+  }
+
+  // 其他工作坊使用默认Dashboard布局
   return (
     <Layout>
       <div className="min-h-screen bg-gray-50">
