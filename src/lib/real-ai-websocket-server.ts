@@ -22,7 +22,7 @@ declare global {
 
 // 真实竞价会话数据
 interface RealBiddingSession {
-  id: string
+  id: string  // 使用唯一的sessionId
   ideaId: string
   ideaContent: string // 用户输入的创意内容
   currentPhase: 'warmup' | 'discussion' | 'bidding' | 'prediction' | 'result'
@@ -39,13 +39,24 @@ interface RealBiddingSession {
   isEnding: boolean // 标记会话是否正在结束，防止重复触发
 }
 
+// 使用sessionId作为键，避免并发冲突
 const activeSessions = new Map<string, RealBiddingSession>()
+// 客户端连接: key = `${ideaId}_${clientId}`
 const connectedClients = new Map<string, WebSocket>()
 
 // 创建真实AI竞价会话
 function createRealSession(ideaId: string, ideaContent: string): RealBiddingSession {
+  // 生成唯一的sessionId（使用timestamp + random确保唯一性）
+  const sessionId = `${ideaId}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+
+  // 检查是否已有相同ideaId的活跃会话（可能有多个标签页）
+  const existingSessions = Array.from(activeSessions.values()).filter(s => s.ideaId === ideaId)
+  if (existingSessions.length > 0) {
+    console.warn(`⚠️ Found ${existingSessions.length} existing session(s) for ideaId ${ideaId}`)
+  }
+
   const session: RealBiddingSession = {
-    id: ideaId,
+    id: sessionId,  // 使用唯一的sessionId
     ideaId,
     ideaContent,
     currentPhase: 'warmup',
@@ -62,14 +73,15 @@ function createRealSession(ideaId: string, ideaContent: string): RealBiddingSess
     isEnding: false
   }
 
-  activeSessions.set(ideaId, session)
+  activeSessions.set(sessionId, session)
+  console.log(`✅ Created session ${sessionId} for ideaId ${ideaId}`)
   startRealAISession(session)
   return session
 }
 
 // 启动真实AI会话
 function startRealAISession(session: RealBiddingSession) {
-  console.log(`🤖 Starting real AI bidding session for idea: ${session.ideaId}`)
+  console.log(`🤖 Starting real AI bidding session for idea: ${session.ideaId} (session: ${session.id})`)
   console.log(`⏱️ Using time config:`, {
     warmup: TIME_CONFIG.phases.warmup,
     discussion: TIME_CONFIG.phases.discussion,
@@ -81,7 +93,7 @@ function startRealAISession(session: RealBiddingSession) {
 
   // 预热阶段 - 立即开始
   setTimeout(() => {
-    if (!activeSessions.has(session.ideaId)) return
+    if (!activeSessions.has(session.id)) return
     session.currentPhase = 'warmup'
     generateRealAIDialogue(session, true)
     broadcastPhaseUpdate(session)
@@ -89,7 +101,7 @@ function startRealAISession(session: RealBiddingSession) {
 
   // 每10秒生成一次AI对话（超快速模式下更频繁）
   const dialogueInterval = setInterval(() => {
-    if (activeSessions.has(session.ideaId) && !session.isEnding) {
+    if (activeSessions.has(session.id) && !session.isEnding) {
       generateRealAIDialogue(session)
     } else {
       clearInterval(dialogueInterval)
@@ -135,8 +147,9 @@ function startRealAISession(session: RealBiddingSession) {
 
 // 生成真实AI对话
 async function generateRealAIDialogue(session: RealBiddingSession, isPhaseStart = false) {
+  let persona
   try {
-    const persona = AI_PERSONAS[Math.floor(Math.random() * AI_PERSONAS.length)]
+    persona = AI_PERSONAS[Math.floor(Math.random() * AI_PERSONAS.length)]
 
     // 构建真实AI提示词
     const prompt = buildAIPrompt(session, persona, isPhaseStart)
@@ -172,14 +185,16 @@ async function generateRealAIDialogue(session: RealBiddingSession, isPhaseStart 
 
     } else {
       console.error(`❌ AI call failed for ${persona.name}:`, aiResponse.error)
-      // 失败时使用备用模板，避免中断体验
-      generateFallbackMessage(session, persona, isPhaseStart)
+      // 失败时生成并广播备用消息
+      generateAndBroadcastFallback(session, persona, isPhaseStart)
     }
 
   } catch (error) {
     console.error('🚨 Error in real AI dialogue generation:', error)
-    // 错误处理：使用备用消息
-    generateFallbackMessage(session, persona, isPhaseStart)
+    // 错误处理：生成并广播备用消息
+    if (persona) {
+      generateAndBroadcastFallback(session, persona, isPhaseStart)
+    }
   }
 }
 
@@ -284,13 +299,13 @@ async function callRealAIService(prompt: string, persona: any) {
 
 // 选择AI服务提供商（负载均衡）
 function selectAIProvider(persona: any): string {
-  // 根据专家角色分配不同的AI提供商
+  // 根据专家角色分配不同的AI提供商（使用正确的persona ID）
   const providerMap = {
-    'tech-pioneer-alex': 'deepseek',      // 技术专家用DeepSeek
-    'business-tycoon-wang': 'dashscope',  // 商业大亨用DashScope
-    'marketing-guru-lisa': 'zhipu',       // 营销大师用智谱GLM
-    'financial-wizard-john': 'deepseek',  // 金融专家用DeepSeek
-    'trend-master-allen': 'dashscope'     // 趋势大师用DashScope
+    'tech-pioneer-alex': 'deepseek',           // 艾克斯 - 技术专家用DeepSeek
+    'business-guru-beta': 'zhipu',             // 老王 - 商业大师用智谱GLM
+    'innovation-mentor-charlie': 'zhipu',      // 小琳 - 创新导师用智谱GLM
+    'market-insight-delta': 'dashscope',       // 阿伦 - 市场洞察用DashScope
+    'investment-advisor-ivan': 'deepseek'      // 李博 - 投资顾问用DeepSeek
   }
 
   return providerMap[persona.id] || 'deepseek'
@@ -365,18 +380,52 @@ function generateFallbackMessage(session: RealBiddingSession, persona: any, isPh
   broadcastAIMessage(session, message)
 }
 
+// 生成并广播fallback消息（新增函数）
+function generateAndBroadcastFallback(session: RealBiddingSession, persona: any, isPhaseStart: boolean) {
+  console.log(`⚠️ Generating fallback message for ${persona.name} in ${session.currentPhase} phase`)
+
+  const templates = {
+    warmup: [`大家好！我是${persona.name}，${persona.catchPhrase}`, '很高兴参与这次创意评估！'],
+    discussion: [`从${persona.specialty}的角度来看，这个创意有一定潜力`, '让我深入分析一下核心要素'],
+    bidding: [`基于我的专业判断，这个创意值得投资`, '我正在评估合理的出价区间'],
+    prediction: [`这个项目的未来发展需要关注几个关键要素`, '成功的关键在于执行力和市场时机'],
+    result: [`综合评估后，我对这个创意持积极态度`, '期待看到项目的进一步发展']
+  }
+
+  const messages = templates[session.currentPhase] || templates.discussion
+  const content = messages[Math.floor(Math.random() * messages.length)]
+
+  const fallbackMsg = {
+    messageId: Date.now().toString() + Math.random(),
+    personaId: persona.id,
+    phase: session.currentPhase,
+    content,
+    emotion: 'neutral',
+    timestamp: Date.now(),
+    cost: 0,
+    tokens: 0,
+    isRealAI: false,
+    isFallback: true
+  }
+
+  session.messages.push(fallbackMsg)
+  broadcastAIMessage(session, fallbackMsg)
+
+  console.log(`✅ Fallback message broadcasted: "${content.substring(0, 50)}..."`)
+}
+
 // 阶段切换函数
 function switchToDiscussion(session: RealBiddingSession) {
-  console.log(`🔍 [DEBUG] switchToDiscussion called for session ${session.ideaId}`)
-  console.log(`🔍 [DEBUG] Session active: ${activeSessions.has(session.ideaId)}`)
+  console.log(`🔍 [DEBUG] switchToDiscussion called for session ${session.id}`)
+  console.log(`🔍 [DEBUG] Session active: ${activeSessions.has(session.id)}`)
   console.log(`🔍 [DEBUG] Session isEnding: ${session.isEnding}`)
 
-  if (!activeSessions.has(session.ideaId) || session.isEnding) {
-    console.log(`⏭️ Skip discussion switch - session ${session.ideaId} not active or ending`)
+  if (!activeSessions.has(session.id) || session.isEnding) {
+    console.log(`⏭️ Skip discussion switch - session ${session.id} not active or ending`)
     return
   }
 
-  console.log(`📢 Switching to DISCUSSION phase for session ${session.ideaId}`)
+  console.log(`📢 Switching to DISCUSSION phase for session ${session.id}`)
   session.currentPhase = 'discussion'
   session.phaseStartTime = new Date()
   session.timeRemaining = TIME_CONFIG.phases.discussion
@@ -386,16 +435,16 @@ function switchToDiscussion(session: RealBiddingSession) {
 }
 
 function switchToBidding(session: RealBiddingSession) {
-  console.log(`🔍 [DEBUG] switchToBidding called for session ${session.ideaId}`)
-  console.log(`🔍 [DEBUG] Session active: ${activeSessions.has(session.ideaId)}`)
+  console.log(`🔍 [DEBUG] switchToBidding called for session ${session.id}`)
+  console.log(`🔍 [DEBUG] Session active: ${activeSessions.has(session.id)}`)
   console.log(`🔍 [DEBUG] Session isEnding: ${session.isEnding}`)
 
-  if (!activeSessions.has(session.ideaId) || session.isEnding) {
-    console.log(`⏭️ Skip bidding switch - session ${session.ideaId} not active or ending`)
+  if (!activeSessions.has(session.id) || session.isEnding) {
+    console.log(`⏭️ Skip bidding switch - session ${session.id} not active or ending`)
     return
   }
 
-  console.log(`💰 Switching to BIDDING phase for session ${session.ideaId}`)
+  console.log(`💰 Switching to BIDDING phase for session ${session.id}`)
   session.currentPhase = 'bidding'
   session.phaseStartTime = new Date()
   session.timeRemaining = TIME_CONFIG.phases.bidding
@@ -405,16 +454,16 @@ function switchToBidding(session: RealBiddingSession) {
 }
 
 function switchToPrediction(session: RealBiddingSession) {
-  console.log(`🔍 [DEBUG] switchToPrediction called for session ${session.ideaId}`)
-  console.log(`🔍 [DEBUG] Session active: ${activeSessions.has(session.ideaId)}`)
+  console.log(`🔍 [DEBUG] switchToPrediction called for session ${session.id}`)
+  console.log(`🔍 [DEBUG] Session active: ${activeSessions.has(session.id)}`)
   console.log(`🔍 [DEBUG] Session isEnding: ${session.isEnding}`)
 
-  if (!activeSessions.has(session.ideaId) || session.isEnding) {
-    console.log(`⏭️ Skip prediction switch - session ${session.ideaId} not active or ending`)
+  if (!activeSessions.has(session.id) || session.isEnding) {
+    console.log(`⏭️ Skip prediction switch - session ${session.id} not active or ending`)
     return
   }
 
-  console.log(`🔮 Switching to PREDICTION phase for session ${session.ideaId}`)
+  console.log(`🔮 Switching to PREDICTION phase for session ${session.id}`)
   session.currentPhase = 'prediction'
   session.phaseStartTime = new Date()
   session.timeRemaining = TIME_CONFIG.phases.prediction
@@ -424,16 +473,16 @@ function switchToPrediction(session: RealBiddingSession) {
 }
 
 function switchToResult(session: RealBiddingSession) {
-  console.log(`🔍 [DEBUG] switchToResult called for session ${session.ideaId}`)
-  console.log(`🔍 [DEBUG] Session active: ${activeSessions.has(session.ideaId)}`)
+  console.log(`🔍 [DEBUG] switchToResult called for session ${session.id}`)
+  console.log(`🔍 [DEBUG] Session active: ${activeSessions.has(session.id)}`)
   console.log(`🔍 [DEBUG] Session isEnding: ${session.isEnding}`)
 
-  if (!activeSessions.has(session.ideaId) || session.isEnding) {
-    console.log(`⏭️ Skip result switch - session ${session.ideaId} not active or ending`)
+  if (!activeSessions.has(session.id) || session.isEnding) {
+    console.log(`⏭️ Skip result switch - session ${session.id} not active or ending`)
     return
   }
 
-  console.log(`🏆 Switching to RESULT phase for session ${session.ideaId}`)
+  console.log(`🏆 Switching to RESULT phase for session ${session.id}`)
   session.currentPhase = 'result'
   session.phaseStartTime = new Date()
   session.timeRemaining = TIME_CONFIG.phases.result
@@ -444,10 +493,10 @@ function switchToResult(session: RealBiddingSession) {
   // 使用配置的结果展示时间后结束会话
   const endDelay = TIME_CONFIG.phases.result * 1000
   console.log(`⏰ Session will end in ${TIME_CONFIG.phases.result} seconds (${endDelay}ms)`)
-  console.log(`🔍 [DEBUG] Setting end timer for session ${session.ideaId}`)
+  console.log(`🔍 [DEBUG] Setting end timer for session ${session.id}`)
 
   const endTimer = setTimeout(() => {
-    console.log(`⏰ [DEBUG] End timer fired for session ${session.ideaId}`)
+    console.log(`⏰ [DEBUG] End timer fired for session ${session.id}`)
     endSession(session)
   }, endDelay)
   session.phaseTimers.push(endTimer)
@@ -502,18 +551,18 @@ function broadcastToSession(ideaId: string, message: any) {
 
 // 结束会话
 function endSession(session: RealBiddingSession) {
-  console.log(`🔍 [DEBUG] endSession called for session ${session.ideaId}`)
+  console.log(`🔍 [DEBUG] endSession called for session ${session.id}`)
 
   // 防止重复调用
   if (session.isEnding) {
-    console.log(`⚠️ Session ${session.ideaId} is already ending, skipping`)
+    console.log(`⚠️ Session ${session.id} is already ending, skipping`)
     return
   }
 
   session.isEnding = true
   console.log(`🔍 [DEBUG] Set session.isEnding = true`)
 
-  console.log(`🏁 Ending real AI session ${session.ideaId}`)
+  console.log(`🏁 Ending real AI session ${session.id} (ideaId: ${session.ideaId})`)
   console.log(`📊 Session stats:`)
   console.log(`   - Total AI calls: ${session.aiCallCount}`)
   console.log(`   - Total cost: $${session.realAICost.toFixed(4)}`)
@@ -550,8 +599,8 @@ function endSession(session: RealBiddingSession) {
       connectedClients.delete(clientId)
     })
 
-    activeSessions.delete(session.ideaId)
-    console.log(`✅ Session ${session.ideaId} fully cleaned up`)
+    activeSessions.delete(session.id)
+    console.log(`✅ Session ${session.id} fully cleaned up`)
   }, 2000)
 }
 
@@ -560,12 +609,15 @@ export async function handleRealBiddingWebSocket(request: NextRequest, ideaId: s
   console.log(`🔌 Handling real AI WebSocket connection for idea: ${ideaId}`)
 
   try {
-    // 检查是否已有活跃会话
-    let session = activeSessions.get(ideaId)
+    // 查找相同ideaId的活跃会话（可能有多个）
+    let session = Array.from(activeSessions.values()).find(s => s.ideaId === ideaId && !s.isEnding)
+
     if (!session) {
       console.log(`📝 Creating new real AI session for idea: ${ideaId}`)
       // 创建新的真实AI会话
       session = createRealSession(ideaId, `Demo idea content for ${ideaId}`)
+    } else {
+      console.log(`♻️ Reusing existing session ${session.id} for idea: ${ideaId}`)
     }
 
     // 在真实WebSocket环境中，这里会升级连接
@@ -598,6 +650,56 @@ export async function handleRealBiddingWebSocket(request: NextRequest, ideaId: s
   }
 }
 
+// WebSocket连接去重处理
+export function handleWebSocketConnection(ws: WebSocket, ideaId: string, clientId: string, sessionId: string) {
+  // 使用 ideaId + clientId 作为唯一key，避免同一客户端重复连接
+  const connectionKey = `${ideaId}_${clientId}`
+
+  // 清理旧连接（如果存在）
+  if (connectedClients.has(connectionKey)) {
+    const oldWs = connectedClients.get(connectionKey)
+    if (oldWs && oldWs.readyState === WebSocket.OPEN) {
+      console.warn(`⚠️ Closing duplicate connection for ${connectionKey}`)
+      oldWs.close(1000, 'Duplicate connection replaced')
+    }
+    connectedClients.delete(connectionKey)
+  }
+
+  // 注册新连接
+  connectedClients.set(connectionKey, ws)
+  console.log(`✅ Registered WebSocket connection: ${connectionKey} (session: ${sessionId})`)
+
+  // 将客户端添加到会话参与者列表
+  const session = activeSessions.get(sessionId)
+  if (session) {
+    session.participants.add(connectionKey)
+    console.log(`👥 Session ${sessionId} now has ${session.participants.size} participant(s)`)
+  }
+
+  // 监听连接关闭，清理资源
+  ws.on('close', () => {
+    console.log(`🔌 WebSocket connection closed: ${connectionKey}`)
+    connectedClients.delete(connectionKey)
+
+    // 从会话中移除参与者
+    if (session) {
+      session.participants.delete(connectionKey)
+      console.log(`👥 Session ${sessionId} now has ${session.participants.size} participant(s)`)
+    }
+  })
+
+  ws.on('error', (error) => {
+    console.error(`❌ WebSocket error for ${connectionKey}:`, error)
+    connectedClients.delete(connectionKey)
+
+    if (session) {
+      session.participants.delete(connectionKey)
+    }
+  })
+
+  return connectionKey
+}
+
 // 全局WebSocket广播函数（供其他模块使用）
 if (typeof global !== 'undefined') {
   global.broadcastToSession = broadcastToSession
@@ -606,6 +708,7 @@ if (typeof global !== 'undefined') {
 export {
   createRealSession,
   generateRealAIDialogue,
+  handleWebSocketConnection,
   activeSessions,
   connectedClients
 }
