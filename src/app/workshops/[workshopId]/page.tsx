@@ -29,6 +29,7 @@ import Link from 'next/link'
 
 // 懒加载大型组件 - 实现代码分割
 const WorkshopDashboard = lazy(() => import('@/components/workshop/WorkshopDashboard'))
+const MVPBuilderConversational = lazy(() => import('@/components/workshop/MVPBuilderConversational'))
 
 // 工作坊配置 - 与 src/app/workshop/[id]/page.tsx 和 src/data/workshops.ts 保持一致
 const WORKSHOP_CONFIG: Record<WorkshopId, {
@@ -170,10 +171,19 @@ export default function WorkshopPage({ params }: WorkshopPageProps) {
 
           {/* 懒加载工作坊主要组件 */}
           <Suspense fallback={<WorkshopSkeleton config={config} />}>
-            <WorkshopDashboard
-              workshopId={workshopId}
-              userId={user?.id || 'anonymous'}
-            />
+            {workshopId === 'mvp-builder' ? (
+              // MVP工作坊使用聊天式生成器
+              <MVPBuilderConversational
+                ideaId={ideaId}
+                userId={user?.id || 'anonymous'}
+              />
+            ) : (
+              // 其他工作坊使用通用Dashboard
+              <WorkshopDashboard
+                workshopId={workshopId}
+                userId={user?.id || 'anonymous'}
+              />
+            )}
           </Suspense>
         </div>
       </div>
