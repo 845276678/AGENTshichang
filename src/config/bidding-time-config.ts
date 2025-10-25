@@ -68,16 +68,16 @@ export const OPTIMIZED_BIDDING_TIME_CONFIG: BiddingTimeConfiguration = {
   }
 }
 
-// 超快速模式配置 - 2.5分钟方案 (每个环节30秒)
+// 超快速模式配置 - 1分钟方案
 export const ULTRA_FAST_BIDDING_TIME_CONFIG: BiddingTimeConfiguration = {
   phases: {
-    warmup: 30,        // 30秒 - 快速AI介绍
-    discussion: 30,    // 30秒 - 简短分析
-    bidding: 30,       // 30秒 - 快速竞价
-    prediction: 30,    // 30秒 - 用户补充
-    result: 30         // 30秒 - 结果展示
+    warmup: 10,        // 10秒 - 快速AI介绍
+    discussion: 15,    // 15秒 - 简短分析
+    bidding: 20,       // 20秒 - 快速竞价
+    prediction: 10,    // 10秒 - 用户补充
+    result: 5          // 5秒 - 结果展示
   },
-  totalTime: 2.5,      // 总计2.5分钟
+  totalTime: 1,        // 总计1分钟
   userExtension: {
     enabled: false,
     maxPerPhase: 0,
