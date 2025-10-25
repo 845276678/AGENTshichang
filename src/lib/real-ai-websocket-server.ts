@@ -101,21 +101,25 @@ function startRealAISession(session: RealBiddingSession) {
 
   // 讨论阶段
   cumulativeTime += TIME_CONFIG.phases.warmup * 1000
+  console.log(`🔍 [DEBUG] Scheduling discussion switch at ${cumulativeTime}ms`)
   const discussionTimer = setTimeout(() => switchToDiscussion(session), cumulativeTime)
   session.phaseTimers.push(discussionTimer)
 
   // 竞价阶段
   cumulativeTime += TIME_CONFIG.phases.discussion * 1000
+  console.log(`🔍 [DEBUG] Scheduling bidding switch at ${cumulativeTime}ms`)
   const biddingTimer = setTimeout(() => switchToBidding(session), cumulativeTime)
   session.phaseTimers.push(biddingTimer)
 
   // 预测阶段
   cumulativeTime += TIME_CONFIG.phases.bidding * 1000
+  console.log(`🔍 [DEBUG] Scheduling prediction switch at ${cumulativeTime}ms`)
   const predictionTimer = setTimeout(() => switchToPrediction(session), cumulativeTime)
   session.phaseTimers.push(predictionTimer)
 
   // 结果阶段
   cumulativeTime += TIME_CONFIG.phases.prediction * 1000
+  console.log(`🔍 [DEBUG] Scheduling result switch at ${cumulativeTime}ms`)
   const resultTimer = setTimeout(() => switchToResult(session), cumulativeTime)
   session.phaseTimers.push(resultTimer)
 
@@ -124,7 +128,8 @@ function startRealAISession(session: RealBiddingSession) {
     bidding: `${TIME_CONFIG.phases.warmup + TIME_CONFIG.phases.discussion}s`,
     prediction: `${TIME_CONFIG.phases.warmup + TIME_CONFIG.phases.discussion + TIME_CONFIG.phases.bidding}s`,
     result: `${TIME_CONFIG.phases.warmup + TIME_CONFIG.phases.discussion + TIME_CONFIG.phases.bidding + TIME_CONFIG.phases.prediction}s`,
-    totalDuration: `${cumulativeTime / 1000}s`
+    totalDuration: `${cumulativeTime / 1000}s`,
+    totalTimersScheduled: session.phaseTimers.length
   })
 }
 
@@ -362,6 +367,10 @@ function generateFallbackMessage(session: RealBiddingSession, persona: any, isPh
 
 // 阶段切换函数
 function switchToDiscussion(session: RealBiddingSession) {
+  console.log(`🔍 [DEBUG] switchToDiscussion called for session ${session.ideaId}`)
+  console.log(`🔍 [DEBUG] Session active: ${activeSessions.has(session.ideaId)}`)
+  console.log(`🔍 [DEBUG] Session isEnding: ${session.isEnding}`)
+
   if (!activeSessions.has(session.ideaId) || session.isEnding) {
     console.log(`⏭️ Skip discussion switch - session ${session.ideaId} not active or ending`)
     return
@@ -377,6 +386,10 @@ function switchToDiscussion(session: RealBiddingSession) {
 }
 
 function switchToBidding(session: RealBiddingSession) {
+  console.log(`🔍 [DEBUG] switchToBidding called for session ${session.ideaId}`)
+  console.log(`🔍 [DEBUG] Session active: ${activeSessions.has(session.ideaId)}`)
+  console.log(`🔍 [DEBUG] Session isEnding: ${session.isEnding}`)
+
   if (!activeSessions.has(session.ideaId) || session.isEnding) {
     console.log(`⏭️ Skip bidding switch - session ${session.ideaId} not active or ending`)
     return
@@ -392,6 +405,10 @@ function switchToBidding(session: RealBiddingSession) {
 }
 
 function switchToPrediction(session: RealBiddingSession) {
+  console.log(`🔍 [DEBUG] switchToPrediction called for session ${session.ideaId}`)
+  console.log(`🔍 [DEBUG] Session active: ${activeSessions.has(session.ideaId)}`)
+  console.log(`🔍 [DEBUG] Session isEnding: ${session.isEnding}`)
+
   if (!activeSessions.has(session.ideaId) || session.isEnding) {
     console.log(`⏭️ Skip prediction switch - session ${session.ideaId} not active or ending`)
     return
