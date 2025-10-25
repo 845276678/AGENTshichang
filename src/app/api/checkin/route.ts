@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/database';
 import jwt from 'jsonwebtoken';
 
+export const dynamic = 'force-dynamic'
+
 interface CheckInStats {
   currentStreak: number;
   totalCheckIns: number;

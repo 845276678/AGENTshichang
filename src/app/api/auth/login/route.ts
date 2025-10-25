@@ -6,6 +6,8 @@ import {
   validateEmail
 } from '@/lib/auth'
 
+export const dynamic = 'force-dynamic'
+
 export async function POST(request: NextRequest) {
   try {
     console.log('🔐 登录API开始处理...')

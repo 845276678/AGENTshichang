@@ -3,6 +3,8 @@ import { prisma } from '@/lib/database'
 import { getUserFromToken } from '@/lib/auth-helper'
 import { $Enums } from '@prisma/client'
 
+export const dynamic = 'force-dynamic'
+
 type MessageType = $Enums.MessageType
 const MessageType = $Enums.MessageType
 

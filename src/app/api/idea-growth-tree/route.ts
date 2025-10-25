@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { getUserFromRequest } from '@/lib/auth-helper';
 
+export const dynamic = 'force-dynamic'
+
 // 获取用户的创意生长树列表
 export async function GET(request: NextRequest) {
   try {

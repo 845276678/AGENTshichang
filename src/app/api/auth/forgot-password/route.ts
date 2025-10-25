@@ -15,6 +15,8 @@ import {
   addSecurityHeaders 
 } from '@/lib/auth-middleware';
 
+export const dynamic = 'force-dynamic'
+
 async function forgotPasswordHandler(request: NextRequest): Promise<NextResponse> {
   try {
     // Handle CORS preflight

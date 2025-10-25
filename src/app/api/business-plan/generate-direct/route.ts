@@ -5,6 +5,8 @@ import type { BiddingSnapshot } from '@/lib/business-plan/types'
 import type { SimplifiedBusinessPlan } from '@/lib/business-plan/simplified-guide-structure'
 import type { LandingCoachGuide } from '@/lib/utils/transformReportToGuide'
 
+export const dynamic = 'force-dynamic'
+
 interface DirectGenerateRequestBody {
   ideaTitle: string
   ideaDescription: string

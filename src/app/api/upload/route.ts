@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getUserFromToken } from '@/lib/auth-helper'
 import { ossService } from '@/lib/storage/oss.service'
 
+export const dynamic = 'force-dynamic'
+
 export async function POST(request: NextRequest) {
   try {
     // 身份验证

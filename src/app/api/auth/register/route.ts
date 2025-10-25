@@ -8,6 +8,8 @@ import {
   validateUsername
 } from '@/lib/auth'
 
+export const dynamic = 'force-dynamic'
+
 export async function POST(request: NextRequest) {
   try {
     const { email, username, password, firstName, lastName } = await request.json()

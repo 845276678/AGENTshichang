@@ -5,6 +5,8 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 
+export const dynamic = 'force-dynamic'
+
 // 模拟性能指标数据
 function generatePerformanceMetrics() {
   // 模拟不同时间段的性能表现

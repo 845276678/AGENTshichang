@@ -16,6 +16,8 @@ import {
   addSecurityHeaders 
 } from '@/lib/auth-middleware';
 
+export const dynamic = 'force-dynamic'
+
 async function resetPasswordHandler(request: NextRequest): Promise<NextResponse> {
   try {
     // Handle CORS preflight

@@ -3,6 +3,8 @@ import { prisma } from '@/lib/prisma';
 import { getUserFromRequest } from '@/lib/auth-helper';
 import { AIServiceManager } from '@/lib/ai-service-manager';
 
+export const dynamic = 'force-dynamic'
+
 // 创意辩论API - 用户评论后AI进行智能回应
 export async function POST(request: NextRequest) {
   try {

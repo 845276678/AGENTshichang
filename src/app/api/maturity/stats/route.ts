@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getAssessmentStats } from '@/lib/database/maturity-assessment';
 
+export const dynamic = 'force-dynamic'
+
 /**
  * 获取评估统计数据API
  * GET /api/maturity/stats

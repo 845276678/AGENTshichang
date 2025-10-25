@@ -18,6 +18,8 @@ import type {
   ConversationMessage
 } from '@/types/idea-refinement'
 
+export const dynamic = 'force-dynamic'
+
 export async function GET(
   request: NextRequest,
   { params }: { params: { id: string } }

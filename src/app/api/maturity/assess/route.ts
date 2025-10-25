@@ -3,6 +3,8 @@ import { MaturityScorer } from '@/lib/business-plan/maturity-scorer';
 import { saveMaturityAssessment } from '@/lib/database/maturity-assessment';
 import type { AIMessage } from '@/types/maturity-score';
 
+export const dynamic = 'force-dynamic'
+
 /**
  * 创意成熟度评估API
  * POST /api/maturity/assess

@@ -14,6 +14,8 @@ import {
   addSecurityHeaders 
 } from '@/lib/auth-middleware';
 
+export const dynamic = 'force-dynamic'
+
 async function refreshTokenHandler(request: NextRequest): Promise<NextResponse> {
   try {
     // Handle CORS preflight

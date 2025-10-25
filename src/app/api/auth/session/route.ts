@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { verifyToken, getCurrentUser } from '@/lib/auth';
 
+export const dynamic = 'force-dynamic'
+
 /**
  * 获取当前用户会话信息
  * 兼容NextAuth.js的session API格式

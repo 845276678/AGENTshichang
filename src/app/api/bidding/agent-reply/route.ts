@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import { handleApiError } from '@/lib/auth'
 import OpenAI from 'openai'
 
+export const dynamic = 'force-dynamic'
+
 interface AgentReplyRequest {
   biddingId: string
   sessionId: string

@@ -4,6 +4,8 @@ import { getUserFromToken } from '@/lib/auth-helper'
 import type { Idea, User } from '@/types/entities'
 import type { CreateDiscussionInput } from '@/lib/validators'
 
+export const dynamic = 'force-dynamic'
+
 export async function POST(req: NextRequest) {
   try {
     const authResult = await getUserFromToken(req)

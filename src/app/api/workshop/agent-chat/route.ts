@@ -15,6 +15,8 @@ import {
 } from '@/lib/workshop/agent-prompts'
 import { prisma } from '@/lib/prisma'
 
+export const dynamic = 'force-dynamic'
+
 // OpenAI配置
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY
 const OPENAI_MODEL = 'gpt-4'

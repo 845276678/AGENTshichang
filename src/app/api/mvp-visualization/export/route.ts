@@ -23,6 +23,8 @@ import type {
   MVPVisualizationSessionData
 } from '@/types/mvp-visualization'
 
+export const dynamic = 'force-dynamic'
+
 export async function POST(request: NextRequest) {
   try {
     const body: ExportMVPCodeRequest = await request.json()

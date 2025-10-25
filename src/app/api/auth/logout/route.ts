@@ -12,6 +12,8 @@ import {
 } from '@/lib/auth-middleware';
 import { JWTPayload } from '@/types/auth';
 
+export const dynamic = 'force-dynamic'
+
 async function logoutHandler(request: NextRequest, user: JWTPayload): Promise<NextResponse> {
   try {
     // Handle CORS preflight
