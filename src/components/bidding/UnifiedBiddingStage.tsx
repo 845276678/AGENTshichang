@@ -28,7 +28,6 @@ import { AgentDialogPanel, BiddingPhase, type AgentState } from './AgentDialogPa
 import PhaseStatusBar from './PhaseStatusBar'
 import EnhancedSupplementPanel, { type SupplementCategory } from './EnhancedSupplementPanel'
 import BiddingAtmosphere from './BiddingAtmosphere'
-import EnhancedBiddingDemo from './EnhancedBiddingDemo'
 import DynamicBidVisualization from './DynamicBidVisualization'
 import { extractUserContext } from '@/lib/business-plan/context-extractor'
 import './AgentDialogPanel.css'
@@ -1123,17 +1122,6 @@ export default function UnifiedBiddingStage({
             </div>
           </CardContent>
         </Card>
-      )}
-
-      {/* 增强AI竞价演示 - 在讨论和竞价阶段显示 */}
-      {(currentPhase === BiddingPhase.AGENT_DISCUSSION ||
-        currentPhase === BiddingPhase.AGENT_BIDDING ||
-        currentPhase === BiddingPhase.USER_SUPPLEMENT) && (
-        <EnhancedBiddingDemo
-          ideaContent={ideaContent || ''}
-          userSupplements={supplementHistory}
-          className="w-full max-w-6xl mx-auto"
-        />
       )}
 
       {/* 结果阶段 - 创意实现建议 */}
