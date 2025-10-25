@@ -656,7 +656,7 @@ export async function handleRealBiddingWebSocket(request: NextRequest, ideaId: s
 }
 
 // WebSocket连接去重处理
-export function handleWebSocketConnection(ws: WebSocket, ideaId: string, clientId: string, sessionId: string) {
+function handleWebSocketConnection(ws: WebSocket, ideaId: string, clientId: string, sessionId: string) {
   // 使用 ideaId + clientId 作为唯一key，避免同一客户端重复连接
   const connectionKey = `${ideaId}_${clientId}`
 
