@@ -10,8 +10,6 @@
 
 'use client'
 
-export const dynamic = 'force-dynamic'
-
 import React, { useState, useEffect, useRef } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Layout } from '@/components/layout'
