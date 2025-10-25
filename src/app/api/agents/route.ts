@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { mockAgents, priceRanges } from '@/lib/agents-mock-data'
 
+export const dynamic = 'force-dynamic'
+
+
 // GET /api/agents - Get all agents with optional filtering and pagination
 export async function GET(request: NextRequest) {
   try {

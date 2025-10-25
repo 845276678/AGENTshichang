@@ -6,6 +6,9 @@ import {
   handleApiSuccess
 } from '@/lib/auth'
 
+export const dynamic = 'force-dynamic'
+
+
 export async function POST(request: NextRequest) {
   try {
     // 验证用户身份

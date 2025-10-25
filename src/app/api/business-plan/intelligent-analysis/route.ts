@@ -6,6 +6,9 @@ import {
 } from '@/lib/deepseek-client'
 import OpenAI from 'openai'
 
+export const dynamic = 'force-dynamic'
+
+
 interface IntelligentAnalysisRequest {
   ideaTitle: string
   ideaDescription: string

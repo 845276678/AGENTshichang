@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { handleRealBiddingWebSocket } from '@/lib/real-ai-websocket-server';
 
+export const dynamic = 'force-dynamic'
+
+
 export async function GET(
   request: NextRequest,
   { params }: { params: { ideaId: string } }

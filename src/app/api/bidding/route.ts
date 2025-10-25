@@ -13,6 +13,9 @@ import { evaluateIdeaQuality } from '@/lib/idea-evaluation'
 import type { IdeaEvaluationResult, IdeaEvaluationVerdict, DimensionStatus } from '@/lib/idea-evaluation'
 import { buildCriticalReviewPrompt } from '@/lib/prompt-builders'
 
+export const dynamic = 'force-dynamic'
+
+
 // UTF-8编码响应助手函数
 function createUTF8Response(data: any, status: number = 200) {
   const response = NextResponse.json(data, { status })

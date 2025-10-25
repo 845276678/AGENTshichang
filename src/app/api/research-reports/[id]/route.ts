@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from 'next/server'
 import { ResearchReportService } from '@/lib/services/research-report.service'
 import { verifyToken } from '@/lib/auth'
 
+export const dynamic = 'force-dynamic'
+
+
 // GET /api/research-reports/[id] - 获取指定ID的调研报告
 export async function GET(
   request: NextRequest,

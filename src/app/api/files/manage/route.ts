@@ -3,6 +3,9 @@ import FileStorageManager from '@/lib/storage'
 import { verifyToken } from '@/lib/jwt'
 import { createSuccessResponse, createErrorResponse, handleApiError } from '@/lib/errors'
 
+export const dynamic = 'force-dynamic'
+
+
 // 获取用户文件列表
 export async function GET(request: NextRequest) {
   try {

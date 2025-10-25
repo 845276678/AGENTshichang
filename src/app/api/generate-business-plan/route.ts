@@ -9,6 +9,9 @@ import type { ScenarioContext } from "@/types/business-plan"
 import { ResearchReportService } from "@/lib/services/research-report.service"
 import { verifyToken } from "@/lib/auth"
 
+export const dynamic = 'force-dynamic'
+
+
 const reasoner = new ScenarioReasoner()
 
 interface GenerateRequestBody {

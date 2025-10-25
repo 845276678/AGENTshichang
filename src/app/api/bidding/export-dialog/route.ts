@@ -5,6 +5,9 @@ import PDFDocument from 'pdfkit'
 import * as fs from 'fs'
 import * as path from 'path'
 
+export const dynamic = 'force-dynamic'
+
+
 // 对话文档导出数据结构验证
 const exportDialogSchema = z.object({
   ideaId: z.string().min(1, '创意ID不能为空').max(100, '创意ID过长'),

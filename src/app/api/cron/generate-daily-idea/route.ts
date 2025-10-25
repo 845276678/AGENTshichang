@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { DailyIdeaService } from '@/lib/services/daily-idea.service';
 
+export const dynamic = 'force-dynamic'
+
+
 /**
  * Vercel Cron Job API
  * 每天8点自动执行，生成每日创意

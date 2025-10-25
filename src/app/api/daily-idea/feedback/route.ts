@@ -3,6 +3,9 @@ import { prisma } from '@/lib/prisma';
 import { getUserFromRequest } from '@/lib/auth-helper';
 import { z } from 'zod';
 
+export const dynamic = 'force-dynamic'
+
+
 // 反馈提交验证schema
 const feedbackSchema = z.object({
   ideaId: z.string(),

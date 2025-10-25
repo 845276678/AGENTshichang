@@ -5,6 +5,9 @@ import { logger } from "@/lib/logger"
 import { ScenarioReasoner, scenarioCache } from "@/lib/business-plan/scenario-reasoner"
 import type { ScenarioContext } from "@/types/business-plan"
 
+export const dynamic = 'force-dynamic'
+
+
 const reasoner = new ScenarioReasoner()
 
 interface AnalyzeRequestBody {
