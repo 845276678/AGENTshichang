@@ -1208,11 +1208,9 @@ export default function UnifiedBiddingStage({
               )}
 
               {/* 改进建议 - 分数低于8.0时显示 */}
-              {maturityAssessment.totalScore < 8.0 && (
+              {maturityAssessment.totalScore < 8.0 && maturityAssessment.weakDimensions && (
                 <ImprovementSuggestions
-                  weakDimensions={maturityAssessment.weakDimensions}
-                  dimensions={maturityAssessment.dimensions}
-                  invalidSignals={maturityAssessment.invalidSignals}
+                  assessment={maturityAssessment}
                 />
               )}
             </>
