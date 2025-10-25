@@ -29,7 +29,6 @@ import Link from 'next/link'
 
 // 懒加载大型组件 - 实现代码分割
 const WorkshopDashboard = lazy(() => import('@/components/workshop/WorkshopDashboard'))
-const MVPBuilderConversational = lazy(() => import('@/components/workshop/MVPBuilderConversational'))
 
 // 工作坊配置
 const WORKSHOP_CONFIG: Record<WorkshopId, {
@@ -149,20 +148,7 @@ export default function WorkshopPage({ params }: WorkshopPageProps) {
     notFound()
   }
 
-  // MVP构建工作坊使用对话式界面
-  if (workshopId === 'mvp-builder') {
-    return (
-      <Suspense fallback={<WorkshopSkeleton config={config} />}>
-        <MVPBuilderConversational
-          ideaTitle={ideaTitle}
-          ideaDescription={ideaDescription}
-          ideaId={ideaId}
-        />
-      </Suspense>
-    )
-  }
-
-  // 其他工作坊使用默认Dashboard布局
+  // 所有工作坊使用统一的Dashboard布局
   return (
     <Layout>
       <div className="min-h-screen bg-gray-50">
