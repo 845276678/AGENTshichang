@@ -14,7 +14,7 @@ const MotionDiv = ({ children, className, style, ...props }: { children: React.R
 const AnimatePresence = ({ children }: { children: React.ReactNode }) => <>{children}</>
 
 import { type AIMessage } from '@/lib/ai-persona-system'
-import { AnimatedMaturityScoreCard } from '@/components/maturity'
+import { AnimatedMaturityScoreCard, WorkshopRecommendations, ImprovementSuggestions } from '@/components/maturity'
 import type { MaturityScoreResult } from '@/lib/business-plan/maturity-scorer'
 import { useFixedBiddingWebSocket } from '@/hooks/useFixedBiddingWebSocket'
 import { ULTRA_FAST_BIDDING_TIME_CONFIG, formatTimeRemaining, getPhaseDisplayName } from '@/config/bidding-time-config'
