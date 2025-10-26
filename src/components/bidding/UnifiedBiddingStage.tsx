@@ -183,14 +183,31 @@ export default function UnifiedBiddingStage({
   }, [aiMessages, normalizedBids])
 
   const expertDiscussionsPayload = useMemo(() => {
-    return aiMessages.map(msg => ({
-      personaId: msg.personaId,
-      personaName: AI_PERSONAS.find(p => p.id === msg.personaId)?.name || msg.personaId,
-      content: msg.content || '',
-      emotion: msg.emotion || 'neutral',
-      bidValue: msg.bidValue,
-      timestamp: toIsoString(msg.timestamp)
-    }))
+    return aiMessages.map(msg => {
+      // 确保content是有效的字符串，不是personaId或其他错误数据
+      let validContent = msg.content || ''
+
+      // 检查content是否错误地包含了personaId（这是一个bug的症状）
+      if (validContent === msg.personaId || validContent.startsWith(msg.personaId)) {
+        console.warn(`⚠️ 检测到错误的消息内容 (personaId作为content): ${msg.personaId}`)
+        validContent = '[消息内容缺失]'
+      }
+
+      // 确保content不为空
+      if (!validContent || validContent.trim() === '') {
+        console.warn(`⚠️ 空消息内容: persona=${msg.personaId}, phase=${msg.phase}`)
+        validContent = '[AI专家未发言]'
+      }
+
+      return {
+        personaId: msg.personaId,
+        personaName: AI_PERSONAS.find(p => p.id === msg.personaId)?.name || msg.personaId,
+        content: validContent,
+        emotion: msg.emotion || 'neutral',
+        bidValue: msg.bidValue,
+        timestamp: toIsoString(msg.timestamp)
+      }
+    })
   }, [aiMessages, toIsoString])
 
   const expertAnalysisForReport = useMemo(() => {
