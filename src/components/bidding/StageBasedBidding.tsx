@@ -65,12 +65,14 @@ type SubmitResult = Promise<void | boolean> | void | boolean
 const CreativeInputForm = ({
   onSubmit,
   onDirectGenerate,
+  onWorkshopEntry,
   isLoading,
   userCredits,
   defaultContent
 }: {
   onSubmit: (idea: string) => SubmitResult
   onDirectGenerate?: (idea: string) => SubmitResult
+  onWorkshopEntry?: (idea: string) => SubmitResult
   isLoading: boolean
   userCredits: number
   defaultContent?: string
@@ -141,8 +143,21 @@ const CreativeInputForm = ({
     }
   }
 
+  const handleWorkshopEntry = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!ideaContent.trim()) {
+      alert('请输入您的创意内容')
+      return
+    }
+
+    if (onWorkshopEntry) {
+      await onWorkshopEntry(ideaContent.trim())
+    }
+  }
+
   const canSubmit = ideaContent.trim().length > 0 && userCredits >= REQUIRED_CREDITS && !isLoading
   const canDirectGenerate = ideaContent.trim().length > 0 && !isLoading
+  const canWorkshopEntry = ideaContent.trim().length > 0 && !isLoading
 
   return (
     <Card className="w-full max-w-4xl mx-auto">
@@ -211,7 +226,7 @@ const CreativeInputForm = ({
           </div>
 
           {/* 按钮组 */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <Button
               type="submit"
               disabled={!canSubmit}
@@ -240,19 +255,39 @@ const CreativeInputForm = ({
               {isLoading ? (
                 <div className="flex items-center justify-center gap-2">
                   <Loader2 className="w-5 h-5 animate-spin" />
-                  <span className="animate-pulse">正在生成商业计划...</span>
+                  <span className="animate-pulse">正在生成...</span>
                 </div>
               ) : (
                 <div className="flex items-center justify-center gap-2">
                   <FileText className="w-5 h-5 group-hover:scale-110 transition-transform" />
-                  直接生成创意实现建议
+                  直接生成建议
+                </div>
+              )}
+            </Button>
+
+            <Button
+              type="button"
+              variant="outline"
+              disabled={!canWorkshopEntry}
+              onClick={handleWorkshopEntry}
+              className="h-12 text-lg font-semibold relative overflow-hidden border-2 border-purple-500 text-purple-600 hover:bg-purple-50 group transition-all duration-300 hover:shadow-lg"
+            >
+              {isLoading ? (
+                <div className="flex items-center justify-center gap-2">
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                  <span className="animate-pulse">正在跳转...</span>
+                </div>
+              ) : (
+                <div className="flex items-center justify-center gap-2">
+                  <Lightbulb className="w-5 h-5 group-hover:scale-110 transition-transform" />
+                  进入创意工坊
                 </div>
               )}
             </Button>
           </div>
 
           {/* 功能对比说明 */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4 p-4 bg-gray-50 rounded-lg">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4 p-4 bg-gray-50 rounded-lg">
             <div className="text-center">
               <div className="flex items-center justify-center gap-2 mb-2">
                 <Trophy className="w-5 h-5 text-blue-600" />
@@ -262,7 +297,7 @@ const CreativeInputForm = ({
                 <li>• 5位AI专家评估竞价</li>
                 <li>• 详细商业价值分析</li>
                 <li>• 需要{REQUIRED_CREDITS}积分</li>
-                <li>• 耗时35-45分钟</li>
+                <li>• 耗时10-15分钟</li>
               </ul>
             </div>
             <div className="text-center">
@@ -275,6 +310,18 @@ const CreativeInputForm = ({
                 <li>• AI协作快速生成</li>
                 <li>• 完全免费使用</li>
                 <li>• 耗时3-5分钟</li>
+              </ul>
+            </div>
+            <div className="text-center border-2 border-purple-300 rounded-lg p-2 bg-purple-50">
+              <div className="flex items-center justify-center gap-2 mb-2">
+                <Lightbulb className="w-5 h-5 text-purple-600" />
+                <h4 className="font-semibold text-purple-800">创意工坊模式</h4>
+              </div>
+              <ul className="text-sm text-purple-700 space-y-1">
+                <li>• 交互式创意完善</li>
+                <li>• AI引导深度思考</li>
+                <li>• 完全免费使用</li>
+                <li>• 边聊边完善创意</li>
               </ul>
             </div>
           </div>
@@ -437,7 +484,7 @@ export default function StageBasedBidding({
     try {
       setIsSubmitting(true)
 
-      // 从创意内容中提取标题（前50个字符）或使用默认标题
+      // 从创意内容中提取标题(前50个字符)或使用默认标题
       const extractedTitle = ideaContent.trim().substring(0, 50).replace(/\n/g, ' ') || '创意项目'
 
       // 保存创意数据到 sessionStorage，供创意完善工作坊使用
@@ -456,6 +503,36 @@ export default function StageBasedBidding({
     } catch (error) {
       console.error('Direct generation error:', error)
       alert('跳转失败，请重试')
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  const handleWorkshopEntry = async (ideaContent: string) => {
+    try {
+      setIsSubmitting(true)
+
+      console.log('🎓 进入创意完善工坊...')
+
+      // 从创意内容中提取标题(前50个字符)或使用默认标题
+      const extractedTitle = ideaContent.trim().substring(0, 50).replace(/\n/g, ' ') || '创意项目'
+
+      // 保存创意数据到 sessionStorage，供创意完善工作坊使用
+      const workshopData = {
+        ideaTitle: extractedTitle,
+        ideaContent: ideaContent,
+        source: 'workshop-entry',
+        timestamp: Date.now()
+      }
+
+      sessionStorage.setItem('workshopIdeaContent', ideaContent)
+      sessionStorage.setItem('workshopIdeaData', JSON.stringify(workshopData))
+
+      // 直接跳转到创意完善工作坊
+      router.push(`/workshops/idea-refinement?ideaContent=${encodeURIComponent(ideaContent.trim())}`)
+    } catch (error) {
+      console.error('Workshop entry error:', error)
+      alert('进入工坊失败，请重试')
     } finally {
       setIsSubmitting(false)
     }
@@ -517,6 +594,7 @@ export default function StageBasedBidding({
             <CreativeInputForm
               onSubmit={handleIdeaSubmit}
               onDirectGenerate={handleDirectGenerate}
+              onWorkshopEntry={handleWorkshopEntry}
               isLoading={isSubmitting}
               userCredits={userCredits}
               defaultContent={initialIdeaContent}
