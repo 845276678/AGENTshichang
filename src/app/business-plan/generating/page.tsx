@@ -55,20 +55,29 @@ function GeneratingContent() {
         setCurrentStep('正在调用AI生成商业计划...')
         setProgress(30)
 
+        // 尝试获取token，但允许匿名请求（从AI竞价系统来的）
         const token = tokenStorage.getAccessToken()
-        if (!token) {
-          throw new Error('未找到认证令牌，请先登录')
+
+        const headers: Record<string, string> = {
+          'Content-Type': 'application/json'
+        }
+
+        // 如果有token则添加，没有token则标记为内部调用（允许匿名）
+        if (token) {
+          headers['Authorization'] = `Bearer ${token}`
+        } else if (source === 'ai-bidding') {
+          // 从AI竞价来的请求，允许匿名
+          headers['X-Internal-Call'] = 'true'
+          console.log('⚠️ 匿名用户从AI竞价系统生成商业计划')
         }
 
         const response = await fetch('/api/business-plan-session', {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-          },
+          headers,
           body: JSON.stringify({
             ideaId: finalIdeaId,
             ideaContent: ideaContent || biddingData.ideaContent,
+            source: source, // 明确传递source
             ...biddingData
           })
         })
