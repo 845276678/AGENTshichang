@@ -529,7 +529,7 @@ export default function StageBasedBidding({
       sessionStorage.setItem('workshopIdeaData', JSON.stringify(workshopData))
 
       // 直接跳转到创意完善工作坊
-      router.push(`/workshops/idea-refinement?ideaContent=${encodeURIComponent(ideaContent.trim())}`)
+      router.push(`/workshops/idea-refinement?title=${encodeURIComponent(extractedTitle)}&content=${encodeURIComponent(ideaContent.trim())}`)
     } catch (error) {
       console.error('Workshop entry error:', error)
       alert('进入工坊失败，请重试')
