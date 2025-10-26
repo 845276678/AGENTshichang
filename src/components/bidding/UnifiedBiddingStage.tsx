@@ -274,6 +274,7 @@ export default function UnifiedBiddingStage({
   const [showSettings, setShowSettings] = useState(false)
   const [compactMode, setCompactMode] = useState(false)
   const [isCreatingPlan, setIsCreatingPlan] = useState(false)
+  const [isExportingDialog, setIsExportingDialog] = useState(false)
 
   // 创意成熟度评估状态
   const [maturityAssessment, setMaturityAssessment] = useState<MaturityScoreResult | null>(null)
