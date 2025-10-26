@@ -46,7 +46,9 @@ import {
   Send,
   MessageSquarePlus,
   AlertCircle,
-  GitBranch
+  GitBranch,
+  TrendingUp,
+  Download
 } from 'lucide-react'
 
 // 简化组件替代motion - 避免生产环境错误
