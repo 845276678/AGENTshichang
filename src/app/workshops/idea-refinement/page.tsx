@@ -52,6 +52,7 @@ export default function IdeaRefinementWorkshopPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [isInitializing, setIsInitializing] = useState(true)
+  const [isCompleted, setIsCompleted] = useState(false) // 新增：完成状态
 
   // 初始化工作坊
   useEffect(() => {
@@ -190,9 +191,10 @@ export default function IdeaRefinementWorkshopPage() {
         setCurrentRound(data.progress.currentRound)
         setProgress(data.progress.overallProgress)
 
-        // 如果完成
-        if (!data.needsMoreInput) {
-          // TODO: 显示完成界面，引导进入MVP工作坊
+        // 如果完成（所有6个维度都完成）
+        if (!data.needsMoreInput || data.progress.overallProgress >= 100) {
+          setIsCompleted(true)
+          console.log('🎉 创意完善工作坊已完成！')
         }
       } else {
         setError(data.error || '提交失败')
@@ -267,6 +269,83 @@ export default function IdeaRefinementWorkshopPage() {
     <Layout>
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
         <div className="container mx-auto px-4 py-6 max-w-7xl">
+          {/* 完成界面 */}
+          {isCompleted && (
+            <div className="bg-white rounded-lg shadow-lg border-2 border-green-500 p-8 mb-6">
+              <div className="text-center space-y-6">
+                {/* 庆祝图标 */}
+                <div className="flex justify-center">
+                  <div className="w-20 h-20 bg-gradient-to-r from-green-400 to-emerald-500 rounded-full flex items-center justify-center animate-bounce">
+                    <span className="text-4xl">🎉</span>
+                  </div>
+                </div>
+
+                {/* 完成标题 */}
+                <div>
+                  <h2 className="text-3xl font-bold text-gray-900 mb-2">
+                    恭喜！创意完善工作坊已完成
+                  </h2>
+                  <p className="text-lg text-gray-600">
+                    您已成功完成6个维度的深度完善，现在可以进入下一步了！
+                  </p>
+                </div>
+
+                {/* 完成统计 */}
+                <div className="grid grid-cols-3 gap-4 max-w-2xl mx-auto">
+                  <div className="bg-blue-50 rounded-lg p-4">
+                    <div className="text-3xl font-bold text-blue-600">{DIMENSIONS.length}</div>
+                    <div className="text-sm text-gray-600">完成维度</div>
+                  </div>
+                  <div className="bg-purple-50 rounded-lg p-4">
+                    <div className="text-3xl font-bold text-purple-600">{conversationHistory.length}</div>
+                    <div className="text-sm text-gray-600">对话轮次</div>
+                  </div>
+                  <div className="bg-green-50 rounded-lg p-4">
+                    <div className="text-3xl font-bold text-green-600">100%</div>
+                    <div className="text-sm text-gray-600">完成进度</div>
+                  </div>
+                </div>
+
+                {/* 行动按钮 */}
+                <div className="flex flex-col sm:flex-row gap-4 justify-center mt-8">
+                  <button
+                    onClick={() => {
+                      // 跳转到MVP工作坊，传递documentId和创意信息
+                      router.push(`/workshops/mvp-builder?documentId=${documentId}&ideaTitle=${encodeURIComponent(ideaTitle || '')}&ideaDescription=${encodeURIComponent(ideaContent || '')}`)
+                    }}
+                    className="px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold rounded-full shadow-lg transform hover:scale-105 transition-all duration-200 flex items-center justify-center gap-2"
+                  >
+                    <span className="text-xl">🚀</span>
+                    进入MVP构建工作坊
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      // 查看完善后的创意文档
+                      window.scrollTo({ top: 0, behavior: 'smooth' })
+                      setIsCompleted(false)
+                    }}
+                    className="px-8 py-4 border-2 border-gray-300 hover:border-gray-400 text-gray-700 font-semibold rounded-full shadow-lg transform hover:scale-105 transition-all duration-200 flex items-center justify-center gap-2"
+                  >
+                    <span className="text-xl">📄</span>
+                    查看完整对话记录
+                  </button>
+                </div>
+
+                {/* 提示信息 */}
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 max-w-2xl mx-auto text-left">
+                  <h3 className="font-semibold text-blue-900 mb-2">💡 接下来您可以：</h3>
+                  <ul className="text-sm text-blue-800 space-y-1">
+                    <li>• 进入MVP构建工作坊，将创意转化为可实现的产品原型</li>
+                    <li>• 生成技术实现方案和前端代码</li>
+                    <li>• 导出完整的创意完善文档</li>
+                    <li>• 继续优化和调整您的创意细节</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* 顶部进度栏 */}
           <div className="bg-white rounded-lg shadow-sm border p-6 mb-6">
             <div className="flex items-center justify-between mb-4">
