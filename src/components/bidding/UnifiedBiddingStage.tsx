@@ -45,7 +45,8 @@ import {
   Loader2,
   Send,
   MessageSquarePlus,
-  AlertCircle
+  AlertCircle,
+  GitBranch
 } from 'lucide-react'
 
 // 简化组件替代motion - 避免生产环境错误
