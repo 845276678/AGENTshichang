@@ -13,6 +13,7 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Layout } from '@/components/layout'
+import { useAuth } from '@/hooks/useAuth'
 import type {
   IdeaRefinementDocumentData,
   ConversationMessage,
@@ -34,6 +35,7 @@ export default function IdeaRefinementWorkshopPage() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const messagesEndRef = useRef<HTMLDivElement>(null)
+  const { user, isAuthenticated, isInitialized } = useAuth()
 
   // URL参数
   const documentId = searchParams.get('documentId')
@@ -79,12 +81,21 @@ export default function IdeaRefinementWorkshopPage() {
     try {
       setIsInitializing(true)
 
+      // 获取用户ID - 如果未登录则使用匿名ID
+      const userId = user?.id || `anonymous_${Date.now()}`
+
+      console.log('🎓 启动创意完善工坊:', {
+        userId,
+        isAuthenticated,
+        title
+      })
+
       // 调用启动API
       const response = await fetch('/api/idea-refinement/start', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          userId: 'current-user-id', // TODO: 从session获取
+          userId,
           ideaTitle: title,
           ideaContent: content
         })

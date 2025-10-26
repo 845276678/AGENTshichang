@@ -483,7 +483,7 @@ export function Header({ className }: HeaderProps) {
               <div className="h-4 w-4 bg-white rounded-sm" />
             </motion.div>
             <span className="font-bold text-lg hidden sm:inline-block">
-              创意交易市场
+              创意原始汤
             </span>
           </Link>
 

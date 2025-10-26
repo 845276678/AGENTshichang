@@ -44,20 +44,51 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // 验证用户是否存在
-    const user = await prisma.user.findUnique({
-      where: { id: userId },
-      select: { id: true, username: true }
-    })
+    // 验证或创建用户记录（支持匿名用户）
+    const isAnonymous = userId.startsWith('anonymous_')
+    let user = null
 
-    if (!user) {
-      return NextResponse.json(
-        { success: false, error: '用户不存在' },
-        { status: 404 }
-      )
+    if (!isAnonymous) {
+      // 非匿名用户：验证用户是否存在
+      user = await prisma.user.findUnique({
+        where: { id: userId },
+        select: { id: true, username: true }
+      })
+
+      if (!user) {
+        return NextResponse.json(
+          { success: false, error: '用户不存在' },
+          { status: 404 }
+        )
+      }
+    } else {
+      // 匿名用户：检查是否已有记录，没有则创建
+      user = await prisma.user.findUnique({
+        where: { id: userId },
+        select: { id: true, username: true }
+      })
+
+      if (!user) {
+        // 为匿名用户创建数据库记录
+        const randomSuffix = Math.random().toString(36).substring(2, 8) // 6位随机字符
+        user = await prisma.user.create({
+          data: {
+            id: userId,
+            username: `匿名_${randomSuffix}`, // 使用随机后缀避免用户名冲突
+            email: `${userId}@anonymous.local`,
+            passwordHash: '', // 匿名用户不需要密码哈希
+            level: 'BRONZE', // 默认为青铜等级
+            status: 'ACTIVE',
+            credits: 0
+          },
+          select: { id: true, username: true }
+        })
+        console.log(`✅ 为匿名用户创建数据库记录: ${user.username}`)
+      }
     }
 
-    console.log(`🚀 启动创意完善工作坊 - 用户: ${user.username}, 创意: ${ideaTitle}`)
+    const displayName = user?.username || '匿名用户'
+    console.log(`🚀 启动创意完善工作坊 - 用户: ${displayName} (${isAnonymous ? '匿名' : '已认证'}), 创意: ${ideaTitle}`)
 
     // 初始化refinedDocument结构（6个维度的空对象）
     const initialRefinedDocument = {
