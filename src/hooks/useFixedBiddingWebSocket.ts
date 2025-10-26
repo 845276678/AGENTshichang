@@ -146,6 +146,8 @@ export function useFixedBiddingWebSocket(ideaId: string, timeConfig: BiddingTime
       case 'ai_message':
       case 'agent_message':
       case 'bidding_message':
+      case 'persona.speech':  // 真实AI WebSocket服务器发送的消息类型
+      case 'bid.placed':      // 真实AI WebSocket服务器发送的竞价消息类型
         // 修复7: 统一处理所有AI消息类型
         const message = data.message || data.payload || data
         const newMessage = {
@@ -155,7 +157,8 @@ export function useFixedBiddingWebSocket(ideaId: string, timeConfig: BiddingTime
           content: message.content || message.text || message.message || '',
           timestamp: new Date(message.timestamp || Date.now()),
           emotion: message.emotion || 'neutral',
-          bidValue: message.bidValue || message.amount || 0
+          bidValue: message.bidValue || message.amount || 0,
+          phase: message.phase || 'discussion'
         }
 
         // 确保消息内容不为空
@@ -174,6 +177,8 @@ export function useFixedBiddingWebSocket(ideaId: string, timeConfig: BiddingTime
             }
             return prev
           })
+        } else {
+          console.warn(`⚠️ Empty message received from ${message.personaId}:`, message)
         }
         break
 
