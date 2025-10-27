@@ -73,15 +73,15 @@ export const DEFAULT_IDEA_EVALUATION_WEIGHTS = DEFAULT_WEIGHTS
 export type IdeaEvaluation = IdeaEvaluationResult
 
 const KEYWORDS = {
-  problem: ['problem', 'pain', 'struggle', 'issue', 'challenge', 'need', 'gap', 'bottleneck', 'friction'],
-  impact: ['because', 'leads to', 'results in', 'impact', 'effect', 'consequence'],
-  user: ['user', 'customer', 'client', 'team', 'manager', 'founder', 'student', 'teacher', 'developer', 'designer', 'marketer', 'analyst'],
-  userQualifier: ['b2b', 'b2c', 'smb', 'enterprise', 'saas', 'freelancer', 'agency', 'industry', 'segment', 'region'],
-  solution: ['solution', 'platform', 'service', 'product', 'assistant', 'app', 'tool', 'workflow', 'automation', 'api', 'dashboard'],
-  solutionDetail: ['feature', 'module', 'component', 'integration', 'pipeline', 'flow', 'step', 'process'],
-  businessModel: ['pricing', 'subscription', 'license', 'fee', 'commission', 'revenue', 'business model', 'monetization', 'monetisation', 'premium'],
-  market: ['market', 'competition', 'competitor', 'alternative', 'advantage', 'differentiation', 'positioning', 'segment'],
-  traction: ['survey', 'interview', 'feedback', 'beta', 'pilot', 'traction', 'waitlist', 'users', 'customers', 'growth', 'retention', 'metric'],
+  problem: ['problem', 'pain', 'struggle', 'issue', 'challenge', 'need', 'gap', 'bottleneck', 'friction', '问题', '痛点', '挑战', '需求', '困难', '瓶颈', '障碍', '缺乏'],
+  impact: ['because', 'leads to', 'results in', 'impact', 'effect', 'consequence', '因为', '导致', '影响', '效果', '结果'],
+  user: ['user', 'customer', 'client', 'team', 'manager', 'founder', 'student', 'teacher', 'developer', 'designer', 'marketer', 'analyst', '用户', '客户', '创业者', '产品经理', '团队', '企业', '学生', '老师', '开发者', '设计师'],
+  userQualifier: ['b2b', 'b2c', 'smb', 'enterprise', 'saas', 'freelancer', 'agency', 'industry', 'segment', 'region', '企业', '个人', '行业', '领域', '群体', '机构'],
+  solution: ['solution', 'platform', 'service', 'product', 'assistant', 'app', 'tool', 'workflow', 'automation', 'api', 'dashboard', '解决方案', '平台', '服务', '产品', '助手', '应用', '工具', '系统', '自动化'],
+  solutionDetail: ['feature', 'module', 'component', 'integration', 'pipeline', 'flow', 'step', 'process', '功能', '模块', '组件', '集成', '流程', '步骤', '架构'],
+  businessModel: ['pricing', 'subscription', 'license', 'fee', 'commission', 'revenue', 'business model', 'monetization', 'monetisation', 'premium', '定价', '订阅', '收费', '盈利', '商业模式', '变现', '付费'],
+  market: ['market', 'competition', 'competitor', 'alternative', 'advantage', 'differentiation', 'positioning', 'segment', '市场', '竞争', '对手', '优势', '差异化', '定位', '细分'],
+  traction: ['survey', 'interview', 'feedback', 'beta', 'pilot', 'traction', 'waitlist', 'users', 'customers', 'growth', 'retention', 'metric', '调研', '反馈', '测试', '用户', '增长', '留存', '指标', '验证'],
 } as const
 
 const LIST_PATTERN = /(^|\n)\s*(?:[-*]|\d+\.)\s+/
@@ -415,7 +415,7 @@ function deriveVerdict(score: number): IdeaEvaluationVerdict {
 function normalizeText(input: string): string {
   return input
     .toLowerCase()
-    .replace(/[^a-z0-9\s]/g, ' ')
+    .replace(/[^\u4e00-\u9fa5a-z0-9\s]/g, ' ') // 保留中文字符 \u4e00-\u9fa5
     .replace(/\s+/g, ' ')
     .trim()
 }
