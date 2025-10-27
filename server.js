@@ -722,7 +722,7 @@ async function finishRealAIBidding(ideaId, ideaContent, bids) {
     console.log(` 商业计划会话创建成功: ${result.sessionId}`);
     console.log(` 报告ID: ${result.reportId}`);
 
-    const businessPlanUrl = result.businessPlanUrl || `/business-plan?sessionId=${result.sessionId}&source=ai-bidding`;
+    const businessPlanUrl = result.businessPlanUrl || `/business-plan?sessionId=${result.sessionId}&source=AI_BIDDING`;
 
     // 广播竞价完成消息
     broadcastToSession(ideaId, {
@@ -767,7 +767,7 @@ async function finishRealAIBidding(ideaId, ideaContent, bids) {
         winnerName: winnerName,
         totalMessages: 25,
         duration: 480000,
-        businessPlanUrl: `/business-plan?source=ai-bidding`,
+        businessPlanUrl: `/business-plan?source=AI_BIDDING`,
         error: '商业计划生成失败，请稍后重试',
         report: {
           summary: '竞价已完成，但商业计划生成遇到问题。',
@@ -1133,7 +1133,7 @@ async function finishSimulatedBidding(ideaId, ideaContent, bids) {
     console.log(` 商业计划会话创建成功: ${result.sessionId}`);
     console.log(` 报告ID: ${result.reportId}`);
 
-    const businessPlanUrl = result.businessPlanUrl || `/business-plan?sessionId=${result.sessionId}&source=ai-bidding`;
+    const businessPlanUrl = result.businessPlanUrl || `/business-plan?sessionId=${result.sessionId}&source=AI_BIDDING`;
 
     // 广播竞价完成消息
     broadcastToSession(ideaId, {
@@ -1176,7 +1176,7 @@ async function finishSimulatedBidding(ideaId, ideaContent, bids) {
         winnerName: winnerName,
         totalMessages: 20,
         duration: 300000,
-        businessPlanUrl: `/business-plan?source=ai-bidding`,
+        businessPlanUrl: `/business-plan?source=AI_BIDDING`,
         error: '商业计划生成失败，请稍后重试',
         report: {
           summary: '模拟竞价已完成，但商业计划生成遇到问题。',

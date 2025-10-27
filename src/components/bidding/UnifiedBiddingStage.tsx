@@ -689,7 +689,7 @@ export default function UnifiedBiddingStage({
       console.log('🚀 Navigating to business plan generation page...')
 
       // 使用路由跳转到进度页面(不带数据参数)，添加来源标识
-      window.location.href = `/business-plan/generating?ideaId=${encodeURIComponent(ideaId)}&source=ai-bidding`
+      window.location.href = `/business-plan/generating?ideaId=${encodeURIComponent(ideaId)}&source=AI_BIDDING`
 
     } catch (error) {
       console.error('❌ Business plan generation error:', error)

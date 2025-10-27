@@ -168,7 +168,7 @@ export async function POST(request: NextRequest) {
       guide,
       metadata: {
         ...metadata,
-        source: (body.source as string) ?? 'ai-bidding'
+        source: (body.source as string) ?? 'AI_BIDDING'
       }
     })
 
