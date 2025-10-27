@@ -595,12 +595,13 @@ async function generateAIResponse(personaId: string, ideaContent: string, contex
     }
 
     // 根据角色ID映射到对应的AI服务提供商
+    // 统一使用DeepSeek以确保稳定性和一致性
     const providerMap: Record<string, string> = {
-      'business-guru-beta': 'zhipu',     // 老王使用智谱
+      'business-guru-beta': 'deepseek',     // 老王使用deepseek
       'tech-pioneer-alex': 'deepseek',      // 艾克斯使用deepseek
-      'innovation-mentor-charlie': 'zhipu',              // 小琳使用智谱
-      'market-insight-delta': 'qwen',         // 阿伦使用通义千问
-      'investment-advisor-ivan': 'deepseek'              // 李博使用deepseek
+      'innovation-mentor-charlie': 'deepseek',  // 小琳使用deepseek
+      'market-insight-delta': 'deepseek',   // 阿伦使用deepseek
+      'investment-advisor-ivan': 'deepseek' // 李博使用deepseek
     }
 
     const provider = providerMap[personaId] || 'deepseek'

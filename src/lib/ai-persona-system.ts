@@ -22,7 +22,7 @@ export const AI_PERSONAS: AIPersona[] = [
     specialty: '架构评估、算法优化、技术可行性分析',
     catchPhrase: '让数据说话，用技术改变世界！',
     primaryModel: 'deepseek',
-    backupModel: 'zhipu',
+    backupModel: 'deepseek',
     triggerKeywords: ['技术', '架构', '算法', '数据', '代码', '系统'],
     voiceStyle: 'analytical',
     biddingStyle: 'analytical'
@@ -34,8 +34,8 @@ export const AI_PERSONAS: AIPersona[] = [
     personality: ['结果导向', '商业敏锐', '决策果断', '盈利至上'],
     specialty: '盈利模型、风险评估、商业策略',
     catchPhrase: '数据驱动决策，价值创造未来！',
-    primaryModel: 'qwen',
-    backupModel: 'zhipu',
+    primaryModel: 'deepseek',
+    backupModel: 'deepseek',
     triggerKeywords: ['盈利', 'ROI', '现金流', '商业', '市场', '竞争'],
     voiceStyle: 'authoritative',
     biddingStyle: 'aggressive'
@@ -47,8 +47,8 @@ export const AI_PERSONAS: AIPersona[] = [
     personality: ['情感共鸣', '用户导向', '审美敏感', '人文关怀'],
     specialty: '用户体验、品牌故事、情感价值',
     catchPhrase: '好的创意要触动人心，让生活更美好~',
-    primaryModel: 'zhipu',
-    backupModel: 'moonshot',
+    primaryModel: 'deepseek',
+    backupModel: 'deepseek',
     triggerKeywords: ['用户感受', '品牌', '体验', '美感', '情感', '故事'],
     voiceStyle: 'emotional',
     biddingStyle: 'emotional'
@@ -60,7 +60,7 @@ export const AI_PERSONAS: AIPersona[] = [
     personality: ['营销天才', '社交达人', '热点嗅觉', '传播专家'],
     specialty: '传播策略、热点预测、社交营销',
     catchPhrase: '抓住风口，让创意火遍全网！',
-    primaryModel: 'qwen',
+    primaryModel: 'deepseek',
     backupModel: 'deepseek',
     triggerKeywords: ['热点', '传播', '营销', '社交', '流量', '病毒'],
     voiceStyle: 'excited',
@@ -74,7 +74,7 @@ export const AI_PERSONAS: AIPersona[] = [
     specialty: '理论支撑、系统分析、学术验证',
     catchPhrase: '理论指导实践，学术成就未来。',
     primaryModel: 'deepseek',
-    backupModel: 'zhipu',
+    backupModel: 'deepseek',
     triggerKeywords: ['理论', '研究', '实验', '学术', '分析', '验证'],
     voiceStyle: 'calm',
     biddingStyle: 'conservative'
