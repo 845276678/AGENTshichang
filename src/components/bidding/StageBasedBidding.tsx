@@ -498,8 +498,10 @@ export default function StageBasedBidding({
       sessionStorage.setItem('biddingIdeaContent', ideaContent)
       sessionStorage.setItem('directIdeaData', JSON.stringify(ideaData))
 
-      // 跳转到创意完善工作坊
-      router.push('/workshops/idea-refinement')
+      // 跳转到创意完善工作坊（带URL参数）
+      const encodedTitle = encodeURIComponent(extractedTitle)
+      const encodedContent = encodeURIComponent(ideaContent)
+      router.push(`/workshops/idea-refinement?title=${encodedTitle}&content=${encodedContent}`)
     } catch (error) {
       console.error('Direct generation error:', error)
       alert('跳转失败，请重试')
