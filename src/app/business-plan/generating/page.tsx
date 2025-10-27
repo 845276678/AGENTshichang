@@ -77,10 +77,10 @@ function GeneratingContent() {
           method: 'POST',
           headers,
           body: JSON.stringify({
+            ...biddingData,
             ideaId: finalIdeaId,
             ideaContent: ideaContent || biddingData.ideaContent,
-            source: source, // 明确传递source
-            ...biddingData
+            source: source // 明确传递source，放在最后以覆盖biddingData中的source
           })
         })
 
