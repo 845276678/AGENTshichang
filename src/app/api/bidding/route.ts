@@ -710,6 +710,20 @@ ${persona.id === 'investment-advisor-ivan' ? '特别提示：李博你打分要�
       maxTokens: context.phase === 'warmup' ? 150 : 300 // warmup简短，其他阶段详细
     })
 
+    // 详细日志记录AI响应
+    console.log(`🤖 AI Response for ${persona.name} (${provider}):`, {
+      contentLength: response.content?.length || 0,
+      contentPreview: response.content?.substring(0, 80) || '[EMPTY]',
+      confidence: response.confidence,
+      phase: context.phase
+    })
+
+    // 验证响应内容有效性
+    if (!response.content || response.content === personaId || response.content.length < 10) {
+      console.error(`❌ Invalid AI response for ${persona.name}, content:`, response.content)
+      throw new Error(`Invalid AI response: content is empty or invalid`)
+    }
+
     return {
       content: response.content,
       confidence: response.confidence || 0.85,
@@ -814,8 +828,27 @@ async function generateFallbackResponse(personaId: string, ideaContent: string, 
     }
   }
 
+  // 最终安全网：确保content永远不为空或等于personaId
+  if (!content || content === personaId || content.length < 10) {
+    console.warn(`⚠️ Fallback content invalid for ${persona.name}, applying emergency template`)
+    const ideaPreview = ideaContent.substring(0, 30)
+    const emergencyTemplates: Record<string, string> = {
+      'business-guru-beta': `哎呀妈呀，"${ideaPreview}..."这个想法，咱得从商业角度好好琢磨琢磨！数据驱动决策，价值创造未来！`,
+      'tech-pioneer-alex': `Let me see... "${ideaPreview}..."，技术上需要仔细评估。让数据说话，用技术改变世界！`,
+      'innovation-mentor-charlie': `"${ideaPreview}..."让我看到了一些可能性~好的创意要触动人心，让生活更美好！`,
+      'market-insight-delta': `家人们！"${ideaPreview}..."这个想法有点意思！抓住风口，让创意火遍全网！`,
+      'investment-advisor-ivan': `关于"${ideaPreview}..."，理论指导实践，学术成就未来。我需要系统性地分析一下。`
+    }
+    content = emergencyTemplates[personaId] || `${persona.catchPhrase} 关于"${ideaPreview}..."，让我从${persona.specialty}的角度分析一下。`
+  }
+
+  console.log(`✅ Fallback response for ${persona.name}:`, {
+    contentLength: content.length,
+    contentPreview: content.substring(0, 50)
+  })
+
   return {
-    content: content || `我是${persona.name}，${persona.catchPhrase}`,
+    content: content,
     confidence: 0.7,
     tokens_used: 50,
     cost: 0.001

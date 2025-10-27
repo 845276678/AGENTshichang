@@ -309,9 +309,24 @@ export class AIServiceManager {
         throw new Error(`Unsupported provider: ${provider.name}`);
     }
 
+    // 验证响应内容的有效性
+    const content = response.content || ''
+    if (!content || content.length < 5) {
+      console.warn(`⚠️ AI response validation failed for ${provider.name}:`, {
+        contentLength: content.length,
+        hasContent: !!content
+      })
+      throw new Error(`Invalid AI response: content is empty or too short`)
+    }
+
+    console.log(`✅ Valid AI response from ${provider.name}:`, {
+      contentLength: content.length,
+      contentPreview: content.substring(0, 60)
+    })
+
     return {
       provider: provider.name,
-      content: response.content,
+      content: content,
       reasoning: response.reasoning,
       confidence: response.confidence || 0.8,
       tokens_used: response.tokens_used || 0,
