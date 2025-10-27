@@ -65,10 +65,12 @@ function GeneratingContent() {
         // 如果有token则添加，没有token则标记为内部调用（允许匿名）
         if (token) {
           headers['Authorization'] = `Bearer ${token}`
-        } else if (source === 'ai-bidding') {
-          // 从AI竞价来的请求，允许匿名
+          console.log('✅ 使用用户token进行认证')
+        } else {
+          // 无token时，标记为内部调用（允许匿名），无论来源是什么
+          // 这样可以支持已登录但token暂时失效的用户，以及真正的匿名用户
           headers['X-Internal-Call'] = 'true'
-          console.log('⚠️ 匿名用户从AI竞价系统生成商业计划')
+          console.log('⚠️ 无token，使用匿名模式生成商业计划，来源:', source)
         }
 
         const response = await fetch('/api/business-plan-session', {
