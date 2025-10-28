@@ -362,7 +362,7 @@ export function useWorkshopSession({
         clearTimeout(autoSaveTimerRef.current)
       }
     }
-  }, [state.session, state.hasUnsavedChanges, autoSave, saveInterval, saveSession])
+  }, [state.session?.id, state.hasUnsavedChanges, autoSave, saveInterval])
 
   // 更新回调引用
   useEffect(() => {
@@ -370,7 +370,7 @@ export function useWorkshopSession({
     onProgressChangeRef.current = onProgressChange
     onStepCompleteRef.current = onStepComplete
     onSessionCompleteRef.current = onSessionComplete
-  })
+  }, [onSessionLoaded, onProgressChange, onStepComplete, onSessionComplete])
 
   // 初始化：加载会话
   useEffect(() => {
@@ -380,18 +380,28 @@ export function useWorkshopSession({
     let isMounted = true
 
     const initializeSession = async () => {
+      console.log('🎯 useWorkshopSession: 开始初始化', { workshopId, userId })
       setState(prev => ({ ...prev, isLoading: true, error: null }))
 
       try {
         const baseUrl = typeof window !== 'undefined' ? '' : 'http://localhost:3000'
         const apiUrl = `${baseUrl}/api/workshop/session?workshopId=${workshopId}&userId=${userId}`
 
+        console.log('🎯 useWorkshopSession: 尝试加载现有会话', apiUrl)
         // 尝试加载现有会话
         const loadResponse = await fetch(apiUrl)
 
         if (loadResponse.ok) {
           const loadData: SessionApiResponse = await loadResponse.json()
-          if (loadData.success && loadData.data && isMounted) {
+          console.log('🎯 useWorkshopSession: 加载响应', loadData)
+          console.log('🎯 useWorkshopSession: 条件检查', {
+            success: loadData.success,
+            hasData: !!loadData.data,
+            isMounted: isMounted,
+            conditionResult: loadData.success && loadData.data
+          })
+          if (loadData.success && loadData.data) {
+            console.log('🎯 useWorkshopSession: 设置会话状态为加载完成', loadData.data)
             setState(prev => ({
               ...prev,
               session: loadData.data!,
@@ -401,11 +411,15 @@ export function useWorkshopSession({
 
             lastSaveDataRef.current = JSON.stringify(loadData.data!.formData)
             onSessionLoadedRef.current?.(loadData.data!)
+            console.log('🎯 useWorkshopSession: 会话加载完成，isLoading设为false')
             return
+          } else {
+            console.log('🎯 useWorkshopSession: 条件检查失败，继续创建新会话')
           }
         }
 
         // 404或其他错误 - 创建新会话
+        console.log('🎯 useWorkshopSession: 创建新会话')
         const createApiUrl = `${baseUrl}/api/workshop/session`
         const createResponse = await fetch(createApiUrl, {
           method: 'POST',
@@ -418,23 +432,25 @@ export function useWorkshopSession({
         }
 
         const createData: SessionApiResponse = await createResponse.json()
+        console.log('🎯 useWorkshopSession: 创建响应', createData)
         if (!createData.success || !createData.data) {
           throw new Error(createData.error || '创建会话返回无效数据')
         }
 
-        if (isMounted) {
-          setState(prev => ({
-            ...prev,
-            session: createData.data!,
-            isLoading: false,
-            lastSaveAt: new Date()
-          }))
+        console.log('🎯 useWorkshopSession: 设置新会话状态为加载完成', createData.data)
+        setState(prev => ({
+          ...prev,
+          session: createData.data!,
+          isLoading: false,
+          lastSaveAt: new Date()
+        }))
 
-          lastSaveDataRef.current = JSON.stringify(createData.data!.formData)
-          onSessionLoadedRef.current?.(createData.data!)
-        }
+        lastSaveDataRef.current = JSON.stringify(createData.data!.formData)
+        onSessionLoadedRef.current?.(createData.data!)
+        console.log('🎯 useWorkshopSession: 新会话创建完成，isLoading设为false')
 
       } catch (error) {
+        console.error('🎯 useWorkshopSession: 初始化错误', error)
         if (isMounted) {
           setState(prev => ({
             ...prev,

@@ -45,8 +45,8 @@ test.describe('Week 4 - 工作坊交互功能', () => {
     await page.waitForLoadState('networkidle')
 
     // 验证工作坊欢迎界面
-    await expect(page.locator('h1')).toContainText('需求验证实验室')
-    await expect(page.locator('text=通过科学的方法验证')).toBeVisible()
+    await expect(page.locator('h3, h1, h2').filter({ hasText: '需求验证实验室' })).toBeVisible()
+    await expect(page.locator('text=通过科学方法验证您的创意是否解决真实需求')).toBeVisible()
 
     // 点击开始工作坊
     await page.click('button:has-text("开始工作坊")')
